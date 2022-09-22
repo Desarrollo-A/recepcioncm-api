@@ -15,8 +15,10 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('no_employee', 50)->unique();
-            $table->string('email');
+            $table->string('no_employee', 50);
+            $table->unique('no_employee');
+            $table->string('full_name');
+            $table->string('email', 150);
             $table->unique('email');
             $table->string('password');
             $table->string('personal_phone', 10);
@@ -27,19 +29,16 @@ class CreateUsersTable extends Migration
             $table->unsignedSmallInteger('status_id');
             $table->foreign('status_id')
                 ->references('id')
-                ->on('lookups')
-                ->onDelete('cascade');
+                ->on('lookups');
             $table->unsignedTinyInteger('role_id');
             $table->foreign('role_id')
                 ->references('id')
-                ->on('roles')
-                ->onDelete('cascade');
+                ->on('roles');
             $table->unsignedInteger('office_id');
             $table->foreign('office_id')
                 ->nullable()
                 ->references('id')
-                ->on('offices')
-                ->onDelete('cascade');
+                ->on('offices');
             $table->timestamps();
         });
     }

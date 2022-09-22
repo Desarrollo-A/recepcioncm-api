@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateOfficesTable extends Migration
+class CreateMenusTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,12 @@ class CreateOfficesTable extends Migration
      */
     public function up()
     {
-        Schema::create('offices', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('name', 120);
-            $table->text('address')->nullable();
-            $table->integer('state_id')->unsigned();
-            $table->foreign('state_id')->references('id')->on('states');
+        Schema::create('menus', function (Blueprint $table) {
+            $table->smallIncrements('id');
+            $table->string('path_route');
+            $table->string('label', 120);
+            $table->string('icon', 100);
+            $table->tinyInteger('order');
             $table->timestamps();
         });
     }
@@ -30,6 +30,6 @@ class CreateOfficesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('offices');
+        Schema::dropIfExists('menus');
     }
 }
