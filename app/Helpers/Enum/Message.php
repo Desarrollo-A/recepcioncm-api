@@ -28,4 +28,9 @@ class Message
     {
         return "Establezca la propiedad pública allowedSorts dentro de $class";
     }
+
+    public static function getMessageNotFieldClass(string $field, string $class): string
+    {
+        return "No existe la propiedad ${field} en ${class}";
+    }
 }

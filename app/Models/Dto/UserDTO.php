@@ -2,70 +2,95 @@
 
 namespace App\Models\Dto;
 
+use App\Exceptions\CustomErrorException;
+use App\Models\Contracts\DataTransferObject;
+
 class UserDTO
 {
+    use DataTransferObject;
+
     /**
-     * @var int|null
+     * @var int
      */
     private $id;
 
     /**
-     * @var string|null
+     * @var string
      */
     private $no_employee;
 
     /**
-     * @var string|null
+     * @var string
      */
     private $full_name;
 
     /**
-     * @var string|null
+     * @var string
      */
     private $email;
 
     /**
-     * @var string|null
+     * @var string
      */
     private $password;
 
     /**
-     * @var string|null
+     * @var string
      */
     private $personal_phone;
 
     /**
-     * @var string|null 
+     * @var string 
      */
     private $office_phone;
 
     /**
-     * @var string|null
+     * @var string
      */
     private $position;
 
     /**
-     * @var string|null 
+     * @var string 
      */
     private $area;
 
     /**
-     * @var int|null 
+     * @var int 
      */
     private $status_id;
 
     /**
-     * @var int|null 
+     * @var int 
      */
     private $role_id;
 
     /**
-     * @var int|null
+     * @var RoleDTO
+     */
+    private $role;
+
+    /**
+     * @var int
      */
     private $office_id;
 
     /**
-     * @return int|null
+     * @var OfficeDTO
+     */
+    private $office;
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function __construct(array $data = [])
+    {
+        if (count($data) > 0) {
+            $this->init($data);
+        }
+    }
+
+    /**
+     * @return int
      */
     public function getId(): int
     {
@@ -73,7 +98,7 @@ class UserDTO
     }
 
     /**
-     * @param int|null $id
+     * @param int $id
      */
     public function setId(int $id)
     {
@@ -81,7 +106,7 @@ class UserDTO
     }
 
     /**
-     * @return string|null
+     * @return string
      */
     public function getNoEmployee(): string
     {
@@ -89,7 +114,7 @@ class UserDTO
     }
 
     /**
-     * @param string|null $no_employee
+     * @param string $no_employee
      */
     public function setNoEmployee(string $no_employee)
     {
@@ -97,7 +122,7 @@ class UserDTO
     }
 
     /**
-     * @return string|null
+     * @return string
      */
     public function getFullName(): string
     {
@@ -105,7 +130,7 @@ class UserDTO
     }
 
     /**
-     * @param string|null $full_name
+     * @param string $full_name
      */
     public function setFullName(string $full_name)
     {
@@ -113,7 +138,7 @@ class UserDTO
     }
 
     /**
-     * @return string|null
+     * @return string
      */
     public function getEmail(): string
     {
@@ -121,7 +146,7 @@ class UserDTO
     }
 
     /**
-     * @param string|null $email
+     * @param string $email
      */
     public function setEmail(string $email)
     {
@@ -129,7 +154,7 @@ class UserDTO
     }
 
     /**
-     * @return string|null
+     * @return string
      */
     public function getPassword(): string
     {
@@ -137,7 +162,7 @@ class UserDTO
     }
 
     /**
-     * @param string|null $password
+     * @param string $password
      */
     public function setPassword(string $password)
     {
@@ -145,7 +170,7 @@ class UserDTO
     }
 
     /**
-     * @return string|null
+     * @return string
      */
     public function getPersonalPhone(): string
     {
@@ -153,7 +178,7 @@ class UserDTO
     }
 
     /**
-     * @param string|null $personal_phone
+     * @param string $personal_phone
      */
     public function setPersonalPhone(string $personal_phone)
     {
@@ -161,7 +186,7 @@ class UserDTO
     }
 
     /**
-     * @return string|null
+     * @return string
      */
     public function getOfficePhone(): string
     {
@@ -169,7 +194,7 @@ class UserDTO
     }
 
     /**
-     * @param string|null $office_phone
+     * @param string $office_phone
      */
     public function setOfficePhone(string $office_phone)
     {
@@ -177,7 +202,7 @@ class UserDTO
     }
 
     /**
-     * @return string|null
+     * @return string
      */
     public function getPosition(): string
     {
@@ -185,7 +210,7 @@ class UserDTO
     }
 
     /**
-     * @param string|null $position
+     * @param string $position
      */
     public function setPosition(string $position)
     {
@@ -193,7 +218,7 @@ class UserDTO
     }
 
     /**
-     * @return string|null
+     * @return string
      */
     public function getArea(): string
     {
@@ -201,7 +226,7 @@ class UserDTO
     }
 
     /**
-     * @param string|null $area
+     * @param string $area
      */
     public function setArea(string $area)
     {
@@ -209,7 +234,7 @@ class UserDTO
     }
 
     /**
-     * @return int|null
+     * @return int
      */
     public function getStatusId(): int
     {
@@ -217,7 +242,7 @@ class UserDTO
     }
 
     /**
-     * @param int|null $status_id
+     * @param int $status_id
      */
     public function setStatusId(int $status_id)
     {
@@ -225,7 +250,7 @@ class UserDTO
     }
 
     /**
-     * @return int|null
+     * @return int
      */
     public function getRoleId(): int
     {
@@ -233,7 +258,7 @@ class UserDTO
     }
 
     /**
-     * @param int|null $role_id
+     * @param int $role_id
      */
     public function setRoleId(int $role_id)
     {
@@ -241,7 +266,23 @@ class UserDTO
     }
 
     /**
-     * @return int|null
+     * @return RoleDTO
+     */
+    public function getRole(): RoleDTO
+    {
+        return $this->role;
+    }
+
+    /**
+     * @param RoleDTO $role
+     */
+    public function setRole(RoleDTO $role)
+    {
+        $this->role = $role;
+    }
+
+    /**
+     * @return int
      */
     public function getOfficeId(): int
     {
@@ -249,10 +290,26 @@ class UserDTO
     }
 
     /**
-     * @param int|null $office_id
+     * @param int $office_id
      */
     public function setOfficeId(int $office_id)
     {
         $this->office_id = $office_id;
+    }
+
+    /**
+     * @return OfficeDTO
+     */
+    public function getOffice(): OfficeDTO
+    {
+        return $this->office;
+    }
+
+    /**
+     * @param OfficeDTO $office
+     */
+    public function setOffice(OfficeDTO $office)
+    {
+        $this->office = $office;
     }
 }
