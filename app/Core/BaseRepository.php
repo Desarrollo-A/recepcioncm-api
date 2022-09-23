@@ -2,14 +2,14 @@
 
 namespace App\Core;
 
-use App\Core\Contracts\IBaseRepository;
+use App\Core\Contracts\BaseRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
-class BaseRepository implements IBaseRepository
+class BaseRepository implements BaseRepositoryInterface
 {
     /**
      * @var Builder|Model|QueryBuilder
@@ -19,7 +19,7 @@ class BaseRepository implements IBaseRepository
     /**
      * @throws \Throwable
      */
-    public function create(array $data): Model
+    public function create(array $data)
     {
         $entity = $this->entity->newInstance($data);
         $entity->saveOrFail();
@@ -62,12 +62,12 @@ class BaseRepository implements IBaseRepository
     /**
      * @throws \Throwable
      */
-    public function findById(int $id, array $columns = ['*']): Model
+    public function findById(int $id, array $columns = ['*'])
     {
         return $this->entity->findOrFail($id, $columns);
     }
 
-    public function findRandom(): Model
+    public function findRandom()
     {
         return $this->entity->inRandomOrder()->limit(1)->first();
     }
@@ -88,7 +88,7 @@ class BaseRepository implements IBaseRepository
     /**
      * @throws \Throwable
      */
-    public function update(int $id, array $data): Model
+    public function update(int $id, array $data)
     {
         $entity = $this->findById($id);
         $entity->fill($data);

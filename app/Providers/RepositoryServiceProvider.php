@@ -12,7 +12,9 @@ class RepositoryServiceProvider extends ServiceProvider
     /**
      * @var array
      */
-    protected $repositories = [];
+    protected $repositories = [
+        'UserRepositoryInterface' => 'UserRepository'
+    ];
 
     public function register()
     {

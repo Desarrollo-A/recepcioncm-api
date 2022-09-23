@@ -12,7 +12,9 @@ class ServiceLogicServiceProvider extends ServiceProvider
     /**
      * @var array
      */
-    protected $services = [];
+    protected $services = [
+        'AuthServiceInterface' => 'AuthService'
+    ];
 
     public function register()
     {

@@ -34,9 +34,9 @@ class CreateUsersTable extends Migration
             $table->foreign('role_id')
                 ->references('id')
                 ->on('roles');
-            $table->unsignedInteger('office_id');
+            $table->unsignedInteger('office_id')
+                ->nullable();
             $table->foreign('office_id')
-                ->nullable()
                 ->references('id')
                 ->on('offices');
             $table->timestamps();

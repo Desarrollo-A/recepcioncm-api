@@ -2,8 +2,8 @@
 
 namespace App\Core;
 
-use App\Core\Contracts\IBaseRepository;
-use App\Core\Contracts\IBaseService;
+use App\Core\Contracts\BaseRepositoryInterface;
+use App\Core\Contracts\BaseServiceInterface;
 use App\Helpers\Enum\QueryParam;
 use App\Helpers\Validation;
 use Illuminate\Database\Eloquent\Collection;
@@ -11,10 +11,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-class BaseService implements IBaseService
+class BaseService implements BaseServiceInterface
 {
     /**
-     * @var IBaseRepository
+     * @var BaseRepositoryInterface
      */
     protected $entityRepository;
 

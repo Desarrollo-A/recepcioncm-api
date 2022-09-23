@@ -2,10 +2,11 @@
 
 namespace App\Core\Contracts;
 
-interface IBaseService
+interface BaseRepositoryInterface
 {
+    public function create(array $data);
+
     /**
-     * @param int $id
      * @return void
      */
     public function delete(int $id);
@@ -13,12 +14,14 @@ interface IBaseService
     public function findAll(array $filter = [], string $sort = null, array $columns = ['*']):
     \Illuminate\Database\Eloquent\Collection;
 
-    public function findAllPaginated(\Illuminate\Http\Request $request, array $columns = ['*']):
+    public function findAllPaginated(array $filters, int $limit, string $sort = null, array $columns = ['*']):
     \Illuminate\Pagination\LengthAwarePaginator;
 
-    public function findById(int $id): \Illuminate\Database\Eloquent\Model;
+    public function findById(int $id, array $columns = ['*']);
 
-    public function findRandom(): \Illuminate\Database\Eloquent\Model;
+    public function findRandom();
 
     public function findRandoms(int $records = 1): \Illuminate\Database\Eloquent\Collection;
+
+    public function update(int $id, array $data);
 }
