@@ -13,7 +13,24 @@ class RepositoryServiceProvider extends ServiceProvider
      * @var array
      */
     protected $repositories = [
-        'UserRepositoryInterface' => 'UserRepository'
+        'UserRepositoryInterface' => 'UserRepository',
+        'MenuRepositoryInterface' => 'MenuRepository',
+        'SubmenuRepositoryInterface' => 'SubmenuRepository',
+        'LookupRepositoryInterface' => 'LookupRepository',
+        'RoleRepositoryInterface' => 'RoleRepository',
+        'OfficeRepositoryInterface' => 'OfficeRepository',
+        'RoomRepositoryInterface' => 'RoomRepository',
+        'StateRepositoryInterface' => 'StateRepository',
+        'RequestRepositoryInterface' => 'RequestRepository',
+        'RequestRoomRepositoryInterface' => 'RequestRoomRepository',
+        'InventoryRepositoryInterface' => 'InventoryRepository',
+        'NotificationRepositoryInterface' => 'NotificationRepository',
+        'CarRepositoryInterface' => 'CarRepository',
+        'RequestRoomViewRepositoryInterface' => 'RequestRoomViewRepository',
+        'InventoryHistoryRepositoryInterface' => 'InventoryHistoryRepository',
+        'InventoryRequestRepositoryInterface' => 'InventoryRequestRepository',
+        'CancelRequestRepositoryInterface' => 'CancelRequestRepository',
+        'ProposalRequestRepositoryInterface' => 'ProposalRequestRepository'
     ];
 
     public function register()

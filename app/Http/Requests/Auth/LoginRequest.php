@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Exceptions\CustomErrorException;
 use App\Http\Requests\Contracts\ReturnDtoInterface;
 use App\Models\Dto\UserDTO;
 use Illuminate\Foundation\Http\FormRequest;
@@ -29,11 +30,14 @@ class LoginRequest extends FormRequest implements ReturnDtoInterface
         ];
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function toDTO(): UserDTO
     {
-        $userDTO = new UserDTO();
-        $userDTO->setNoEmployee($this->noEmployee);
-        $userDTO->setPassword($this->password);
-        return $userDTO;
+        return new UserDTO([
+            'no_employee' => $this->noEmployee,
+            'password' => $this->password
+        ]);
     }
 }

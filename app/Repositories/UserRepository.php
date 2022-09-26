@@ -4,10 +4,14 @@ namespace App\Repositories;
 
 use App\Contracts\Repositories\UserRepositoryInterface;
 use App\Core\BaseRepository;
+use App\Exceptions\CustomErrorException;
+use App\Models\Enums\NameRole;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserRepository extends BaseRepository implements UserRepositoryInterface
 {
@@ -28,11 +32,49 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
             ->findOrFail($id, $columns);
     }
 
+    public function findByEmail(string $email): User
+    {
+        return $this->entity
+            ->with('status')
+            ->where('email', $email)
+            ->firstOrFail();
+    }
+
     public function findByNoEmployee(string $noEmployee): User
     {
         return $this->entity
             ->with(['status', 'role'])
             ->where('no_employee', $noEmployee)
             ->firstOrFail();
+    }
+
+    public function findByOfficeIdAndRoleRecepcionist(string $oficeId): User
+    {
+        return $this->entity
+            ->whereHas('role', function (Builder $query) {
+                $query->where('name', NameRole::RECEPCIONIST);
+            })
+            ->where('office_id', $oficeId)
+            ->firstOr(function () {
+                throw new CustomErrorException('No hay una recepcionista asignada en esta oficina.',
+                    Response::HTTP_BAD_REQUEST);
+            });
+    }
+
+    public function findAllPaginatedWithoutUser(int $userId, array $filters, int $limit, string $sort = null,
+                                                array $columns = ['*']): LengthAwarePaginator
+    {
+        return $this->entity
+            ->with(['role', 'status'])
+            ->orWhereHas('role', function (Builder $query) use ($filters) {
+                $query->filter($filters);
+            })
+            ->orWhereHas('status', function (Builder $query) use ($filters) {
+                $query->filter($filters);
+            })
+            ->filter($filters)
+            ->withoutUser($userId)
+            ->applySort($sort)
+            ->paginate($limit, $columns);
     }
 }

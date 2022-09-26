@@ -13,7 +13,19 @@ class ServiceLogicServiceProvider extends ServiceProvider
      * @var array
      */
     protected $services = [
-        'AuthServiceInterface' => 'AuthService'
+        'AuthServiceInterface' => 'AuthService',
+        'UserServiceInterface' => 'UserService',
+        'MenuServiceInterface' => 'MenuService',
+        'RoomServiceInterface' => 'RoomService',
+        'LookupServiceInterface' => 'LookupService',
+        'StateServiceInterface' => 'StateService',
+        'RequestRoomServiceInterface' => 'RequestRoomService',
+        'InventoryServiceInterface' => 'InventoryService',
+        'CarServiceInterface' => 'CarService',
+        'InventoryHistoryServiceInterface' => 'InventoryHistoryService',
+        'NotificationServiceInterface' => 'NotificationService',
+        'InventoryRequestServiceInterface' => 'InventoryRequestService',
+        'RequestServiceInterface' => 'RequestService'
     ];
 
     public function register()

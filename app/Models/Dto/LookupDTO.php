@@ -12,27 +12,27 @@ class LookupDTO
     /**
      * @var int
      */
-    private $id;
+    public $id;
 
     /**
      * @var int
      */
-    private $type;
+    public $type;
 
     /**
      * @var string
      */
-    private $code;
+    public $code;
 
     /**
      * @var string
      */
-    private $name;
+    public $name;
 
     /**
      * @var bool
      */
-    private $status;
+    public $status;
 
     /**
      * @throws CustomErrorException
@@ -42,85 +42,5 @@ class LookupDTO
         if (count($data) > 0) {
             $this->init($data);
         }
-    }
-
-    /**
-     * @return int
-     */
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    /**
-     * @param int $id
-     */
-    public function setId(int $id)
-    {
-        $this->id = $id;
-    }
-
-    /**
-     * @return int
-     */
-    public function getType(): int
-    {
-        return $this->type;
-    }
-
-    /**
-     * @param int $type
-     */
-    public function setType(int $type)
-    {
-        $this->type = $type;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCode(): string
-    {
-        return $this->code;
-    }
-
-    /**
-     * @param string $code
-     */
-    public function setCode(string $code)
-    {
-        $this->code = $code;
-    }
-
-    /**
-     * @return string
-     */
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param string $name
-     */
-    public function setName(string $name)
-    {
-        $this->name = $name;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isStatus(): bool
-    {
-        return $this->status;
-    }
-
-    /**
-     * @param bool $status
-     */
-    public function setStatus(bool $status)
-    {
-        $this->status = $status;
     }
 }

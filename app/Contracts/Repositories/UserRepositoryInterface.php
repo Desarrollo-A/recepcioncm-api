@@ -4,11 +4,21 @@ namespace App\Contracts\Repositories;
 
 use App\Core\Contracts\BaseRepositoryInterface;
 use App\Models\User;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * @method User findById(int $id, array $columns = ['*'])
+ * @method User create(array $data)
+ * @method User update(int $id, array $data)
  */
 interface UserRepositoryInterface extends BaseRepositoryInterface
 {
+    public function findByEmail(string $email): User;
+
     public function findByNoEmployee(string $noEmployee): User;
+
+    public function findByOfficeIdAndRoleRecepcionist(string $oficeId): User;
+
+    public function findAllPaginatedWithoutUser(int $userId, array $filters, int $limit, string $sort = null,
+                                                array $columns = ['*']): LengthAwarePaginator;
 }
