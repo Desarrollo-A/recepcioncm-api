@@ -53,11 +53,11 @@ class StoreInventoryRequest extends FormRequest implements ReturnDtoInterface
             'description' =>  ($this->description) ? trim($this->description) : null,
             'trademark' =>  ($this->trademark) ? trim($this->trademark) : null,
             'stock' =>  $this->stock,
-            'minimumStock' =>  $this->minimumStock,
+            'minimum_stock' =>  $this->minimumStock,
             'status' =>  true,
-            'typeId' =>  $this->typeId,
-            'unitId' =>  $this->unitId,
-            'officeId' =>  auth()->user()->office_id,
+            'type_id' =>  $this->typeId,
+            'unit_id' =>  $this->unitId,
+            'office_id' =>  auth()->user()->office_id,
             'meeting' =>  $this->meeting,
             'image' =>  Inventory::IMAGE_DEFAULT
         ]);

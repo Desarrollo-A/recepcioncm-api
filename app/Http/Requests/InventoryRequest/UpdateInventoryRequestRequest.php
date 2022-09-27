@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\InventoryRequest;
 
+use App\Exceptions\CustomErrorException;
 use App\Http\Requests\Contracts\ReturnDtoInterface;
 use App\Models\Dto\InventoryRequestDTO;
 use Illuminate\Foundation\Http\FormRequest;
@@ -22,6 +23,18 @@ class UpdateInventoryRequestRequest extends FormRequest implements ReturnDtoInte
         ];
     }
 
+    public function attributes(): array
+    {
+        return [
+            'requestId' => 'Solicitud',
+            'inventoryId' => 'Snack',
+            'quantity' => 'Cantidad'
+        ];
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
     public function toDTO(): InventoryRequestDTO
     {
         return new InventoryRequestDTO([

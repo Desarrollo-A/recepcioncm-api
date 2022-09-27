@@ -7,7 +7,7 @@ use App\Http\Requests\Contracts\ReturnDtoInterface;
 use App\Models\Dto\UserDTO;
 use Illuminate\Foundation\Http\FormRequest;
 
-class RestorePasswordRequest extends FormRequest implements ReturnDtoInterface
+class ChangePasswordRequest extends FormRequest implements ReturnDtoInterface
 {
     public function authorize(): bool
     {
@@ -17,7 +17,14 @@ class RestorePasswordRequest extends FormRequest implements ReturnDtoInterface
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email:dns', 'max:150']
+            'password' => ['required', 'min:5', 'max:50']
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'password' => ['Contraseña']
         ];
     }
 
@@ -26,6 +33,9 @@ class RestorePasswordRequest extends FormRequest implements ReturnDtoInterface
      */
     public function toDTO(): UserDTO
     {
-        return new UserDTO(['email' => $this->email]);
+        return new UserDTO([
+            'id' => auth()->id(),
+            'password' => bcrypt($this->password)
+        ]);
     }
 }

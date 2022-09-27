@@ -55,14 +55,14 @@ class UpdateCarRequest extends FormRequest implements ReturnDtoInterface
     {
         return new CarDTO([
             'id' =>  $this->id,
-            'businessName' =>  trim($this->businessName),
+            'business_name' =>  trim($this->businessName),
             'trademark' =>  trim($this->trademark),
             'model' =>  trim($this->model),
             'color' =>  trim($this->color),
-            'licensePlate' =>  trim($this->licensePlate),
+            'license_plate' =>  trim($this->licensePlate),
             'serie' =>  trim($this->serie),
-            'circulationCard' =>  trim($this->circulationCard),
-            'officeId' =>  auth()->user()->office_id,
+            'circulation_card' =>  trim($this->circulationCard),
+            'office_id' =>  auth()->user()->office_id,
             'people' =>  $this->people
         ]);
     }

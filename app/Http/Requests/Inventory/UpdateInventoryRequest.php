@@ -56,8 +56,8 @@ class UpdateInventoryRequest extends FormRequest implements ReturnDtoInterface
             'trademark' =>  ($this->trademark) ? trim($this->trademark) : null,
             'minimum_stock' =>  $this->minimumStock,
             'status' =>  $this->status,
-            'typeId' =>  $this->typeId,
-            'unitId' =>  $this->unitId,
+            'type_id' =>  $this->typeId,
+            'unit_id' =>  $this->unitId,
             'office_id' =>  auth()->user()->office_id,
             'meeting' =>  $this->meeting
         ]);

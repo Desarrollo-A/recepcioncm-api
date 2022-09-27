@@ -21,6 +21,11 @@ class RestorePasswordRequest extends FormRequest implements ReturnDtoInterface
         ];
     }
 
+    public function attributes(): array
+    {
+        return ['email' => 'Correo electrónico'];
+    }
+
     /**
      * @throws CustomErrorException
      */
