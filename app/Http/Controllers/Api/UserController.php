@@ -14,9 +14,10 @@ use App\Http\Resources\User\UserResource;
 use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
 use App\Models\User;
-use Barryvdh\DomPDF\PDF;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Spatie\Browsershot\Browsershot;
 
 class UserController extends BaseApiController
 {
@@ -44,13 +45,15 @@ class UserController extends BaseApiController
         return $this->showAll(new UserCollection($users, true));
     }
 
-    public function loadPdf(): JsonResponse
+    public function loadPdf()
     {
         $users = User::query()->get();
-        $pdf = PDF::loadView('pdf.users.user-list', array('users' => $users));
+        $pdf = App::make('dompdf.wrapper');
+        // return view('pdf.users.user-list', array('users' => $users));
+
+        $pdf->loadView('pdf.users.user-list', array('users' => $users));
         // $pdf->setPaper('a4', 'landscape');
         return $pdf->stream();
-        // return view('pdf.users.user-list', array('users' => $users));
     }
 
     /**
