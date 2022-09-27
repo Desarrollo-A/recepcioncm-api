@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use App\Contracts\Repositories\RequestRoomRepositoryInterface;
+use App\Contracts\Repositories\RequestRoomViewRepositoryInterface;
 use App\Core\BaseRepository;
 use App\Models\RequestRoomView;
 use App\Models\User;
@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-class RequestRoomViewRepository extends BaseRepository implements RequestRoomRepositoryInterface
+class RequestRoomViewRepository extends BaseRepository implements RequestRoomViewRepositoryInterface
 {
     /**
      * @var Builder|Model|QueryBuilder|RequestRoomView
