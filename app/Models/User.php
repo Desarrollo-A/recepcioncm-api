@@ -72,7 +72,7 @@ class User extends Authenticatable
 
     public function scopeWithoutUser(Builder $query, int $userId): Builder
     {
-        $query->whereNot('id', $userId);
+        $query->where('id', '!=', $userId);
 
         return $query;
     }

@@ -62,6 +62,7 @@ class InventoryRepository extends BaseRepository implements InventoryRepositoryI
             ->where('type_id', $typeId)
             ->where('office_id', $officeId)
             ->where('stock', '>', 0)
+            ->orderBy('name', 'ASC')
             ->get();
     }
 }

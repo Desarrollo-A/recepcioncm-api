@@ -5,6 +5,7 @@ use App\Models\Enums\Lookups\StatusUserLookup;
 use App\Models\Lookup;
 use App\Models\Enums\TypeLookup;
 use App\Models\Enums\Lookups\ServicesListLookup;
+use App\Models\Enums\Lookups\StatusCarLookup;
 use App\Models\Enums\Lookups\StatusRequestLookup;
 use App\Models\Enums\Lookups\LevelMeetingLookup;
 use App\Models\Enums\Lookups\InventoryTypeLookup;
@@ -85,10 +86,10 @@ class LookupSeeder extends Seeder
             ]);
         });
 
-        StatusRequestLookup::getAll()->each(function ($lookup) {
+        StatusCarLookup::getAll()->each(function ($lookup) {
             Lookup::query()->create([
                 'type' => TypeLookup::STATUS_CAR,
-                'code' => StatusRequestLookup::code($lookup),
+                'code' => StatusCarLookup::code($lookup),
                 'name' => $lookup
             ]);
         });

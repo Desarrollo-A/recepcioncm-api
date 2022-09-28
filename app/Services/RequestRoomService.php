@@ -223,10 +223,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         $requestDTO = new RequestDTO(['status_id' => $cancelStatusId]);
 
         $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id']))
-            ->fresh([
-                'requestRoom' => ['room'],
-                'cancelRequest'
-            ]);
+            ->fresh(['requestRoom','requestRoom.room','cancelRequest']);
 
         $this->cancelRequestRepository->create($dto->toArray(['request_id', 'cancel_comment', 'user_id']));
 

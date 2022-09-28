@@ -2,7 +2,14 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\Event;
+use App\Models\InventoryRequest;
+use App\Models\Request;
+use App\Models\RequestRoom;
+use App\Models\Room;
+use App\Observers\InventoryRequestObserver;
+use App\Observers\RequestObserver;
+use App\Observers\RequestRoomObserver;
+use App\Observers\RoomObserver;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -27,6 +34,9 @@ class EventServiceProvider extends ServiceProvider
     {
         parent::boot();
 
-        //
+        Room::observe(RoomObserver::class);
+        InventoryRequest::observe(InventoryRequestObserver::class);
+        RequestRoom::observe(RequestRoomObserver::class);
+        Request::observe(RequestObserver::class);
     }
 }

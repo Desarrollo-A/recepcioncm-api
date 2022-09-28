@@ -5,6 +5,7 @@ namespace App\Http\Requests\Inventory;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\Contracts\ReturnDtoInterface;
 use App\Models\Dto\InventoryDTO;
+use App\Rules\GreatherThanZero;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateStockInventoryRequest extends FormRequest implements ReturnDtoInterface
@@ -19,7 +20,15 @@ class UpdateStockInventoryRequest extends FormRequest implements ReturnDtoInterf
         $validations = ['stock' => ['required', 'integer', 'min:-100', 'max:100', 'not_in:0', 'bail']];
 
         if ($this->stock > 0) {
-            $validations = array_merge($validations, [ 'cost' => [ 'required', 'numeric', 'bail', 'gt:0', 'lt:100000' ] ]);
+            $validations = array_merge($validations, [
+                'cost' => [
+                    'required',
+                    'numeric',
+                    'bail',
+                    new GreatherThanZero,
+                    'max:100000'
+                ]
+            ]);
         }
 
         return $validations;

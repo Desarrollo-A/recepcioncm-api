@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
-class InventoryHistory
+use Illuminate\Database\Eloquent\Model;
+
+class InventoryHistory extends Model
 {
     protected $table = 'inventory_history';
 

@@ -18,7 +18,7 @@ class InventoryResource extends Resource
             'name' => $this->name,
             'description' => $this->description,
             'trademark' => $this->trademark,
-            'image' => File::getExposedPath($this->image, Path::INVENTORY_IMAGES->value),
+            'image' => File::getExposedPath($this->image, Path::INVENTORY_IMAGES),
             'stock' => $this->stock,
             'minimumStock' => $this->minimum_stock,
             'meeting' => $this->meeting,
@@ -29,7 +29,7 @@ class InventoryResource extends Resource
             'type' => LookupResource::make($this->whenLoaded('type')),
             'unit' => LookupResource::make($this->whenLoaded('unit')),
             'office' => OfficeResource::make($this->whenLoaded('office')),
-            'inventoryRequest' => InventoryRequestResource::make($this->whenNotNull($this->pivot))
+            'inventoryRequest' => InventoryRequestResource::make($this->whenPivotLoaded('inventory_request', $this->pivot))
         ];
     }
 }

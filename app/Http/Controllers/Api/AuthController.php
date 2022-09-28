@@ -56,7 +56,7 @@ class AuthController extends BaseApiController
 
     public function logout(): JsonResponse
     {
-        auth()->user()->token()->revoke();
+        auth()->user()->token()->delete();
         return $this->noContentResponse();
     }
 

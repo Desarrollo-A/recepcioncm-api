@@ -41,7 +41,7 @@ class RequestService extends BaseService implements RequestServiceInterface
     {
         $newStatusId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::NEW),
             TypeLookup::STATUS_REQUEST)->id;
-        $request = $this->entityRepository->findById($requestId)->fresh(['requestRoom' => ['room']]);
+        $request = $this->entityRepository->findById($requestId)->fresh(['requestRoom', 'requestRoom.room']);
 
         if ($request->status_id !== $newStatusId) {
             throw new CustomErrorException('La solicitud debe de estar en estatus '.StatusRequestLookup::code(StatusRequestLookup::NEW),
@@ -79,7 +79,7 @@ class RequestService extends BaseService implements RequestServiceInterface
         $this->proposalRequestRepository->deleteByRequestId($id);
 
         return $this->entityRepository->update($id, $dto->toArray(['status_id']))
-            ->fresh(['requestRoom' => ['room']]);
+            ->fresh(['requestRoom', 'requestRoom.room']);
     }
 
     /**

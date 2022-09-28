@@ -28,7 +28,7 @@ class RequestResource extends Resource
             'user' => UserResource::make($this->whenLoaded('user')),
             'inventories' => InventoryCollection::make($this->whenLoaded('inventories')),
             'cancelRequest' => CancelRequestResource::make($this->whenLoaded('cancelRequest')),
-            'proposalRequest' => ProposalRequestResource::collection($this->whenLoaded('proposalRequest'))
+            'proposalRequest' => ProposalRequestResource::collection($this->proposalRequest)
         ];
     }
 }

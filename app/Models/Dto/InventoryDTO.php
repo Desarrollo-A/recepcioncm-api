@@ -58,7 +58,7 @@ class InventoryDTO
     /**
      * @var int
      */
-    public $officeId;
+    public $office_id;
 
     /**
      * @var int

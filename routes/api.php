@@ -140,6 +140,21 @@ Route::prefix('v1')->group(function () {
                     ->where('inventoryId', Validation::INTEGER_ID);
             });
 
+        Route::prefix('notifications')
+            ->name('notifications.')
+            ->group(function (){
+                Route::get('/unread','NotificationController@getAllNotificationUnread')
+                    ->name('unread');
+
+                Route::patch('/read/{id}', 'NotificationController@readNotification')
+                    ->name('read')
+                    ->where('id', Validation::INTEGER_ID);
+
+                Route::patch('/read-all', 'NotificationController@readAllNotification')
+                    ->name('read-all')
+                    ->where('id', Validation::INTEGER_ID);
+            });
+
         Route::prefix('requests')
             ->name('requests.')
             ->group(function () {

@@ -18,7 +18,6 @@ class InventoryCollection extends ResourceCollection
         $this->paginated = $paginated;
     }
 
-
     public function toArray($request): array
     {
         return ($this->paginated)

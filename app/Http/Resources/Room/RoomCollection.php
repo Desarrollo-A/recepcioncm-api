@@ -12,7 +12,6 @@ class RoomCollection extends ResourceCollection
     private $paginated;
     public $collects = RoomResource::class;
 
-
     public function __construct($resource, bool $paginated = false)
     {
         parent::__construct($resource);

@@ -17,7 +17,6 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
-use Spatie\Browsershot\Browsershot;
 
 class UserController extends BaseApiController
 {
@@ -64,7 +63,7 @@ class UserController extends BaseApiController
         $userDTO = $request->toDTO();
         $user = $this->userService->create($userDTO);
         $this->menuService->createDefaultMenu($user->id, $userDTO->role->name);
-        $token = $user->createToken('api-token')->plainTextToken;
+        $token = $user->createToken('api-token')->accessToken;
         return $this->showOne(new UserResource($user, $token));
     }
 

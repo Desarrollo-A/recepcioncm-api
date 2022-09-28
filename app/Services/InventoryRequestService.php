@@ -67,7 +67,7 @@ class InventoryRequestService extends BaseService implements InventoryRequestSer
         $this->entityRepository->updateInventoryRequest($requestId, $inventoryId, $dto->toArray(['quantity']));
         $newStock = ($oldStock + $oldQuantity) - $dto->quantity;
         $dto = new InventoryDTO(['stock' => $newStock]);
-        $this->inventoryRepository->update($inventoryId, $dto->toArray('stock'));
+        $this->inventoryRepository->update($inventoryId, $dto->toArray(['stock']));
     }
 
     public function deleteSnack(int $requestId, int $inventoryId): InventoryRequest

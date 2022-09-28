@@ -8,7 +8,7 @@ use App\Http\Resources\Notification\NotificationResource;
 use App\Models\Enums\NameRole;
 use Illuminate\Http\JsonResponse;
 
-class NotificationCotroller extends BaseApiController
+class NotificationController extends BaseApiController
 {
     private $notificationService;
 

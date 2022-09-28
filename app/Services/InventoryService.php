@@ -63,8 +63,8 @@ class InventoryService extends BaseService implements InventoryServiceInterface
      */
     public function update(int $id, InventoryDTO $dto): Inventory
     {
-        return $this->entityRepository->update($id, $dto->toArray(['name', 'description', 'trademark', 'minimumStock',
-            'typeId', 'unitId', 'status', 'meeting']));
+        return $this->entityRepository->update($id, $dto->toArray(['name', 'description', 'trademark', 'minimum_stock',
+            'type_id', 'unit_id', 'status', 'meeting']));
     }
 
     /**
@@ -80,10 +80,10 @@ class InventoryService extends BaseService implements InventoryServiceInterface
             throw new CustomErrorException('El stock no puede quedar negativo', Response::HTTP_BAD_REQUEST);
         }
 
-        $this->entityRepository->update($id, $dto->toArray('stock'));
+        $this->entityRepository->update($id, $dto->toArray(['stock']));
 
         $inventoryHistoryDTO = new InventoryHistoryDTO([
-            'inventoryId' => $id,
+            'inventory_id' => $id,
             'quantity' => $oldStock,
             'cost' => $dto->cost
         ]);
@@ -116,7 +116,7 @@ class InventoryService extends BaseService implements InventoryServiceInterface
         $inventory = $this->entityRepository->findById($inventoryRequest->inventory_id);
         $newStock = $inventory->stock - $inventoryRequest->quantity;
         $dto = new InventoryDTO(['stock' => $newStock]);
-        $this->entityRepository->update($inventoryRequest->inventory_id, $dto->toArray('stock'));
+        $this->entityRepository->update($inventoryRequest->inventory_id, $dto->toArray(['stock']));
     }
 
     public function findAllCoffee(int $officeId): Collection

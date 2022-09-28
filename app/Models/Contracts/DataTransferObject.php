@@ -23,7 +23,7 @@ trait DataTransferObject
     /**
      * @throws CustomErrorException
      */
-    public function toArray($fields = []): array
+    public function toArray(array $fields = []): array
     {
         $vars = get_object_vars($this);
         if (count($fields) === 0) {

@@ -23,21 +23,17 @@ class RequestRoomRepository extends BaseRepository implements RequestRoomReposit
 
     public function findById(int $id, array $columns = ['*']): RequestRoom
     {
-        // TODO: Revisar si aplica esto en la versión de laravel
         return $this->entity
             ->with([
-                'request' => [
-                    'status',
-                    'user',
-                    'inventories',
-                    'cancelRequest' => [
-                        'user'
-                    ],
-                    'proposalRequest'
-                ],
-                'room' => [
-                    'office'
-                ],
+                'request',
+                'request.status',
+                'request.user',
+                'request.inventories',
+                'request.cancelRequest',
+                'request.cancelRequest.user',
+                'request.proposalRequest',
+                'room',
+                'room.office',
                 'level'
             ])
             ->findOrFail($id, $columns);
