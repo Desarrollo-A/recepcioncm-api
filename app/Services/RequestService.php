@@ -71,15 +71,16 @@ class RequestService extends BaseService implements RequestServiceInterface
                 Response::HTTP_BAD_REQUEST);
         }
 
-        if ($dto->status->code === StatusRequestLookup::code(StatusRequestLookup::ACCEPT)) {
-            $dto->status_id = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::IN_REVIEW),
-                TypeLookup::STATUS_REQUEST)->id;
-        }
+        $dto->status_id = $this->lookupRepository->findByCodeAndType($dto->status->code, TypeLookup::STATUS_REQUEST)->id;
 
         $this->proposalRequestRepository->deleteByRequestId($id);
 
-        return $this->entityRepository->update($id, $dto->toArray(['status_id']))
-            ->fresh(['requestRoom', 'requestRoom.room']);
+        $data = ($dto->status->code === StatusRequestLookup::code(StatusRequestLookup::IN_REVIEW))
+            ? $dto->toArray(['status_id', 'start_date', 'end_date'])
+            : $dto->toArray(['status_id']);
+
+        return $this->entityRepository->update($id, $data)
+            ->fresh(['requestRoom', 'requestRoom.room', 'status']);
     }
 
     /**

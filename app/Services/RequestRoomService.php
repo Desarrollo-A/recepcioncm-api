@@ -165,8 +165,8 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
                         TypeLookup::STATUS_REQUEST);
                     break;
                 case StatusRequestLookup::code(StatusRequestLookup::PROPOSAL):
-                    $status = $this->lookupRepository->findByCodeWhereInAndType([StatusRequestLookup::code(StatusRequestLookup::ACCEPT),
-                        StatusRequestLookup::code(StatusRequestLookup::REJECTED)], TypeLookup::STATUS_REQUEST);
+                    $status = $this->lookupRepository->findByCodeWhereInAndType([StatusRequestLookup::code(StatusRequestLookup::REJECTED)],
+                        TypeLookup::STATUS_REQUEST);
                     break;
             }
         }

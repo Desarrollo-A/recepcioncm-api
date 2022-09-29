@@ -4,7 +4,7 @@ namespace App\Http\Resources\Request;
 
 use Illuminate\Http\Resources\Json\Resource;
 
-class AvailableSchedule extends Resource
+class AvailableScheduleResource extends Resource
 {
     public function toArray($request): array
     {

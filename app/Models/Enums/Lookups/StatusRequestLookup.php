@@ -10,7 +10,6 @@ class StatusRequestLookup
     const APPROVED = 'Aprobada';
     const REJECTED = 'Rechazada';
     const PROPOSAL = 'Propuesta';
-    const ACCEPT = 'Aceptar';
     const CANCELLED = 'Cancelada';
     const WITHOUT_ATTENDING = 'Sin asistir';
     const FINISHED = 'Terminada';
@@ -19,16 +18,15 @@ class StatusRequestLookup
 
     public static function getAll(): Collection
     {
-        return collect([self::NEW, self::APPROVED, self::REJECTED, self::PROPOSAL, self::ACCEPT, self::CANCELLED,
+        return collect([self::NEW, self::APPROVED, self::REJECTED, self::PROPOSAL, self::CANCELLED,
             self::WITHOUT_ATTENDING, self::FINISHED, self::IN_REVIEW, self::EXPIRED]);
     }
 
     public static function getAllCodes(): Collection
     {
         return collect([self::code(self::NEW), self::code(self::APPROVED), self::code(self::REJECTED),
-            self::code(self::PROPOSAL), self::code(self::ACCEPT), self::code(self::CANCELLED),
-            self::code(self::WITHOUT_ATTENDING), self::code(self::FINISHED), self::code(self::IN_REVIEW),
-            self::code(self::EXPIRED)]);
+            self::code(self::PROPOSAL), self::code(self::CANCELLED), self::code(self::WITHOUT_ATTENDING),
+            self::code(self::FINISHED), self::code(self::IN_REVIEW), self::code(self::EXPIRED)]);
     }
 
     public static function code($const)

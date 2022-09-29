@@ -27,10 +27,10 @@ class ProposalRequestRepository extends BaseRepository implements ProposalReques
     public function roomsSetAsideByDay(Carbon $date): Collection
     {
         return $this->entity
-            ->join('requests', 'proposal_request.request_id', '=', 'requests.id')
+            ->join('requests', 'proposal_requests.request_id', '=', 'requests.id')
             ->join('lookups', 'lookups.id', '=', 'requests.status_id')
             ->where('lookups.code', StatusRequestLookup::code(StatusRequestLookup::PROPOSAL))
-            ->whereDate('proposal_request.start_date', $date)
+            ->whereDate('proposal_requests.start_date', $date)
             ->get();
     }
 

@@ -42,7 +42,6 @@ class RequestController extends BaseApiController
     public function responseRejectRequest(int $id, ResponseRejectRequestRequest $request): JsonResponse
     {
         $dto = $request->toDTO();
-        $this->lookupService->validateLookup($dto->status_id, TypeLookup::STATUS_REQUEST, 'Estatus no válido.');
         $requestModel = $this->requestService->responseRejectRequest($id, $dto);
         $this->notificationService->proposalToRejectedOrResponseRequestRoomNotification($requestModel);
         return $this->noContentResponse();

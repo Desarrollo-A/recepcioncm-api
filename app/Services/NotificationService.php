@@ -123,11 +123,10 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function proposalToRejectedOrResponseRequestRoomNotification(Request $request)
     {
-        $status = $this->lookupRepository->findById($request->status_id);
         $message = '';
-        if ($status->code === StatusRequestLookup::code(StatusRequestLookup::REJECTED)) {
+        if ($request->status->code === StatusRequestLookup::code(StatusRequestLookup::REJECTED)) {
             $message = "Propuesta de la solicitud de sala $request->code fue ".StatusRequestLookup::REJECTED;
-        } else if ($status->code === StatusRequestLookup::code(StatusRequestLookup::IN_REVIEW)) {
+        } else if ($request->status->code === StatusRequestLookup::code(StatusRequestLookup::IN_REVIEW)) {
             $message = "Propuesta de la solicitud de sala $request->code fue Aceptada";
         }
 

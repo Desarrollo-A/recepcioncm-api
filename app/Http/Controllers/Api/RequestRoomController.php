@@ -15,7 +15,7 @@ use App\Http\Requests\RequestRoom\CancelRequestRoomRequest;
 use App\Http\Requests\RequestRoom\ProposalRequestRoomRequest;
 use App\Http\Requests\RequestRoom\StoreRequestRoomRequest;
 use App\Http\Resources\Lookup\LookupResource;
-use App\Http\Resources\Request\AvailableSchedule;
+use App\Http\Resources\Request\AvailableScheduleResource;
 use App\Http\Resources\RequestRoom\RequestRoomResource;
 use App\Http\Resources\RequestRoom\RequestRoomViewCollection;
 use App\Models\Enums\NameRole;
@@ -123,7 +123,7 @@ class RequestRoomController extends BaseApiController
     public function getAvailableScheduleByDay(int $requestId, string $date): JsonResponse
     {
         $schedule = $this->requestRoomService->getAvailableScheduleByDay($requestId, new Carbon($date));
-        return $this->showAll(AvailableSchedule::collection($schedule));
+        return $this->showAll(AvailableScheduleResource::collection($schedule));
     }
 
     /**
