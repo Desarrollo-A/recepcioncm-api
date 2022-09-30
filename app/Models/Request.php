@@ -64,7 +64,6 @@ class Request extends Model
     public function scopeExpired(Builder $query): Builder
     {
         $query->orWhere('lookups.code', StatusRequestLookup::code(StatusRequestLookup::NEW));
-        $query->orWhere('lookups.code', StatusRequestLookup::code(StatusRequestLookup::PROPOSAL));
         $query->orWhere('lookups.code', StatusRequestLookup::code(StatusRequestLookup::IN_REVIEW));
         return $query;
     }
