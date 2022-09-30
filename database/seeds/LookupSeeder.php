@@ -12,6 +12,7 @@ use App\Models\Enums\Lookups\InventoryTypeLookup;
 use App\Models\Enums\Lookups\UnitTypeLookup;
 use App\Models\Enums\Lookups\StatusRoomLookup;
 use App\Models\Enums\Lookups\TypeNotificationsLookup;
+use App\Models\Enums\Lookups\NotificationColorLookup;
 
 class LookupSeeder extends Seeder
 {
@@ -90,6 +91,14 @@ class LookupSeeder extends Seeder
             Lookup::query()->create([
                 'type' => TypeLookup::STATUS_CAR,
                 'code' => StatusCarLookup::code($lookup),
+                'name' => $lookup
+            ]);
+        });
+
+        NotificationColorLookup::getAll()->each(function ($lookup) {
+            Lookup::query()->create([
+                'type' => TypeLookup::NOTIFICATION_COLOR,
+                'code' => NotificationColorLookup::code($lookup),
                 'name' => $lookup
             ]);
         });

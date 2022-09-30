@@ -8,6 +8,7 @@ use App\Contracts\Services\NotificationServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
 use App\Models\Dto\NotificationDTO;
+use App\Models\Enums\Lookups\NotificationColorLookup;
 use App\Models\Enums\Lookups\StatusRequestLookup;
 use App\Models\Enums\Lookups\TypeNotificationsLookup;
 use App\Models\Enums\NameRole;
@@ -23,7 +24,7 @@ class NotificationService extends BaseService implements NotificationServiceInte
     private $lookupRepository;
 
     public function __construct(NotificationRepositoryInterface $notificationRepository,
-                                LookupRepositoryInterface $lookupRepository)
+                                LookupRepositoryInterface       $lookupRepository)
     {
         $this->entityRepository = $notificationRepository;
         $this->lookupRepository = $lookupRepository;
@@ -39,10 +40,10 @@ class NotificationService extends BaseService implements NotificationServiceInte
             'message' => "Nueva solicitud de sala {$requestRoom->request->code}",
             'user_id' => $requestRoom->room->recepcionist_id,
             'request_id' => $requestRoom->request_id,
-            'type_id' => $this->lookupRepository->findByCodeAndType(TypeNotificationsLookup::code(TypeNotificationsLookup::ROOM),
-                TypeLookup::REQUEST_TYPE_NOTIFICATIONS)->id
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::ROOM),
+            'color_id' => $this->getColorId(NotificationColorLookup::BLUE)
         ]);
-        $this->entityRepository->create($notificationDTO->toArray(['message', 'user_id', 'request_id', 'type_id']));
+        $this->createRow($notificationDTO);
     }
 
     public function getAllNotificationUnread(int $userId): Collection
@@ -57,13 +58,13 @@ class NotificationService extends BaseService implements NotificationServiceInte
     public function newOrResponseToApprovedRequestRoomNotification(Request $request)
     {
         $notificationDTO = new NotificationDTO([
-            'message' => "La solicitud de sala $request->code fue ".StatusRequestLookup::APPROVED,
+            'message' => "La solicitud de sala $request->code fue " . StatusRequestLookup::APPROVED,
             'user_id' => $request->user_id,
             'request_id' => $request->id,
-            'type_id' => $this->lookupRepository->findByCodeAndType(TypeNotificationsLookup::code(TypeNotificationsLookup::ROOM),
-                TypeLookup::REQUEST_TYPE_NOTIFICATIONS)->id
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::ROOM),
+            'color_id' => $this->getColorId(NotificationColorLookup::GREEN)
         ]);
-        $this->entityRepository->create($notificationDTO->toArray(['message', 'user_id', 'request_id', 'type_id']));
+        $this->createRow($notificationDTO);
     }
 
     /**
@@ -76,10 +77,10 @@ class NotificationService extends BaseService implements NotificationServiceInte
             'message' => "Propuesta de la solicitud de sala $request->code",
             'user_id' => $request->user_id,
             'request_id' => $request->id,
-            'type_id' => $this->lookupRepository->findByCodeAndType(TypeNotificationsLookup::code(TypeNotificationsLookup::ROOM),
-                TypeLookup::REQUEST_TYPE_NOTIFICATIONS)->id
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::ROOM),
+            'color_id' => $this->getColorId(NotificationColorLookup::ORANGE)
         ]);
-        $this->entityRepository->create($notificationDTO->toArray(['message', 'user_id', 'request_id', 'type_id']));
+        $this->createRow($notificationDTO);
     }
 
     /**
@@ -91,10 +92,10 @@ class NotificationService extends BaseService implements NotificationServiceInte
         $notificationDTO = new NotificationDTO([
             'message' => "La solicitud $request->code fue Eliminada",
             'user_id' => $request->requestRoom->room->recepcionist_id,
-            'type_id' => $this->lookupRepository->findByCodeAndType(TypeNotificationsLookup::code(TypeNotificationsLookup::GENERAL),
-                TypeLookup::REQUEST_TYPE_NOTIFICATIONS)->id
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::ROOM),
+            'color_id' => $this->getColorId(NotificationColorLookup::RED)
         ]);
-        $this->entityRepository->create($notificationDTO->toArray(['message', 'user_id', 'request_id', 'type_id']));
+        $this->createRow($notificationDTO);
     }
 
     /**
@@ -108,13 +109,13 @@ class NotificationService extends BaseService implements NotificationServiceInte
             : $request->requestRoom->room->recepcionist_id;
 
         $notificationDTO = new NotificationDTO([
-            'message' => "La solicitud de sala $request->code fue ".StatusRequestLookup::CANCELLED,
+            'message' => "La solicitud de sala $request->code fue " . StatusRequestLookup::CANCELLED,
             'user_id' => $userId,
             'request_id' => $request->id,
-            'type_id' => $this->lookupRepository->findByCodeAndType(TypeNotificationsLookup::code(TypeNotificationsLookup::ROOM),
-                TypeLookup::REQUEST_TYPE_NOTIFICATIONS)->id
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::ROOM),
+            'color_id' => $this->getColorId(NotificationColorLookup::RED)
         ]);
-        $this->entityRepository->create($notificationDTO->toArray(['message', 'user_id', 'request_id', 'type_id']));
+        $this->createRow($notificationDTO);
     }
 
     /**
@@ -124,20 +125,23 @@ class NotificationService extends BaseService implements NotificationServiceInte
     public function proposalToRejectedOrResponseRequestRoomNotification(Request $request)
     {
         $message = '';
+        $colorId = null;
         if ($request->status->code === StatusRequestLookup::code(StatusRequestLookup::REJECTED)) {
-            $message = "Propuesta de la solicitud de sala $request->code fue ".StatusRequestLookup::REJECTED;
+            $message = "Propuesta de la solicitud de sala $request->code fue " . StatusRequestLookup::REJECTED;
+            $colorId = $this->getColorId(NotificationColorLookup::RED);
         } else if ($request->status->code === StatusRequestLookup::code(StatusRequestLookup::IN_REVIEW)) {
             $message = "Propuesta de la solicitud de sala $request->code fue Aceptada";
+            $colorId = $this->getColorId(NotificationColorLookup::GREEN);
         }
 
         $notificationDTO = new NotificationDTO([
             'message' => $message,
             'user_id' => $request->requestRoom->room->recepcionist_id,
             'request_id' => $request->id,
-            'type_id' => $this->lookupRepository->findByCodeAndType(TypeNotificationsLookup::code(TypeNotificationsLookup::ROOM),
-                TypeLookup::REQUEST_TYPE_NOTIFICATIONS)->id
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::ROOM),
+            'color_id' => $colorId
         ]);
-        $this->entityRepository->create($notificationDTO->toArray(['message', 'user_id', 'request_id', 'type_id']));
+        $this->createRow($notificationDTO);
     }
 
     /**
@@ -158,5 +162,25 @@ class NotificationService extends BaseService implements NotificationServiceInte
     {
         $dto = new NotificationDTO(['is_read' => true]);
         $this->entityRepository->massiveNotificationUserUpdate($userId, $dto->toArray(['is_read']));
+    }
+
+    /**
+     * @return void
+     */
+    private function createRow(NotificationDTO $dto)
+    {
+        $this->entityRepository->create($dto->toArray(['message', 'user_id', 'request_id', 'type_id', 'color_id']));
+    }
+
+    private function getColorId(string $value): int
+    {
+        return $this->lookupRepository->findByCodeAndType(NotificationColorLookup::code($value),
+            TypeLookup::NOTIFICATION_COLOR)->id;
+    }
+
+    private function getTypeId(string $value): int
+    {
+        return $this->lookupRepository->findByCodeAndType(TypeNotificationsLookup::code($value),
+            TypeLookup::REQUEST_TYPE_NOTIFICATIONS)->id;
     }
 }

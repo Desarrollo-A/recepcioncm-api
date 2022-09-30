@@ -40,6 +40,11 @@ class NotificationDTO
     public $type_id;
 
     /**
+     * @var int
+     */
+    public $color_id;
+
+    /**
      * @throws CustomErrorException
      */
     public function __construct(array $data = [])
