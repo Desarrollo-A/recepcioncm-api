@@ -28,6 +28,7 @@ class SubmenuRepository extends BaseRepository implements SubmenuRepositoryInter
             ->select(['submenus.*'])
             ->join('submenu_user', 'submenus.id', '=', 'submenu_user.submenu_id')
             ->where('submenu_user.user_id', $userId)
+            ->where('status', true)
             ->get();
     }
 

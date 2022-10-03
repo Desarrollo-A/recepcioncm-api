@@ -19,6 +19,8 @@ class CreateMenusTable extends Migration
             $table->string('label', 120);
             $table->string('icon', 100);
             $table->tinyInteger('order');
+            $table->boolean('status')
+                ->default(true);
             $table->timestamps();
         });
     }

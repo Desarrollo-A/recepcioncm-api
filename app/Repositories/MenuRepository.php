@@ -28,6 +28,7 @@ class MenuRepository extends BaseRepository implements MenuRepositoryInterface
             ->select(['menus.*'])
             ->join('menu_user', 'menus.id', '=', 'menu_user.menu_id')
             ->where('menu_user.user_id', $userId)
+            ->where('status', true)
             ->get();
     }
 

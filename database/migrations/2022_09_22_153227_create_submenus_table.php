@@ -22,6 +22,8 @@ class CreateSubmenusTable extends Migration
             $table->foreign('menu_id')
                 ->references('id')
                 ->on('menus');
+            $table->boolean('status')
+                ->default(true);
             $table->timestamps();
         });
     }
