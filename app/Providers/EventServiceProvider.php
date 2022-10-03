@@ -2,10 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Inventory;
 use App\Models\InventoryRequest;
 use App\Models\Request;
 use App\Models\RequestRoom;
 use App\Models\Room;
+use App\Observers\InventoryObserver;
 use App\Observers\InventoryRequestObserver;
 use App\Observers\RequestObserver;
 use App\Observers\RequestRoomObserver;
@@ -34,6 +36,7 @@ class EventServiceProvider extends ServiceProvider
     {
         parent::boot();
 
+        Inventory::observe(InventoryObserver::class);
         Room::observe(RoomObserver::class);
         InventoryRequest::observe(InventoryRequestObserver::class);
         RequestRoom::observe(RequestRoomObserver::class);
