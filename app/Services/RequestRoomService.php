@@ -241,11 +241,21 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
 
         $schedule = Utils::getAvailableSchedule($date->format('Y-m-d'), $duration);
         foreach($schedule as $index => $time) {
-            $this->removeSchedule($requestsInDay, $schedule, $index, $time);
-            $this->removeSchedule($requestsProposalInDay, $schedule, $index, $time);
-        }
+            foreach ($requestsInDay as $request) {
+                if ($this->isScheduleBusy($time, $request)) {
+                    unset($schedule[$index]);
+                    continue 2;
+                }
+            }
 
-        return collect($schedule);
+            foreach ($requestsProposalInDay as $request) {
+                if ($this->isScheduleBusy($time, $request)) {
+                    unset($schedule[$index]);
+                    continue 2;
+                }
+            }
+        }
+        return collect(array_values($schedule));
     }
 
     /**
@@ -343,18 +353,11 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         });
     }
 
-    /**
-     * @return void
-     */
-    private function removeSchedule(Collection $requests, array $schedule, int $index, array $time)
+    private function isScheduleBusy(array $time, $request): bool
     {
-        foreach ($requests as $request) {
-            $startTime = new Carbon($request->start_date);
-            $endTime = new Carbon($request->end_date);
-            if (($time['start_time'] >= $startTime && $time['start_time'] < $endTime) ||
-                ($time['end_time'] > $startTime && $time['end_time'] <= $endTime)) {
-                unset($schedule[$index]);
-            }
-        }
+        $startTime = new Carbon($request->start_date);
+        $endTime = new Carbon($request->end_date);
+        return (($time['start_time'] >= $startTime && $time['start_time'] < $endTime) ||
+            ($time['end_time'] > $startTime && $time['end_time'] <= $endTime));
     }
 }

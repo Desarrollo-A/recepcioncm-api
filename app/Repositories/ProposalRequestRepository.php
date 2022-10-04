@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Contracts\Repositories\ProposalRequestRepositoryInterface;
 use App\Core\BaseRepository;
 use App\Models\Enums\Lookups\StatusRequestLookup;
+use App\Models\InventoryRequest;
 use App\Models\ProposalRequest;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -27,6 +28,7 @@ class ProposalRequestRepository extends BaseRepository implements ProposalReques
     public function roomsSetAsideByDay(Carbon $date): Collection
     {
         return $this->entity
+            ->select(['proposal_requests.start_date', 'proposal_requests.end_date'])
             ->join('requests', 'proposal_requests.request_id', '=', 'requests.id')
             ->join('lookups', 'lookups.id', '=', 'requests.status_id')
             ->where('lookups.code', StatusRequestLookup::code(StatusRequestLookup::PROPOSAL))

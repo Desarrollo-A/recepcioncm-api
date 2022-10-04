@@ -21,4 +21,9 @@ interface InventoryRequestServiceInterface extends BaseServiceInterface
     public function deleteSnack(int $requestId, int $inventoryId): InventoryRequest;
 
     public function deleteSnacks(int $requestId): Collection;
+
+    /**
+     * @return void
+     */
+    public function updateSnackUncountableApplied();
 }

@@ -147,4 +147,21 @@ class InventoryRequestService extends BaseService implements InventoryRequestSer
             throw new CustomErrorException("Snack no encontrado", Response::HTTP_BAD_REQUEST);
         }
     }
+
+    /**
+     * @return void
+     * @throws CustomErrorException
+     */
+    public function updateSnackUncountableApplied()
+    {
+        $snacks = $this->entityRepository->getSnacksUncountable();
+        foreach($snacks as $snack) {
+            $limit = intdiv($snack->total, $snack->meeting);
+            $this->entityRepository->updateSnackUncountableApplied($snack->inventory_id, $limit * $snack->meeting);
+            $dto = new InventoryDTO([
+                'stock' => $snack->inventory->stock - $limit
+            ]);
+            $this->inventoryRepository->update($snack->inventory_id, $dto->toArray(['stock']));
+        }
+    }
 }

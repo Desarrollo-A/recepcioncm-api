@@ -29,4 +29,11 @@ interface InventoryRequestRepositoryInterface extends BaseRepositoryInterface
      * @return void
      */
     public function deleteInventories(int $requestId);
+
+    public function getSnacksUncountable(): Collection;
+
+    /**
+     * @return void
+     */
+    public function updateSnackUncountableApplied(int $inventoryId, int $limit);
 }

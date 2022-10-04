@@ -71,4 +71,33 @@ class InventoryRequestRepository extends BaseRepository implements InventoryRequ
             ->where('request_id', $requestId)
             ->delete();
     }
+
+    public function getSnacksUncountable(): Collection
+    {
+        return $this->entity
+            ->selectRaw('inventory_id, COUNT(inventory_id) AS total, meeting')
+            ->with(['inventory'])
+            ->join('requests', 'requests.id', '=', 'inventory_request.request_id')
+            ->join('inventories', 'inventories.id', '=', 'inventory_request.inventory_id')
+            ->whereNotNull('meeting')
+            ->where('applied', false)
+            ->whereDate('start_date','<', now())
+            ->groupBy(['inventory_id', 'meeting'])
+            ->havingRaw('COUNT(inventory_id) >= meeting')
+            ->get();
+    }
+
+    public function updateSnackUncountableApplied(int $inventoryId, int $limit)
+    {
+        $this->entity
+            ->whereIn('request_id', function ($query) use ($inventoryId, $limit) {
+                $query
+                    ->selectRaw("TOP $limit request_id")
+                    ->from('inventory_request')
+                    ->where('inventory_id', $inventoryId)
+                    ->orderBy('created_at', 'ASC');
+            })
+            ->where('inventory_id', $inventoryId)
+            ->update(['applied' => true]);
+    }
 }

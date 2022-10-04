@@ -166,6 +166,7 @@ class NotificationService extends BaseService implements NotificationServiceInte
 
     /**
      * @return void
+     * @throws CustomErrorException
      */
     private function createRow(NotificationDTO $dto)
     {
