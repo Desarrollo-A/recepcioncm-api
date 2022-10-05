@@ -61,13 +61,12 @@ class StoreRequestRoomRequest extends FormRequest implements ReturnDtoInterface
             'user_id' => auth()->id()
         ]);
 
-        $request->duration = $request->start_date->diffInMinutes($request->end_date);
-
         return new RequestRoomDTO([
             'room_id' => $this->requestRoom['roomId'],
             'external_people' => $this->requestRoom['externalPeople'],
             'level_id' => $this->requestRoom['levelId'],
-            'request' => $request
+            'request' => $request,
+            'duration' => $request->start_date->diffInMinutes($request->end_date)
         ]);
     }
 }

@@ -4,18 +4,13 @@ namespace App\Models\Enums\Lookups;
 
 use Illuminate\Support\Collection;
 
-class TypeNotificationsLookup
+class NotificationIconLookup
 {
-    const ROOM = 'Sala';
-    const TRAVEL = 'Traslados';
-    const INVENTORY = 'Inventario';
-    const PAPER = 'Papelería';
-    const PARCEL = 'Paquetería';
-    const GENERAL = 'General';
+    const ROOM = 'mat:meeting_room';
 
     public static function getAll(): Collection
     {
-        return collect([self::ROOM, self::TRAVEL, self::INVENTORY, self::PAPER, self::PARCEL, self::GENERAL]);
+        return collect([self::ROOM]);
     }
 
     public static function code($const)

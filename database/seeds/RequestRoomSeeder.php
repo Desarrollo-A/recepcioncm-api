@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Seeder;
 use App\Models\Enums\Lookups\StatusRequestLookup;
+use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
 use App\Models\Lookup;
@@ -35,6 +36,12 @@ class RequestRoomSeeder extends Seeder
             ->first()
             ->id;
 
+        $typeRoom = Lookup::query()
+            ->where('type', TypeLookup::TYPE_REQUEST)
+            ->where('code', TypeRequestLookup::code(TypeRequestLookup::ROOM))
+            ->first()
+            ->id;
+
         $levelMeetings = Lookup::query()
             ->where('type', TypeLookup::LEVEL_MEETING)
             ->get();
@@ -44,56 +51,59 @@ class RequestRoomSeeder extends Seeder
         User::query()
             ->where('role_id', $roleApplicant)
             ->get()
-            ->each(function ($user) use ($statusNew, $levelMeetings) {
-                Room::all()->each(function ($room) use ($user, $statusNew, $levelMeetings) {
+            ->each(function ($user) use ($statusNew, $levelMeetings, $typeRoom) {
+                Room::all()->each(function ($room) use ($user, $statusNew, $levelMeetings, $typeRoom) {
                     $date = now()->addDays(7)->toDateString();
 
                     $request = factory(Request::class)
                         ->create([
                             'start_date' => "$date $this->START_TIME_MORNING",
                             'end_date' => "$date $this->END_TIME_MORNING",
-                            'duration' => 60,
                             'user_id' => $user->id,
-                            'status_id' => $statusNew
+                            'status_id' => $statusNew,
+                            'type_id' => $typeRoom
                         ]);
 
                     factory(RequestRoom::class)
                         ->create([
                             'request_id' => $request->id,
                             'room_id' => $room->id,
-                            'level_id' => $levelMeetings->random()->id
+                            'level_id' => $levelMeetings->random()->id,
+                            'duration' => 60
                         ]);
 
                     $request = factory(Request::class)
                         ->create([
                             'start_date' => "$date $this->START_TIME_MIDDAY",
                             'end_date' => "$date $this->END_TIME_MIDDAY",
-                            'duration' => 60,
                             'user_id' => $user->id,
-                            'status_id' => $statusNew
+                            'status_id' => $statusNew,
+                            'type_id' => $typeRoom
                         ]);
 
                     factory(RequestRoom::class)
                         ->create([
                             'request_id' => $request->id,
                             'room_id' => $room->id,
-                            'level_id' => $levelMeetings->random()->id
+                            'level_id' => $levelMeetings->random()->id,
+                            'duration' => 60
                         ]);
 
                     $request = factory(Request::class)
                         ->create([
                             'start_date' => "$date $this->START_TIME_AFTERNOON",
                             'end_date' => "$date $this->END_TIME_AFTERNOON",
-                            'duration' => 60,
                             'user_id' => $user->id,
-                            'status_id' => $statusNew
+                            'status_id' => $statusNew,
+                            'type_id' => $typeRoom
                         ]);
 
                     factory(RequestRoom::class)
                         ->create([
                             'request_id' => $request->id,
                             'room_id' => $room->id,
-                            'level_id' => $levelMeetings->random()->id
+                            'level_id' => $levelMeetings->random()->id,
+                            'duration' => 60
                         ]);
                 });
             });

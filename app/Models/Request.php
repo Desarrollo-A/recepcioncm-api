@@ -14,13 +14,13 @@ class Request extends Model
 {
     const INITIAL_CODE = 'SOL-';
 
-    protected $fillable = ['code', 'title', 'start_date', 'end_date', 'duration', 'comment', 'add_google_calendar',
+    protected $fillable = ['code', 'title', 'start_date', 'end_date', 'type_id', 'comment', 'add_google_calendar',
         'people', 'user_id', 'status_id', 'cancel_comment'];
 
     protected $casts = [
         'start_date' => 'datetime',
         'end_date' => 'datetime',
-        'duration' => 'integer',
+        'type_id' => 'integer',
         'add_google_calendara' => 'boolean',
         'people' => 'integer',
         'user_id' => 'integer',
@@ -42,6 +42,11 @@ class Request extends Model
     public function status(): BelongsTo
     {
         return $this->belongsTo(Lookup::class, 'status_id', 'id');
+    }
+
+    public function type(): BelongsTo
+    {
+        return $this->belongsTo(Lookup::class, 'type_id', 'id');
     }
 
     public function inventories(): BelongsToMany

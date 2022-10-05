@@ -23,9 +23,11 @@ class NotificationResource extends Resource
             'requestId' => $this->request_id,
             'typeId' => $this->type_id,
             'colorId' => $this->color_id,
+            'iconId' => $this->icon_id,
             'createdAt' => $this->created_at,
             'type' => LookupResource::make($this->whenLoaded('type')),
-            'color' => LookupResource::make($this->whenLoaded('color'))
+            'color' => LookupResource::make($this->whenLoaded('color')),
+            'icon' => LookupResource::make($this->whenLoaded('icon'))
         ];
     }
 }

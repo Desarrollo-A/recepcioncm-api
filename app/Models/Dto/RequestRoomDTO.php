@@ -35,6 +35,11 @@ class RequestRoomDTO
     public $level_id;
 
     /**
+     * @var int
+     */
+    public $duration;
+
+    /**
      * @var InventoryRequestDTO[]
      */
     public $inventoryRequest;

@@ -4,15 +4,16 @@ namespace App\Models\Enums\Lookups;
 
 use Illuminate\Support\Collection;
 
-class ServicesListLookup
+class TypeRequestLookup
 {
-    const ROOM = 'Sala de Juntas';
-    const CAR = 'Automóvil';
-    const DRIVER = 'Conductor';
+    const ROOM = 'Sala de junta';
+    const TRAVEL = 'Traslados';
+    const PAPER = 'Papelería';
+    const PARCEL = 'Paquetería';
 
     public static function getAll(): Collection
     {
-        return collect([self::ROOM, self::CAR, self::DRIVER]);
+        return collect([self::ROOM, self::TRAVEL, self::PAPER, self::PARCEL]);
     }
 
     public static function code($const)

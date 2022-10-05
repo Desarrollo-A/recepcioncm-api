@@ -9,6 +9,7 @@ use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
 use App\Models\Dto\NotificationDTO;
 use App\Models\Enums\Lookups\NotificationColorLookup;
+use App\Models\Enums\Lookups\NotificationIconLookup;
 use App\Models\Enums\Lookups\StatusRequestLookup;
 use App\Models\Enums\Lookups\TypeNotificationsLookup;
 use App\Models\Enums\NameRole;
@@ -41,7 +42,8 @@ class NotificationService extends BaseService implements NotificationServiceInte
             'user_id' => $requestRoom->room->recepcionist_id,
             'request_id' => $requestRoom->request_id,
             'type_id' => $this->getTypeId(TypeNotificationsLookup::ROOM),
-            'color_id' => $this->getColorId(NotificationColorLookup::BLUE)
+            'color_id' => $this->getColorId(NotificationColorLookup::BLUE),
+            'icon_id' => $this->getIconId(NotificationIconLookup::ROOM)
         ]);
         $this->createRow($notificationDTO);
     }
@@ -62,7 +64,8 @@ class NotificationService extends BaseService implements NotificationServiceInte
             'user_id' => $request->user_id,
             'request_id' => $request->id,
             'type_id' => $this->getTypeId(TypeNotificationsLookup::ROOM),
-            'color_id' => $this->getColorId(NotificationColorLookup::GREEN)
+            'color_id' => $this->getColorId(NotificationColorLookup::GREEN),
+            'icon_id' => $this->getIconId(NotificationIconLookup::ROOM)
         ]);
         $this->createRow($notificationDTO);
     }
@@ -78,7 +81,8 @@ class NotificationService extends BaseService implements NotificationServiceInte
             'user_id' => $request->user_id,
             'request_id' => $request->id,
             'type_id' => $this->getTypeId(TypeNotificationsLookup::ROOM),
-            'color_id' => $this->getColorId(NotificationColorLookup::ORANGE)
+            'color_id' => $this->getColorId(NotificationColorLookup::ORANGE),
+            'icon_id' => $this->getIconId(NotificationIconLookup::ROOM)
         ]);
         $this->createRow($notificationDTO);
     }
@@ -93,7 +97,8 @@ class NotificationService extends BaseService implements NotificationServiceInte
             'message' => "La solicitud $request->code fue Eliminada",
             'user_id' => $request->requestRoom->room->recepcionist_id,
             'type_id' => $this->getTypeId(TypeNotificationsLookup::ROOM),
-            'color_id' => $this->getColorId(NotificationColorLookup::RED)
+            'color_id' => $this->getColorId(NotificationColorLookup::RED),
+            'icon_id' => $this->getIconId(NotificationIconLookup::ROOM)
         ]);
         $this->createRow($notificationDTO);
     }
@@ -113,7 +118,8 @@ class NotificationService extends BaseService implements NotificationServiceInte
             'user_id' => $userId,
             'request_id' => $request->id,
             'type_id' => $this->getTypeId(TypeNotificationsLookup::ROOM),
-            'color_id' => $this->getColorId(NotificationColorLookup::RED)
+            'color_id' => $this->getColorId(NotificationColorLookup::RED),
+            'icon_id' => $this->getIconId(NotificationIconLookup::ROOM)
         ]);
         $this->createRow($notificationDTO);
     }
@@ -139,7 +145,8 @@ class NotificationService extends BaseService implements NotificationServiceInte
             'user_id' => $request->requestRoom->room->recepcionist_id,
             'request_id' => $request->id,
             'type_id' => $this->getTypeId(TypeNotificationsLookup::ROOM),
-            'color_id' => $colorId
+            'color_id' => $colorId,
+            'icon_id' => $this->getIconId(NotificationIconLookup::ROOM)
         ]);
         $this->createRow($notificationDTO);
     }
@@ -170,7 +177,7 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     private function createRow(NotificationDTO $dto)
     {
-        $this->entityRepository->create($dto->toArray(['message', 'user_id', 'request_id', 'type_id', 'color_id']));
+        $this->entityRepository->create($dto->toArray(['message', 'user_id', 'request_id', 'type_id', 'color_id', 'icon_id']));
     }
 
     private function getColorId(string $value): int
@@ -183,5 +190,11 @@ class NotificationService extends BaseService implements NotificationServiceInte
     {
         return $this->lookupRepository->findByCodeAndType(TypeNotificationsLookup::code($value),
             TypeLookup::REQUEST_TYPE_NOTIFICATIONS)->id;
+    }
+
+    private function getIconId(string $value): int
+    {
+        return $this->lookupRepository->findByCodeAndType(NotificationIconLookup::code($value),
+            TypeLookup::NOTIFICATION_ICON)->id;
     }
 }

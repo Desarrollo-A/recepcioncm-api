@@ -24,7 +24,10 @@ class CreateRequestsTable extends Migration
             $table->index('start_date');
             $table->datetime('end_date');
             $table->index('end_date');
-            $table->smallInteger('duration');
+            $table->unsignedSmallInteger('type_id');
+            $table->foreign('type_id')
+                ->references('id')
+                ->on('lookups');
             $table->text('comment')
                 ->nullable();
             $table->boolean('add_google_calendar');

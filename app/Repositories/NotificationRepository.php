@@ -26,7 +26,7 @@ class NotificationRepository extends BaseRepository implements NotificationRepos
     public function getAllNotificationUnread(int $userId): Collection
     {
         return $this->entity
-            ->with(['type', 'color'])
+            ->with(['type', 'color', 'icon'])
             ->where('user_id',$userId)
             ->where('is_read',false)
             ->orderBy('created_at', 'DESC')

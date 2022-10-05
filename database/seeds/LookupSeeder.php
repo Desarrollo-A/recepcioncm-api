@@ -4,7 +4,7 @@ use Illuminate\Database\Seeder;
 use App\Models\Enums\Lookups\StatusUserLookup;
 use App\Models\Lookup;
 use App\Models\Enums\TypeLookup;
-use App\Models\Enums\Lookups\ServicesListLookup;
+use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Enums\Lookups\StatusCarLookup;
 use App\Models\Enums\Lookups\StatusRequestLookup;
 use App\Models\Enums\Lookups\LevelMeetingLookup;
@@ -13,6 +13,7 @@ use App\Models\Enums\Lookups\UnitTypeLookup;
 use App\Models\Enums\Lookups\StatusRoomLookup;
 use App\Models\Enums\Lookups\TypeNotificationsLookup;
 use App\Models\Enums\Lookups\NotificationColorLookup;
+use App\Models\Enums\Lookups\NotificationIconLookup;
 
 class LookupSeeder extends Seeder
 {
@@ -31,10 +32,10 @@ class LookupSeeder extends Seeder
            ]);
         });
 
-        ServicesListLookup::getAll()->each(function ($lookup) {
+        TypeRequestLookup::getAll()->each(function ($lookup) {
             Lookup::query()->create([
-                'type' => TypeLookup::SERVICES_LIST,
-                'code' => ServicesListLookup::code($lookup),
+                'type' => TypeLookup::TYPE_REQUEST,
+                'code' => TypeRequestLookup::code($lookup),
                 'name' => $lookup
             ]);
         });
@@ -101,6 +102,14 @@ class LookupSeeder extends Seeder
                 'code' => NotificationColorLookup::code($lookup),
                 'name' => $lookup
             ]);
+        });
+
+        NotificationIconLookup::getAll()->each(function ($lookup) {
+           Lookup::query()->create([
+               'type' => TypeLookup::NOTIFICATION_ICON,
+               'code' => NotificationIconLookup::code($lookup),
+               'name' => $lookup
+           ]);
         });
     }
 }

@@ -12,10 +12,11 @@ class RequestRoom extends Model
     protected $primaryKey = 'request_id';
     public $incrementing = false;
 
-    protected $fillable = ['request_id', 'room_id', 'external_people', 'level_id'];
+    protected $fillable = ['request_id', 'room_id', 'duration', 'external_people', 'level_id'];
 
     protected $casts = [
         'request_id' => 'integer',
+        'duration' => 'integer',
         'room_id' => 'integer',
         'external_people' => 'integer',
         'level_id' => 'integer'

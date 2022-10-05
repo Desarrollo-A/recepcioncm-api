@@ -38,7 +38,7 @@ class RequestDTO
     /**
      * @var int
      */
-    public $duration;
+    public $type_id;
 
     /**
      * @var string

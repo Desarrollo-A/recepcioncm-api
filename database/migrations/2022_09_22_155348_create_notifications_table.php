@@ -35,6 +35,10 @@ class CreateNotificationsTable extends Migration
             $table->foreign('color_id')
                 ->references('id')
                 ->on('lookups');
+            $table->unsignedSmallInteger('icon_id');
+            $table->foreign('icon_id')
+                ->references('id')
+                ->on('lookups');
             $table->timestamps();
         });
     }

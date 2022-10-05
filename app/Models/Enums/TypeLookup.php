@@ -5,7 +5,7 @@ namespace App\Models\Enums;
 class TypeLookup
 {
     const STATUS_USER = 1; // ESTATUS DEL USUARIO
-    const SERVICES_LIST = 2; // SERVICIOS (REUNIÓN, CHOFER, AUTO)
+    const TYPE_REQUEST = 2; // SERVICIOS (SALA DE JUNTAS, TRASLADOS, PAPELERÍA, ETC)
     const STATUS_REQUEST = 3; // ESTATUS DE SOLICITUD (NUEVA, CANCELADA, EN REVISIÓN, ETC)
     const LEVEL_MEETING = 4; // TIPO DE REUNIÓN (ADMINISTRATIVA O DIRECTIVA)
     const INVENTORY_TYPE = 5; // TIPO DE INVENTARIO (Papelería, Botiquín, Limpieza, Cafetería)
@@ -14,4 +14,5 @@ class TypeLookup
     const REQUEST_TYPE_NOTIFICATIONS = 8; // (Sala, Automóvil, Conductor, Inventario, ETC.)
     const STATUS_CAR = 9; // (ACTIVO, BAJA, MANTENIMIENTO)
     const NOTIFICATION_COLOR = 10;
+    const NOTIFICATION_ICON = 11;
 }

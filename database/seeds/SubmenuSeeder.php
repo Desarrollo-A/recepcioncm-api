@@ -26,20 +26,6 @@ class SubmenuSeeder extends Seeder
         ]);
 
         Submenu::query()->create([
-            'path_route' => '/auto',
-            'label' => 'Automóvil',
-            'order' => 2,
-            'menu_id' => $requestMenu
-        ]);
-
-        Submenu::query()->create([
-            'path_route' => '/conductor',
-            'label' => 'Conductor',
-            'order' => 3,
-            'menu_id' => $requestMenu
-        ]);
-
-        Submenu::query()->create([
             'path_route' => '/sala',
             'label' => 'Salas de Junta',
             'order' => 1,
@@ -47,37 +33,9 @@ class SubmenuSeeder extends Seeder
         ]);
 
         Submenu::query()->create([
-            'path_route' => '/auto',
-            'label' => 'Automóvil',
-            'order' => 2,
-            'menu_id' => $historyMenu
-        ]);
-
-        Submenu::query()->create([
-            'path_route' => '/conductor',
-            'label' => 'Conductor',
-            'order' => 3,
-            'menu_id' => $historyMenu
-        ]);
-
-        Submenu::query()->create([
             'path_route' => '/sala',
             'label' => 'Salas de Junta',
             'order' => 1,
-            'menu_id' => $historyRecepcionistMenu
-        ]);
-
-        Submenu::query()->create([
-            'path_route' => '/auto',
-            'label' => 'Automóvil',
-            'order' => 2,
-            'menu_id' => $historyRecepcionistMenu
-        ]);
-
-        Submenu::query()->create([
-            'path_route' => '/conductor',
-            'label' => 'Conductor',
-            'order' => 3,
             'menu_id' => $historyRecepcionistMenu
         ]);
 

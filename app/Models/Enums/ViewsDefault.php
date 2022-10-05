@@ -15,9 +15,7 @@ class ViewsDefault
         [
             'path' => '/dashboard/solicitudes',
             'submenus' => [
-                ['path' => '/sala'],
-                ['path' => '/auto'],
-                ['path' => '/conductor']
+                ['path' => '/sala']
             ]
         ],
         [
@@ -45,17 +43,13 @@ class ViewsDefault
         [
             'path' => '/dashboard/solicitud',
             'submenus' => [
-                ['path' => '/sala'],
-                ['path' => '/auto'],
-                ['path' => '/conductor']
+                ['path' => '/sala']
             ]
         ],
         [
             'path' => '/dashboard/historial',
             'submenus' => [
-                ['path' => '/sala'],
-                ['path' => '/auto'],
-                ['path' => '/conductor']
+                ['path' => '/sala']
             ]
         ],
         [

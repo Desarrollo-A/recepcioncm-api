@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Notification extends Model
 {
-    protected $fillable = ['message', 'user_id', 'request_id', 'type_id', 'is_read', 'color_id'];
+    protected $fillable = ['message', 'user_id', 'request_id', 'type_id', 'is_read', 'color_id', 'icon_id'];
 
     public $allowedSorts = ['id'];
 
@@ -17,6 +17,7 @@ class Notification extends Model
         'user_id' => 'integer',
         'request_id' => 'integer',
         'type_id' => 'integer',
+        'icon_id' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
@@ -39,5 +40,10 @@ class Notification extends Model
     public function color(): BelongsTo
     {
         return $this->belongsTo(Lookup::class, 'color_id', 'id');
+    }
+
+    public function icon(): BelongsTo
+    {
+        return $this->belongsTo(Lookup::class, 'icon_id', 'id');
     }
 }

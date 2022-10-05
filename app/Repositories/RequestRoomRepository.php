@@ -27,6 +27,7 @@ class RequestRoomRepository extends BaseRepository implements RequestRoomReposit
             ->with([
                 'request',
                 'request.status',
+                'request.type',
                 'request.user',
                 'request.inventories',
                 'request.cancelRequest',

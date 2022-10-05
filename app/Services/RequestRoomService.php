@@ -22,6 +22,7 @@ use App\Models\Dto\RequestDTO;
 use App\Models\Dto\RequestRoomDTO;
 use App\Models\Enums\Lookups\InventoryTypeLookup;
 use App\Models\Enums\Lookups\StatusRequestLookup;
+use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
 use App\Models\RequestRoom;
@@ -82,12 +83,14 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
     {
         $dto->request->status_id = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::NEW),
             TypeLookup::STATUS_REQUEST)->id;
+        $dto->request->type_id = $this->lookupRepository->findByCodeAndType(TypeRequestLookup::code(TypeRequestLookup::ROOM),
+            TypeLookup::TYPE_REQUEST)->id;
 
-        $request = $this->requestRepository->create($dto->request->toArray(['title', 'start_date', 'end_date', 'duration',
+        $request = $this->requestRepository->create($dto->request->toArray(['title', 'start_date', 'end_date', 'type_id',
             'comment', 'add_google_calendar', 'people', 'user_id', 'status_id']));
         $dto->request_id = $request->id;
         return $this->entityRepository
-            ->create($dto->toArray(['request_id', 'room_id', 'external_people','level_id']))
+            ->create($dto->toArray(['request_id', 'room_id', 'external_people','level_id', 'duration']))
             ->fresh(['request', 'room', 'level']);
     }
 
@@ -234,7 +237,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
     {
         $requestsInDay = $this->requestRepository->roomsSetAsideByDay($date);
         $requestsProposalInDay = $this->proposalRequestRepository->roomsSetAsideByDay($date);
-        $duration = $this->requestRepository->findById($requestId)->duration / 60;
+        $duration = $this->entityRepository->findById($requestId)->duration / 60;
         if ($requestsInDay->count() === 0 && $requestsProposalInDay->count() === 0) {
             return collect(Utils::getAvailableSchedule($date->format('Y-m-d'), $duration));
         }
