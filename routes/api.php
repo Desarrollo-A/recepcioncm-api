@@ -182,11 +182,19 @@ Route::prefix('v1')->group(function () {
                     ->where('id', Validation::INTEGER_ID);
             });
 
+        Route::prefix('calendar')
+            ->name('calendar.')
+            ->group(function () {
+                Route::get('/', 'CalendarController@findAll')
+                    ->name('find-all');
+            });
+
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');
         Route::apiResource('rooms', 'RoomController')->only('store', 'index', 'update', 'destroy');
         Route::apiResource('request-rooms', 'RequestRoomController')->only('store', 'index');
         Route::apiResource('inventories', 'InventoryController')->only('store', 'index',
             'update', 'destroy');
         Route::apiResource('users', 'UserController')->only('index');
+        Route::apiResource('requests', 'RequestController')->only('show');
     });
 });

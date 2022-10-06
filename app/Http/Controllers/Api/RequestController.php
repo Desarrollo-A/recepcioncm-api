@@ -8,6 +8,7 @@ use App\Contracts\Services\RequestServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\Request\ResponseRejectRequestRequest;
+use App\Http\Resources\Request\RequestResource;
 use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
 use Illuminate\Http\JsonResponse;
@@ -15,18 +16,24 @@ use Illuminate\Http\JsonResponse;
 class RequestController extends BaseApiController
 {
     private $requestService;
-    private $lookupService;
+    private $notificationService;
 
     public function __construct(RequestServiceInterface $requestService,
-                                LookupServiceInterface $lookupService,
                                 NotificationServiceInterface $notificationService)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
             ->only('responseRejectRequest', 'deleteRequestRoom');
+        $this->middleware('role.permission:'.NameRole::RECEPCIONIST.','.NameRole::APPLICANT)
+            ->only('show');
 
         $this->requestService = $requestService;
-        $this->lookupService = $lookupService;
         $this->notificationService = $notificationService;
+    }
+
+    public function show(int $id): JsonResponse
+    {
+        $request = $this->requestService->findById($id);
+        return $this->showOne(new RequestResource($request));
     }
 
     public function deleteRequestRoom(int $id): JsonResponse

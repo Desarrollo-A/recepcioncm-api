@@ -24,6 +24,13 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
         $this->entity = $request;
     }
 
+    public function findById(int $id, array $columns = ['*']): Request
+    {
+        return $this->entity
+            ->with(['type'])
+            ->findOrFail($id, $columns);
+    }
+
     public function isAvailableSchedule(Carbon $startDate, Carbon $endDate): bool
     {
         $requests = $this->entity

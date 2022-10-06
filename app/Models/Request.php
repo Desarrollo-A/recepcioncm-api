@@ -21,7 +21,7 @@ class Request extends Model
         'start_date' => 'datetime',
         'end_date' => 'datetime',
         'type_id' => 'integer',
-        'add_google_calendara' => 'boolean',
+        'add_google_calendar' => 'boolean',
         'people' => 'integer',
         'user_id' => 'integer',
         'status_id' => 'integer',

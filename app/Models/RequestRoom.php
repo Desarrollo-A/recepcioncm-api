@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Enums\NameRole;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -40,5 +42,16 @@ class RequestRoom extends Model
     public function proposalRequest(): HasMany
     {
         return $this->hasMany(ProposalRequest::class, 'request_id', 'request_id');
+    }
+
+    public function scopeFilterOfficeOrUser(Builder $query, User $user): Builder
+    {
+        if ($user->role->name === NameRole::RECEPCIONIST) {
+            $query->where('rooms.office_id', $user->office_id);
+        } else if ($user->role->name === NameRole::APPLICANT) {
+            $query->where('requests.user_id', $user->id);
+        }
+
+        return $query;
     }
 }

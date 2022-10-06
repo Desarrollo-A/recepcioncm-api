@@ -16,6 +16,7 @@ class RequestResource extends Resource
         return [
             'id' => $this->id,
             'code' => $this->code,
+            'title' => $this->title,
             'startDate' => $this->start_date->toDateTimeString(),
             'endDate' => $this->end_date->toDateTimeString(),
             'typeId' => $this->type_id,
