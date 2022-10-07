@@ -19,4 +19,9 @@ class CalendarService implements CalendarServiceInterface
     {
         return $this->requestRoomRepository->getDataCalendar($user);
     }
+
+    public function getSummaryOfDay(User $user)
+    {
+        return $this->requestRoomRepository->getSummaryOfDay($user);
+    }
 }

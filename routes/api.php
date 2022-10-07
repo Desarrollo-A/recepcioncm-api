@@ -187,6 +187,8 @@ Route::prefix('v1')->group(function () {
             ->group(function () {
                 Route::get('/', 'CalendarController@findAll')
                     ->name('find-all');
+                Route::get('/summary-day', 'CalendarController@getSummaryOfDay')
+                    ->name('summary-day');
             });
 
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');

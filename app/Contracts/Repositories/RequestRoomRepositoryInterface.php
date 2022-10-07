@@ -13,4 +13,6 @@ use App\Models\User;
 interface RequestRoomRepositoryInterface extends BaseRepositoryInterface
 {
     public function getDataCalendar(User $user);
+
+    public function getSummaryOfDay(User $user);
 }

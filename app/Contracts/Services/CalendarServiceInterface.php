@@ -7,4 +7,6 @@ use App\Models\User;
 interface CalendarServiceInterface
 {
     public function getDataCalendar(User $user);
+
+    public function getSummaryOfDay(User $user);
 }
