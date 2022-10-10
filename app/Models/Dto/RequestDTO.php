@@ -81,6 +81,11 @@ class RequestDTO
     public $proposalRequest;
 
     /**
+     * @var RequestPhoneNumberDTO[]
+     */
+    public $requestPhoneNumber;
+
+    /**
      * @throws CustomErrorException
      */
     public function __construct(array $data = [])

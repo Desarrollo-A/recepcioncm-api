@@ -30,7 +30,8 @@ class RepositoryServiceProvider extends ServiceProvider
         'InventoryHistoryRepositoryInterface' => 'InventoryHistoryRepository',
         'InventoryRequestRepositoryInterface' => 'InventoryRequestRepository',
         'CancelRequestRepositoryInterface' => 'CancelRequestRepository',
-        'ProposalRequestRepositoryInterface' => 'ProposalRequestRepository'
+        'ProposalRequestRepositoryInterface' => 'ProposalRequestRepository',
+        'RequestPhoneNumberRepositoryInterface' => 'RequestPhoneNumberRepository',
     ];
 
     public function register()

@@ -7,6 +7,7 @@ use App\Contracts\Repositories\InventoryRepositoryInterface;
 use App\Contracts\Repositories\InventoryRequestRepositoryInterface;
 use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\ProposalRequestRepositoryInterface;
+use App\Contracts\Repositories\RequestPhoneNumberRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Contracts\Repositories\RequestRoomRepositoryInterface;
 use App\Contracts\Repositories\RequestRoomViewRepositoryInterface;
@@ -43,6 +44,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
     protected $inventoryRequestRepository;
     protected $cancelRequestRepository;
     protected $proposalRequestRepository;
+    protected $requestPhoneNumberRepository;
 
     const DIFF_HOURS_TO_CANCEL = 1;
 
@@ -53,7 +55,8 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
                                 InventoryRepositoryInterface $inventoryRepository,
                                 InventoryRequestRepositoryInterface $inventoryRequestRepository,
                                 CancelRequestRepositoryInterface $cancelRequestRepository,
-                                ProposalRequestRepositoryInterface $proposalRequestRepository)
+                                ProposalRequestRepositoryInterface $proposalRequestRepository,
+                                RequestPhoneNumberRepositoryInterface $requestPhoneNumberRepository)
     {
         $this->entityRepository = $requestRoomRepository;
         $this->requestRepository = $requestRepository;
@@ -63,6 +66,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         $this->inventoryRequestRepository = $inventoryRequestRepository;
         $this->cancelRequestRepository = $cancelRequestRepository;
         $this->proposalRequestRepository = $proposalRequestRepository;
+        $this->requestPhoneNumberRepository = $requestPhoneNumberRepository;
     }
 
     /**
@@ -88,6 +92,16 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
 
         $request = $this->requestRepository->create($dto->request->toArray(['title', 'start_date', 'end_date', 'type_id',
             'comment', 'add_google_calendar', 'people', 'user_id', 'status_id']));
+
+        if (count($dto->request->requestPhoneNumber) > 0) {
+            $phonesInsert = array();
+            foreach ($dto->request->requestPhoneNumber as $data) {
+                $data->request_id = $request->id;
+                $phonesInsert[] = $data->toArray(['request_id', 'name', 'phone', 'created_at', 'updated_at']);
+            }
+            $this->requestPhoneNumberRepository->massInsert($phonesInsert);
+        }
+
         $dto->request_id = $request->id;
         return $this->entityRepository
             ->create($dto->toArray(['request_id', 'room_id', 'external_people','level_id', 'duration']))
