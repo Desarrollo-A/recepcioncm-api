@@ -66,6 +66,11 @@ class Request extends Model
         return $this->hasMany(ProposalRequest::class);
     }
 
+    public function requestPhoneNumber(): HasMany
+    {
+        return $this->hasMany(RequestPhoneNumber::class);
+    }
+
     public function scopeExpired(Builder $query): Builder
     {
         $query->orWhere('lookups.code', StatusRequestLookup::code(StatusRequestLookup::NEW));

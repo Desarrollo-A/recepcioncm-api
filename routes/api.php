@@ -198,5 +198,7 @@ Route::prefix('v1')->group(function () {
             'update', 'destroy');
         Route::apiResource('users', 'UserController')->only('index');
         Route::apiResource('requests', 'RequestController')->only('show');
+        Route::apiResource('request-phone-numbers', 'RequestPhoneNumberController')
+            ->only('store', 'update', 'destroy');
     });
 });

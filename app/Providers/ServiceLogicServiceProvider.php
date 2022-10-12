@@ -27,6 +27,7 @@ class ServiceLogicServiceProvider extends ServiceProvider
         'InventoryRequestServiceInterface' => 'InventoryRequestService',
         'RequestServiceInterface' => 'RequestService',
         'CalendarServiceInterface' => 'CalendarService',
+        'RequestPhoneNumberServiceInterface' => 'RequestPhoneNumberService'
     ];
 
     public function register()

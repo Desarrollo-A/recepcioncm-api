@@ -18,7 +18,8 @@ class CreateRequestPhoneNumbersTable extends Migration
             $table->unsignedBigInteger('request_id');
             $table->foreign('request_id')
                 ->references('id')
-                ->on('requests');
+                ->on('requests')
+                ->onDelete('cascade');
             $table->string('name');
             $table->string('phone', 10);
             $table->timestamps();

@@ -32,6 +32,7 @@ class RequestRoomRepository extends BaseRepository implements RequestRoomReposit
                 'request.status',
                 'request.type',
                 'request.user',
+                'request.requestPhoneNumber',
                 'request.inventories',
                 'request.cancelRequest',
                 'request.cancelRequest.user',
