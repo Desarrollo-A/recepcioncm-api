@@ -15,7 +15,7 @@ class Request extends Model
     const INITIAL_CODE = 'SOL-';
 
     protected $fillable = ['code', 'title', 'start_date', 'end_date', 'type_id', 'comment', 'add_google_calendar',
-        'people', 'user_id', 'status_id', 'cancel_comment'];
+        'people', 'user_id', 'status_id', 'cancel_comment', 'event_google_calendar_id'];
 
     protected $casts = [
         'start_date' => 'datetime',
