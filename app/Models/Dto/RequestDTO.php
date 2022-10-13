@@ -56,6 +56,11 @@ class RequestDTO
     public $add_google_calendar;
 
     /**
+     * @var string
+     */
+    public $event_google_calendar_id;
+
+    /**
      * @var int
      */
     public $people;
