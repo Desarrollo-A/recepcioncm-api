@@ -53,4 +53,32 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
                 StatusRequestLookup::code(StatusRequestLookup::IN_REVIEW)])
             ->get();
     }
+
+    public function getPreviouslyByCode(string $code, array $columns = ['*']): Collection
+    {
+        return $this->entity
+            ->join('lookups', 'lookups.id', '=', 'requests.status_id')
+            ->whereDate('end_date', '<', now())
+            ->where('lookups.code', $code)
+            ->get($columns);
+    }
+
+    public function getExpired(array $columns = ['*']): Collection
+    {
+        return $this->entity
+            ->join('lookups', 'lookups.id', '=', 'requests.status_id')
+            ->whereDate('end_date', '<', now())
+            ->expired()
+            ->get($columns);
+    }
+
+    /**
+     * @return void
+     */
+    public function bulkStatusUpdate(array $ids, int $statusId)
+    {
+        $this->entity
+            ->whereIn('id', $ids)
+            ->update(['status_id' => $statusId]);
+    }
 }
