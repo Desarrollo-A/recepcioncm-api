@@ -31,6 +31,8 @@ class CreateRequestsTable extends Migration
             $table->text('comment')
                 ->nullable();
             $table->boolean('add_google_calendar');
+            $table->string('event_google_calendar_id', 50)
+                ->nullable();
             $table->tinyInteger('people');
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')

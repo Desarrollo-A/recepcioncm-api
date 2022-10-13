@@ -15,7 +15,8 @@
         "laravel/framework": "5.5.*",
         "laravel/passport": "~4.0",
         "laravel/tinker": "~1.0",
-        "lcobucci/jwt": "3.3.3"
+        "lcobucci/jwt": "3.3.3",
+        "spatie/laravel-google-calendar": "2.1"
     },
     "require-dev": {
         "filp/whoops": "~2.0",
