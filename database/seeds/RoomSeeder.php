@@ -30,12 +30,13 @@ class RoomSeeder extends Seeder
             ->where('role_id', $roleRecepcionist)
             ->get()
             ->each(function ($user) use ($status) {
-                factory(Room::class, 3)
-                    ->create([
-                        'office_id' => $user->office_id,
-                        'recepcionist_id' => $user->id,
-                        'status_id' => $status
-                    ]);
+                Room::query()->create([
+                    'name' => 'Carranza',
+                    'no_people' => 12,
+                    'office_id' => $user->office_id,
+                    'recepcionist_id' => $user->id,
+                    'status_id' => $status
+                ]);
             });
     }
 }
