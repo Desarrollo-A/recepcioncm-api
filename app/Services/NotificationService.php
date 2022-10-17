@@ -2,18 +2,24 @@
 
 namespace App\Services;
 
+use App\Contracts\Repositories\ConfirmNotificationRepositoryInterface;
 use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\NotificationRepositoryInterface;
+use App\Contracts\Repositories\RequestNotificationRepositoryInterface;
+use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Contracts\Services\NotificationServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
+use App\Models\Dto\ConfirmNotificationDTO;
 use App\Models\Dto\NotificationDTO;
+use App\Models\Dto\RequestNotificationDTO;
 use App\Models\Enums\Lookups\NotificationColorLookup;
 use App\Models\Enums\Lookups\NotificationIconLookup;
 use App\Models\Enums\Lookups\StatusRequestLookup;
 use App\Models\Enums\Lookups\TypeNotificationsLookup;
 use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
+use App\Models\Notification;
 use App\Models\Request;
 use App\Models\RequestRoom;
 use App\Models\User;
@@ -22,69 +28,72 @@ use Illuminate\Database\Eloquent\Collection;
 class NotificationService extends BaseService implements NotificationServiceInterface
 {
     protected $entityRepository;
-    private $lookupRepository;
+    protected $lookupRepository;
+    protected $requestRepository;
+    protected $requestNotificationRepository;
+    protected $confirmNotificationRepository;
 
     public function __construct(NotificationRepositoryInterface $notificationRepository,
-                                LookupRepositoryInterface       $lookupRepository)
+                                LookupRepositoryInterface $lookupRepository,
+                                RequestRepositoryInterface $requestRepository,
+                                ConfirmNotificationRepositoryInterface $confirmNotificationRepository,
+                                RequestNotificationRepositoryInterface $requestNotificationRepository)
     {
         $this->entityRepository = $notificationRepository;
         $this->lookupRepository = $lookupRepository;
+        $this->requestRepository = $requestRepository;
+        $this->confirmNotificationRepository = $confirmNotificationRepository;
+        $this->requestNotificationRepository = $requestNotificationRepository;
     }
 
     /**
-     * @return void
      * @throws CustomErrorException
      */
-    public function createRequestRoomNotification(RequestRoom $requestRoom)
+    public function createRequestRoomNotification(RequestRoom $requestRoom): Notification
     {
         $notificationDTO = new NotificationDTO([
             'message' => "Nueva solicitud de sala {$requestRoom->request->code}",
             'user_id' => $requestRoom->room->recepcionist_id,
-            'request_id' => $requestRoom->request_id,
             'type_id' => $this->getTypeId(TypeNotificationsLookup::ROOM),
             'color_id' => $this->getColorId(NotificationColorLookup::BLUE),
             'icon_id' => $this->getIconId(NotificationIconLookup::ROOM)
         ]);
-        $this->createRow($notificationDTO);
+        return $this->createRow($notificationDTO);
     }
 
-    public function getAllNotificationUnread(int $userId): Collection
+    public function getAllNotificationLast5Days(int $userId): Collection
     {
-        return $this->entityRepository->getAllNotificationUnread($userId);
+        return $this->entityRepository->getAllNotificationLast5Days($userId);
     }
 
     /**
-     * @return void
      * @throws CustomErrorException
      */
-    public function newOrResponseToApprovedRequestRoomNotification(Request $request)
+    public function newOrResponseToApprovedRequestRoomNotification(Request $request): Notification
     {
         $notificationDTO = new NotificationDTO([
             'message' => "La solicitud de sala $request->code fue " . StatusRequestLookup::APPROVED,
             'user_id' => $request->user_id,
-            'request_id' => $request->id,
             'type_id' => $this->getTypeId(TypeNotificationsLookup::ROOM),
             'color_id' => $this->getColorId(NotificationColorLookup::GREEN),
             'icon_id' => $this->getIconId(NotificationIconLookup::ROOM)
         ]);
-        $this->createRow($notificationDTO);
+        return $this->createRow($notificationDTO);
     }
 
     /**
-     * @return void
      * @throws CustomErrorException
      */
-    public function newToProposalRequestRoomNotification(Request $request)
+    public function newToProposalRequestRoomNotification(Request $request): Notification
     {
         $notificationDTO = new NotificationDTO([
             'message' => "Propuesta de la solicitud de sala $request->code",
             'user_id' => $request->user_id,
-            'request_id' => $request->id,
             'type_id' => $this->getTypeId(TypeNotificationsLookup::ROOM),
             'color_id' => $this->getColorId(NotificationColorLookup::ORANGE),
             'icon_id' => $this->getIconId(NotificationIconLookup::ROOM)
         ]);
-        $this->createRow($notificationDTO);
+        return $this->createRow($notificationDTO);
     }
 
     /**
@@ -104,10 +113,9 @@ class NotificationService extends BaseService implements NotificationServiceInte
     }
 
     /**
-     * @return void
      * @throws CustomErrorException
      */
-    public function approvedToCancelledRequestRoomNotification(Request $request, User $user)
+    public function approvedToCancelledRequestRoomNotification(Request $request, User $user): Notification
     {
         $userId = ($user->role->name === NameRole::RECEPCIONIST)
             ? $request->user_id
@@ -116,19 +124,17 @@ class NotificationService extends BaseService implements NotificationServiceInte
         $notificationDTO = new NotificationDTO([
             'message' => "La solicitud de sala $request->code fue " . StatusRequestLookup::CANCELLED,
             'user_id' => $userId,
-            'request_id' => $request->id,
             'type_id' => $this->getTypeId(TypeNotificationsLookup::ROOM),
             'color_id' => $this->getColorId(NotificationColorLookup::RED),
             'icon_id' => $this->getIconId(NotificationIconLookup::ROOM)
         ]);
-        $this->createRow($notificationDTO);
+        return $this->createRow($notificationDTO);
     }
 
     /**
-     * @return void
      * @throws CustomErrorException
      */
-    public function proposalToRejectedOrResponseRequestRoomNotification(Request $request)
+    public function proposalToRejectedOrResponseRequestRoomNotification(Request $request): Notification
     {
         $message = '';
         $colorId = null;
@@ -143,12 +149,11 @@ class NotificationService extends BaseService implements NotificationServiceInte
         $notificationDTO = new NotificationDTO([
             'message' => $message,
             'user_id' => $request->requestRoom->room->recepcionist_id,
-            'request_id' => $request->id,
             'type_id' => $this->getTypeId(TypeNotificationsLookup::ROOM),
             'color_id' => $colorId,
             'icon_id' => $this->getIconId(NotificationIconLookup::ROOM)
         ]);
-        $this->createRow($notificationDTO);
+        return $this->createRow($notificationDTO);
     }
 
     /**
@@ -175,9 +180,35 @@ class NotificationService extends BaseService implements NotificationServiceInte
      * @return void
      * @throws CustomErrorException
      */
-    private function createRow(NotificationDTO $dto)
+    public function createConfirmNotification()
     {
-        $this->entityRepository->create($dto->toArray(['message', 'user_id', 'request_id', 'type_id', 'color_id', 'icon_id']));
+        $this->requestRepository->getApprovedRequestsTomorrow()->each(function (Request $request) {
+            $notificationDTO = new NotificationDTO([
+                'message' => "Confirmación de solicitud $request->code",
+                'user_id' => $request->user_id,
+                'type_id' => $this->getTypeId(TypeNotificationsLookup::ROOM),
+                'color_id' => $this->getColorId(NotificationColorLookup::BLUE),
+                'icon_id' => $this->getIconId(NotificationIconLookup::CONFIRM)
+            ]);
+            $notification = $this->createRow($notificationDTO);
+            $requestNotificationDTO = new RequestNotificationDTO([
+                'notification_id' => $notification->id,
+                'request_id' => $request->id
+            ]);
+            $requestNotification = $this->requestNotificationRepository->create($requestNotificationDTO->toArray([
+                'notification_id', 'request_id'
+            ]));
+            $confirmNotificationDTO = new ConfirmNotificationDTO(['request_notification_id' => $requestNotification->id]);
+            $this->confirmNotificationRepository->create($confirmNotificationDTO->toArray(['request_notification_id']));
+        });
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    private function createRow(NotificationDTO $dto): Notification
+    {
+        return $this->entityRepository->create($dto->toArray(['message', 'user_id', 'type_id', 'color_id', 'icon_id']));
     }
 
     private function getColorId(string $value): int

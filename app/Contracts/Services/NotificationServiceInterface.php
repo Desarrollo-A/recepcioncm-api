@@ -3,6 +3,7 @@
 namespace App\Contracts\Services;
 
 use App\Core\Contracts\BaseServiceInterface;
+use App\Models\Notification;
 use App\Models\Request;
 use App\Models\RequestRoom;
 use App\Models\User;
@@ -10,37 +11,22 @@ use Illuminate\Database\Eloquent\Collection;
 
 interface NotificationServiceInterface extends BaseServiceInterface
 {
-    /**
-     * @return void
-     */
-    public function createRequestRoomNotification(RequestRoom $requestRoom);
+    public function createRequestRoomNotification(RequestRoom $requestRoom): Notification;
 
-    public function getAllNotificationUnread(int $userId): Collection;
+    public function getAllNotificationLast5Days(int $userId): Collection;
 
-    /**
-     * @return void
-     */
-    public function newOrResponseToApprovedRequestRoomNotification(Request $request);
+    public function newOrResponseToApprovedRequestRoomNotification(Request $request): Notification;
 
-    /**
-     * @return void
-     */
-    public function newToProposalRequestRoomNotification(Request $request);
+    public function newToProposalRequestRoomNotification(Request $request): Notification;
 
     /**
      * @return void
      */
     public function newToDeletedRequestRoomNotification(Request $request);
 
-    /**
-     * @return void
-     */
-    public function approvedToCancelledRequestRoomNotification(Request $request, User $user);
+    public function approvedToCancelledRequestRoomNotification(Request $request, User $user): Notification;
 
-    /**
-     * @return void
-     */
-    public function proposalToRejectedOrResponseRequestRoomNotification(Request $request);
+    public function proposalToRejectedOrResponseRequestRoomNotification(Request $request): Notification;
 
     /**
      * @return void
@@ -51,4 +37,9 @@ interface NotificationServiceInterface extends BaseServiceInterface
      * @return void
      */
     public function readAllNotificationUser(int $userId);
+
+    /**
+     * @return void
+     */
+    public function createConfirmNotification();
 }

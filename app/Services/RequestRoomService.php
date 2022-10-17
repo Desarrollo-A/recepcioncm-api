@@ -155,17 +155,19 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id']))
             ->fresh(['requestRoom.room.recepcionist', 'user']);
 
-        $emails = array();
-        $emails[] = $request->requestRoom->room->recepcionist->email;
-        if ($request->add_google_calendar) {
-            $emails[] = $request->user->email;
-        }
-        $event = $this->calendarService->createEvent($request->title, $request->start_date, $request->end_date, $emails);
+        if (config('enable.google.calendar', false)) {
+            $emails = array();
+            $emails[] = $request->requestRoom->room->recepcionist->email;
+            if ($request->add_google_calendar) {
+                $emails[] = $request->user->email;
+            }
+            $event = $this->calendarService->createEvent($request->title, $request->start_date, $request->end_date, $emails);
 
-        $dto = new RequestDTO([
-            'event_google_calendar_id' => $event->id
-        ]);
-        $this->requestRepository->update($request->id, $dto->toArray(['event_google_calendar_id']));
+            $dto = new RequestDTO([
+                'event_google_calendar_id' => $event->id
+            ]);
+            $this->requestRepository->update($request->id, $dto->toArray(['event_google_calendar_id']));
+        }
 
         return $request;
     }
@@ -263,7 +265,9 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
             'event_google_calendar_id' => null
         ]);
 
-        $this->calendarService->deleteEvent($request->event_google_calendar_id);
+        if (config('enable.google.calendar', false)) {
+            $this->calendarService->deleteEvent($request->event_google_calendar_id);
+        }
 
         $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id', 'event_google_calendar_id']))
             ->fresh(['requestRoom','requestRoom.room','cancelRequest']);

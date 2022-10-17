@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Contracts\Services\ConfirmNotificationServiceInterface;
 use App\Contracts\Services\NotificationServiceInterface;
 use App\Core\BaseApiController;
 use App\Http\Resources\Notification\NotificationResource;
@@ -11,19 +12,32 @@ use Illuminate\Http\JsonResponse;
 class NotificationController extends BaseApiController
 {
     private $notificationService;
+    private $confirmNotificationService;
 
-    public function __construct(NotificationServiceInterface $notificationService)
+    public function __construct(NotificationServiceInterface $notificationService,
+                                ConfirmNotificationServiceInterface $confirmNotificationService)
     {
         $this->middleware('role.permission:' . NameRole::ADMIN . ','
             . NameRole::APPLICANT . ',' . NameRole::RECEPCIONIST)
-            ->only('getAllNotificationUnread', 'readNotification', 'readAllNotification', 'existUnreadNotifications');
+            ->only('getAllNotificationUnread', 'readNotification', 'readAllNotification',
+                'existUnreadNotifications', 'show');
+
+        $this->middleware('role.permission:' . NameRole::APPLICANT)->only('wasAnswered');
+
         $this->notificationService = $notificationService;
+        $this->confirmNotificationService = $confirmNotificationService;
     }
 
-    public function getAllNotificationUnread(): JsonResponse
+    public function show(int $id): JsonResponse
+    {
+        $notification = $this->notificationService->findById($id);
+        return $this->showOne(new NotificationResource($notification));
+    }
+
+    public function getAllNotificationLast5Days(): JsonResponse
     {
         $userId = auth()->id();
-        $notifications = $this->notificationService->getAllNotificationUnread($userId);
+        $notifications = $this->notificationService->getAllNotificationLast5Days($userId);
         return $this->showAll(NotificationResource::collection($notifications));
     }
 
@@ -36,6 +50,12 @@ class NotificationController extends BaseApiController
     public function readAllNotification(): JsonResponse
     {
         $this->notificationService->readAllNotificationUser(auth()->id());
+        return $this->noContentResponse();
+    }
+
+    public function wasAnswered(int $notificationId): JsonResponse
+    {
+        $this->confirmNotificationService->wasAnswered($notificationId);
         return $this->noContentResponse();
     }
 }

@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Core\BaseRepository;
 use App\Models\Enums\Lookups\StatusRequestLookup;
+use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Request;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -80,5 +81,18 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
         $this->entity
             ->whereIn('id', $ids)
             ->update(['status_id' => $statusId]);
+    }
+
+    public function getApprovedRequestsTomorrow(): Collection
+    {
+        return $this->entity
+            ->select(['requests.*'])
+            ->join('lookups AS status', 'status.id', '=', 'requests.status_id')
+            ->join('lookups AS type', 'type.id', '=', 'requests.type_id')
+            ->whereDate('start_date', now()->addDay())
+            ->where('status.code', StatusRequestLookup::code(StatusRequestLookup::APPROVED))
+            ->whereIn('type.code', [TypeRequestLookup::code(TypeRequestLookup::ROOM),
+                TypeRequestLookup::code(TypeRequestLookup::TRAVEL)])
+            ->get();
     }
 }

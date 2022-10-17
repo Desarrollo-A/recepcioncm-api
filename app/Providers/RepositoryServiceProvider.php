@@ -32,7 +32,8 @@ class RepositoryServiceProvider extends ServiceProvider
         'CancelRequestRepositoryInterface' => 'CancelRequestRepository',
         'ProposalRequestRepositoryInterface' => 'ProposalRequestRepository',
         'RequestPhoneNumberRepositoryInterface' => 'RequestPhoneNumberRepository',
-        'ConfirmNotificationRepositoryInterface' => 'ConfirmNotificationRepository'
+        'ConfirmNotificationRepositoryInterface' => 'ConfirmNotificationRepository',
+        'RequestNotificationRepositoryInterface' => 'RequestNotificationRepository',
     ];
 
     public function register()

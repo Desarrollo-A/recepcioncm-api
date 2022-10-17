@@ -7,6 +7,7 @@ use App\Http\Resources\Inventory\InventoryCollection;
 use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\ProposalRequest\ProposalRequestResource;
 use App\Http\Resources\RequestPhoneNumber\PhoneNumberResource;
+use App\Http\Resources\RequestRoom\RequestRoomResource;
 use App\Http\Resources\User\UserResource;
 use Illuminate\Http\Resources\Json\Resource;
 
@@ -32,7 +33,8 @@ class RequestResource extends Resource
             'inventories' => InventoryCollection::make($this->whenLoaded('inventories')),
             'cancelRequest' => CancelRequestResource::make($this->whenLoaded('cancelRequest')),
             'requestPhoneNumber' => PhoneNumberResource::collection($this->whenLoaded('requestPhoneNumber')),
-            'proposalRequest' => ProposalRequestResource::collection($this->proposalRequest)
+            'proposalRequest' => ProposalRequestResource::collection($this->proposalRequest),
+            'requestRoom' => RequestRoomResource::make($this->whenLoaded('requestRoom'))
         ];
     }
 }

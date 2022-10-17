@@ -26,4 +26,6 @@ interface RequestRepositoryInterface extends BaseRepositoryInterface
      * @return void
      */
     public function bulkStatusUpdate(array $ids, int $statusId);
+
+    public function getApprovedRequestsTomorrow(): Collection;
 }

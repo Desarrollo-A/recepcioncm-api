@@ -6,9 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class ConfirmNotification extends Model
 {
-    protected $fillable = ['notification_id', 'is_answered'];
+    protected $primaryKey = 'request_notification_id';
+    protected $fillable = ['request_notification_id', 'is_answered'];
     protected $casts = [
-        'notification_id' => 'integer',
+        'request_notification_id' => 'integer',
         'is_answered' => 'boolean'
     ];
 }

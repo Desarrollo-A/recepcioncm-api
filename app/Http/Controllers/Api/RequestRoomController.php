@@ -6,6 +6,7 @@ use App\Contracts\Services\InventoryRequestServiceInterface;
 use App\Contracts\Services\InventoryServiceInterface;
 use App\Contracts\Services\LookupServiceInterface;
 use App\Contracts\Services\NotificationServiceInterface;
+use App\Contracts\Services\RequestNotificationServiceInterface;
 use App\Contracts\Services\RequestRoomServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
@@ -32,12 +33,14 @@ class RequestRoomController extends BaseApiController
     private $inventoryService;
     private $inventoryRequestService;
     private $notificationService;
+    private $requestNotificationService;
 
     public function __construct(RequestRoomServiceInterface $requestRoomService,
                                 LookupServiceInterface $lookupService,
                                 InventoryServiceInterface $inventoryService,
                                 InventoryRequestServiceInterface $inventoryRequestService,
-                                NotificationServiceInterface $notificationService)
+                                NotificationServiceInterface $notificationService,
+                                RequestNotificationServiceInterface $requestNotificationService)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)->only('store');
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
@@ -50,6 +53,7 @@ class RequestRoomController extends BaseApiController
         $this->inventoryService = $inventoryService;
         $this->inventoryRequestService = $inventoryRequestService;
         $this->notificationService = $notificationService;
+        $this->requestNotificationService = $requestNotificationService;
     }
 
     public function index(Request $request): JsonResponse
@@ -95,7 +99,8 @@ class RequestRoomController extends BaseApiController
         $dto = $request->toDTO();
         $officeId = auth()->user()->office_id;
         $requestModel = $this->requestRoomService->assignSnack($dto, $officeId);
-        $this->notificationService->newOrResponseToApprovedRequestRoomNotification($requestModel);
+        $notification = $this->notificationService->newOrResponseToApprovedRequestRoomNotification($requestModel);
+        $this->requestNotificationService->create($requestModel->id, $notification->id);
         return $this->noContentResponse();
     }
 
@@ -116,7 +121,8 @@ class RequestRoomController extends BaseApiController
         $requestModel = $this->requestRoomService->cancelRequest($dto, auth()->user());
         $snacks = $this->inventoryRequestService->deleteSnacks($requestId);
         $this->inventoryService->restoreStockAfterInventoriesRequestDeleted($snacks);
-        $this->notificationService->approvedToCancelledRequestRoomNotification($requestModel, auth()->user());
+        $notification = $this->notificationService->approvedToCancelledRequestRoomNotification($requestModel, auth()->user());
+        $this->requestNotificationService->create($requestModel->id, $notification->id);
         return $this->noContentResponse();
     }
 
@@ -133,7 +139,8 @@ class RequestRoomController extends BaseApiController
     {
         $dto = $request->toDTO();
         $requestModel = $this->requestRoomService->proposalRequest($requestId, $dto);
-        $this->notificationService->newToProposalRequestRoomNotification($requestModel);
+        $notification = $this->notificationService->newToProposalRequestRoomNotification($requestModel);
+        $this->requestNotificationService->create($requestModel->id, $notification->id);
         return $this->noContentResponse();
     }
 
