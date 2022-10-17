@@ -16,4 +16,14 @@ interface RequestServiceInterface extends BaseServiceInterface
      * @return void
      */
     public function updateCode(Request $request);
+
+    /**
+     * @return void
+     */
+    public function changeToFinished();
+
+    /**
+     * @return void
+     */
+    public function changeToExpired();
 }

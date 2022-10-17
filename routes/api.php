@@ -143,8 +143,8 @@ Route::prefix('v1')->group(function () {
         Route::prefix('notifications')
             ->name('notifications.')
             ->group(function (){
-                Route::get('/unread','NotificationController@getAllNotificationUnread')
-                    ->name('unread');
+                Route::get('/last','NotificationController@getAllNotificationLast5Days')
+                    ->name('last');
 
                 Route::patch('/read/{id}', 'NotificationController@readNotification')
                     ->name('read')
@@ -153,6 +153,10 @@ Route::prefix('v1')->group(function () {
                 Route::patch('/read-all', 'NotificationController@readAllNotification')
                     ->name('read-all')
                     ->where('id', Validation::INTEGER_ID);
+
+                Route::patch('/answered-notification/{notificationId}', 'NotificationController@wasAnswered')
+                    ->name('answered-notification')
+                    ->where('notificationId', Validation::INTEGER_ID);
             });
 
         Route::prefix('requests')
@@ -200,5 +204,6 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('requests', 'RequestController')->only('show');
         Route::apiResource('request-phone-numbers', 'RequestPhoneNumberController')
             ->only('store', 'update', 'destroy');
+        Route::apiResource('notifications', 'NotificationController')->only('show');
     });
 });

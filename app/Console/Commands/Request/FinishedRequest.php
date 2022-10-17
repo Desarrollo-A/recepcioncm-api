@@ -2,14 +2,13 @@
 
 namespace App\Console\Commands\Request;
 
-use App\Models\Enums\Lookups\StatusRequestLookup;
-use App\Models\Enums\TypeLookup;
-use App\Models\Lookup;
-use App\Models\Request;
+use App\Contracts\Services\RequestServiceInterface;
 use Illuminate\Console\Command;
 
 class FinishedRequest extends Command
 {
+    private $requestService;
+
     /**
      * The name and signature of the console command.
      *
@@ -29,9 +28,10 @@ class FinishedRequest extends Command
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(RequestServiceInterface $requestService)
     {
         parent::__construct();
+        $this->requestService = $requestService;
     }
 
     /**
@@ -41,23 +41,6 @@ class FinishedRequest extends Command
      */
     public function handle()
     {
-        $requests = Request::query()
-            ->join('lookups', 'lookups.id', '=', 'requests.status_id')
-            ->whereDate('end_date', '<', now())
-            ->where('lookups.code', StatusRequestLookup::code(StatusRequestLookup::APPROVED))
-            ->get(['requests.id']);
-
-        if ($requests->count() > 0) {
-            $statusId = Lookup::query()
-                ->where('code', StatusRequestLookup::code(StatusRequestLookup::FINISHED))
-                ->where('type', TypeLookup::STATUS_REQUEST)
-                ->where('status', true)
-                ->firstOrFail()
-                ->id;
-
-            Request::query()
-                ->whereIn('id', array_values($requests->toArray()))
-                ->update(['status_id' => $statusId]);
-        }
+        $this->requestService->changeToFinished();
     }
 }

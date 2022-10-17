@@ -2,24 +2,25 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Contracts\Services\LookupServiceInterface;
 use App\Contracts\Services\NotificationServiceInterface;
+use App\Contracts\Services\RequestNotificationServiceInterface;
 use App\Contracts\Services\RequestServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\Request\ResponseRejectRequestRequest;
 use App\Http\Resources\Request\RequestResource;
 use App\Models\Enums\NameRole;
-use App\Models\Enums\TypeLookup;
 use Illuminate\Http\JsonResponse;
 
 class RequestController extends BaseApiController
 {
     private $requestService;
     private $notificationService;
+    private $requestNotificationService;
 
     public function __construct(RequestServiceInterface $requestService,
-                                NotificationServiceInterface $notificationService)
+                                NotificationServiceInterface $notificationService,
+                                RequestNotificationServiceInterface $requestNotificationService)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
             ->only('responseRejectRequest', 'deleteRequestRoom');
@@ -28,6 +29,7 @@ class RequestController extends BaseApiController
 
         $this->requestService = $requestService;
         $this->notificationService = $notificationService;
+        $this->requestNotificationService = $requestNotificationService;
     }
 
     public function show(int $id): JsonResponse
@@ -50,7 +52,8 @@ class RequestController extends BaseApiController
     {
         $dto = $request->toDTO();
         $requestModel = $this->requestService->responseRejectRequest($id, $dto);
-        $this->notificationService->proposalToRejectedOrResponseRequestRoomNotification($requestModel);
+        $notification = $this->notificationService->proposalToRejectedOrResponseRequestRoomNotification($requestModel);
+        $this->requestNotificationService->create($requestModel->id, $notification->id);
         return $this->noContentResponse();
     }
 }

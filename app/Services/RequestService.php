@@ -92,4 +92,33 @@ class RequestService extends BaseService implements RequestServiceInterface
         $requestDTO = new RequestDTO(['code' => Request::INITIAL_CODE.$request->id]);
         $this->entityRepository->update($request->id, $requestDTO->toArray(['code']));
     }
+
+    public function changeToFinished()
+    {
+        $requests = $this->entityRepository
+            ->getPreviouslyByCode(StatusRequestLookup::code(StatusRequestLookup::APPROVED), ['requests.id']);
+        if ($requests->count() > 0) {
+            $statusId = $this->lookupRepository
+                ->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::FINISHED),
+                    TypeLookup::STATUS_REQUEST)->id;
+            $this->entityRepository->bulkStatusUpdate(array_values($requests->toArray()), $statusId);
+        }
+    }
+
+    public function changeToExpired()
+    {
+        $expired = $this->entityRepository->getExpired(['requests.id']);
+        $statusId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::EXPIRED),
+            TypeLookup::STATUS_REQUEST)->id;
+        if ($expired->count() > 0) {
+            $this->entityRepository->bulkStatusUpdate(array_values($expired->toArray()), $statusId);
+        }
+
+        $proposalRequests = $this->entityRepository
+            ->getPreviouslyByCode(StatusRequestLookup::code(StatusRequestLookup::PROPOSAL), ['requests.id']);
+        if ($proposalRequests->count() > 0) {
+            $this->proposalRequestRepository->deleteInRequestIds(array_values($proposalRequests->toArray()));
+            $this->entityRepository->bulkStatusUpdate(array_values($proposalRequests->toArray()), $statusId);
+        }
+    }
 }

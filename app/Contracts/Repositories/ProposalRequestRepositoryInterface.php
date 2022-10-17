@@ -14,4 +14,9 @@ interface ProposalRequestRepositoryInterface extends BaseRepositoryInterface
      * @return void
      */
     public function deleteByRequestId(int $requestId);
+
+    /**
+     * @return void
+     */
+    public function deleteInRequestIds(array $ids);
 }
