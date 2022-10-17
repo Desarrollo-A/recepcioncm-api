@@ -7,7 +7,7 @@ use Illuminate\Support\Collection;
 class TypeNotificationsLookup
 {
     const ROOM = 'Sala';
-    const TRAVEL = 'Traslados';
+    const TRAVEL = 'Traslado';
     const INVENTORY = 'Inventario';
     const PAPER = 'Papelería';
     const PARCEL = 'Paquetería';

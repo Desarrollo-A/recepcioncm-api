@@ -3,15 +3,19 @@
 namespace App\Observers;
 
 use App\Contracts\Services\NotificationServiceInterface;
+use App\Contracts\Services\RequestNotificationServiceInterface;
 use App\Models\RequestRoom;
 
 class RequestRoomObserver
 {
     private $notificationService;
+    private $requestNotificationService;
 
-    public function __construct(NotificationServiceInterface $notificationService)
+    public function __construct(NotificationServiceInterface $notificationService,
+                                RequestNotificationServiceInterface $requestNotificationService)
     {
         $this->notificationService = $notificationService;
+        $this->requestNotificationService = $requestNotificationService;
     }
 
     /**
@@ -22,6 +26,7 @@ class RequestRoomObserver
      */
     public function created(RequestRoom $requestRoom)
     {
-        $this->notificationService->createRequestRoomNotification($requestRoom->fresh(['request', 'room']));
+        $notification = $this->notificationService->createRequestRoomNotification($requestRoom->fresh(['request', 'room']));
+        $this->requestNotificationService->create($requestRoom->request_id, $notification->id);
     }
 }

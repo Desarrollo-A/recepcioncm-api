@@ -17,4 +17,15 @@ interface RequestRepositoryInterface extends BaseRepositoryInterface
     public function isAvailableSchedule(Carbon $startDate, Carbon $endDate): bool;
 
     public function roomsSetAsideByDay(Carbon $date): Collection;
+
+    public function getPreviouslyByCode(string $code, array $columns = ['*']): Collection;
+
+    public function getExpired(array $columns = ['*']): Collection;
+
+    /**
+     * @return void
+     */
+    public function bulkStatusUpdate(array $ids, int $statusId);
+
+    public function getApprovedRequestsTomorrow(): Collection;
 }

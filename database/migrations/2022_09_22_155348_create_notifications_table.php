@@ -22,11 +22,6 @@ class CreateNotificationsTable extends Migration
             $table->foreign('user_id')
                 ->references('id')
                 ->on('users');
-            $table->unsignedBigInteger('request_id')->nullable();
-            $table->foreign('request_id')
-                ->references('id')
-                ->on('requests')
-                ->onDelete('cascade');
             $table->unsignedSmallInteger('type_id');
             $table->foreign('type_id')
                 ->references('id')

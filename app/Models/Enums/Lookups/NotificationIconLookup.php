@@ -7,10 +7,11 @@ use Illuminate\Support\Collection;
 class NotificationIconLookup
 {
     const ROOM = 'mat:meeting_room';
+    const CONFIRM = 'mat:question_mark';
 
     public static function getAll(): Collection
     {
-        return collect([self::ROOM]);
+        return collect([self::ROOM, self::CONFIRM]);
     }
 
     public static function code($const)

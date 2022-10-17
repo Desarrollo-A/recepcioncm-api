@@ -4,18 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Notification extends Model
 {
-    protected $fillable = ['message', 'user_id', 'request_id', 'type_id', 'is_read', 'color_id', 'icon_id'];
-
-    public $allowedSorts = ['id'];
+    protected $fillable = ['message', 'user_id', 'type_id', 'is_read', 'color_id', 'icon_id'];
 
     protected $casts = [
         'id' => 'integer',
         'is_read' => 'boolean',
         'user_id' => 'integer',
-        'request_id' => 'integer',
         'type_id' => 'integer',
         'icon_id' => 'integer',
         'created_at' => 'datetime',
@@ -25,11 +23,6 @@ class Notification extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function request(): BelongsTo
-    {
-        return $this->belongsTo(Request::class);
     }
 
     public function type(): BelongsTo
@@ -45,5 +38,10 @@ class Notification extends Model
     public function icon(): BelongsTo
     {
         return $this->belongsTo(Lookup::class, 'icon_id', 'id');
+    }
+
+    public function requestNotification(): HasOne
+    {
+        return $this->hasOne(RequestNotification::class);
     }
 }

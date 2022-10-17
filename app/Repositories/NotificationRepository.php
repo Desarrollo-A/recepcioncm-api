@@ -23,12 +23,20 @@ class NotificationRepository extends BaseRepository implements NotificationRepos
         $this->entity = $notification;
     }
 
-    public function getAllNotificationUnread(int $userId): Collection
+    public function findById(int $id, array $columns = ['*']): Notification
     {
         return $this->entity
-            ->with(['type', 'color', 'icon'])
-            ->where('user_id',$userId)
-            ->where('is_read',false)
+            ->with(['type', 'requestNotification', 'requestNotification.request', 'requestNotification.request.requestRoom',
+                'requestNotification.request.requestRoom.room', 'requestNotification.request.requestRoom.room.office'])
+            ->findOrFail($id, $columns);
+    }
+
+    public function getAllNotificationLast5Days(int $userId): Collection
+    {
+        return $this->entity
+            ->with(['type', 'color', 'icon', 'requestNotification', 'requestNotification.request', 'requestNotification.confirmNotification'])
+            ->where('user_id', $userId)
+            ->whereDate('created_at', '>', now()->subDays(5))
             ->orderBy('created_at', 'DESC')
             ->get();
     }
