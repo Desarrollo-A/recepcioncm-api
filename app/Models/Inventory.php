@@ -13,11 +13,12 @@ class Inventory extends Model implements ScopeFilterInterface
     use Sortable;
 
     const IMAGE_DEFAULT = 'no-image-inventory.png';
+    const INITIAL_CODE = 'INV-';
 
-    protected $fillable = ['name', 'description', 'trademark', 'stock', 'minimum_stock', 'status', 'type_id', 'unit_id',
+    protected $fillable = ['code', 'name', 'description', 'trademark', 'stock', 'minimum_stock', 'status', 'type_id', 'unit_id',
         'office_id', 'meeting', 'image'];
 
-    public $allowedSorts = ['id', 'name', 'description', 'trademark', 'stock', 'minimum_stock', 'status_id'];
+    public $allowedSorts = ['id', 'code', 'name', 'description', 'trademark', 'stock', 'minimum_stock', 'status_id'];
 
     protected $casts = [
         'id' => 'integer',
@@ -40,6 +41,9 @@ class Inventory extends Model implements ScopeFilterInterface
 
         if (isset($params['name']) && trim($params['name']) !== '') {
             $query->orWhere('name', 'LIKE', "%${params['name']}%");
+        }
+        if (isset($params['code']) && trim($params['code']) !== '') {
+            $query->orWhere('code', 'LIKE', "%${params['code']}%");
         }
         if (isset($params['description']) && trim($params['description']) !== '') {
             $query->orWhere('description', 'LIKE', "%${params['description']}%");

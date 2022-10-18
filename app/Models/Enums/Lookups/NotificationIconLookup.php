@@ -8,10 +8,11 @@ class NotificationIconLookup
 {
     const ROOM = 'mat:meeting_room';
     const CONFIRM = 'mat:question_mark';
+    const WARNING = 'mat:warning';
 
     public static function getAll(): Collection
     {
-        return collect([self::ROOM, self::CONFIRM]);
+        return collect([self::ROOM, self::CONFIRM, self::WARNING]);
     }
 
     public static function code($const)

@@ -48,13 +48,13 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
             ->firstOrFail();
     }
 
-    public function findByOfficeIdAndRoleRecepcionist(string $oficeId): User
+    public function findByOfficeIdAndRoleRecepcionist(int $officeId): User
     {
         return $this->entity
             ->whereHas('role', function (Builder $query) {
                 $query->where('name', NameRole::RECEPCIONIST);
             })
-            ->where('office_id', $oficeId)
+            ->where('office_id', $officeId)
             ->firstOr(function () {
                 throw new CustomErrorException('No hay una recepcionista asignada en esta oficina.',
                     Response::HTTP_BAD_REQUEST);

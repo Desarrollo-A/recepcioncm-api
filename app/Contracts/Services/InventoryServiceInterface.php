@@ -53,4 +53,9 @@ interface InventoryServiceInterface extends BaseServiceInterface
      * @return void
      */
     public function deleteImage(int $id);
+
+    /**
+     * @return mixed
+     */
+    public function updateCode(Inventory $inventory);
 }
