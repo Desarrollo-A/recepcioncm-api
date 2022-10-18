@@ -82,12 +82,14 @@ class InventoryService extends BaseService implements InventoryServiceInterface
 
         $this->entityRepository->update($id, $dto->toArray(['stock']));
 
-        $inventoryHistoryDTO = new InventoryHistoryDTO([
-            'inventory_id' => $id,
-            'quantity' => $oldStock,
-            'cost' => $dto->cost
-        ]);
-        $this->inventoryHistoryRepository->create($inventoryHistoryDTO->toArray(['inventory_id', 'quantity', 'cost']));
+        if ($oldStock > 0) {
+            $inventoryHistoryDTO = new InventoryHistoryDTO([
+                'inventory_id' => $id,
+                'quantity' => $oldStock,
+                'cost' => $dto->cost
+            ]);
+            $this->inventoryHistoryRepository->create($inventoryHistoryDTO->toArray(['inventory_id', 'quantity', 'cost']));
+        }
     }
 
     /**
