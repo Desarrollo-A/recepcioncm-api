@@ -30,7 +30,15 @@ class CarSeeder extends Seeder
             ->where('role_id', $roleRecepcionist)
             ->get()
             ->each(function ($user) use ($status) {
-                factory(Car::class, 3)->create([
+                Car::query()->create([
+                    'business_name' => 'Fraccionadora la Romita',
+                    'trademark' => 'Chevrolet',
+                    'model' => 'Beat 2018',
+                    'color' => 'Blanco',
+                    'license_plate' => 'UNT246A',
+                    'serie' => 'MA6CA6CD3JT037782',
+                    'circulation_card' => '1693814',
+                    'people' => 4,
                     'office_id' => $user->office_id,
                     'status_id' => $status
                 ]);
