@@ -15,6 +15,7 @@ class InventoryResource extends Resource
     {
         return [
             'id' => $this->id,
+            'code' => $this->code,
             'name' => $this->name,
             'description' => $this->description,
             'trademark' => $this->trademark,
