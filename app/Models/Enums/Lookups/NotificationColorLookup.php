@@ -10,10 +10,11 @@ class NotificationColorLookup
     const GREEN = '#15803d';
     const ORANGE = '#ea580c';
     const RED = '#dc2626';
+    const YELLOW = '#facc15';
 
     public static function getAll(): Collection
     {
-        return collect([self::BLUE, self::GREEN, self::ORANGE, self::RED]);
+        return collect([self::BLUE, self::GREEN, self::ORANGE, self::RED, self::YELLOW]);
     }
 
     public static function code($const)

@@ -167,4 +167,13 @@ class InventoryService extends BaseService implements InventoryServiceInterface
         $dto = new InventoryDTO(['image' => Inventory::IMAGE_DEFAULT]);
         $this->entityRepository->update($id, $dto->toArray(['image']));
     }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function updateCode(Inventory $inventory)
+    {
+        $inventoryDTO = new InventoryDTO(['code' => Inventory::INITIAL_CODE.$inventory->id]);
+        $this->entityRepository->update($inventory->id, $inventoryDTO->toArray(['code']));
+    }
 }

@@ -7,6 +7,7 @@ use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\NotificationRepositoryInterface;
 use App\Contracts\Repositories\RequestNotificationRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
+use App\Contracts\Repositories\UserRepositoryInterface;
 use App\Contracts\Services\NotificationServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
@@ -19,6 +20,7 @@ use App\Models\Enums\Lookups\StatusRequestLookup;
 use App\Models\Enums\Lookups\TypeNotificationsLookup;
 use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
+use App\Models\Inventory;
 use App\Models\Notification;
 use App\Models\Request;
 use App\Models\RequestRoom;
@@ -32,18 +34,21 @@ class NotificationService extends BaseService implements NotificationServiceInte
     protected $requestRepository;
     protected $requestNotificationRepository;
     protected $confirmNotificationRepository;
+    protected $userRepository;
 
     public function __construct(NotificationRepositoryInterface $notificationRepository,
                                 LookupRepositoryInterface $lookupRepository,
                                 RequestRepositoryInterface $requestRepository,
                                 ConfirmNotificationRepositoryInterface $confirmNotificationRepository,
-                                RequestNotificationRepositoryInterface $requestNotificationRepository)
+                                RequestNotificationRepositoryInterface $requestNotificationRepository,
+                                UserRepositoryInterface $userRepository)
     {
         $this->entityRepository = $notificationRepository;
         $this->lookupRepository = $lookupRepository;
         $this->requestRepository = $requestRepository;
         $this->confirmNotificationRepository = $confirmNotificationRepository;
         $this->requestNotificationRepository = $requestNotificationRepository;
+        $this->userRepository = $userRepository;
     }
 
     /**
@@ -201,6 +206,22 @@ class NotificationService extends BaseService implements NotificationServiceInte
             $confirmNotificationDTO = new ConfirmNotificationDTO(['request_notification_id' => $requestNotification->id]);
             $this->confirmNotificationRepository->create($confirmNotificationDTO->toArray(['request_notification_id']));
         });
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function minimumStockNotification(Inventory $inventory)
+    {
+        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($inventory->office_id)->id;
+        $notificationDTO = new NotificationDTO([
+            'message' => "El inventario $inventory->code se encuentra al mínimo",
+            'user_id' => $userId,
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::INVENTORY),
+            'color_id' => $this->getColorId(NotificationColorLookup::YELLOW),
+            'icon_id' => $this->getIconId(NotificationIconLookup::WARNING)
+        ]);
+        $this->createRow($notificationDTO);
     }
 
     /**
