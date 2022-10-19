@@ -36,9 +36,11 @@ class InventoryObserver
     public function updated(Inventory $inventory)
     {
         if ($inventory->isDirty('stock')) {
-            $this->inventoryHistoryService->store($inventory);
-            if ($inventory->stock <= $inventory->minimum_stock) {
-                $this->notificationService->minimumStockNotification($inventory);
+            if ($inventory->stock < $inventory->getOriginal('stock')) {
+                $this->inventoryHistoryService->store($inventory);
+                if ($inventory->stock <= $inventory->minimum_stock) {
+                    $this->notificationService->minimumStockNotification($inventory);
+                }
             }
         }
     }

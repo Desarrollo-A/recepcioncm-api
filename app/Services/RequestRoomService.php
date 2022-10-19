@@ -155,7 +155,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id']))
             ->fresh(['requestRoom.room.recepcionist', 'user']);
 
-        if (config('enable.google.calendar', false)) {
+        if (config('app.enable_google_calendar', false)) {
             $emails = array();
             $emails[] = $request->requestRoom->room->recepcionist->email;
             if ($request->add_google_calendar) {
@@ -265,7 +265,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
             'event_google_calendar_id' => null
         ]);
 
-        if (config('enable.google.calendar', false)) {
+        if (config('app.enable_google_calendar', false)) {
             $this->calendarService->deleteEvent($request->event_google_calendar_id);
         }
 

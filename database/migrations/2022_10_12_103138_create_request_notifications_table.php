@@ -23,7 +23,8 @@ class CreateRequestNotificationsTable extends Migration
             $table->unsignedBigInteger('request_id');
             $table->foreign('request_id')
                 ->references('id')
-                ->on('requests');
+                ->on('requests')
+                ->onDelete('cascade');
             $table->timestamps();
         });
     }
