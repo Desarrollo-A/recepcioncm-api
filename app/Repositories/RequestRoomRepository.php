@@ -56,7 +56,6 @@ class RequestRoomRepository extends BaseRepository implements RequestRoomReposit
             ->filterOfficeOrUser($user)
             ->get()
             ->map(function ($requestRoom) {
-                info($requestRoom);
                 return (object)[
                     'title' => "Título: {$requestRoom->request->title}. Sala {$requestRoom->room->name} - {$requestRoom->level->name}",
                     'request' => $requestRoom->request
