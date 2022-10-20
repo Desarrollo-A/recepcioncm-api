@@ -89,7 +89,8 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
             ->select(['requests.*'])
             ->join('lookups AS status', 'status.id', '=', 'requests.status_id')
             ->join('lookups AS type', 'type.id', '=', 'requests.type_id')
-            ->whereDate('start_date', now()->addDay())
+            // ->whereDate('start_date', now()->addDay())
+            ->whereDate('start_date', '2022-10-27')
             ->where('status.code', StatusRequestLookup::code(StatusRequestLookup::APPROVED))
             ->whereIn('type.code', [TypeRequestLookup::code(TypeRequestLookup::ROOM),
                 TypeRequestLookup::code(TypeRequestLookup::TRAVEL)])
