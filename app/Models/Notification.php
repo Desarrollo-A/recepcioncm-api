@@ -16,6 +16,7 @@ class Notification extends Model
         'user_id' => 'integer',
         'type_id' => 'integer',
         'icon_id' => 'integer',
+        'colorId' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];

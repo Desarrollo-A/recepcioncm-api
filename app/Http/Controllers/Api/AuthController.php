@@ -11,7 +11,11 @@ use App\Http\Requests\Auth\RestorePasswordRequest;
 use App\Http\Resources\Auth\LoginResource;
 use App\Http\Resources\Menu\MenuResource;
 use App\Http\Resources\User\UserResource;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Pusher\Pusher;
+use Pusher\PusherException;
 
 class AuthController extends BaseApiController
 {
@@ -68,5 +72,23 @@ class AuthController extends BaseApiController
         $userDTO = $request->toDTO();
         $this->authService->restorePassword($userDTO->email);
         return $this->noContentResponse();
+    }
+
+    /**
+     * @throws AuthenticationException
+     * @throws PusherException
+     */
+    public function pusherAuth(Request $request)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            throw new AuthenticationException();
+        }
+
+        $pusher = new Pusher(config('broadcasting.connections.pusher.key'),
+            config('broadcasting.connections.pusher.secret'), config('broadcasting.connections.pusher.app_id'), [
+                'cluster' => config('broadcasting.connections.pusher.options.cluster')
+            ]);
+        return $pusher->socket_auth($request->input('channel_name'), $request->input('socket_id'));
     }
 }

@@ -23,6 +23,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/logout', 'AuthController@logout')->name('logout');
 
                 Route::post('/change-password', 'AuthController@changePassword')->name('change-password');
+                Route::post('/pusher', 'AuthController@pusherAuth')->name('pusher');
             });
 
         Route::prefix('rooms')

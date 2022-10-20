@@ -21,7 +21,6 @@ class NotificationResource extends Resource
             'message' => $this->message,
             'isRead' => $this->is_read,
             'userId' => $this->user_id,
-            'requestId' => $this->request_id,
             'typeId' => $this->type_id,
             'colorId' => $this->color_id,
             'iconId' => $this->icon_id,
