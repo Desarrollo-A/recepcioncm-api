@@ -138,7 +138,7 @@ class InventorySeeder extends Seeder
                     'office_id' => $user->office_id,
                     'type_id' => $cafeteria->id,
                     'unit_id' => $units->random()->id,
-                    'meeting' => null
+                    'meeting' => 7
                 ]);
                 Inventory::query()->create([
                     'name' => 'Coca de Lata',

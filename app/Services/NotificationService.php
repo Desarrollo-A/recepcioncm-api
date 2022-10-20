@@ -10,7 +10,9 @@ use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Contracts\Repositories\UserRepositoryInterface;
 use App\Contracts\Services\NotificationServiceInterface;
 use App\Core\BaseService;
+use App\Events\AlertNotification;
 use App\Exceptions\CustomErrorException;
+use App\Http\Resources\Notification\NotificationResource;
 use App\Models\Dto\ConfirmNotificationDTO;
 use App\Models\Dto\NotificationDTO;
 use App\Models\Dto\RequestNotificationDTO;
@@ -114,7 +116,8 @@ class NotificationService extends BaseService implements NotificationServiceInte
             'color_id' => $this->getColorId(NotificationColorLookup::RED),
             'icon_id' => $this->getIconId(NotificationIconLookup::ROOM)
         ]);
-        $this->createRow($notificationDTO);
+        $notification = $this->createRow($notificationDTO);
+        $this->eventNotification($notification);
     }
 
     /**
@@ -205,6 +208,8 @@ class NotificationService extends BaseService implements NotificationServiceInte
             ]));
             $confirmNotificationDTO = new ConfirmNotificationDTO(['request_notification_id' => $requestNotification->id]);
             $this->confirmNotificationRepository->create($confirmNotificationDTO->toArray(['request_notification_id']));
+
+            $this->eventNotification($notification);
         });
     }
 
@@ -221,7 +226,8 @@ class NotificationService extends BaseService implements NotificationServiceInte
             'color_id' => $this->getColorId(NotificationColorLookup::YELLOW),
             'icon_id' => $this->getIconId(NotificationIconLookup::WARNING)
         ]);
-        $this->createRow($notificationDTO);
+        $notification = $this->createRow($notificationDTO);
+        $this->eventNotification($notification);
     }
 
     /**
@@ -248,5 +254,15 @@ class NotificationService extends BaseService implements NotificationServiceInte
     {
         return $this->lookupRepository->findByCodeAndType(NotificationIconLookup::code($value),
             TypeLookup::NOTIFICATION_ICON)->id;
+    }
+
+    /**
+     * @return void
+     */
+    private function eventNotification(Notification $notification)
+    {
+        $newNotification = $notification->fresh(['type', 'color', 'icon', 'requestNotification',
+            'requestNotification.request', 'requestNotification.confirmNotification']);
+        broadcast(new AlertNotification($notification->user_id, new NotificationResource($newNotification)));
     }
 }

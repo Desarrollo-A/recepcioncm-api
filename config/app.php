@@ -179,7 +179,7 @@ return [
         App\Providers\RepositoryServiceProvider::class,
         App\Providers\ServiceLogicServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
+        App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
@@ -236,4 +236,5 @@ return [
         'Image' => Intervention\Image\Facades\Image::class,
     ],
 
+    'enable_google_calendar' => env('ENABLE_GOOGLE_CALENDAR', false),
 ];
