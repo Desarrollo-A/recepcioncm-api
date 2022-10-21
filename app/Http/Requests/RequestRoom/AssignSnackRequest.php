@@ -45,8 +45,7 @@ class AssignSnackRequest extends FormRequest implements ReturnDtoInterface
             $snacks[] = new InventoryRequestDTO([
                 'request_id' =>  $this->requestId,
                 'inventory_id' =>  $item['inventoryId'],
-                'quantity' =>  $item['quantity'],
-                'applied' =>  !is_null($item['quantity'])
+                'quantity' =>  $item['quantity']
             ]);
         }
 

@@ -15,14 +15,11 @@ class InventoryRequestObserver
     }
 
     /**
-     * Handle the InventoryRequest "created" event.
-     *
-     * @param \App\Models\InventoryRequest $inventoryRequest
      * @return void
      */
-    public function created(InventoryRequest $inventoryRequest)
+    public function updated(InventoryRequest $inventoryRequest)
     {
-        if ($inventoryRequest->applied) {
+        if ($inventoryRequest->isDirty('applied') && $inventoryRequest->applied && $inventoryRequest->quantity !== null) {
             $this->inventoryService->updateStockAfterApprove($inventoryRequest);
         }
     }

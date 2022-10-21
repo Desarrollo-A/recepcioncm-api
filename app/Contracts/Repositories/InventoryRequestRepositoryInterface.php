@@ -36,4 +36,11 @@ interface InventoryRequestRepositoryInterface extends BaseRepositoryInterface
      * @return void
      */
     public function updateSnackUncountableApplied(int $inventoryId, int $limit);
+
+    public function getSnackCountableRequestNotApplied(): Collection;
+
+    /**
+     * @return void
+     */
+    public function updateSnackCountableRequesttoApplied();
 }

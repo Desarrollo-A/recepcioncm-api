@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Contracts\Repositories\InventoryHistoryRepositoryInterface;
 use App\Contracts\Repositories\InventoryRepositoryInterface;
 use App\Contracts\Repositories\InventoryRequestRepositoryInterface;
 use App\Contracts\Repositories\LookupRepositoryInterface;
@@ -10,6 +11,7 @@ use App\Contracts\Services\InventoryRequestServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
 use App\Models\Dto\InventoryDTO;
+use App\Models\Dto\InventoryHistoryDTO;
 use App\Models\Dto\InventoryRequestDTO;
 use App\Models\Enums\Lookups\InventoryTypeLookup;
 use App\Models\Enums\Lookups\StatusRequestLookup;
@@ -24,16 +26,19 @@ class InventoryRequestService extends BaseService implements InventoryRequestSer
     protected $lookupRepository;
     protected $requestRepository;
     protected $inventoryRepository;
+    protected $inventoryHistoryRepository;
 
     public function __construct(InventoryRequestRepositoryInterface $inventoryRequestRepository,
                                 LookupRepositoryInterface $lookupRepository,
                                 RequestRepositoryInterface $requestRepository,
-                                InventoryRepositoryInterface $inventoryRepository)
+                                InventoryRepositoryInterface $inventoryRepository,
+                                InventoryHistoryRepositoryInterface $inventoryHistoryRepository)
     {
         $this->entityRepository = $inventoryRequestRepository;
         $this->lookupRepository = $lookupRepository;
         $this->requestRepository = $requestRepository;
         $this->inventoryRepository = $inventoryRepository;
+        $this->inventoryHistoryRepository = $inventoryHistoryRepository;
     }
 
     /**
@@ -60,10 +65,9 @@ class InventoryRequestService extends BaseService implements InventoryRequestSer
      */
     public function updateSnack(int $requestId, int $inventoryId, InventoryRequestDTO $dto, int $officeId)
     {
-        $this->validationInsertOrUpdate($dto, $officeId);
-
         $oldStock = $this->inventoryRepository->findById($inventoryId, ['stock'])->stock;
         $oldQuantity = $this->entityRepository->findByRequestIdAndInventoryId($requestId, $inventoryId, ['quantity'])->quantity;
+        $this->validationInsertOrUpdate($dto, $officeId, $oldQuantity);
         $this->entityRepository->updateInventoryRequest($requestId, $inventoryId, $dto->toArray(['quantity']));
         $newStock = ($oldStock + $oldQuantity) - $dto->quantity;
         $dto = new InventoryDTO(['stock' => $newStock]);
@@ -85,10 +89,49 @@ class InventoryRequestService extends BaseService implements InventoryRequestSer
     }
 
     /**
+     * @return void
+     * @throws CustomErrorException
+     */
+    public function updateSnackUncountableApplied()
+    {
+        $snacks = $this->entityRepository->getSnacksUncountable();
+        foreach($snacks as $snack) {
+            $limit = intdiv($snack->total, $snack->meeting);
+            $this->entityRepository->updateSnackUncountableApplied($snack->inventory_id, $limit * $snack->meeting);
+            $dto = new InventoryDTO([
+                'stock' => $snack->inventory->stock - $limit
+            ]);
+            $this->inventoryRepository->update($snack->inventory_id, $dto->toArray(['stock']));
+
+            $inventoryHistoryDTO = new InventoryHistoryDTO([
+                'inventory_id' => $snack->inventory_id,
+                'quantity' => $limit * -1
+            ]);
+            $this->inventoryHistoryRepository->create($inventoryHistoryDTO->toArray(['inventory_id', 'quantity']));
+        }
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function addHistoryRequestSnackCountable()
+    {
+        $this->entityRepository->getSnackCountableRequestNotApplied()->each(function (InventoryRequest $inventoryRequest) {
+            $inventoryHistoryDTO = new InventoryHistoryDTO([
+                'inventory_id' => $inventoryRequest->inventory_id,
+                'quantity' => $inventoryRequest->quantity * -1
+            ]);
+            $this->inventoryHistoryRepository->create($inventoryHistoryDTO->toArray(['inventory_id', 'quantity']));
+        });
+
+        $this->entityRepository->updateSnackCountableRequesttoApplied();
+    }
+
+    /**
      * @throws CustomErrorException
      * @return void
      */
-    private function validationInsertOrUpdate(InventoryRequestDTO $dto, int $officeId)
+    private function validationInsertOrUpdate(InventoryRequestDTO $dto, int $officeId, int $oldQuantity = 0)
     {
         $newStatusId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::APPROVED),
             TypeLookup::STATUS_REQUEST)->id;
@@ -105,14 +148,14 @@ class InventoryRequestService extends BaseService implements InventoryRequestSer
         $inventories = $this->inventoryRepository->findAllByType($snackTypeId, $officeId);
 
         self::validateInventoryAsSnack($inventories, $dto, $snackTypeId);
-        self::validateStockSnack($inventories, $dto);
+        self::validateStockSnack($inventories, $dto, $oldQuantity);
     }
 
     /**
      * @throws CustomErrorException
      * @return void
      */
-    private function validateStockSnack(Collection $snacks, InventoryRequestDTO $dto)
+    private function validateStockSnack(Collection $snacks, InventoryRequestDTO $dto, int $oldQuantity)
     {
         $snack = $snacks->first(function ($inventory) use ($dto) {
             return $dto->inventory_id === $inventory->id;
@@ -126,7 +169,7 @@ class InventoryRequestService extends BaseService implements InventoryRequestSer
             throw new CustomErrorException("Snack debe tener cantidad a descontar",
                 Response::HTTP_BAD_REQUEST);
         }
-        if (($snack->stock - $dto->quantity) < 0) {
+        if ((($snack->stock + $oldQuantity) - $dto->quantity) < 0) {
             throw new CustomErrorException("Snack no debe quedar stock negativo",
                 Response::HTTP_BAD_REQUEST);
         }
@@ -145,23 +188,6 @@ class InventoryRequestService extends BaseService implements InventoryRequestSer
 
         if (is_null($snack)) {
             throw new CustomErrorException("Snack no encontrado", Response::HTTP_BAD_REQUEST);
-        }
-    }
-
-    /**
-     * @return void
-     * @throws CustomErrorException
-     */
-    public function updateSnackUncountableApplied()
-    {
-        $snacks = $this->entityRepository->getSnacksUncountable();
-        foreach($snacks as $snack) {
-            $limit = intdiv($snack->total, $snack->meeting);
-            $this->entityRepository->updateSnackUncountableApplied($snack->inventory_id, $limit * $snack->meeting);
-            $dto = new InventoryDTO([
-                'stock' => $snack->inventory->stock - $limit
-            ]);
-            $this->inventoryRepository->update($snack->inventory_id, $dto->toArray(['stock']));
         }
     }
 }
