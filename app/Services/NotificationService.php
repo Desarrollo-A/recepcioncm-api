@@ -211,6 +211,8 @@ class NotificationService extends BaseService implements NotificationServiceInte
 
             $this->eventNotification($notification);
         });
+
+        $this->confirmNotificationRepository->updatePastRecords();
     }
 
     /**
