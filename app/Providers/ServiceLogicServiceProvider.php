@@ -29,7 +29,8 @@ class ServiceLogicServiceProvider extends ServiceProvider
         'CalendarServiceInterface' => 'CalendarService',
         'RequestPhoneNumberServiceInterface' => 'RequestPhoneNumberService',
         'ConfirmNotificationServiceInterface' => 'ConfirmNotificationService',
-        'RequestNotificationServiceInterface' => 'RequestNotificationService'
+        'RequestNotificationServiceInterface' => 'RequestNotificationService',
+        'HomeServiceInterface' => 'HomeService'
     ];
 
     public function register()

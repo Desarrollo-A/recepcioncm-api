@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Enums\Lookups\StatusRequestLookup;
+use App\Models\Enums\NameRole;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -75,6 +76,17 @@ class Request extends Model
     {
         $query->orWhere('lookups.code', StatusRequestLookup::code(StatusRequestLookup::NEW));
         $query->orWhere('lookups.code', StatusRequestLookup::code(StatusRequestLookup::IN_REVIEW));
+        return $query;
+    }
+
+    public function scopeFilterOfficeOrUser(Builder $query, User $user): Builder
+    {
+        if ($user->role->name === NameRole::RECEPCIONIST) {
+            $query->where('request_room_view.office_id', $user->office_id);
+        } else if ($user->role->name === NameRole::APPLICANT) {
+            $query->where('request_room_view.user_id', $user->id);
+        }
+
         return $query;
     }
 }
