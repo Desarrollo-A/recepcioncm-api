@@ -26,4 +26,9 @@ interface InventoryRequestServiceInterface extends BaseServiceInterface
      * @return void
      */
     public function updateSnackUncountableApplied();
+
+    /**
+     * @return void
+     */
+    public function addHistoryRequestSnackCountable();
 }

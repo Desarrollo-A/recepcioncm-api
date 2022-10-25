@@ -196,6 +196,13 @@ Route::prefix('v1')->group(function () {
                     ->name('summary-day');
             });
 
+        Route::prefix('home')
+            ->name('home.')
+            ->group(function () {
+                Route::get('/', 'HomeController@getAllDataHome')
+                    ->name('index');
+            });
+
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');
         Route::apiResource('rooms', 'RoomController')->only('store', 'index', 'update', 'destroy');
         Route::apiResource('request-rooms', 'RequestRoomController')->only('store', 'index');

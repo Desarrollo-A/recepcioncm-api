@@ -13,7 +13,8 @@ class RolePermission
      * @param $request
      * @param Closure $next
      * @param ...$roles
-     * @return AuthorizationException|mixed
+     * @return mixed
+     * @throws AuthorizationException
      */
     public function handle($request, Closure $next, ...$roles)
     {
@@ -25,6 +26,10 @@ class RolePermission
             }
         }
 
-        return ($hasPermission) ? $next($request) : new AuthorizationException();
+        if (!$hasPermission) {
+            throw new AuthorizationException();
+        }
+
+        return $next($request);
     }
 }
