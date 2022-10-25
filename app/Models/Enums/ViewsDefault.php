@@ -28,7 +28,9 @@ class ViewsDefault
         ],
         [
             'path' => '/dashboard/reporte',
-            'submenus' => []
+            'submenus' => [
+                ['path' => '/entrada-salida']
+            ]
         ],
         [
             'path' => '/dashboard/mantenimiento',
