@@ -196,6 +196,13 @@ Route::prefix('v1')->group(function () {
                     ->name('summary-day');
             });
 
+        Route::prefix('report')
+            ->name('report.')
+            ->group(function () {
+                Route::get('/input-output', 'InputOutputInventoryViewController@findAllPaginated')
+                    ->name('find-all-paginated');
+            });
+
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');
         Route::apiResource('rooms', 'RoomController')->only('store', 'index', 'update', 'destroy');
         Route::apiResource('request-rooms', 'RequestRoomController')->only('store', 'index');

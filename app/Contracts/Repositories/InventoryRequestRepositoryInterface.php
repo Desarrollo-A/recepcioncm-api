@@ -42,5 +42,5 @@ interface InventoryRequestRepositoryInterface extends BaseRepositoryInterface
     /**
      * @return void
      */
-    public function updateSnackCountableRequesttoApplied();
+    public function updateSnackCountableRequestToApplied();
 }
