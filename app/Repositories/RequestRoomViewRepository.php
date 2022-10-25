@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Contracts\Repositories\RequestRoomViewRepositoryInterface;
 use App\Core\BaseRepository;
+use App\Models\Enums\Lookups\StatusRequestLookup;
 use App\Models\RequestRoomView;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -31,5 +32,36 @@ class RequestRoomViewRepository extends BaseRepository implements RequestRoomVie
             ->filterOfficeOrUser($user)
             ->applySort($sort)
             ->paginate($limit, $columns);
+    }
+
+    public function countNewRequests(User $user): int
+    {
+        return $this->entity
+            ->where('status_code', StatusRequestLookup::code(StatusRequestLookup::NEW))
+            ->filterOfficeOrUser($user)
+            ->count();
+    }
+
+    public function countApprovedRequests(User $user): int
+    {
+        return $this->entity
+            ->where('status_code', StatusRequestLookup::code(StatusRequestLookup::APPROVED))
+            ->filterOfficeOrUser($user)
+            ->count();
+    }
+
+    public function countCancelledRequests(User $user): int
+    {
+        return $this->entity
+            ->where('status_code', StatusRequestLookup::code(StatusRequestLookup::CANCELLED))
+            ->filterOfficeOrUser($user)
+            ->count();
+    }
+
+    public function countTotalRequests(User $user): int
+    {
+        return $this->entity
+            ->filterOfficeOrUser($user)
+            ->count();
     }
 }
