@@ -5,6 +5,7 @@ namespace App\Helpers;
 use App\Exceptions\CustomErrorException;
 use App\Helpers\Enum\Path;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
@@ -36,6 +37,16 @@ class File
         } catch (\Exception $e) {
             throw new CustomErrorException($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public static function generatePDF(string $view, array $data, string $filename = 'download.pdf', bool $isLandscape = false)
+    {
+        $pdf = App::make('dompdf.wrapper');
+        $pdf->loadView($view, $data);
+        if ($isLandscape) {
+            $pdf->setPaper('a4', 'landscape');
+        }
+        return $pdf->download($filename);
     }
 
     /**

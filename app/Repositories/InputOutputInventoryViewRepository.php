@@ -6,6 +6,7 @@ use App\Contracts\Repositories\InputOutputInventoryViewRepositoryInterface;
 use App\Core\BaseRepository;
 use App\Models\InputOutputInventoryView;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -30,5 +31,14 @@ class InputOutputInventoryViewRepository extends BaseRepository implements Input
             ->filter($filters)
             ->applySort($sort)
             ->paginate($limit, $columns);
+    }
+
+    public function getDataReport(array $filters, int $officeId): Collection
+    {
+        return $this->entity
+            ->where('office_id', $officeId)
+            ->filterReport($filters)
+            ->orderByRaw('move_date DESC, type ASC')
+            ->get();
     }
 }

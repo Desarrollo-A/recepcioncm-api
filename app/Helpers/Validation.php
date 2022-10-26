@@ -107,11 +107,11 @@ class Validation
 
         $dateParse = null;
 
-        if (Str::of($date)->contains('/')) {
+        if (str_contains($date, '/')) {
             $dateParse = explode('/', $date);
         }
 
-        if (Str::of($date)->contains('-')) {
+        if (str_contains($date, '-')) {
             $dateParse = explode('-', $date);
         }
 

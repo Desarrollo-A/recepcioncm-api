@@ -201,6 +201,9 @@ Route::prefix('v1')->group(function () {
             ->group(function () {
                 Route::get('/input-output', 'InputOutputInventoryViewController@findAllPaginated')
                     ->name('find-all-paginated');
+
+                Route::get('/pdf', 'InputOutputInventoryViewController@getReportPdf')
+                    ->name('report.pdf');
             });
 
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');

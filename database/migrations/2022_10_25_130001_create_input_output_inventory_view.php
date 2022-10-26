@@ -30,22 +30,22 @@ class CreateInputOutputInventoryView extends Migration
     {
         return 'CREATE OR ALTER VIEW input_output_inventory_view AS
             SELECT i.code, i.name, i.office_id, SUM(quantity) AS sum_quantity, SUM(cost) AS sum_cost,
-            t.name AS type, CAST(ih.created_at AS DATE) AS move_date
+            t.name AS type, t.id AS type_id, CAST(ih.created_at AS DATE) AS move_date
             FROM inventory_history ih
             JOIN inventories i ON ih.inventory_id = i.id
             JOIN lookups t ON t.id = i.type_id
             WHERE cost IS NOT NULL
-            GROUP BY i.code, i.name, i.office_id, t.name, CAST(ih.created_at AS DATE)
-            
+            GROUP BY i.code, i.name, i.office_id, t.name, t.id, CAST(ih.created_at AS DATE)
+                        
             UNION ALL
-            
+                        
             SELECT i.code, i.name, i.office_id, SUM(quantity) AS sum_quantity, NULL AS sum_cost,
-            t.name AS type, CAST(ih.created_at AS DATE) AS move_date
+            t.name AS type, t.id AS type_id, CAST(ih.created_at AS DATE) AS move_date
             FROM inventory_history ih
             JOIN inventories i ON ih.inventory_id = i.id
             JOIN lookups t ON t.id = i.type_id
             WHERE cost IS NULL
-            GROUP BY i.code, i.name, i.office_id, t.name, CAST(ih.created_at AS DATE)';
+            GROUP BY i.code, i.name, i.office_id, t.name, t.id, CAST(ih.created_at AS DATE)';
     }
 
     private function dropView(): string

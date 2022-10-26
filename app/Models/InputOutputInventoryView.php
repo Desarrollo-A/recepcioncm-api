@@ -19,7 +19,8 @@ class InputOutputInventoryView extends Model implements ScopeFilterInterface
         'sum_quantity' => 'double',
         'sum_cost' => 'double',
         'office_id' => 'integer',
-        'move_date' => 'date'
+        'move_date' => 'date',
+        'type_id' => 'integer'
     ];
 
     public function scopeFilter(Builder $query, array $params = []): Builder
@@ -36,6 +37,25 @@ class InputOutputInventoryView extends Model implements ScopeFilterInterface
         }
         if (isset($params['type']) && trim($params['type']) !== '') {
             $query->orWhere('type', 'LIKE', "%${params['type']}%");
+        }
+
+        return $query;
+    }
+
+    public function scopeFilterReport(Builder $query, array $params = []): Builder
+    {
+        if (empty($params)) {
+            return $query;
+        }
+
+        if (isset($params['types'])) {
+            $query->whereIn('type_id', $params['types']);
+        }
+        if (isset($params['start_date'])) {
+            $query->where('move_date', '>=', $params['start_date']);
+        }
+        if (isset($params['end_date'])) {
+            $query->where('move_date', '<=', $params['end_date']);
         }
 
         return $query;

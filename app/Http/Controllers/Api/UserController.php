@@ -51,8 +51,9 @@ class UserController extends BaseApiController
         // return view('pdf.users.user-list', array('users' => $users));
 
         $pdf->loadView('pdf.users.user-list', array('users' => $users));
-        // $pdf->setPaper('a4', 'landscape');
-        return $pdf->stream();
+        // $pdf->setPaper('a4', 'landscape'); // Horizontal
+        // return $pdf->download('usuarios.pdf');
+        return $pdf->stream('usuarios.pdf');
     }
 
     /**

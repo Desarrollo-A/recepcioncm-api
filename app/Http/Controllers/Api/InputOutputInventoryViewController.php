@@ -25,4 +25,9 @@ class InputOutputInventoryViewController extends BaseApiController
         $data = $this->inputOutputInventoryViewService->findAllRoomsPaginated($request, auth()->user()->office_id);
         return $this->showAll(new InputOutputInventoryCollection($data, true));
     }
+
+    public function getReportPdf(Request $request)
+    {
+        return $this->inputOutputInventoryViewService->reportInputOutputPdf($request, auth()->user()->office_id);
+    }
 }
