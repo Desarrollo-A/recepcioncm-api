@@ -30,4 +30,9 @@ class InputOutputInventoryViewController extends BaseApiController
     {
         return $this->inputOutputInventoryViewService->reportInputOutputPdf($request, auth()->user()->office_id);
     }
+
+    public function getReportExcel(Request $request)
+    {
+        return $this->inputOutputInventoryViewService->reportInputOutputExcel($request, auth()->user()->office_id);
+    }
 }

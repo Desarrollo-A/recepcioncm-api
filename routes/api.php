@@ -202,8 +202,11 @@ Route::prefix('v1')->group(function () {
                 Route::get('/input-output', 'InputOutputInventoryViewController@findAllPaginated')
                     ->name('find-all-paginated');
 
-                Route::get('/pdf', 'InputOutputInventoryViewController@getReportPdf')
+                Route::get('/input-output/pdf', 'InputOutputInventoryViewController@getReportPdf')
                     ->name('report.pdf');
+
+                Route::get('/input-output/excel', 'InputOutputInventoryViewController@getReportExcel')
+                    ->name('report.excel');
             });
 
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');

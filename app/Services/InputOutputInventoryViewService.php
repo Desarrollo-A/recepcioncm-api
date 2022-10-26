@@ -9,6 +9,10 @@ use App\Exceptions\CustomErrorException;
 use App\Helpers\Enum\QueryParam;
 use App\Helpers\File;
 use App\Helpers\Validation;
+use Box\Spout\Common\Exception\InvalidArgumentException;
+use Box\Spout\Common\Exception\IOException;
+use Box\Spout\Common\Exception\UnsupportedTypeException;
+use Box\Spout\Writer\Exception\WriterNotOpenedException;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -40,6 +44,29 @@ class InputOutputInventoryViewService extends BaseService implements InputOutput
         $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
         $data = $this->entityRepository->getDataReport($filters, $officeId);
         return File::generatePDF('pdf.reports.input-output-inventory', array('items' => $data),
-            'entradas_salidas_inventario.pdf');
+            'entradas_salidas_inventario');
+    }
+
+    /**
+     * @throws CustomErrorException
+     * @throws UnsupportedTypeException
+     * @throws WriterNotOpenedException
+     * @throws InvalidArgumentException
+     * @throws IOException
+     */
+    public function reportInputOutputExcel(Request $request, int $officeId)
+    {
+        $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
+        $data = $this->entityRepository->getDataReport($filters, $officeId)->map(function ($item) {
+            return collect([
+                'Clave' => $item->code,
+                'Nombre' => $item->name,
+                'Tipo' => $item->type,
+                'Cantidad' => number_format($item->sum_quantity),
+                'Costo' => $item->sum_cost ? '$'.number_format($item->sum_cost) : 'No aplica',
+                'Fecha movimiento' => $item->move_date->format('d-m-Y')
+            ]);
+        });
+        return File::generateExcel($data,'entradas_salidas_inventario');
     }
 }
