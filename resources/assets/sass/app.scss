@@ -6,7 +6,7 @@
 // @import "~bootstrap/scss/bootstrap";
 
 * {
-  // font-family: sans-serif; /* Change your font family */
+  font-family: sans-serif;
 }
 
 .content-table {
@@ -20,8 +20,8 @@
 }
 
 .content-table thead tr {
-  background-color: #009879;
-  color: #ffffff;
+  background-color: #18385F;
+  color: #FFFFFF;
   text-align: left;
   font-weight: bold;
 }
@@ -41,10 +41,14 @@
 }
 
 .content-table tbody tr:last-of-type {
-  border-bottom: 2px solid #009879;
+  border-bottom: 2px solid #18385F;
 }
 
 .content-table tbody tr.active-row {
   font-weight: bold;
-  color: #009879;
+  color: #18385F;
+}
+
+.title-report {
+  text-align: center;
 }
