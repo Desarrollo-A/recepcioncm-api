@@ -196,8 +196,8 @@ Route::prefix('v1')->group(function () {
                     ->name('summary-day');
             });
 
-        Route::prefix('report')
-            ->name('report.')
+        Route::prefix('reports')
+            ->name('reports.')
             ->group(function () {
                 Route::get('/input-output', 'InputOutputInventoryViewController@findAllPaginated')
                     ->name('find-all-paginated');

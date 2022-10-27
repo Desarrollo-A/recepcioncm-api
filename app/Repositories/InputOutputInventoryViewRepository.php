@@ -27,8 +27,8 @@ class InputOutputInventoryViewRepository extends BaseRepository implements Input
                                                 array $columns = ['*']): LengthAwarePaginator
     {
         return $this->entity
-            ->where('office_id', $officeId)
             ->filter($filters)
+            ->where('office_id', $officeId)
             ->applySort($sort)
             ->paginate($limit, $columns);
     }
