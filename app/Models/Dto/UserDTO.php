@@ -35,6 +35,12 @@ class UserDTO
     public $password;
 
     /**
+     * Variable para la contraseña actual
+     * @var string
+     */
+    public $currentPassword;
+
+    /**
      * @var string
      */
     public $personal_phone;

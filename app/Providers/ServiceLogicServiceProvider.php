@@ -31,7 +31,7 @@ class ServiceLogicServiceProvider extends ServiceProvider
         'ConfirmNotificationServiceInterface' => 'ConfirmNotificationService',
         'RequestNotificationServiceInterface' => 'RequestNotificationService',
         'HomeServiceInterface' => 'HomeService',
-        'InputOutputInventoryViewServiceInterface' => 'InputOutputInventoryViewService'
+        'InputOutputInventoryViewServiceInterface' => 'InputOutputInventoryViewService',
     ];
 
     public function register()

@@ -41,6 +41,10 @@ class AuthService extends BaseService implements AuthServiceInterface
      */
     public function changePassword(UserDTO $userDTO)
     {
+        $user = $this->userRepository->findById($userDTO->id);
+        if (!Hash::check($userDTO->currentPassword, $user->password)) {
+            throw new CustomErrorException(Message::PASSWORD_INVALID, 400);
+        }
         $this->userRepository->update($userDTO->id, $userDTO->toArray(['password']));
     }
 
