@@ -17,6 +17,7 @@ class SubmenuSeeder extends Seeder
         $historyMenu = Menu::query()->where('path_route', '/dashboard/historial')->first()->id;
         $historyRecepcionistMenu = Menu::query()->where('path_route', '/dashboard/solicitudes')->first()->id;
         $mantoMenu = Menu::query()->where('path_route', '/dashboard/mantenimiento')->first()->id;
+        $reportMenu = Menu::query()->where('path_route', '/dashboard/reporte')->first()->id;
 
         Submenu::query()->create([
             'path_route' => '/sala',
@@ -51,6 +52,13 @@ class SubmenuSeeder extends Seeder
             'label' => 'Automóvil',
             'order' => 2,
             'menu_id' => $mantoMenu
+        ]);
+
+        Submenu::query()->create([
+            'path_route' => '/entrada-salida',
+            'label' => 'Entradas/Salidas Inventario',
+            'order' => 1,
+            'menu_id' => $reportMenu
         ]);
     }
 }

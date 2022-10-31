@@ -203,6 +203,19 @@ Route::prefix('v1')->group(function () {
                     ->name('index');
             });
 
+        Route::prefix('reports')
+            ->name('reports.')
+            ->group(function () {
+                Route::get('/input-output', 'InputOutputInventoryViewController@findAllPaginated')
+                    ->name('find-all-paginated');
+
+                Route::get('/input-output/pdf', 'InputOutputInventoryViewController@getReportPdf')
+                    ->name('report.pdf');
+
+                Route::get('/input-output/excel', 'InputOutputInventoryViewController@getReportExcel')
+                    ->name('report.excel');
+            });
+
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');
         Route::apiResource('rooms', 'RoomController')->only('store', 'index', 'update', 'destroy');
         Route::apiResource('request-rooms', 'RequestRoomController')->only('store', 'index');

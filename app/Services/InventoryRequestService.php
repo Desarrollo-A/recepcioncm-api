@@ -124,7 +124,7 @@ class InventoryRequestService extends BaseService implements InventoryRequestSer
             $this->inventoryHistoryRepository->create($inventoryHistoryDTO->toArray(['inventory_id', 'quantity']));
         });
 
-        $this->entityRepository->updateSnackCountableRequesttoApplied();
+        $this->entityRepository->updateSnackCountableRequestToApplied();
     }
 
     /**

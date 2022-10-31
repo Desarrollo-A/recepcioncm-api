@@ -105,19 +105,17 @@ class InventoryRequestRepository extends BaseRepository implements InventoryRequ
     {
         return $this->entity
             ->join('requests', 'requests.id', '=', 'inventory_request.request_id')
-            // ->whereDate('start_date','<', now())
-            ->whereDate('start_date','<', '2022-10-29')
+            ->whereDate('start_date','<', now())
             ->where('applied', false)
             ->whereNotNull('quantity')
             ->get(['inventory_request.*']);
     }
 
-    public function updateSnackCountableRequesttoApplied()
+    public function updateSnackCountableRequestToApplied()
     {
         $this->entity
             ->join('requests', 'requests.id', '=', 'inventory_request.request_id')
-            // ->whereDate('start_date','<', now())
-            ->whereDate('start_date','<', '2022-10-29')
+            ->whereDate('start_date','<', now())
             ->where('applied', false)
             ->whereNotNull('quantity')
             ->update(['applied' => true]);
