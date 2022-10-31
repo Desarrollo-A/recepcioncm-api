@@ -13,10 +13,8 @@ use App\Http\Resources\User\UserCollection;
 use App\Http\Resources\User\UserResource;
 use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
-use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
 
 class UserController extends BaseApiController
 {
@@ -42,17 +40,6 @@ class UserController extends BaseApiController
     {
         $users = $this->userService->findAllPaginatedWithoutUser($request, auth()->id());
         return $this->showAll(new UserCollection($users, true));
-    }
-
-    public function loadPdf()
-    {
-        $users = User::query()->get();
-        $pdf = App::make('dompdf.wrapper');
-        // return view('pdf.users.user-list', array('users' => $users));
-
-        $pdf->loadView('pdf.users.user-list', array('users' => $users));
-        // $pdf->setPaper('a4', 'landscape');
-        return $pdf->stream();
     }
 
     /**
