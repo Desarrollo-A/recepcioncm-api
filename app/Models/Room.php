@@ -13,7 +13,7 @@ class Room extends Model implements ScopeFilterInterface
 {
     use Sortable;
 
-    const INITIAL_CODE = 'SDJ-';
+    const INITIAL_CODE = 'SALA-';
 
     protected $fillable = ['code', 'name', 'office_id', 'no_people', 'recepcionist_id', 'status_id'];
 
