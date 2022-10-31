@@ -30,7 +30,8 @@ class ServiceLogicServiceProvider extends ServiceProvider
         'RequestPhoneNumberServiceInterface' => 'RequestPhoneNumberService',
         'ConfirmNotificationServiceInterface' => 'ConfirmNotificationService',
         'RequestNotificationServiceInterface' => 'RequestNotificationService',
-        'HomeServiceInterface' => 'HomeService'
+        'HomeServiceInterface' => 'HomeService',
+        'InputOutputInventoryViewServiceInterface' => 'InputOutputInventoryViewService',
     ];
 
     public function register()
