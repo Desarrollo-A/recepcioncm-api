@@ -17,6 +17,7 @@ class ChangePasswordRequest extends FormRequest implements ReturnDtoInterface
     public function rules(): array
     {
         return [
+            'currentPassword' => ['required', 'min:5', 'max:50'],
             'password' => ['required', 'min:5', 'max:50']
         ];
     }
@@ -24,6 +25,7 @@ class ChangePasswordRequest extends FormRequest implements ReturnDtoInterface
     public function attributes(): array
     {
         return [
+            'currentPassword' => ['Contraseña actual'],
             'password' => ['Contraseña']
         ];
     }
@@ -35,6 +37,7 @@ class ChangePasswordRequest extends FormRequest implements ReturnDtoInterface
     {
         return new UserDTO([
             'id' => auth()->id(),
+            'currentPassword' => $this->currentPassword,
             'password' => bcrypt($this->password)
         ]);
     }

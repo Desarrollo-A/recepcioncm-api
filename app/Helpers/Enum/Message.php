@@ -6,6 +6,7 @@ class Message
 {
     // Mensajes de validaciones
     const CREDENTIALS_INVALID = 'Credenciales inválidas.';
+    const PASSWORD_INVALID = 'La contraseña actual no es la registrada en el sistema.';
     const USER_INACTIVE = 'El usuario está inactivo.';
     const USER_BLOCKED = 'El usuario está bloqueado.';
     const INVALID_QUERY_PARAMETER = 'Parámetro de consulta inválido.';
