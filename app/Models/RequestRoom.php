@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Enums\Lookups\StatusRequestLookup;
 use App\Models\Enums\NameRole;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -23,6 +24,15 @@ class RequestRoom extends Model
         'external_people' => 'integer',
         'level_id' => 'integer'
     ];
+
+    public function getTotalRequestApprovedAttribute(): int
+    {
+        return $this->request()
+            ->join('lookups', 'lookups.id', '=', 'requests.status_id')
+            ->where('lookups.code', StatusRequestLookup::code(StatusRequestLookup::APPROVED))
+            ->where('start_date', '>=', now()->startOfDay())
+            ->count();
+    }
 
     public function request(): BelongsTo
     {

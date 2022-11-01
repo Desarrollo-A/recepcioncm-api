@@ -230,7 +230,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
             }
         }
 
-        return $requestRoom;
+        return $requestRoom->append(['total_request_approved']);
     }
 
     /**
