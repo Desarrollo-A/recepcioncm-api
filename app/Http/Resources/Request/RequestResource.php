@@ -6,6 +6,7 @@ use App\Http\Resources\CancelRequest\CancelRequestResource;
 use App\Http\Resources\Inventory\InventoryCollection;
 use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\ProposalRequest\ProposalRequestResource;
+use App\Http\Resources\RequestEmail\EmailResource;
 use App\Http\Resources\RequestPhoneNumber\PhoneNumberResource;
 use App\Http\Resources\RequestRoom\RequestRoomResource;
 use App\Http\Resources\User\UserResource;
@@ -33,6 +34,7 @@ class RequestResource extends Resource
             'inventories' => InventoryCollection::make($this->whenLoaded('inventories')),
             'cancelRequest' => CancelRequestResource::make($this->whenLoaded('cancelRequest')),
             'requestPhoneNumber' => PhoneNumberResource::collection($this->whenLoaded('requestPhoneNumber')),
+            'requestEmail' => EmailResource::collection($this->whenLoaded('requestEmail')),
             'proposalRequest' => ProposalRequestResource::collection($this->proposalRequest),
             'requestRoom' => RequestRoomResource::make($this->whenLoaded('requestRoom'))
         ];

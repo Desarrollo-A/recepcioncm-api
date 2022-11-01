@@ -17,6 +17,7 @@ class RequestRoomResource extends Resource
             'externalPeople' => $this->external_people,
             'levelId' => $this->level_id,
             'duration' => $this->duration,
+            'requestsApproved' => $this->total_request_approved,
             'request' => RequestResource::make($this->whenLoaded('request')),
             'room' => RoomResource::make($this->whenLoaded('room')),
             'level' => LookupResource::make($this->whenLoaded('level'))

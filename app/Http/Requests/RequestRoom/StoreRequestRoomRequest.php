@@ -5,6 +5,7 @@ namespace App\Http\Requests\RequestRoom;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\Contracts\ReturnDtoInterface;
 use App\Models\Dto\RequestDTO;
+use App\Models\Dto\RequestEmailDTO;
 use App\Models\Dto\RequestPhoneNumberDTO;
 use App\Models\Dto\RequestRoomDTO;
 use Carbon\Carbon;
@@ -31,7 +32,10 @@ class StoreRequestRoomRequest extends FormRequest implements ReturnDtoInterface
             'title' => ['required', 'string', 'min:3', 'max: 100'],
             'requestPhoneNumber' => ['array'],
             'requestPhoneNumber.*.name' => ['required', 'max:150'],
-            'requestPhoneNumber.*.phone' => ['required', 'min:10', 'max:10']
+            'requestPhoneNumber.*.phone' => ['required', 'min:10', 'max:10'],
+            'requestEmail' => ['array'],
+            'requestEmail.*.name' => ['required', 'max:150'],
+            'requestEmail.*.email' => ['required', 'email:dns', 'max:150'],
         ];
     }
 
@@ -49,7 +53,10 @@ class StoreRequestRoomRequest extends FormRequest implements ReturnDtoInterface
             'title' => 'Título de la reunión',
             'requestPhoneNumber' => 'Listado de números de teléfono',
             'requestPhoneNumber.*.name' => 'Nombre del contacto',
-            'requestPhoneNumber.*.phone' => 'Teléfono de contacto'
+            'requestPhoneNumber.*.phone' => 'Teléfono de contacto',
+            'requestEmail' => 'Listado de correos electrónicos',
+            'requestEmail.*.name' => 'Nombre del contacto',
+            'requestEmail.*.email' => 'Correo del contacto',
         ];
     }
 
@@ -58,13 +65,25 @@ class StoreRequestRoomRequest extends FormRequest implements ReturnDtoInterface
      */
     public function toDTO(): RequestRoomDTO
     {
+        $now = now();
+
         $phoneNumbers = array();
         foreach ($this->requestPhoneNumber as $phone) {
             $phoneNumbers[] = new RequestPhoneNumberDTO([
                 'name' => $phone['name'],
                 'phone' => $phone['phone'],
-                'created_at' => now(),
-                'updated_at' => now()
+                'created_at' => $now,
+                'updated_at' => $now
+            ]);
+        }
+
+        $emails = array();
+        foreach ($this->requestEmail as $email) {
+            $emails[] = new RequestEmailDTO([
+                'name' => $email['name'],
+                'email' => $email['email'],
+                'created_at' => $now,
+                'updated_at' => $now
             ]);
         }
 
@@ -76,7 +95,8 @@ class StoreRequestRoomRequest extends FormRequest implements ReturnDtoInterface
             'add_google_calendar' => $this->addGoogleCalendar,
             'people' => $this->people,
             'user_id' => auth()->id(),
-            'requestPhoneNumber' => $phoneNumbers
+            'requestPhoneNumber' => $phoneNumbers,
+            'requestEmail' => $emails
         ]);
 
         return new RequestRoomDTO([

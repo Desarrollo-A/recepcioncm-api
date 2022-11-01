@@ -226,5 +226,6 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('request-phone-numbers', 'RequestPhoneNumberController')
             ->only('store', 'update', 'destroy');
         Route::apiResource('notifications', 'NotificationController')->only('show');
+        Route::apiResource('request-emails', 'RequestEmailController')->only('store', 'update', 'destroy');
     });
 });
