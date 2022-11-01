@@ -32,6 +32,7 @@ class ServiceLogicServiceProvider extends ServiceProvider
         'RequestNotificationServiceInterface' => 'RequestNotificationService',
         'HomeServiceInterface' => 'HomeService',
         'InputOutputInventoryViewServiceInterface' => 'InputOutputInventoryViewService',
+        'RequestEmailServiceInterface' => 'RequestEmailService',
     ];
 
     public function register()

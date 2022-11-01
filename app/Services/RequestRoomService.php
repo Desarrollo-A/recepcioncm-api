@@ -7,6 +7,7 @@ use App\Contracts\Repositories\InventoryRepositoryInterface;
 use App\Contracts\Repositories\InventoryRequestRepositoryInterface;
 use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\ProposalRequestRepositoryInterface;
+use App\Contracts\Repositories\RequestEmailRepositoryInterface;
 use App\Contracts\Repositories\RequestPhoneNumberRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Contracts\Repositories\RequestRoomRepositoryInterface;
@@ -46,6 +47,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
     protected $cancelRequestRepository;
     protected $proposalRequestRepository;
     protected $requestPhoneNumberRepository;
+    protected $requestEmailRepository;
 
     protected $calendarService;
 
@@ -60,6 +62,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
                                 CancelRequestRepositoryInterface $cancelRequestRepository,
                                 ProposalRequestRepositoryInterface $proposalRequestRepository,
                                 RequestPhoneNumberRepositoryInterface $requestPhoneNumberRepository,
+                                RequestEmailRepositoryInterface $requestEmailRepository,
                                 CalendarServiceInterface $calendarService)
     {
         $this->entityRepository = $requestRoomRepository;
@@ -71,6 +74,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         $this->cancelRequestRepository = $cancelRequestRepository;
         $this->proposalRequestRepository = $proposalRequestRepository;
         $this->requestPhoneNumberRepository = $requestPhoneNumberRepository;
+        $this->requestEmailRepository = $requestEmailRepository;
 
         $this->calendarService = $calendarService;
     }
@@ -105,7 +109,16 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
                 $data->request_id = $request->id;
                 $phonesInsert[] = $data->toArray(['request_id', 'name', 'phone', 'created_at', 'updated_at']);
             }
-            $this->requestPhoneNumberRepository->massInsert($phonesInsert);
+            $this->requestPhoneNumberRepository->bulkInsert($phonesInsert);
+        }
+
+        if (count($dto->request->requestEmail) > 0) {
+            $emailsInsert = array();
+            foreach ($dto->request->requestEmail as $data) {
+                $data->request_id = $request->id;
+                $emailsInsert[] = $data->toArray(['request_id', 'name', 'email', 'created_at', 'updated_at']);
+            }
+            $this->requestEmailRepository->bulkInsert($emailsInsert);
         }
 
         $dto->request_id = $request->id;

@@ -27,10 +27,11 @@ class RequestRoom extends Model
 
     public function getTotalRequestApprovedAttribute(): int
     {
-        return $this->request()
+        return Request::query()
             ->join('lookups', 'lookups.id', '=', 'requests.status_id')
             ->where('lookups.code', StatusRequestLookup::code(StatusRequestLookup::APPROVED))
             ->where('start_date', '>=', now()->startOfDay())
+            ->where('user_id', $this->request->user_id)
             ->count();
     }
 
