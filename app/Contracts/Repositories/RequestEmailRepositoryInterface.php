@@ -4,6 +4,7 @@ namespace App\Contracts\Repositories;
 
 use App\Core\Contracts\BaseRepositoryInterface;
 use App\Models\RequestEmail;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * @method RequestEmail create(array $data)
@@ -12,4 +13,6 @@ use App\Models\RequestEmail;
 interface RequestEmailRepositoryInterface extends BaseRepositoryInterface
 {
     public function bulkInsert(array $data): bool;
+
+    public function findByRequestId(int $requestId, array $columns = ['*']): Collection;
 }
