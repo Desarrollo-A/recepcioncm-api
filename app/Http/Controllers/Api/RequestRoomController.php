@@ -10,21 +10,19 @@ use App\Contracts\Services\RequestEmailServiceInterface;
 use App\Contracts\Services\RequestNotificationServiceInterface;
 use App\Contracts\Services\RequestRoomServiceInterface;
 use App\Core\BaseApiController;
-use App\Events\AlertNotification;
 use App\Exceptions\CustomErrorException;
+use App\Helpers\Utils;
 use App\Http\Requests\RequestRoom\AssignSnackRequest;
 use App\Http\Requests\RequestRoom\AvailableScheduleRequestRoomRequest;
 use App\Http\Requests\RequestRoom\CancelRequestRoomRequest;
 use App\Http\Requests\RequestRoom\ProposalRequestRoomRequest;
 use App\Http\Requests\RequestRoom\StoreRequestRoomRequest;
 use App\Http\Resources\Lookup\LookupResource;
-use App\Http\Resources\Notification\NotificationResource;
 use App\Http\Resources\Request\AvailableScheduleResource;
 use App\Http\Resources\RequestRoom\RequestRoomResource;
 use App\Http\Resources\RequestRoom\RequestRoomViewCollection;
 use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
-use App\Models\Notification;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -109,7 +107,7 @@ class RequestRoomController extends BaseApiController
         $notification = $this->notificationService->newOrResponseToApprovedRequestRoomNotification($requestModel);
         $this->requestEmailService->sendApprovedRequestMail($requestModel);
         $this->requestNotificationService->create($requestModel->id, $notification->id);
-        $this->eventNotification($notification);
+        Utils::eventAlertNotification($notification);
         return $this->noContentResponse();
     }
 
@@ -133,7 +131,7 @@ class RequestRoomController extends BaseApiController
         $this->requestEmailService->sendCancelledRequestMail($requestModel);
         $notification = $this->notificationService->approvedToCancelledRequestRoomNotification($requestModel, auth()->user());
         $this->requestNotificationService->create($requestModel->id, $notification->id);
-        $this->eventNotification($notification);
+        Utils::eventAlertNotification($notification);
         return $this->noContentResponse();
     }
 
@@ -152,7 +150,7 @@ class RequestRoomController extends BaseApiController
         $requestModel = $this->requestRoomService->proposalRequest($requestId, $dto);
         $notification = $this->notificationService->newToProposalRequestRoomNotification($requestModel);
         $this->requestNotificationService->create($requestModel->id, $notification->id);
-        $this->eventNotification($notification);
+        Utils::eventAlertNotification($notification);
         return $this->noContentResponse();
     }
 
@@ -162,15 +160,5 @@ class RequestRoomController extends BaseApiController
         $snacks = $this->inventoryRequestService->deleteSnacks($requestId);
         $this->inventoryService->restoreStockAfterInventoriesRequestDeleted($snacks);
         return $this->noContentResponse();
-    }
-
-    /**
-     * @return void
-     */
-    private function eventNotification(Notification $notification)
-    {
-        $newNotification = $notification->fresh(['type', 'color', 'icon', 'requestNotification',
-            'requestNotification.request', 'requestNotification.confirmNotification']);
-        broadcast(new AlertNotification($notification->user_id, new NotificationResource($newNotification)));
     }
 }

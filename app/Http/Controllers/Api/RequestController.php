@@ -6,13 +6,11 @@ use App\Contracts\Services\NotificationServiceInterface;
 use App\Contracts\Services\RequestNotificationServiceInterface;
 use App\Contracts\Services\RequestServiceInterface;
 use App\Core\BaseApiController;
-use App\Events\AlertNotification;
 use App\Exceptions\CustomErrorException;
+use App\Helpers\Utils;
 use App\Http\Requests\Request\ResponseRejectRequestRequest;
-use App\Http\Resources\Notification\NotificationResource;
 use App\Http\Resources\Request\RequestResource;
 use App\Models\Enums\NameRole;
-use App\Models\Notification;
 use Illuminate\Http\JsonResponse;
 
 class RequestController extends BaseApiController
@@ -57,17 +55,7 @@ class RequestController extends BaseApiController
         $requestModel = $this->requestService->responseRejectRequest($id, $dto);
         $notification = $this->notificationService->proposalToRejectedOrResponseRequestRoomNotification($requestModel);
         $this->requestNotificationService->create($requestModel->id, $notification->id);
-        $this->eventNotification($notification);
+        Utils::eventAlertNotification($notification);
         return $this->noContentResponse();
-    }
-
-    /**
-     * @return void
-     */
-    private function eventNotification(Notification $notification)
-    {
-        $newNotification = $notification->fresh(['type', 'color', 'icon', 'requestNotification',
-            'requestNotification.request', 'requestNotification.confirmNotification']);
-        broadcast(new AlertNotification($notification->user_id, new NotificationResource($newNotification)));
     }
 }

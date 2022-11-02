@@ -120,4 +120,10 @@ class InventoryRequestRepository extends BaseRepository implements InventoryRequ
             ->whereNotNull('quantity')
             ->update(['applied' => true]);
     }
+
+    public function bulkInsert(array $data): bool
+    {
+        return $this->entity
+            ->insert($data);
+    }
 }
