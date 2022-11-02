@@ -40,12 +40,15 @@ class AssignSnackRequest extends FormRequest implements ReturnDtoInterface
      */
     public function toDTO(): RequestRoomDTO
     {
+        $now = now();
         $snacks = array();
         foreach ($this->inventoryRequest as $item) {
             $snacks[] = new InventoryRequestDTO([
                 'request_id' =>  $this->requestId,
                 'inventory_id' =>  $item['inventoryId'],
-                'quantity' =>  $item['quantity']
+                'quantity' =>  $item['quantity'],
+                'created_at' => $now,
+                'updated_at' => $now
             ]);
         }
 

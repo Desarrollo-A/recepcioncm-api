@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class InventoryRequest extends Pivot
 {
-    protected $fillable = ['request_id', 'inventory_id', 'quantity', 'applied', 'created_at'];
+    protected $fillable = ['request_id', 'inventory_id', 'quantity', 'applied', 'created_at', 'updated_at'];
 
     protected $casts = [
         'request_id' => 'integer',

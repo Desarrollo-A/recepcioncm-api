@@ -157,9 +157,11 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         self::validateInventoryAsSnack($inventories, $dto->inventoryRequest, $snackTypeId);
         self::validateStockSnack($inventories, $dto->inventoryRequest);
 
+        $snacks = array();
         foreach($dto->inventoryRequest as $snack) {
-            $this->inventoryRequestRepository->create($snack->toArray(['request_id', 'inventory_id', 'quantity']));
+            $snacks[] = $snack->toArray(['request_id', 'inventory_id', 'quantity', 'created_at', 'updated_at']);
         }
+        $this->inventoryRequestRepository->bulkInsert($snacks);
 
         $approveStatusId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::APPROVED),
             TypeLookup::STATUS_REQUEST)->id;

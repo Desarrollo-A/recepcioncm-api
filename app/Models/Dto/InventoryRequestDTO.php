@@ -4,6 +4,7 @@ namespace App\Models\Dto;
 
 use App\Exceptions\CustomErrorException;
 use App\Models\Contracts\DataTransferObject;
+use Carbon\Carbon;
 
 class InventoryRequestDTO
 {
@@ -28,6 +29,16 @@ class InventoryRequestDTO
      * @var bool
      */
     public $applied;
+
+    /**
+     * @var Carbon
+     */
+    public $created_at;
+
+    /**
+     * @var Carbon
+     */
+    public $updated_at;
 
     /**
      * @throws CustomErrorException

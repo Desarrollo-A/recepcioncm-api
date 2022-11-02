@@ -2,6 +2,9 @@
 
 namespace App\Helpers;
 
+use App\Events\AlertNotification;
+use App\Http\Resources\Notification\NotificationResource;
+use App\Models\Notification;
 use Carbon\Carbon;
 
 class Utils
@@ -60,5 +63,15 @@ class Utils
         }
 
         return $schedule;
+    }
+
+    /**
+     * @return void
+     */
+    public static function eventAlertNotification(Notification  $notification)
+    {
+        $newNotification = $notification->fresh(['type', 'color', 'icon', 'requestNotification',
+            'requestNotification.request', 'requestNotification.confirmNotification']);
+        broadcast(new AlertNotification($notification->user_id, new NotificationResource($newNotification)));
     }
 }
