@@ -7,6 +7,7 @@ use App\Contracts\Repositories\InventoryRepositoryInterface;
 use App\Contracts\Repositories\InventoryRequestRepositoryInterface;
 use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\ProposalRequestRepositoryInterface;
+use App\Contracts\Repositories\RequestEmailRepositoryInterface;
 use App\Contracts\Repositories\RequestPhoneNumberRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Contracts\Repositories\RequestRoomRepositoryInterface;
@@ -46,6 +47,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
     protected $cancelRequestRepository;
     protected $proposalRequestRepository;
     protected $requestPhoneNumberRepository;
+    protected $requestEmailRepository;
 
     protected $calendarService;
 
@@ -60,6 +62,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
                                 CancelRequestRepositoryInterface $cancelRequestRepository,
                                 ProposalRequestRepositoryInterface $proposalRequestRepository,
                                 RequestPhoneNumberRepositoryInterface $requestPhoneNumberRepository,
+                                RequestEmailRepositoryInterface $requestEmailRepository,
                                 CalendarServiceInterface $calendarService)
     {
         $this->entityRepository = $requestRoomRepository;
@@ -71,6 +74,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         $this->cancelRequestRepository = $cancelRequestRepository;
         $this->proposalRequestRepository = $proposalRequestRepository;
         $this->requestPhoneNumberRepository = $requestPhoneNumberRepository;
+        $this->requestEmailRepository = $requestEmailRepository;
 
         $this->calendarService = $calendarService;
     }
@@ -105,7 +109,16 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
                 $data->request_id = $request->id;
                 $phonesInsert[] = $data->toArray(['request_id', 'name', 'phone', 'created_at', 'updated_at']);
             }
-            $this->requestPhoneNumberRepository->massInsert($phonesInsert);
+            $this->requestPhoneNumberRepository->bulkInsert($phonesInsert);
+        }
+
+        if (count($dto->request->requestEmail) > 0) {
+            $emailsInsert = array();
+            foreach ($dto->request->requestEmail as $data) {
+                $data->request_id = $request->id;
+                $emailsInsert[] = $data->toArray(['request_id', 'name', 'email', 'created_at', 'updated_at']);
+            }
+            $this->requestEmailRepository->bulkInsert($emailsInsert);
         }
 
         $dto->request_id = $request->id;
@@ -132,7 +145,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
 
         if ($request->status_id !== $newStatusId && $request->status_id !== $responseStatusId) {
             throw new CustomErrorException('La solicitud debe estar en estatus '. StatusRequestLookup::NEW.
-                'o '.StatusRequestLookup::IN_REVIEW,
+                ' o '.StatusRequestLookup::IN_REVIEW,
                 Response::HTTP_BAD_REQUEST);
         }
 
@@ -153,7 +166,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         $requestDTO = new RequestDTO(['status_id' => $approveStatusId]);
 
         $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id']))
-            ->fresh(['requestRoom.room.recepcionist', 'user']);
+            ->fresh(['requestRoom', 'requestRoom.room', 'requestRoom.room.office', 'requestRoom.room.recepcionist', 'user', 'status']);
 
         if (config('app.enable_google_calendar', false)) {
             $emails = array();
@@ -230,7 +243,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
             }
         }
 
-        return $requestRoom;
+        return $requestRoom->append(['total_request_approved']);
     }
 
     /**
@@ -269,12 +282,12 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
             $this->calendarService->deleteEvent($request->event_google_calendar_id);
         }
 
-        $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id', 'event_google_calendar_id']))
-            ->fresh(['requestRoom','requestRoom.room','cancelRequest']);
+        $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id', 'event_google_calendar_id']));
 
         $this->cancelRequestRepository->create($dto->toArray(['request_id', 'cancel_comment', 'user_id']));
 
-        return $request;
+        return $request->fresh(['requestRoom', 'requestRoom.room', 'requestRoom.room.office',
+            'requestRoom.room.recepcionist', 'user', 'status', 'cancelRequest']);
     }
 
     public function getAvailableScheduleByDay(int $requestId, Carbon $date): \Illuminate\Support\Collection

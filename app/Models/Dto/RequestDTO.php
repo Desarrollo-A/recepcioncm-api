@@ -91,6 +91,11 @@ class RequestDTO
     public $requestPhoneNumber;
 
     /**
+     * @var RequestEmailDTO[]
+     */
+    public $requestEmail;
+
+    /**
      * @throws CustomErrorException
      */
     public function __construct(array $data = [])
