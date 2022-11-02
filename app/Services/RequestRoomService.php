@@ -145,7 +145,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
 
         if ($request->status_id !== $newStatusId && $request->status_id !== $responseStatusId) {
             throw new CustomErrorException('La solicitud debe estar en estatus '. StatusRequestLookup::NEW.
-                'o '.StatusRequestLookup::IN_REVIEW,
+                ' o '.StatusRequestLookup::IN_REVIEW,
                 Response::HTTP_BAD_REQUEST);
         }
 
@@ -166,7 +166,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         $requestDTO = new RequestDTO(['status_id' => $approveStatusId]);
 
         $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id']))
-            ->fresh(['requestRoom.room.recepcionist', 'user']);
+            ->fresh(['requestRoom', 'requestRoom.room', 'requestRoom.room.office', 'requestRoom.room.recepcionist', 'user', 'status']);
 
         if (config('app.enable_google_calendar', false)) {
             $emails = array();
@@ -282,12 +282,12 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
             $this->calendarService->deleteEvent($request->event_google_calendar_id);
         }
 
-        $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id', 'event_google_calendar_id']))
-            ->fresh(['requestRoom','requestRoom.room','cancelRequest']);
+        $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id', 'event_google_calendar_id']));
 
         $this->cancelRequestRepository->create($dto->toArray(['request_id', 'cancel_comment', 'user_id']));
 
-        return $request;
+        return $request->fresh(['requestRoom', 'requestRoom.room', 'requestRoom.room.office',
+            'requestRoom.room.recepcionist', 'user', 'status', 'cancelRequest']);
     }
 
     public function getAvailableScheduleByDay(int $requestId, Carbon $date): \Illuminate\Support\Collection
