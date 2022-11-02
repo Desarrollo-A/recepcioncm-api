@@ -7,7 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class ApprovedRequestMail extends Mailable
+class CancelledRequestMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -20,21 +20,22 @@ class ApprovedRequestMail extends Mailable
         $this->request = $request;
     }
 
-    public function build(): ApprovedRequestMail
+    public function build(): CancelledRequestMail
     {
         $status = strtoupper($this->request->status->name);
         $code = $this->request->code;
         return $this
             ->to($this->emails)
             ->subject("Movimiento de solicitud $code a $status")
-            ->markdown('mail.request.approved-request', [
+            ->markdown('mail.request.cancelled-request', [
                 'code' => $code,
                 'status' => $status,
                 'date' => $this->request->start_date->format('d-m-Y'),
                 'startTime' => $this->request->start_date->format('g:i A'),
                 'endTime' => $this->request->end_date->format('g:i A'),
                 'office' => $this->request->requestRoom->room->office->name,
-                'room' => $this->request->requestRoom->room->name
+                'room' => $this->request->requestRoom->room->name,
+                'comment' => $this->request->cancelRequest->cancel_comment
             ]);
     }
 }

@@ -282,12 +282,12 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
             $this->calendarService->deleteEvent($request->event_google_calendar_id);
         }
 
-        $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id', 'event_google_calendar_id']))
-            ->fresh(['requestRoom','requestRoom.room','cancelRequest']);
+        $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id', 'event_google_calendar_id']));
 
         $this->cancelRequestRepository->create($dto->toArray(['request_id', 'cancel_comment', 'user_id']));
 
-        return $request;
+        return $request->fresh(['requestRoom', 'requestRoom.room', 'requestRoom.room.office',
+            'requestRoom.room.recepcionist', 'user', 'status', 'cancelRequest']);
     }
 
     public function getAvailableScheduleByDay(int $requestId, Carbon $date): \Illuminate\Support\Collection

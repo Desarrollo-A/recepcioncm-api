@@ -16,5 +16,10 @@ interface RequestEmailServiceInterface extends BaseServiceInterface
     /**
      * @return void
      */
-    public function sendMailNotification(Request $request);
+    public function sendApprovedRequestMail(Request $request);
+
+    /**
+     * @return void
+     */
+    public function sendCancelledRequestMail(Request $request);
 }
