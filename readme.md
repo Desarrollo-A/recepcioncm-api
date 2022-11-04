@@ -22,3 +22,6 @@ Nota: Se debe tener instalado la versión de PHP 7.0 como mínimo, Composer y No
 - Laravel DOMPDF `https://github.com/barryvdh/laravel-dompdf/tree/v0.8.7`
 - Intervention Image (Paquete para optimización de imágenes) `https://image.intervention.io/v2`
 - Laravel CORS `https://github.com/fruitcake/laravel-cors/tree/v1.0.6`
+- Laravel Pusher `https://pusher.com/`
+- Fast Excel `https://github.com/rap2hpoutre/fast-excel/tree/v2.1.0`
+- Laravel Google Calendar `https://github.com/spatie/laravel-google-calendar/tree/2.1.0`
