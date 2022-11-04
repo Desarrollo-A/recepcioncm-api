@@ -13,6 +13,6 @@ class TypeLookup
     const STATUS_ROOM = 7; // (ACTIVA, BAJA, MANTENIMIENTO, ETC.)
     const REQUEST_TYPE_NOTIFICATIONS = 8; // (Sala, Automóvil, Conductor, Inventario, ETC.)
     const STATUS_CAR = 9; // (ACTIVO, BAJA, MANTENIMIENTO)
-    const NOTIFICATION_COLOR = 10;
-    const NOTIFICATION_ICON = 11;
+    const NOTIFICATION_COLOR = 10; // Color de la notificación
+    const NOTIFICATION_ICON = 11; // Ícono de la notificación
 }
