@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Contracts\Services\ConfirmNotificationServiceInterface;
+use App\Contracts\Services\ActionRequestNotificationServiceInterface;
 use App\Contracts\Services\NotificationServiceInterface;
 use App\Core\BaseApiController;
 use App\Http\Resources\Notification\NotificationResource;
@@ -12,10 +12,10 @@ use Illuminate\Http\JsonResponse;
 class NotificationController extends BaseApiController
 {
     private $notificationService;
-    private $confirmNotificationService;
+    private $actionRequestNotificationService;
 
-    public function __construct(NotificationServiceInterface $notificationService,
-                                ConfirmNotificationServiceInterface $confirmNotificationService)
+    public function __construct(NotificationServiceInterface              $notificationService,
+                                ActionRequestNotificationServiceInterface $actionRequestNotificationService)
     {
         $this->middleware('role.permission:' . NameRole::ADMIN . ','
             . NameRole::APPLICANT . ',' . NameRole::RECEPCIONIST)
@@ -25,7 +25,7 @@ class NotificationController extends BaseApiController
         $this->middleware('role.permission:' . NameRole::APPLICANT)->only('wasAnswered');
 
         $this->notificationService = $notificationService;
-        $this->confirmNotificationService = $confirmNotificationService;
+        $this->actionRequestNotificationService = $actionRequestNotificationService;
     }
 
     public function show(int $id): JsonResponse
@@ -55,7 +55,7 @@ class NotificationController extends BaseApiController
 
     public function wasAnswered(int $notificationId): JsonResponse
     {
-        $this->confirmNotificationService->wasAnswered($notificationId);
+        $this->actionRequestNotificationService->wasAnswered($notificationId);
         return $this->noContentResponse();
     }
 }

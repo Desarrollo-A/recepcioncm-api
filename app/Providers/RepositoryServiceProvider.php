@@ -32,7 +32,7 @@ class RepositoryServiceProvider extends ServiceProvider
         'CancelRequestRepositoryInterface' => 'CancelRequestRepository',
         'ProposalRequestRepositoryInterface' => 'ProposalRequestRepository',
         'RequestPhoneNumberRepositoryInterface' => 'RequestPhoneNumberRepository',
-        'ConfirmNotificationRepositoryInterface' => 'ConfirmNotificationRepository',
+        'ActionRequestNotificationRepositoryInterface' => 'ActionRequestNotificationRepository',
         'RequestNotificationRepositoryInterface' => 'RequestNotificationRepository',
         'InputOutputInventoryViewRepositoryInterface' => 'InputOutputInventoryViewRepository',
         'RequestEmailRepositoryInterface' => 'RequestEmailRepository',

@@ -34,7 +34,8 @@ class NotificationRepository extends BaseRepository implements NotificationRepos
     public function getAllNotificationLast5Days(int $userId): Collection
     {
         return $this->entity
-            ->with(['type', 'color', 'icon', 'requestNotification', 'requestNotification.request', 'requestNotification.confirmNotification'])
+            ->with(['type', 'color', 'icon', 'requestNotification', 'requestNotification.request',
+                'requestNotification.actionRequestNotification', 'requestNotification.actionRequestNotification.type'])
             ->where('user_id', $userId)
             ->whereDate('created_at', '>', now()->subDays(5))
             ->orderBy('created_at', 'DESC')

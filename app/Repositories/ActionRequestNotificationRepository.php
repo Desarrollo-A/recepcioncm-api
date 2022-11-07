@@ -2,24 +2,24 @@
 
 namespace App\Repositories;
 
-use App\Contracts\Repositories\ConfirmNotificationRepositoryInterface;
+use App\Contracts\Repositories\ActionRequestNotificationRepositoryInterface;
 use App\Core\BaseRepository;
-use App\Models\ConfirmNotification;
+use App\Models\ActionRequestNotification;
 use App\Models\Enums\Lookups\StatusRequestLookup;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 
-class ConfirmNotificationRepository extends BaseRepository implements ConfirmNotificationRepositoryInterface
+class ActionRequestNotificationRepository extends BaseRepository implements ActionRequestNotificationRepositoryInterface
 {
     /**
-     * @var Builder|Model|QueryBuilder|ConfirmNotification
+     * @var Builder|Model|QueryBuilder|ActionRequestNotification
      */
     protected $entity;
 
-    public function __construct(ConfirmNotification $confirmNotification)
+    public function __construct(ActionRequestNotification $actionRequestNotification)
     {
-        $this->entity = $confirmNotification;
+        $this->entity = $actionRequestNotification;
     }
 
     public function updatePastRecords()
@@ -28,7 +28,7 @@ class ConfirmNotificationRepository extends BaseRepository implements ConfirmNot
             ->whereIn('request_notification_id', function ($query) {
                 return $query
                     ->select('request_notification_id')
-                    ->from('confirm_notifications')
+                    ->from('action_request_notifications')
                     ->whereIn('request_notification_id', function ($query) {
                         return $query
                             ->select('id')

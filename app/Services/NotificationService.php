@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Contracts\Repositories\ConfirmNotificationRepositoryInterface;
+use App\Contracts\Repositories\ActionRequestNotificationRepositoryInterface;
 use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\NotificationRepositoryInterface;
 use App\Contracts\Repositories\RequestNotificationRepositoryInterface;
@@ -12,9 +12,10 @@ use App\Contracts\Services\NotificationServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
 use App\Helpers\Utils;
-use App\Models\Dto\ConfirmNotificationDTO;
+use App\Models\Dto\ActionRequestNotificationDTO;
 use App\Models\Dto\NotificationDTO;
 use App\Models\Dto\RequestNotificationDTO;
+use App\Models\Enums\Lookups\ActionRequestNotificationLookup;
 use App\Models\Enums\Lookups\NotificationColorLookup;
 use App\Models\Enums\Lookups\NotificationIconLookup;
 use App\Models\Enums\Lookups\StatusRequestLookup;
@@ -34,20 +35,20 @@ class NotificationService extends BaseService implements NotificationServiceInte
     protected $lookupRepository;
     protected $requestRepository;
     protected $requestNotificationRepository;
-    protected $confirmNotificationRepository;
+    protected $actionRequestNotificationRepository;
     protected $userRepository;
 
-    public function __construct(NotificationRepositoryInterface $notificationRepository,
-                                LookupRepositoryInterface $lookupRepository,
-                                RequestRepositoryInterface $requestRepository,
-                                ConfirmNotificationRepositoryInterface $confirmNotificationRepository,
-                                RequestNotificationRepositoryInterface $requestNotificationRepository,
-                                UserRepositoryInterface $userRepository)
+    public function __construct(NotificationRepositoryInterface              $notificationRepository,
+                                LookupRepositoryInterface                    $lookupRepository,
+                                RequestRepositoryInterface                   $requestRepository,
+                                ActionRequestNotificationRepositoryInterface $actionRequestNotificationRepository,
+                                RequestNotificationRepositoryInterface       $requestNotificationRepository,
+                                UserRepositoryInterface                      $userRepository)
     {
         $this->entityRepository = $notificationRepository;
         $this->lookupRepository = $lookupRepository;
         $this->requestRepository = $requestRepository;
-        $this->confirmNotificationRepository = $confirmNotificationRepository;
+        $this->actionRequestNotificationRepository = $actionRequestNotificationRepository;
         $this->requestNotificationRepository = $requestNotificationRepository;
         $this->userRepository = $userRepository;
     }
@@ -205,13 +206,20 @@ class NotificationService extends BaseService implements NotificationServiceInte
             $requestNotification = $this->requestNotificationRepository->create($requestNotificationDTO->toArray([
                 'notification_id', 'request_id'
             ]));
-            $confirmNotificationDTO = new ConfirmNotificationDTO(['request_notification_id' => $requestNotification->id]);
-            $this->confirmNotificationRepository->create($confirmNotificationDTO->toArray(['request_notification_id']));
+            $actionRequestNotificationDTO = new ActionRequestNotificationDTO([
+                'request_notification_id' => $requestNotification->id,
+                'type_id' => $this->lookupRepository->findByCodeAndType(
+                    ActionRequestNotificationLookup::code(ActionRequestNotificationLookup::CONFIRM),
+                    TypeLookup::ACTION_REQUEST_NOTIFICATION)->id
+            ]);
+            $this->actionRequestNotificationRepository->create($actionRequestNotificationDTO->toArray([
+                'request_notification_id', 'type_id'
+            ]));
 
             Utils::eventAlertNotification($notification);
         });
 
-        $this->confirmNotificationRepository->updatePastRecords();
+        $this->actionRequestNotificationRepository->updatePastRecords();
     }
 
     /**

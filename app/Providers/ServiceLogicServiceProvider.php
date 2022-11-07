@@ -28,7 +28,7 @@ class ServiceLogicServiceProvider extends ServiceProvider
         'RequestServiceInterface' => 'RequestService',
         'CalendarServiceInterface' => 'CalendarService',
         'RequestPhoneNumberServiceInterface' => 'RequestPhoneNumberService',
-        'ConfirmNotificationServiceInterface' => 'ConfirmNotificationService',
+        'ActionRequestNotificationServiceInterface' => 'ActionRequestNotificationService',
         'RequestNotificationServiceInterface' => 'RequestNotificationService',
         'HomeServiceInterface' => 'HomeService',
         'InputOutputInventoryViewServiceInterface' => 'InputOutputInventoryViewService',

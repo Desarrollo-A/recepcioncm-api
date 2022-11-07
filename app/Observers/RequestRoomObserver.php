@@ -31,7 +31,8 @@ class RequestRoomObserver
         $notification = $this->notificationService->createRequestRoomNotification($requestRoom->fresh(['request', 'room']));
         $this->requestNotificationService->create($requestRoom->request_id, $notification->id);
         $newNotification = $notification->fresh(['type', 'color', 'icon', 'requestNotification',
-            'requestNotification.request', 'requestNotification.confirmNotification']);
+            'requestNotification.request', 'requestNotification.actionRequestNotification',
+            'requestNotification.actionRequestNotification.type']);
         broadcast(new AlertNotification($notification->user_id, new NotificationResource($newNotification)));
     }
 }
