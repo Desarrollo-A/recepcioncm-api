@@ -198,28 +198,28 @@ class NotificationService extends BaseService implements NotificationServiceInte
                 'color_id' => $this->getColorId(NotificationColorLookup::BLUE),
                 'icon_id' => $this->getIconId(NotificationIconLookup::CONFIRM)
             ]);
-            $notification = $this->createRow($notificationDTO);
-            $requestNotificationDTO = new RequestNotificationDTO([
-                'notification_id' => $notification->id,
-                'request_id' => $request->id
-            ]);
-            $requestNotification = $this->requestNotificationRepository->create($requestNotificationDTO->toArray([
-                'notification_id', 'request_id'
-            ]));
-            $actionRequestNotificationDTO = new ActionRequestNotificationDTO([
-                'request_notification_id' => $requestNotification->id,
-                'type_id' => $this->lookupRepository->findByCodeAndType(
-                    ActionRequestNotificationLookup::code(ActionRequestNotificationLookup::CONFIRM),
-                    TypeLookup::ACTION_REQUEST_NOTIFICATION)->id
-            ]);
-            $this->actionRequestNotificationRepository->create($actionRequestNotificationDTO->toArray([
-                'request_notification_id', 'type_id'
-            ]));
-
-            Utils::eventAlertNotification($notification);
+            $this->createActionNotification($notificationDTO, $request, ActionRequestNotificationLookup::CONFIRM);
         });
 
         $this->actionRequestNotificationRepository->updatePastRecords();
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function createScoreRequestNotification(Collection $requests)
+    {
+        $requests->each(function (Request $request) {
+            $notificationDTO = new NotificationDTO([
+                'message' => "Calificar la solicitud $request->code",
+                'user_id' => $request->user_id,
+                'type_id' => $this->getTypeId(TypeNotificationsLookup::GENERAL),
+                'color_id' => $this->getColorId(NotificationColorLookup::BLUE),
+                'icon_id' => $this->getIconId(NotificationIconLookup::STAR)
+            ]);
+
+            $this->createActionNotification($notificationDTO, $request, ActionRequestNotificationLookup::SCORE);
+        });
     }
 
     /**
@@ -236,6 +236,33 @@ class NotificationService extends BaseService implements NotificationServiceInte
             'icon_id' => $this->getIconId(NotificationIconLookup::WARNING)
         ]);
         $notification = $this->createRow($notificationDTO);
+        Utils::eventAlertNotification($notification);
+    }
+
+    /**
+     * @return void
+     * @throws CustomErrorException
+     */
+    private function createActionNotification(NotificationDTO $notificationDTO, Request $request, string $lookup)
+    {
+        $notification = $this->createRow($notificationDTO);
+        $requestNotificationDTO = new RequestNotificationDTO([
+            'notification_id' => $notification->id,
+            'request_id' => $request->id
+        ]);
+        $requestNotification = $this->requestNotificationRepository->create($requestNotificationDTO->toArray([
+            'notification_id', 'request_id'
+        ]));
+        $actionRequestNotificationDTO = new ActionRequestNotificationDTO([
+            'request_notification_id' => $requestNotification->id,
+            'type_id' => $this->lookupRepository->findByCodeAndType(
+                ActionRequestNotificationLookup::code($lookup),
+                TypeLookup::ACTION_REQUEST_NOTIFICATION)->id
+        ]);
+        $this->actionRequestNotificationRepository->create($actionRequestNotificationDTO->toArray([
+            'request_notification_id', 'type_id'
+        ]));
+
         Utils::eventAlertNotification($notification);
     }
 

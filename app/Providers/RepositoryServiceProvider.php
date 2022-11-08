@@ -36,6 +36,7 @@ class RepositoryServiceProvider extends ServiceProvider
         'RequestNotificationRepositoryInterface' => 'RequestNotificationRepository',
         'InputOutputInventoryViewRepositoryInterface' => 'InputOutputInventoryViewRepository',
         'RequestEmailRepositoryInterface' => 'RequestEmailRepository',
+        'ScoreRepositoryInterface' => 'ScoreRepository',
     ];
 
     public function register()

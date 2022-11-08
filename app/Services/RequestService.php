@@ -14,6 +14,7 @@ use App\Models\Dto\RequestDTO;
 use App\Models\Enums\Lookups\StatusRequestLookup;
 use App\Models\Enums\TypeLookup;
 use App\Models\Request;
+use Illuminate\Database\Eloquent\Collection;
 use Symfony\Component\HttpFoundation\Response;
 
 class RequestService extends BaseService implements RequestServiceInterface
@@ -93,16 +94,19 @@ class RequestService extends BaseService implements RequestServiceInterface
         $this->entityRepository->update($request->id, $requestDTO->toArray(['code']));
     }
 
-    public function changeToFinished()
+    public function changeToFinished(): Collection
     {
         $requests = $this->entityRepository
-            ->getPreviouslyByCode(StatusRequestLookup::code(StatusRequestLookup::APPROVED), ['requests.id']);
+            ->getPreviouslyByCode(StatusRequestLookup::code(StatusRequestLookup::APPROVED), ['requests.id',
+                'requests.user_id', 'requests.code']);
         if ($requests->count() > 0) {
             $statusId = $this->lookupRepository
                 ->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::FINISHED),
                     TypeLookup::STATUS_REQUEST)->id;
-            $this->entityRepository->bulkStatusUpdate(array_values($requests->toArray()), $statusId);
+            $this->entityRepository->bulkStatusUpdate(array_values($requests->pluck('id')->toArray()), $statusId);
         }
+
+        return $requests;
     }
 
     public function changeToExpired()

@@ -12,5 +12,5 @@ interface ActionRequestNotificationServiceInterface extends BaseServiceInterface
     /**
      * @return void
      */
-    public function wasAnswered(int $notificationId);
+    public function wasAnswered(int $requestNotificationId);
 }

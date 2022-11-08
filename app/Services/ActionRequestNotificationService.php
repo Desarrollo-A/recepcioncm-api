@@ -34,9 +34,9 @@ class ActionRequestNotificationService extends BaseService implements ActionRequ
      * @throws CustomErrorException
      * @return void
      */
-    public function wasAnswered(int $notificationId)
+    public function wasAnswered(int $requestNotificationId)
     {
         $dto = new ActionRequestNotificationDTO(['is_answered' => true]);
-        $this->entityRepository->update($notificationId, $dto->toArray(['is_answered']));
+        $this->entityRepository->update($requestNotificationId, $dto->toArray(['is_answered']));
     }
 }

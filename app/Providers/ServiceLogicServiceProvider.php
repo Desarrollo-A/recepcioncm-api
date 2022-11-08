@@ -33,6 +33,7 @@ class ServiceLogicServiceProvider extends ServiceProvider
         'HomeServiceInterface' => 'HomeService',
         'InputOutputInventoryViewServiceInterface' => 'InputOutputInventoryViewService',
         'RequestEmailServiceInterface' => 'RequestEmailService',
+        'ScoreServiceInterface' => 'ScoreService',
     ];
 
     public function register()
