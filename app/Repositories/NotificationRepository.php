@@ -26,8 +26,9 @@ class NotificationRepository extends BaseRepository implements NotificationRepos
     public function findById(int $id, array $columns = ['*']): Notification
     {
         return $this->entity
-            ->with(['type', 'requestNotification', 'requestNotification.request', 'requestNotification.request.requestRoom',
-                'requestNotification.request.requestRoom.room', 'requestNotification.request.requestRoom.room.office'])
+            ->with(['type', 'requestNotification', 'requestNotification.request', 'requestNotification.request.type',
+                'requestNotification.request.requestRoom', 'requestNotification.request.requestRoom.room',
+                'requestNotification.request.requestRoom.room.office'])
             ->findOrFail($id, $columns);
     }
 

@@ -77,6 +77,11 @@ class Request extends Model
         return $this->hasMany(RequestEmail::class);
     }
 
+    public function score(): HasOne
+    {
+        return $this->hasOne(Score::class);
+    }
+
     public function scopeExpired(Builder $query): Builder
     {
         $query->orWhere('lookups.code', StatusRequestLookup::code(StatusRequestLookup::NEW));

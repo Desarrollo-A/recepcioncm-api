@@ -62,8 +62,7 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
     {
         return $this->entity
             ->join('lookups', 'lookups.id', '=', 'requests.status_id')
-            // ->whereDate('end_date', '<', now())
-            ->whereDate('end_date', '<', '2022-11-15')
+            ->whereDate('end_date', '<', now())
             ->where('lookups.code', $code)
             ->get($columns);
     }
