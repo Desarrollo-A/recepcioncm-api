@@ -5,7 +5,7 @@ namespace App\Models\Dto;
 use App\Exceptions\CustomErrorException;
 use App\Models\Contracts\DataTransferObject;
 
-class ConfirmNotificationDTO
+class ActionRequestNotificationDTO
 {
     use DataTransferObject;
 
@@ -18,6 +18,11 @@ class ConfirmNotificationDTO
      * @var int
      */
     public $is_answered;
+
+    /**
+     * @var int
+     */
+    public $type_id;
 
     /**
      * @throws CustomErrorException

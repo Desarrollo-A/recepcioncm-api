@@ -38,6 +38,7 @@ class RequestRoomRepository extends BaseRepository implements RequestRoomReposit
                 'request.cancelRequest',
                 'request.cancelRequest.user',
                 'request.proposalRequest',
+                'request.score',
                 'room',
                 'room.office',
                 'level'

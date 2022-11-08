@@ -9,6 +9,7 @@ use App\Http\Resources\ProposalRequest\ProposalRequestResource;
 use App\Http\Resources\RequestEmail\EmailResource;
 use App\Http\Resources\RequestPhoneNumber\PhoneNumberResource;
 use App\Http\Resources\RequestRoom\RequestRoomResource;
+use App\Http\Resources\Score\ScoreResource;
 use App\Http\Resources\User\UserResource;
 use Illuminate\Http\Resources\Json\Resource;
 
@@ -36,7 +37,8 @@ class RequestResource extends Resource
             'requestPhoneNumber' => PhoneNumberResource::collection($this->whenLoaded('requestPhoneNumber')),
             'requestEmail' => EmailResource::collection($this->whenLoaded('requestEmail')),
             'proposalRequest' => ProposalRequestResource::collection($this->proposalRequest),
-            'requestRoom' => RequestRoomResource::make($this->whenLoaded('requestRoom'))
+            'requestRoom' => RequestRoomResource::make($this->whenLoaded('requestRoom')),
+            'score' => ScoreResource::make($this->whenLoaded('score'))
         ];
     }
 }

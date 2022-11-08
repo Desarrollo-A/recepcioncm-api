@@ -4,7 +4,7 @@ namespace App\Contracts\Repositories;
 
 use App\Core\Contracts\BaseRepositoryInterface;
 
-interface ConfirmNotificationRepositoryInterface extends BaseRepositoryInterface
+interface ActionRequestNotificationRepositoryInterface extends BaseRepositoryInterface
 {
     /**
      * @return void

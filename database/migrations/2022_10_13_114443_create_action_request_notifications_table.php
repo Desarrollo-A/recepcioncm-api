@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateConfirmNotificationsTable extends Migration
+class CreateActionRequestNotificationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,16 @@ class CreateConfirmNotificationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('confirm_notifications', function (Blueprint $table) {
+        Schema::create('action_request_notifications', function (Blueprint $table) {
             $table->unsignedBigInteger('request_notification_id');
             $table->foreign('request_notification_id')
                 ->references('id')
                 ->on('request_notifications');
             $table->boolean('is_answered')->default(false);
+            $table->unsignedSmallInteger('type_id');
+            $table->foreign('type_id')
+                ->references('id')
+                ->on('lookups');
             $table->timestamps();
         });
     }
@@ -30,6 +34,6 @@ class CreateConfirmNotificationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('confirm_notifications');
+        Schema::dropIfExists('action_request_notifications');
     }
 }

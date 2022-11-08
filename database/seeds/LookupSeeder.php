@@ -14,6 +14,7 @@ use App\Models\Enums\Lookups\StatusRoomLookup;
 use App\Models\Enums\Lookups\TypeNotificationsLookup;
 use App\Models\Enums\Lookups\NotificationColorLookup;
 use App\Models\Enums\Lookups\NotificationIconLookup;
+use App\Models\Enums\Lookups\ActionRequestNotificationLookup;
 
 class LookupSeeder extends Seeder
 {
@@ -110,6 +111,14 @@ class LookupSeeder extends Seeder
                'code' => NotificationIconLookup::code($lookup),
                'name' => $lookup
            ]);
+        });
+
+        ActionRequestNotificationLookup::getAll()->each(function ($lookup) {
+            Lookup::query()->create([
+                'type' => TypeLookup::ACTION_REQUEST_NOTIFICATION,
+                'code' => ActionRequestNotificationLookup::code($lookup),
+                'name' => $lookup
+            ]);
         });
     }
 }

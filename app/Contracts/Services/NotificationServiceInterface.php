@@ -48,4 +48,6 @@ interface NotificationServiceInterface extends BaseServiceInterface
      * @return void
      */
     public function minimumStockNotification(Inventory $inventory);
+
+    public function createScoreRequestNotification(Collection $requests);
 }

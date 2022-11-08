@@ -2,12 +2,14 @@
 
 namespace App\Console\Commands\Request;
 
+use App\Contracts\Services\NotificationServiceInterface;
 use App\Contracts\Services\RequestServiceInterface;
 use Illuminate\Console\Command;
 
 class FinishedRequest extends Command
 {
     private $requestService;
+    private $notificationService;
 
     /**
      * The name and signature of the console command.
@@ -28,10 +30,12 @@ class FinishedRequest extends Command
      *
      * @return void
      */
-    public function __construct(RequestServiceInterface $requestService)
+    public function __construct(RequestServiceInterface $requestService,
+                                NotificationServiceInterface $notificationService)
     {
         parent::__construct();
         $this->requestService = $requestService;
+        $this->notificationService = $notificationService;
     }
 
     /**
@@ -41,6 +45,9 @@ class FinishedRequest extends Command
      */
     public function handle()
     {
-        $this->requestService->changeToFinished();
+        $requests = $this->requestService->changeToFinished();
+        if ($requests->count() > 0) {
+            $this->notificationService->createScoreRequestNotification($requests);
+        }
     }
 }

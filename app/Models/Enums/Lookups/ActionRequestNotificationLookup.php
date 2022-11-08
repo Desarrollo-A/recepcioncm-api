@@ -4,16 +4,14 @@ namespace App\Models\Enums\Lookups;
 
 use Illuminate\Support\Collection;
 
-class NotificationIconLookup
+class ActionRequestNotificationLookup
 {
-    const ROOM = 'mat:meeting_room';
-    const CONFIRM = 'mat:question_mark';
-    const WARNING = 'mat:warning';
-    const STAR = 'mat:star';
+    const CONFIRM = 'Confirmar notificación';
+    const SCORE = 'Calificar servicio';
 
     public static function getAll(): Collection
     {
-        return collect([self::ROOM, self::CONFIRM, self::WARNING, self::STAR]);
+        return collect([self::CONFIRM, self::SCORE]);
     }
 
     public static function code($const)

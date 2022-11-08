@@ -163,6 +163,9 @@ Route::prefix('v1')->group(function () {
         Route::prefix('requests')
             ->name('requests.')
             ->group(function () {
+                Route::post('/rating', 'RequestController@starRatingRequest')
+                    ->name('rating');
+
                 Route::patch('/response-reject/{id}', 'RequestController@responseRejectRequest')
                     ->name('response-reject')
                     ->where('id', Validation::INTEGER_ID);

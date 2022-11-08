@@ -20,8 +20,8 @@ class RequestNotification extends Model
         return $this->belongsTo(Request::class);
     }
 
-    public function confirmNotification(): HasOne
+    public function actionRequestNotification(): HasOne
     {
-        return $this->hasOne(ConfirmNotification::class);
+        return $this->hasOne(ActionRequestNotification::class);
     }
 }

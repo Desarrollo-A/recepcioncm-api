@@ -5,6 +5,7 @@ namespace App\Contracts\Services;
 use App\Core\Contracts\BaseServiceInterface;
 use App\Models\Dto\RequestDTO;
 use App\Models\Request;
+use Illuminate\Database\Eloquent\Collection;
 
 interface RequestServiceInterface extends BaseServiceInterface
 {
@@ -17,10 +18,7 @@ interface RequestServiceInterface extends BaseServiceInterface
      */
     public function updateCode(Request $request);
 
-    /**
-     * @return void
-     */
-    public function changeToFinished();
+    public function changeToFinished(): Collection;
 
     /**
      * @return void

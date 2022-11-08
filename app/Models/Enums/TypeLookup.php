@@ -15,4 +15,5 @@ class TypeLookup
     const STATUS_CAR = 9; // (ACTIVO, BAJA, MANTENIMIENTO)
     const NOTIFICATION_COLOR = 10; // Color de la notificación
     const NOTIFICATION_ICON = 11; // Ícono de la notificación
+    const ACTION_REQUEST_NOTIFICATION = 12; // Acciones de notificaciones
 }
