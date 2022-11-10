@@ -19,6 +19,7 @@ class Request extends Model
         'people', 'user_id', 'status_id', 'cancel_comment', 'event_google_calendar_id'];
 
     protected $casts = [
+        'id' => 'integer',
         'start_date' => 'datetime',
         'end_date' => 'datetime',
         'type_id' => 'integer',

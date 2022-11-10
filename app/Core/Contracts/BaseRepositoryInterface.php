@@ -6,6 +6,8 @@ interface BaseRepositoryInterface
 {
     public function create(array $data);
 
+    public function bulkInsert(array $data): bool;
+
     /**
      * @return void
      */

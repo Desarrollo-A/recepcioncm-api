@@ -20,9 +20,4 @@ class RequestPhoneNumberRepository extends BaseRepository implements RequestPhon
     {
         $this->entity = $requestPhoneNumber;
     }
-
-    public function bulkInsert(array $data): bool
-    {
-        return $this->entity->insert($data);
-    }
 }

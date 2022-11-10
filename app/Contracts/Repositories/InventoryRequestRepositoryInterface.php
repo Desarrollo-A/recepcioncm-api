@@ -43,6 +43,4 @@ interface InventoryRequestRepositoryInterface extends BaseRepositoryInterface
      * @return void
      */
     public function updateSnackCountableRequestToApplied();
-
-    public function bulkInsert(array $data): bool;
 }

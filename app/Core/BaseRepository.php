@@ -18,12 +18,18 @@ class BaseRepository implements BaseRepositoryInterface
 
     /**
      * @throws \Throwable
+     * @return mixed
      */
     public function create(array $data)
     {
         $entity = $this->entity->newInstance($data);
         $entity->saveOrFail();
         return $entity;
+    }
+
+    public function bulkInsert(array $data): bool
+    {
+        return $this->entity->insert($data);
     }
 
     /**

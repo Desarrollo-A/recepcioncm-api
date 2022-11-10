@@ -104,6 +104,7 @@ class RequestRoomController extends BaseApiController
         $dto = $request->toDTO();
         $officeId = auth()->user()->office_id;
         $requestModel = $this->requestRoomService->assignSnack($dto, $officeId);
+        $this->requestRoomService->checkRequestsByDay($requestModel, auth()->id());
         $notification = $this->notificationService->newOrResponseToApprovedRequestRoomNotification($requestModel);
         $this->requestEmailService->sendApprovedRequestMail($requestModel);
         $this->requestNotificationService->create($requestModel->id, $notification->id);
@@ -148,6 +149,7 @@ class RequestRoomController extends BaseApiController
     {
         $dto = $request->toDTO();
         $requestModel = $this->requestRoomService->proposalRequest($requestId, $dto);
+        $this->requestRoomService->checkRequestsByDay($requestModel, auth()->id());
         $notification = $this->notificationService->newToProposalRequestRoomNotification($requestModel);
         $this->requestNotificationService->create($requestModel->id, $notification->id);
         Utils::eventAlertNotification($notification);
