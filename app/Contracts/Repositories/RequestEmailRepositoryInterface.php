@@ -12,7 +12,5 @@ use Illuminate\Database\Eloquent\Collection;
  */
 interface RequestEmailRepositoryInterface extends BaseRepositoryInterface
 {
-    public function bulkInsert(array $data): bool;
-
     public function findByRequestId(int $requestId, array $columns = ['*']): Collection;
 }

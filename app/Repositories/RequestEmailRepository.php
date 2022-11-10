@@ -22,11 +22,6 @@ class RequestEmailRepository extends BaseRepository implements RequestEmailRepos
         $this->entity = $requestEmail;
     }
 
-    public function bulkInsert(array $data): bool
-    {
-        return $this->entity->insert($data);
-    }
-
     public function findByRequestId(int $requestId, array $columns = ['*']): Collection
     {
         return $this->entity

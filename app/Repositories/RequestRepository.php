@@ -138,4 +138,34 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
             ->where('request_room_view.office_id', $officeId)
             ->count();
     }
+
+    public function getTotalRequestRoomOfWeekday(int $userId, int $weekday): int
+    {
+        return $this->entity
+            ->join('lookups AS s', 's.id', '=', 'requests.status_id')
+            ->join('lookups AS t', 't.id', '=', 'requests.type_id')
+            ->where('user_id', $userId)
+            ->whereRaw("DATEPART(WEEKDAY, start_date) = $weekday")
+            ->whereDate('start_date', '>=', now())
+            ->where('t.code', TypeRequestLookup::code(TypeRequestLookup::ROOM))
+            ->whereIn('s.code', [StatusRequestLookup::code(StatusRequestLookup::APPROVED),
+                StatusRequestLookup::code(StatusRequestLookup::PROPOSAL),
+                StatusRequestLookup::code(StatusRequestLookup::IN_REVIEW)])
+            ->count();
+    }
+
+    public function getRequestRoomAfterNowInWeekday(int $userId, int $weekday): Collection
+    {
+        return $this->entity
+            ->join('lookups AS s', 's.id', '=', 'requests.status_id')
+            ->join('lookups AS t', 't.id', '=', 'requests.type_id')
+            ->where('user_id', $userId)
+            ->whereRaw("DATEPART(WEEKDAY, start_date) = $weekday")
+            ->whereDate('start_date', '>=', now())
+            ->where('t.code', TypeRequestLookup::code(TypeRequestLookup::ROOM))
+            ->whereNotIn('s.code', [StatusRequestLookup::code(StatusRequestLookup::APPROVED),
+                StatusRequestLookup::code(StatusRequestLookup::PROPOSAL),
+                StatusRequestLookup::code(StatusRequestLookup::IN_REVIEW)])
+            ->get(['requests.*']);
+    }
 }

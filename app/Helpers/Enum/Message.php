@@ -11,6 +11,7 @@ class Message
     const USER_BLOCKED = 'El usuario está bloqueado.';
     const INVALID_QUERY_PARAMETER = 'Parámetro de consulta inválido.';
     const INVALID_ID_PARAMETER_WITH_ID_BODY = 'El id es diferente al id del parámetro de ruta.';
+    const LIMIT_REQUEST_BY_DAY = 'Se ha excedido el límite para agendar reuniones para los días ';
 
     // Mensajes de excepciones
     const AUTHENTICATION_EXCEPTION = 'No autenticado.';

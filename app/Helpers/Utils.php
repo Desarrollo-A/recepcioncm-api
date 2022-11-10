@@ -68,11 +68,33 @@ class Utils
     /**
      * @return void
      */
-    public static function eventAlertNotification(Notification  $notification)
+    public static function eventAlertNotification(Notification $notification)
     {
         $newNotification = $notification->fresh(['type', 'color', 'icon', 'requestNotification',
             'requestNotification.request', 'requestNotification.actionRequestNotification',
             'requestNotification.actionRequestNotification.type']);
         broadcast(new AlertNotification($notification->user_id, new NotificationResource($newNotification)));
+    }
+
+    public static function getDayName(int $day): string
+    {
+        if ($day === 0) {
+            return 'Domingo';
+        } else if ($day === 1) {
+            return 'Lunes';
+        } else if ($day === 2) {
+            return 'Martes';
+        } else if ($day === 3) {
+            return 'Miércoles';
+        } else if ($day === 4) {
+            return 'Jueves';
+        } else if ($day === 5) {
+            return 'Viernes';
+        } else if ($day === 5) {
+            return 'Sábado';
+        } else {
+            return '';
+
+        }
     }
 }
