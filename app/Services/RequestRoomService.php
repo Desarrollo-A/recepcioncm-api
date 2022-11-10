@@ -28,11 +28,12 @@ use App\Models\Enums\Lookups\StatusRequestLookup;
 use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
+use App\Models\Request;
 use App\Models\RequestRoom;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\Request;
+use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -52,6 +53,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
     protected $calendarService;
 
     const DIFF_HOURS_TO_CANCEL = 1;
+    const REQUESTS_BY_DAY = 2;
 
     public function __construct(RequestRoomRepositoryInterface $requestRoomRepository,
                                 RequestRepositoryInterface $requestRepository,
@@ -82,7 +84,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
     /**
      * @throws CustomErrorException
      */
-    public function findAllRoomsPaginated(Request $request, User $user, array $columns = ['*']): LengthAwarePaginator
+    public function findAllRoomsPaginated(HttpRequest $request, User $user, array $columns = ['*']): LengthAwarePaginator
     {
         $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
         $perPage = Validation::getPerPage($request->get(QueryParam::PAGINATION_KEY));
@@ -95,6 +97,12 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
      */
     public function create(RequestRoomDTO $dto): RequestRoom
     {
+        $roomRequestsOfWeekday = $this->requestRepository->getTotalRequestRoomOfWeekday($dto->request->user_id, now()->dayOfWeek + 1);
+        if ($roomRequestsOfWeekday === self::REQUESTS_BY_DAY) {
+            throw new CustomErrorException(Message::LIMIT_REQUEST_BY_DAY.
+                Utils::getDayName($dto->request->start_date->dayOfWeek), Response::HTTP_BAD_REQUEST);
+        }
+
         $dto->request->status_id = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::NEW),
             TypeLookup::STATUS_REQUEST)->id;
         $dto->request->type_id = $this->lookupRepository->findByCodeAndType(TypeRequestLookup::code(TypeRequestLookup::ROOM),
@@ -135,7 +143,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
     /**
      * @throws CustomErrorException
      */
-    public function assignSnack(RequestRoomDTO $dto, int $officeId): \App\Models\Request
+    public function assignSnack(RequestRoomDTO $dto, int $officeId): Request
     {
         $newStatusId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::NEW),
             TypeLookup::STATUS_REQUEST)->id;
@@ -249,10 +257,9 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
     }
 
     /**
-     * @return \App\Models\Request
      * @throws CustomErrorException
      */
-    public function cancelRequest(CancelRequestDTO $dto, User $user): \App\Models\Request
+    public function cancelRequest(CancelRequestDTO $dto, User $user): Request
     {
         $statusApproveId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::APPROVED),
             TypeLookup::STATUS_REQUEST)->id;
@@ -323,7 +330,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
     /**
      * @throws CustomErrorException
      */
-    public function proposalRequest(int $requestId, RequestDTO $dto): \App\Models\Request
+    public function proposalRequest(int $requestId, RequestDTO $dto): Request
     {
         $statusNewId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::NEW),
             TypeLookup::STATUS_REQUEST)->id;
@@ -352,7 +359,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
     /**
      * @throws CustomErrorException
      */
-    public function withoutAttendingRequest(int $requestId): \App\Models\Request
+    public function withoutAttendingRequest(int $requestId): Request
     {
         $statusApproveId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::APPROVED),
             TypeLookup::STATUS_REQUEST)->id;
@@ -369,6 +376,39 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         $dto = new RequestDTO(['status_id' => $withoutAttendingStatusId]);
 
         return $this->requestRepository->update($requestId, $dto->toArray(['status_id']));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function checkRequestsByDay(Request $request, int $recepcionistId)
+    {
+        $roomRequestsOfWeekday = $this->requestRepository->getTotalRequestRoomOfWeekday($request->user_id,
+            $request->start_date->dayOfWeek + 1);
+        if ($roomRequestsOfWeekday < self::REQUESTS_BY_DAY) {
+            return;
+        }
+
+        $requests = $this->requestRepository->getRequestRoomAfterNowInWeekday($request->user_id, $request->start_date->dayOfWeek + 1);
+        if ($requests->count() === 0) {
+            return;
+        }
+
+        $message = Message::LIMIT_REQUEST_BY_DAY.Utils::getDayName($request->start_date->dayOfWeek);
+        $data = [];
+        foreach ($requests as $r) {
+            $dto = new CancelRequestDTO([
+                'request_id' => $r->id,
+                'cancel_comment' => $message,
+                'user_id' => $recepcionistId
+            ]);
+            $data[] = $dto->toArray(['request_id', 'cancel_comment', 'user_id']);
+        }
+
+        $cancelStatusId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::CANCELLED),
+            TypeLookup::STATUS_REQUEST)->id;
+        $this->requestRepository->bulkStatusUpdate($requests->pluck('id')->toArray(), $cancelStatusId);
+        $this->cancelRequestRepository->bulkInsert($data);
     }
 
     /**
