@@ -17,7 +17,7 @@ class UpdateImageInventoryRequest extends FormRequest implements ReturnDtoInterf
     public function rules(): array
     {
         return [
-            'image' => ['required', 'image', 'max:2048']
+            'image' => ['required', 'mimes:jpg,jpeg,png,gif,svg', 'max:2048']
         ];
     }
 
