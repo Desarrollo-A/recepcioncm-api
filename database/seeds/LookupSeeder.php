@@ -43,7 +43,7 @@ class LookupSeeder extends Seeder
 
         StatusRequestLookup::getAll()->each(function ($lookup) {
             Lookup::query()->create([
-                'type' => TypeLookup::STATUS_REQUEST,
+                'type' => TypeLookup::STATUS_ROOM_REQUEST,
                 'code' => StatusRequestLookup::code($lookup),
                 'name' => $lookup
             ]);

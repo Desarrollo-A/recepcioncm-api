@@ -134,7 +134,7 @@ class InventoryRequestService extends BaseService implements InventoryRequestSer
     private function validationInsertOrUpdate(InventoryRequestDTO $dto, int $officeId, int $oldQuantity = 0)
     {
         $newStatusId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::APPROVED),
-            TypeLookup::STATUS_REQUEST)->id;
+            TypeLookup::STATUS_ROOM_REQUEST)->id;
         $request = $this->requestRepository->findById($dto->request_id);
 
         if ($request->status_id !== $newStatusId) {

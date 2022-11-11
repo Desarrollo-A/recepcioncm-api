@@ -31,7 +31,7 @@ class RequestRoomSeeder extends Seeder
     public function run()
     {
         $statusNew = Lookup::query()
-            ->where('type', TypeLookup::STATUS_REQUEST)
+            ->where('type', TypeLookup::STATUS_ROOM_REQUEST)
             ->where('code', StatusRequestLookup::code(StatusRequestLookup::NEW))
             ->first()
             ->id;

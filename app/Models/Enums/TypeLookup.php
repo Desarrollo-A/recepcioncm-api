@@ -6,7 +6,7 @@ class TypeLookup
 {
     const STATUS_USER = 1; // ESTATUS DEL USUARIO
     const TYPE_REQUEST = 2; // SERVICIOS (SALA DE JUNTAS, TRASLADOS, PAPELERÍA, ETC)
-    const STATUS_REQUEST = 3; // ESTATUS DE SOLICITUD (NUEVA, CANCELADA, EN REVISIÓN, ETC)
+    const STATUS_ROOM_REQUEST = 3; // ESTATUS DE SOLICITUD (NUEVA, CANCELADA, EN REVISIÓN, ETC)
     const LEVEL_MEETING = 4; // TIPO DE REUNIÓN (ADMINISTRATIVA O DIRECTIVA)
     const INVENTORY_TYPE = 5; // TIPO DE INVENTARIO (Papelería, Botiquín, Limpieza, Cafetería)
     const UNIT_TYPE = 6; // UNIDAD DE MEDIDA (Pieza, Caja, Paquete, Kilo, Galón, Garrafa, Par, Bolsa, Bote),
