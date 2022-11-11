@@ -33,7 +33,6 @@ class InputOutputInventoryViewController extends BaseApiController
 
     public function getReportExcel(Request $request)
     {
-        header('Access-Control-Allow-Origin: '.implode(",", config('cors.allowed_origins')));
         return $this->inputOutputInventoryViewService->reportInputOutputExcel($request, auth()->user()->office_id);
     }
 }
