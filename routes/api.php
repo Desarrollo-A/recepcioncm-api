@@ -13,6 +13,11 @@ Route::prefix('v1')->group(function () {
 
     Route::apiResource('users', 'UserController')->only(['store']);
 
+    //'http://127.0.0.1:8080/api/v1'
+    Route::get('/todos', 'PostController@obtenertodos');
+    Route::apiResource('posts', 'PostController')->only(['store', 'update', 'destroy']);
+
+
     // Rutas con autenticación
     Route::middleware('auth:api')->group(function () {
         Route::prefix('auth')
