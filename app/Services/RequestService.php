@@ -41,7 +41,7 @@ class RequestService extends BaseService implements RequestServiceInterface
     public function deleteRequestRoom(int $requestId, int $userId): Request
     {
         $newStatusId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::NEW),
-            TypeLookup::STATUS_REQUEST)->id;
+            TypeLookup::STATUS_ROOM_REQUEST)->id;
         $request = $this->entityRepository->findById($requestId)->fresh(['requestRoom', 'requestRoom.room']);
 
         if ($request->status_id !== $newStatusId) {
@@ -64,7 +64,7 @@ class RequestService extends BaseService implements RequestServiceInterface
     public function responseRejectRequest(int $id, RequestDTO $dto): Request
     {
         $proposalStatusId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::PROPOSAL),
-            TypeLookup::STATUS_REQUEST)->id;
+            TypeLookup::STATUS_ROOM_REQUEST)->id;
         $request = $this->entityRepository->findById($id);
 
         if ($request->status_id !== $proposalStatusId) {
@@ -72,7 +72,7 @@ class RequestService extends BaseService implements RequestServiceInterface
                 Response::HTTP_BAD_REQUEST);
         }
 
-        $dto->status_id = $this->lookupRepository->findByCodeAndType($dto->status->code, TypeLookup::STATUS_REQUEST)->id;
+        $dto->status_id = $this->lookupRepository->findByCodeAndType($dto->status->code, TypeLookup::STATUS_ROOM_REQUEST)->id;
 
         $this->proposalRequestRepository->deleteByRequestId($id);
 
@@ -102,7 +102,7 @@ class RequestService extends BaseService implements RequestServiceInterface
         if ($requests->count() > 0) {
             $statusId = $this->lookupRepository
                 ->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::FINISHED),
-                    TypeLookup::STATUS_REQUEST)->id;
+                    TypeLookup::STATUS_ROOM_REQUEST)->id;
             $this->entityRepository->bulkStatusUpdate(array_values($requests->pluck('id')->toArray()), $statusId);
         }
 
@@ -113,7 +113,7 @@ class RequestService extends BaseService implements RequestServiceInterface
     {
         $expired = $this->entityRepository->getExpired(['requests.id']);
         $statusId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::EXPIRED),
-            TypeLookup::STATUS_REQUEST)->id;
+            TypeLookup::STATUS_ROOM_REQUEST)->id;
         if ($expired->count() > 0) {
             $this->entityRepository->bulkStatusUpdate(array_values($expired->toArray()), $statusId);
         }

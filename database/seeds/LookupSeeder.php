@@ -15,6 +15,7 @@ use App\Models\Enums\Lookups\TypeNotificationsLookup;
 use App\Models\Enums\Lookups\NotificationColorLookup;
 use App\Models\Enums\Lookups\NotificationIconLookup;
 use App\Models\Enums\Lookups\ActionRequestNotificationLookup;
+use \App\Models\Enums\Lookups\StatusDriverLookup;
 
 class LookupSeeder extends Seeder
 {
@@ -43,7 +44,7 @@ class LookupSeeder extends Seeder
 
         StatusRequestLookup::getAll()->each(function ($lookup) {
             Lookup::query()->create([
-                'type' => TypeLookup::STATUS_REQUEST,
+                'type' => TypeLookup::STATUS_ROOM_REQUEST,
                 'code' => StatusRequestLookup::code($lookup),
                 'name' => $lookup
             ]);
@@ -117,6 +118,14 @@ class LookupSeeder extends Seeder
             Lookup::query()->create([
                 'type' => TypeLookup::ACTION_REQUEST_NOTIFICATION,
                 'code' => ActionRequestNotificationLookup::code($lookup),
+                'name' => $lookup
+            ]);
+        });
+
+        StatusDriverLookup::getAll()->each(function ($lookup) {
+            Lookup::query()->create([
+                'type' => TypeLookup::STATUS_DRIVER,
+                'code' => StatusDriverLookup::code($lookup),
                 'name' => $lookup
             ]);
         });

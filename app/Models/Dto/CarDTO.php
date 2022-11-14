@@ -10,7 +10,7 @@ class CarDTO
     use DataTransferObject;
 
     /**
-     * @var $id
+     * @var int
      */
     public $id;
 

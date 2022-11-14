@@ -20,9 +20,11 @@ class CreateRequestsTable extends Migration
             $table->index('code');
             $table->string('title', 100);
             $table->index('title');
-            $table->datetime('start_date');
+            $table->datetime('start_date')
+                ->nullable();
             $table->index('start_date');
-            $table->datetime('end_date');
+            $table->datetime('end_date')
+                ->nullable();
             $table->index('end_date');
             $table->unsignedSmallInteger('type_id');
             $table->foreign('type_id')
