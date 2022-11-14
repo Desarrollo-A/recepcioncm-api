@@ -104,7 +104,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         }
 
         $dto->request->status_id = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::NEW),
-            TypeLookup::STATUS_REQUEST)->id;
+            TypeLookup::STATUS_ROOM_REQUEST)->id;
         $dto->request->type_id = $this->lookupRepository->findByCodeAndType(TypeRequestLookup::code(TypeRequestLookup::ROOM),
             TypeLookup::TYPE_REQUEST)->id;
 
@@ -146,9 +146,9 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
     public function assignSnack(RequestRoomDTO $dto, int $officeId): Request
     {
         $newStatusId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::NEW),
-            TypeLookup::STATUS_REQUEST)->id;
+            TypeLookup::STATUS_ROOM_REQUEST)->id;
         $responseStatusId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::IN_REVIEW),
-            TypeLookup::STATUS_REQUEST)->id;
+            TypeLookup::STATUS_ROOM_REQUEST)->id;
         $request = $this->requestRepository->findById($dto->request_id);
 
         if ($request->status_id !== $newStatusId && $request->status_id !== $responseStatusId) {
@@ -172,7 +172,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         $this->inventoryRequestRepository->bulkInsert($snacks);
 
         $approveStatusId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::APPROVED),
-            TypeLookup::STATUS_REQUEST)->id;
+            TypeLookup::STATUS_ROOM_REQUEST)->id;
         $requestDTO = new RequestDTO(['status_id' => $approveStatusId]);
 
         $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id']))
@@ -210,26 +210,26 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
                 case StatusRequestLookup::code(StatusRequestLookup::NEW):
                     $status = $this->lookupRepository->findByCodeWhereInAndType([StatusRequestLookup::code(StatusRequestLookup::APPROVED),
                         StatusRequestLookup::code(StatusRequestLookup::PROPOSAL)],
-                        TypeLookup::STATUS_REQUEST);
+                        TypeLookup::STATUS_ROOM_REQUEST);
                     break;
                 case StatusRequestLookup::code(StatusRequestLookup::APPROVED):
                     $status = $this->lookupRepository->findByCodeWhereInAndType([StatusRequestLookup::code(StatusRequestLookup::CANCELLED),
-                        StatusRequestLookup::code(StatusRequestLookup::WITHOUT_ATTENDING)], TypeLookup::STATUS_REQUEST);
+                        StatusRequestLookup::code(StatusRequestLookup::WITHOUT_ATTENDING)], TypeLookup::STATUS_ROOM_REQUEST);
                     break;
                 case StatusRequestLookup::code(StatusRequestLookup::IN_REVIEW):
                     $status = $this->lookupRepository->findByCodeWhereInAndType([StatusRequestLookup::code(StatusRequestLookup::APPROVED)],
-                        TypeLookup::STATUS_REQUEST);
+                        TypeLookup::STATUS_ROOM_REQUEST);
                     break;
             }
         } else if ($roleName === NameRole::APPLICANT) {
             switch ($code) {
                 case StatusRequestLookup::code(StatusRequestLookup::APPROVED):
                     $status = $this->lookupRepository->findByCodeWhereInAndType([StatusRequestLookup::code(StatusRequestLookup::CANCELLED)],
-                        TypeLookup::STATUS_REQUEST);
+                        TypeLookup::STATUS_ROOM_REQUEST);
                     break;
                 case StatusRequestLookup::code(StatusRequestLookup::PROPOSAL):
                     $status = $this->lookupRepository->findByCodeWhereInAndType([StatusRequestLookup::code(StatusRequestLookup::REJECTED)],
-                        TypeLookup::STATUS_REQUEST);
+                        TypeLookup::STATUS_ROOM_REQUEST);
                     break;
             }
         }
@@ -262,7 +262,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
     public function cancelRequest(CancelRequestDTO $dto, User $user): Request
     {
         $statusApproveId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::APPROVED),
-            TypeLookup::STATUS_REQUEST)->id;
+            TypeLookup::STATUS_ROOM_REQUEST)->id;
 
         $request = $this->requestRepository->findById($dto->request_id);
 
@@ -281,7 +281,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         }
 
         $cancelStatusId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::CANCELLED),
-            TypeLookup::STATUS_REQUEST)->id;
+            TypeLookup::STATUS_ROOM_REQUEST)->id;
         $requestDTO = new RequestDTO([
             'status_id' => $cancelStatusId,
             'event_google_calendar_id' => null
@@ -333,7 +333,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
     public function proposalRequest(int $requestId, RequestDTO $dto): Request
     {
         $statusNewId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::NEW),
-            TypeLookup::STATUS_REQUEST)->id;
+            TypeLookup::STATUS_ROOM_REQUEST)->id;
 
         $request = $this->requestRepository->findById($requestId);
 
@@ -343,7 +343,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         }
 
         $statusProposalId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::PROPOSAL),
-            TypeLookup::STATUS_REQUEST)->id;
+            TypeLookup::STATUS_ROOM_REQUEST)->id;
         $dto->status_id = $statusProposalId;
 
         $request = $this->requestRepository->update($requestId, $dto->toArray(['status_id']));
@@ -362,7 +362,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
     public function withoutAttendingRequest(int $requestId): Request
     {
         $statusApproveId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::APPROVED),
-            TypeLookup::STATUS_REQUEST)->id;
+            TypeLookup::STATUS_ROOM_REQUEST)->id;
 
         $request = $this->requestRepository->findById($requestId);
 
@@ -372,7 +372,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         }
 
         $withoutAttendingStatusId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::WITHOUT_ATTENDING),
-            TypeLookup::STATUS_REQUEST)->id;
+            TypeLookup::STATUS_ROOM_REQUEST)->id;
         $dto = new RequestDTO(['status_id' => $withoutAttendingStatusId]);
 
         return $this->requestRepository->update($requestId, $dto->toArray(['status_id']));
@@ -406,7 +406,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         }
 
         $cancelStatusId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::CANCELLED),
-            TypeLookup::STATUS_REQUEST)->id;
+            TypeLookup::STATUS_ROOM_REQUEST)->id;
         $this->requestRepository->bulkStatusUpdate($requests->pluck('id')->toArray(), $cancelStatusId);
         $this->cancelRequestRepository->bulkInsert($data);
     }
