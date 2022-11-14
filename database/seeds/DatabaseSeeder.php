@@ -32,6 +32,8 @@ class DatabaseSeeder extends Seeder
         $this->call(LookupSeeder::class);
         $this->call(RoleSeeder::class);
         $this->call(UserAdminSeeder::class);
+        $this->call(UserSeeder::class);
+        $this->call(DriverSeeder::class);
         $this->call(MenuSeeder::class);
         $this->call(SubmenuSeeder::class);
         $this->call(MenuUserSeeder::class);

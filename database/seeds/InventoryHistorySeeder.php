@@ -15,7 +15,7 @@ class InventoryHistorySeeder extends Seeder
             ->whereNull('meeting')
             ->get()
             ->each(function (\App\Models\Inventory $inventory) {
-                for ($i = 0; $i < 10; $i++) {
+                for ($i = 0; $i < 5; $i++) {
                     $quantity = rand(1,10);
                     $cost = rand(100, 1000);
                     $createdAt = now()->subDays(rand(1,5));

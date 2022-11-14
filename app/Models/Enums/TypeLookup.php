@@ -16,4 +16,5 @@ class TypeLookup
     const NOTIFICATION_COLOR = 10; // Color de la notificación
     const NOTIFICATION_ICON = 11; // Ícono de la notificación
     const ACTION_REQUEST_NOTIFICATION = 12; // Acciones de notificaciones
+    const STATUS_DRIVER = 13; // Estatus del chofer
 }
