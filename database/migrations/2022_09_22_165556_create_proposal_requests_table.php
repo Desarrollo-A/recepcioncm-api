@@ -19,7 +19,7 @@ class CreateProposalRequestsTable extends Migration
                 ->references('id')
                 ->on('requests');
             $table->dateTime('start_date');
-            $table->dateTime('end_date');
+            $table->dateTime('end_date')->nullable();
             $table->timestamp('created_at')
                 ->useCurrent();
         });

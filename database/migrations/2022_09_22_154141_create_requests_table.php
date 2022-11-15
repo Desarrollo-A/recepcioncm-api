@@ -20,8 +20,7 @@ class CreateRequestsTable extends Migration
             $table->index('code');
             $table->string('title', 100);
             $table->index('title');
-            $table->datetime('start_date')
-                ->nullable();
+            $table->datetime('start_date');
             $table->index('start_date');
             $table->datetime('end_date')
                 ->nullable();
@@ -35,7 +34,8 @@ class CreateRequestsTable extends Migration
             $table->boolean('add_google_calendar');
             $table->string('event_google_calendar_id', 50)
                 ->nullable();
-            $table->tinyInteger('people');
+            $table->tinyInteger('people')
+                ->nullable();
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')
                 ->references('id')
