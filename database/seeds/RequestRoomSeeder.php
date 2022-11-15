@@ -14,14 +14,14 @@ use App\Models\User;
 
 class RequestRoomSeeder extends Seeder
 {
-    public $START_TIME_MORNING = '08:00:00.000000';
-    public $END_TIME_MORNING = '09:00:00.000000';
+    public $START_TIME_MORNING = '08:00:00.000';
+    public $END_TIME_MORNING = '09:00:00.000';
 
-    public $START_TIME_MIDDAY = '12:00:00.000000';
-    public $END_TIME_MIDDAY = '13:00:00.000000';
+    public $START_TIME_MIDDAY = '12:00:00.000';
+    public $END_TIME_MIDDAY = '13:00:00.000';
 
-    public $START_TIME_AFTERNOON = '16:00:00.000000';
-    public $END_TIME_AFTERNOON = '17:00:00.000000';
+    public $START_TIME_AFTERNOON = '16:00:00.000';
+    public $END_TIME_AFTERNOON = '17:00:00.000';
 
     /**
      * Run the database seeds.
