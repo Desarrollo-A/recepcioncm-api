@@ -15,7 +15,8 @@ class ViewsDefault
         [
             'path' => '/dashboard/solicitudes',
             'submenus' => [
-                ['path' => '/sala']
+                ['path' => '/sala'],
+                ['path' => '/paqueteria']
             ]
         ],
         [
@@ -45,13 +46,15 @@ class ViewsDefault
         [
             'path' => '/dashboard/solicitud',
             'submenus' => [
-                ['path' => '/sala']
+                ['path' => '/sala'],
+                ['path' => '/paqueteria']
             ]
         ],
         [
             'path' => '/dashboard/historial',
             'submenus' => [
-                ['path' => '/sala']
+                ['path' => '/sala'],
+                ['path' => '/paqueteria']
             ]
         ],
         [
