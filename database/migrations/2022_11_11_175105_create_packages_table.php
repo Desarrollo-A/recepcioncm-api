@@ -17,11 +17,12 @@ class CreatePackagesTable extends Migration
             $table->bigIncrements('id');
             $table->text('departure_place');
             $table->text('destination_place');
+            $table->string('name_receive', 150);
+            $table->string('email_receive', 150);
             $table->unsignedBigInteger('request_id');
             $table->foreign('request_id')
                 ->references('id')
-                ->on('requests')
-                ->onDelete('cascade');
+                ->on('requests');
             $table->string('tracking_code', 25)
                 ->nullable()
                 ->index();
