@@ -218,6 +218,14 @@ Route::prefix('v1')->group(function () {
                 Route::get('/input-output/excel', 'InputOutputInventoryViewController@getReportExcel')
                     ->name('report.excel');
             });
+        
+        Route::prefix('offices')
+            ->name('offices.')
+            ->group(function(){
+                Route::get('/state-driver/{stateId}', 'OfficeController@getOfficeByStateWithDriver')
+                    ->name('state.driver')
+                    ->where('stateId', Validation::INTEGER_ID);
+            });
 
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');
         Route::apiResource('rooms', 'RoomController')->only('store', 'index', 'update', 'destroy');
