@@ -6,6 +6,7 @@ use App\Contracts\Repositories\OfficeRepositoryInterface;
 use App\Core\BaseRepository;
 use App\Models\Office;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 
@@ -25,4 +26,17 @@ class OfficeRepository extends BaseRepository implements OfficeRepositoryInterfa
     {
         return $this->entity->where('name', $name)->firstOrFail();
     }
+
+    public function getOfficeByStateWithDriver(int $stateId): Collection
+    {
+        return $this->entity
+            ->where('state_id', $stateId)
+            ->whereIn('id', function($query){
+                return $query->selectRaw('DISTINCT(office_id)')
+                    ->from('drivers');
+            })
+            ->orderBy('name', 'ASC')
+            ->get();
+    }
+
 }
