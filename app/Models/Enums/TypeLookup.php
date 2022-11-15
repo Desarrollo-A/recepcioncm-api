@@ -17,4 +17,5 @@ class TypeLookup
     const NOTIFICATION_ICON = 11; // Ícono de la notificación
     const ACTION_REQUEST_NOTIFICATION = 12; // Acciones de notificaciones
     const STATUS_DRIVER = 13; // Estatus del chofer
+    const STATUS_PACKAGE_REQUEST = 14; //Estatus de solicitudes de paquetería
 }

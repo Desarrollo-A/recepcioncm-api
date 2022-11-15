@@ -16,6 +16,7 @@ use App\Models\Enums\Lookups\NotificationColorLookup;
 use App\Models\Enums\Lookups\NotificationIconLookup;
 use App\Models\Enums\Lookups\ActionRequestNotificationLookup;
 use \App\Models\Enums\Lookups\StatusDriverLookup;
+use App\Models\Enums\Lookups\StatusPackageRequestLookup;
 
 class LookupSeeder extends Seeder
 {
@@ -127,6 +128,14 @@ class LookupSeeder extends Seeder
                 'type' => TypeLookup::STATUS_DRIVER,
                 'code' => StatusDriverLookup::code($lookup),
                 'name' => $lookup
+            ]);
+        });
+        
+        StatusPackageRequestLookup::getAll()->each(function($lookup){
+            Lookup::query()->create([
+                'type'  =>  TypeLookup::STATUS_PACKAGE_REQUEST,
+                'code'  =>  StatusPackageRequestLookup::code($lookup),
+                'name'  =>  $lookup
             ]);
         });
     }
