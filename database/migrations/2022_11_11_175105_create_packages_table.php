@@ -23,6 +23,10 @@ class CreatePackagesTable extends Migration
             $table->foreign('request_id')
                 ->references('id')
                 ->on('requests');
+            $table->unsignedInteger('office_id');
+            $table->foreign('office_id')
+                ->references('id')
+                ->on('offices');
             $table->string('tracking_code', 25)
                 ->nullable()
                 ->index();
