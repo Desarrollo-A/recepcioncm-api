@@ -37,6 +37,7 @@ class RepositoryServiceProvider extends ServiceProvider
         'InputOutputInventoryViewRepositoryInterface' => 'InputOutputInventoryViewRepository',
         'RequestEmailRepositoryInterface' => 'RequestEmailRepository',
         'ScoreRepositoryInterface' => 'ScoreRepository',
+        'DriverRepositoryInterface' => 'DriverRepository',
     ];
 
     public function register()

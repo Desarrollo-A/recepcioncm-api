@@ -76,6 +76,13 @@ class SubmenuSeeder extends Seeder
         ]);
 
         Submenu::query()->create([
+            'path_route' => '/conductor',
+            'label' => 'Chofer',
+            'order' => 3,
+            'menu_id' => $mantoMenu
+        ]);
+
+        Submenu::query()->create([
             'path_route' => '/entrada-salida',
             'label' => 'Entradas/Salidas Inventario',
             'order' => 1,
