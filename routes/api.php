@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Helpers\Validation;
+use App\Http\Controllers\Api\RequestController;
 
 Route::prefix('v1')->group(function () {
     Route::prefix('auth')
@@ -127,6 +128,12 @@ Route::prefix('v1')->group(function () {
         Route::prefix('inventory-request')
             ->name('inventory-request.')
             ->group(function () {
+                Route::get('/update-snack-countable', 'InventoryRequestController@updateSnackCountable')
+                    ->name('update.snack.countable');
+
+                Route::get('/update-snack-uncountable', 'InventoryRequestController@updateSnackUncountable')
+                    ->name('update.snack.uncountable');
+
                 Route::post('/', 'InventoryRequestController@store')
                     ->name('store');
 
@@ -144,6 +151,9 @@ Route::prefix('v1')->group(function () {
         Route::prefix('notifications')
             ->name('notifications.')
             ->group(function (){
+                Route::get('/confirm-request','NotificationController@confirmRequest')
+                    ->name('confirm.request');
+
                 Route::get('/last','NotificationController@getAllNotificationLast5Days')
                     ->name('last');
 
@@ -163,6 +173,12 @@ Route::prefix('v1')->group(function () {
         Route::prefix('requests')
             ->name('requests.')
             ->group(function () {
+                Route::get('/expired', 'RequestController@expiredRequest')
+                    ->name('expired');
+
+                Route::get('/finished', 'RequestController@finishedRequest')
+                    ->name('finished');
+                    
                 Route::post('/rating', 'RequestController@starRatingRequest')
                     ->name('rating');
 
