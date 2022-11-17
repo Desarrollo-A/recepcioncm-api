@@ -37,7 +37,8 @@ class ViewsDefault
             'path' => '/dashboard/mantenimiento',
             'submenus' => [
                 ['path' => '/sala'],
-                ['path' => '/auto']
+                ['path' => '/auto'],
+                ['path' => '/conductor']
             ]
         ]
     ];
