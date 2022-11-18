@@ -22,6 +22,10 @@ class CreateDriverPackageScheduleTable extends Migration
             $table->foreign('driver_schedule_id')
                 ->references('id')
                 ->on('driver_schedule');
+            $table->unsignedBigInteger('car_schedule_id');
+            $table->foreign('car_schedule_id')
+                ->references('id')
+                ->on('car_schedule');
             $table->timestamps();
         });
     }
