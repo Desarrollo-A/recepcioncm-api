@@ -24,6 +24,9 @@ class InventoryRequestController extends BaseApiController
     {
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
             ->only('store', 'update', 'delete');
+        $this->middleware('role.permission:'.NameRole::ADMIN)
+            ->only('updateSnackCountable', 'updateSnackUncountable');
+
         $this->inventoryRequestService = $inventoryRequestService;
         $this->inventoryService = $inventoryService;
     }
@@ -58,6 +61,18 @@ class InventoryRequestController extends BaseApiController
     {
         $inventoryRequest = $this->inventoryRequestService->deleteSnack($requestId, $inventoryId);
         $this->inventoryService->restoreStockAfterInventoryRequestDeleted($inventoryRequest);
+        return $this->noContentResponse();
+    }
+
+    public function updateSnackCountable(): JsonResponse
+    {
+        $this->inventoryRequestService->addHistoryRequestSnackCountable();
+        return $this->noContentResponse();
+    }
+
+    public function updateSnackUncountable(): JsonResponse
+    {
+        $this->inventoryRequestService->updateSnackUncountableApplied();
         return $this->noContentResponse();
     }
 }
