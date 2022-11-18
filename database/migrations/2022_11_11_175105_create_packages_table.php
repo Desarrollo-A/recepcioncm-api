@@ -19,6 +19,8 @@ class CreatePackagesTable extends Migration
             $table->text('destination_place');
             $table->string('name_receive', 150);
             $table->string('email_receive', 150);
+            $table->text('comment_receive')
+                ->nullable();
             $table->unsignedBigInteger('request_id');
             $table->foreign('request_id')
                 ->references('id')
