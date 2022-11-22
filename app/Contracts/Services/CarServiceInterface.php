@@ -6,6 +6,7 @@ use App\Core\Contracts\BaseServiceInterface;
 use App\Models\Car;
 use App\Models\Dto\CarDTO;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -21,4 +22,6 @@ interface CarServiceInterface extends BaseServiceInterface
      * @return void
      */
     public function changeStatus(int $id, CarDTO $carDTO);
+
+    public function findAllAvailableByDriverId(int $driverId, int $officeId): Collection;
 }
