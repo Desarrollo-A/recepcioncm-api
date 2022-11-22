@@ -14,6 +14,7 @@ use App\Models\Dto\CarDTO;
 use App\Models\Enums\Lookups\StatusCarLookup;
 use App\Models\Enums\TypeLookup;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -71,5 +72,10 @@ class CarService extends BaseService implements CarServiceInterface
     public function changeStatus(int $id, CarDTO $carDTO)
     {
         $this->entityRepository->update($id, $carDTO->toArray(['status_id']));
+    }
+
+    public function findAllAvailableByDriverId(int $driverId, int $officeId): Collection
+    {
+        return $this->entityRepository->findAllAvailableByDriverId($driverId, $officeId);
     }
 }

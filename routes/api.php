@@ -86,6 +86,10 @@ Route::prefix('v1')->group(function () {
                 Route::get('/{id}', 'CarController@show')
                     ->name('show')
                     ->where('id', Validation::INTEGER_ID);
+            
+                Route::get('/available-driver/{driverId}', 'CarController@findAllAvailableByDriverId')
+                    ->name('show')
+                    ->where('driverId', Validation::INTEGER_ID);
 
                 Route::patch('/change-status/{id}', 'CarController@changeStatus')
                     ->name('change-status')

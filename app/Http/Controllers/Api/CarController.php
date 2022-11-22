@@ -83,4 +83,12 @@ class CarController extends BaseApiController
         $this->carService->changeStatus($id, $carDTO);
         return $this->noContentResponse();
     }
+
+    public function findAllAvailableByDriverId(int $driverId): JsonResponse
+    {
+        $officeId = auth()->user()->office_id;
+        $cars = $this->carService->findAllAvailableByDriverId($driverId, $officeId);
+        //return $this->showAll(CarResource::collection($cars));
+        return $this->showAll(new CarCollection($cars));
+    }
 }
