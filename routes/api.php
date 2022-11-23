@@ -236,6 +236,10 @@ Route::prefix('v1')->group(function () {
             ->group(function(){
                 Route::post('/car', 'DriverController@insertDriverCar')
                 ->name('car');
+
+                Route::get('/{driverId}', 'DriverController@show')
+                ->name('show')
+                ->where('driver_id', Validation::INTEGER_ID);
         });
 
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');
