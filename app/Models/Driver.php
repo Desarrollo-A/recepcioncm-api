@@ -7,7 +7,7 @@ use App\Models\Traits\Sortable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use PhpParser\Node\Expr\FuncCall;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Driver extends Model implements ScopeFilterInterface
 {
@@ -57,5 +57,11 @@ class Driver extends Model implements ScopeFilterInterface
     public function office(): BelongsTo
     {
         return $this->belongsTo(Office::class, 'office_id', 'id');//Primeramente se pone llave foranea.
+    }
+
+    public function cars(): BelongsToMany
+    {
+        return $this->belongsToMany(Car::class, 'car_driver')
+            ->withTimestamps();
     }
 }

@@ -16,7 +16,7 @@ interface BaseServiceInterface
     public function findAllPaginated(\Illuminate\Http\Request $request, array $columns = ['*']):
     \Illuminate\Pagination\LengthAwarePaginator;
 
-    public function findById(int $id): \Illuminate\Database\Eloquent\Model;
+    public function findById(int $id);
 
     public function findRandom(): \Illuminate\Database\Eloquent\Model;
 
