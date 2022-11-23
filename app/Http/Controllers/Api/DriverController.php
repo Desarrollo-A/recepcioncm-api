@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Contracts\Services\DriverServiceInterface;
 use App\Core\BaseApiController;
+use App\Http\Requests\DriverCar\DriverCarRequest;
 use App\Http\Resources\Driver\DriverCollection;
+use App\Models\Driver;
 use App\Models\Enums\NameRole;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -24,5 +26,12 @@ class DriverController extends BaseApiController
         $officeId = auth()->user()->office_id;
         $drivers = $this->driverService->findAllPaginatedOffice($officeId, $request);
         return $this->showAll(new DriverCollection($drivers, true));
+    }
+
+    public function insertDriverCar(DriverCarRequest $request): JsonResponse
+    {   
+        $driverCarDTO = $request->toDto();
+        $this->driverService->insertDriverCar($driverCarDTO->car_id, $driverCarDTO->driver_id);
+        return $this->noContentResponse();
     }
 }
