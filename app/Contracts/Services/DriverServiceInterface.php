@@ -3,8 +3,13 @@
 namespace App\Contracts\Services;
 
 use App\Core\Contracts\BaseServiceInterface;
+use App\Models\Driver;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+
+/**
+ * @method Driver findById(int $id)
+ */
 
 interface DriverServiceInterface extends BaseServiceInterface
 {

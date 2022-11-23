@@ -37,8 +37,6 @@ class DriverController extends BaseApiController
 
     public function show(int $driverId): JsonResponse
     {
-        //$request = $this->driverService->findByIdDriverByCar($driverId);
-        //return $this->showAll(DriverResource::collection($request));
         $conductor = $this->driverService->findById($driverId);
         return $this->showOne(new DriverResource($conductor));
     }
