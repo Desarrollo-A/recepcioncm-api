@@ -2,11 +2,13 @@
 
 namespace App\Http\Resources\Driver;
 
+use App\Http\Resources\Car\CarCollection;
+use App\Http\Resources\Car\CarResource;
 use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\Office\OfficeResource;
-use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\Resource;
 
-class DriverResource extends JsonResource
+class DriverResource extends Resource
 {
     /**
      * Transform the resource into an array.
@@ -14,7 +16,7 @@ class DriverResource extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    public function toArray($request)
+    public function toArray($request): array
     {
         return [
             'id'            =>  $this->id,
@@ -26,7 +28,8 @@ class DriverResource extends JsonResource
             'officeId'      =>  $this->office_id,
             'statusId'      =>  $this->status_id,
             'status'        =>  LookupResource::make($this->whenLoaded('status')),
-            'office'        =>  OfficeResource::make($this->whenLoaded('office'))
+            'office'        =>  OfficeResource::make($this->whenLoaded('office')),
+            'cars'           => CarCollection::make($this->whenLoaded('cars'))
         ];
     }
 }

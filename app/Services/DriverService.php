@@ -26,4 +26,9 @@ class DriverService extends BaseService implements DriverServiceInterface
         $sort = $request->get(QueryParam::ORDER_BY_KEY);
         return $this->entityRepository->findAllPaginatedOffice($OfficeId, $filters, $perPage, $sort, $columns);
     }
+
+    public function insertDriverCar(int $carId, int $driverId): void
+    {
+        $this->entityRepository->sync($driverId, 'cars', ['car_id' => $carId]);
+    }
 }
