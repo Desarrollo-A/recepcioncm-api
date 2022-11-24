@@ -5,17 +5,23 @@ namespace App\Services;
 use App\Contracts\Repositories\AddressRepositoryInterface;
 use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\PackageRepositoryInterface;
+use App\Contracts\Repositories\RequestPackageViewRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Contracts\Services\RequestPackageServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
 use App\Helpers\Enum\Path;
+use App\Helpers\Enum\QueryParam;
 use App\Helpers\File;
+use App\Helpers\Validation;
 use App\Models\Dto\PackageDTO;
 use App\Models\Enums\Lookups\StatusPackageRequestLookup;
 use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Enums\TypeLookup;
 use App\Models\Package;
+use App\Models\User;
+use Illuminate\Http\Request as HttpRequest;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class RequestPackageService extends BaseService implements RequestPackageServiceInterface
 {
@@ -23,16 +29,19 @@ class RequestPackageService extends BaseService implements RequestPackageService
     protected $requestRepository;
     protected $lookupRepository;
     protected $addressRepository;
+    protected $requestPackageViewRepository;
 
     public function __construct(RequestRepositoryInterface $requestRepository,
                                 PackageRepositoryInterface $packageRepository,
                                 LookupRepositoryInterface $lookupRepository,
-                                AddressRepositoryInterface $addressRepository)
+                                AddressRepositoryInterface $addressRepository,
+                                RequestPackageViewRepositoryInterface $requestPackageViewRepository)
     {
         $this->requestRepository = $requestRepository;
         $this->packageRepository = $packageRepository;
         $this->lookupRepository = $lookupRepository;
         $this->addressRepository = $addressRepository;
+        $this->requestPackageViewRepository = $requestPackageViewRepository;
     }
 
     /**
@@ -74,5 +83,16 @@ class RequestPackageService extends BaseService implements RequestPackageService
     {
         $dto->authorization_filename = File::uploadFile($dto->authorization_file, Path::PACKAGE_AUTHORIZATION_DOCUMENTS);
         $this->packageRepository->update($id, $dto->toArray(['authorization_filename']));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function findAllRoomsPaginated(HttpRequest $request, User $user, array $columns = ['*']): LengthAwarePaginator
+    {
+        $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
+        $perPage = Validation::getPerPage($request->get(QueryParam::PAGINATION_KEY));
+        $sort = $request->get(QueryParam::ORDER_BY_KEY);
+        return $this->requestPackageViewRepository->findAllPackagesPaginated($filters, $perPage, $user, $sort);
     }
 }

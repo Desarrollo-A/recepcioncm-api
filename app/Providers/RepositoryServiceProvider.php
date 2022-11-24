@@ -40,6 +40,7 @@ class RepositoryServiceProvider extends ServiceProvider
         'DriverRepositoryInterface' => 'DriverRepository',
         'PackageRepositoryInterface' => 'PackageRepository',
         'AddressRepositoryInterface' => 'AddressRepository',
+        'RequestPackageViewRepositoryInterface' => 'RequestPackageViewRepository'
     ];
 
     public function register()
