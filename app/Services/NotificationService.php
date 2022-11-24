@@ -18,7 +18,7 @@ use App\Models\Dto\RequestNotificationDTO;
 use App\Models\Enums\Lookups\ActionRequestNotificationLookup;
 use App\Models\Enums\Lookups\NotificationColorLookup;
 use App\Models\Enums\Lookups\NotificationIconLookup;
-use App\Models\Enums\Lookups\StatusRequestLookup;
+use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\Enums\Lookups\TypeNotificationsLookup;
 use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
@@ -79,7 +79,7 @@ class NotificationService extends BaseService implements NotificationServiceInte
     public function newOrResponseToApprovedRequestRoomNotification(Request $request): Notification
     {
         $notificationDTO = new NotificationDTO([
-            'message' => "La solicitud de sala $request->code fue " . StatusRequestLookup::APPROVED,
+            'message' => "La solicitud de sala $request->code fue " . StatusRoomRequestLookup::APPROVED,
             'user_id' => $request->user_id,
             'type_id' => $this->getTypeId(TypeNotificationsLookup::ROOM),
             'color_id' => $this->getColorId(NotificationColorLookup::GREEN),
@@ -130,7 +130,7 @@ class NotificationService extends BaseService implements NotificationServiceInte
             : $request->requestRoom->room->recepcionist_id;
 
         $notificationDTO = new NotificationDTO([
-            'message' => "La solicitud de sala $request->code fue " . StatusRequestLookup::CANCELLED,
+            'message' => "La solicitud de sala $request->code fue " . StatusRoomRequestLookup::CANCELLED,
             'user_id' => $userId,
             'type_id' => $this->getTypeId(TypeNotificationsLookup::ROOM),
             'color_id' => $this->getColorId(NotificationColorLookup::RED),
@@ -146,10 +146,10 @@ class NotificationService extends BaseService implements NotificationServiceInte
     {
         $message = '';
         $colorId = null;
-        if ($request->status->code === StatusRequestLookup::code(StatusRequestLookup::REJECTED)) {
-            $message = "Propuesta de la solicitud de sala $request->code fue " . StatusRequestLookup::REJECTED;
+        if ($request->status->code === StatusRoomRequestLookup::code(StatusRoomRequestLookup::REJECTED)) {
+            $message = "Propuesta de la solicitud de sala $request->code fue " . StatusRoomRequestLookup::REJECTED;
             $colorId = $this->getColorId(NotificationColorLookup::RED);
-        } else if ($request->status->code === StatusRequestLookup::code(StatusRequestLookup::IN_REVIEW)) {
+        } else if ($request->status->code === StatusRoomRequestLookup::code(StatusRoomRequestLookup::IN_REVIEW)) {
             $message = "Propuesta de la solicitud de sala $request->code fue Aceptada";
             $colorId = $this->getColorId(NotificationColorLookup::GREEN);
         }

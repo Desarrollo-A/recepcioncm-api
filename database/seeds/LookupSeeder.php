@@ -6,7 +6,7 @@ use App\Models\Lookup;
 use App\Models\Enums\TypeLookup;
 use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Enums\Lookups\StatusCarLookup;
-use App\Models\Enums\Lookups\StatusRequestLookup;
+use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\Enums\Lookups\LevelMeetingLookup;
 use App\Models\Enums\Lookups\InventoryTypeLookup;
 use App\Models\Enums\Lookups\UnitTypeLookup;
@@ -15,8 +15,9 @@ use App\Models\Enums\Lookups\TypeNotificationsLookup;
 use App\Models\Enums\Lookups\NotificationColorLookup;
 use App\Models\Enums\Lookups\NotificationIconLookup;
 use App\Models\Enums\Lookups\ActionRequestNotificationLookup;
-use \App\Models\Enums\Lookups\StatusDriverLookup;
+use App\Models\Enums\Lookups\StatusDriverLookup;
 use App\Models\Enums\Lookups\StatusPackageRequestLookup;
+use App\Models\Enums\Lookups\CountryAddressLookup;
 
 class LookupSeeder extends Seeder
 {
@@ -43,10 +44,10 @@ class LookupSeeder extends Seeder
             ]);
         });
 
-        StatusRequestLookup::getAll()->each(function ($lookup) {
+        StatusRoomRequestLookup::getAll()->each(function ($lookup) {
             Lookup::query()->create([
                 'type' => TypeLookup::STATUS_ROOM_REQUEST,
-                'code' => StatusRequestLookup::code($lookup),
+                'code' => StatusRoomRequestLookup::code($lookup),
                 'name' => $lookup
             ]);
         });
@@ -136,6 +137,14 @@ class LookupSeeder extends Seeder
                 'type'  =>  TypeLookup::STATUS_PACKAGE_REQUEST,
                 'code'  =>  StatusPackageRequestLookup::code($lookup),
                 'name'  =>  $lookup
+            ]);
+        });
+
+        CountryAddressLookup::getAll()->each(function (string $lookup) {
+            Lookup::query()->create([
+                'type' => TypeLookup::COUNTRY_ADDRESS,
+                'code' => CountryAddressLookup::code($lookup),
+                'name' => $lookup
             ]);
         });
     }

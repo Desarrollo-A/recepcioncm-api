@@ -243,6 +243,14 @@ Route::prefix('v1')->group(function () {
                     ->where('stateId', Validation::INTEGER_ID);
             });
 
+        Route::prefix('request-packages')
+            ->name('request-packages.')
+            ->group(function () {
+                Route::put('/upload-file/{id}', 'RequestPackageController@uploadAuthorizationFile')
+                    ->name('upload.file')
+                    ->where('id', Validation::INTEGER_ID);
+            });
+
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');
         Route::apiResource('rooms', 'RoomController')->only('store', 'index', 'update', 'destroy');
         Route::apiResource('request-rooms', 'RequestRoomController')->only('store', 'index');
@@ -254,7 +262,7 @@ Route::prefix('v1')->group(function () {
             ->only('store', 'update', 'destroy');
         Route::apiResource('notifications', 'NotificationController')->only('show');
         Route::apiResource('request-emails', 'RequestEmailController')->only('store', 'update', 'destroy');
-
         Route::apiResource('drivers', 'DriverController')->only('index');
+        Route::apiResource('request-packages', 'RequestPackageController')->only('store');
     });
 });

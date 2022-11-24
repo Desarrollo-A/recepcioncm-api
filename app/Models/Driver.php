@@ -7,7 +7,6 @@ use App\Models\Traits\Sortable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use PhpParser\Node\Expr\FuncCall;
 
 class Driver extends Model implements ScopeFilterInterface
 {

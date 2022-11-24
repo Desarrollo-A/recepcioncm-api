@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use App\Models\Enums\Lookups\StatusRequestLookup;
+use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
@@ -32,7 +32,7 @@ class RequestRoomSeeder extends Seeder
     {
         $statusNew = Lookup::query()
             ->where('type', TypeLookup::STATUS_ROOM_REQUEST)
-            ->where('code', StatusRequestLookup::code(StatusRequestLookup::NEW))
+            ->where('code', StatusRoomRequestLookup::code(StatusRoomRequestLookup::NEW))
             ->first()
             ->id;
 

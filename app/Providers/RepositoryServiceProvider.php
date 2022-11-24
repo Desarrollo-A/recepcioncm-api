@@ -38,6 +38,8 @@ class RepositoryServiceProvider extends ServiceProvider
         'RequestEmailRepositoryInterface' => 'RequestEmailRepository',
         'ScoreRepositoryInterface' => 'ScoreRepository',
         'DriverRepositoryInterface' => 'DriverRepository',
+        'PackageRepositoryInterface' => 'PackageRepository',
+        'AddressRepositoryInterface' => 'AddressRepository',
     ];
 
     public function register()

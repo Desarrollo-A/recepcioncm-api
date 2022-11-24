@@ -4,7 +4,7 @@ namespace App\Repositories;
 
 use App\Contracts\Repositories\RequestRoomViewRepositoryInterface;
 use App\Core\BaseRepository;
-use App\Models\Enums\Lookups\StatusRequestLookup;
+use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\RequestRoomView;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -37,7 +37,7 @@ class RequestRoomViewRepository extends BaseRepository implements RequestRoomVie
     public function countNewRequests(User $user): int
     {
         return $this->entity
-            ->where('status_code', StatusRequestLookup::code(StatusRequestLookup::NEW))
+            ->where('status_code', StatusRoomRequestLookup::code(StatusRoomRequestLookup::NEW))
             ->filterOfficeOrUser($user)
             ->count();
     }
@@ -45,7 +45,7 @@ class RequestRoomViewRepository extends BaseRepository implements RequestRoomVie
     public function countApprovedRequests(User $user): int
     {
         return $this->entity
-            ->where('status_code', StatusRequestLookup::code(StatusRequestLookup::APPROVED))
+            ->where('status_code', StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED))
             ->filterOfficeOrUser($user)
             ->count();
     }
@@ -53,7 +53,7 @@ class RequestRoomViewRepository extends BaseRepository implements RequestRoomVie
     public function countCancelledRequests(User $user): int
     {
         return $this->entity
-            ->where('status_code', StatusRequestLookup::code(StatusRequestLookup::CANCELLED))
+            ->where('status_code', StatusRoomRequestLookup::code(StatusRoomRequestLookup::CANCELLED))
             ->filterOfficeOrUser($user)
             ->count();
     }
