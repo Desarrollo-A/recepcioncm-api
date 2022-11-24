@@ -18,4 +18,5 @@ class TypeLookup
     const ACTION_REQUEST_NOTIFICATION = 12; // Acciones de notificaciones
     const STATUS_DRIVER = 13; // Estatus del chofer
     const STATUS_PACKAGE_REQUEST = 14; //Estatus de solicitudes de paquetería
+    const COUNTRY_ADDRESS = 15; // Listado de Países para las direcciones
 }

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreatePackagesTable extends Migration
 {
@@ -15,8 +15,16 @@ class CreatePackagesTable extends Migration
     {
         Schema::create('packages', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->text('departure_place');
-            $table->text('destination_place');
+            $table->unsignedBigInteger('pickup_address_id');
+            $table->foreign('pickup_address_id')
+                ->references('id')
+                ->on('addresses');
+            $table->unsignedBigInteger('arrival_address_id');
+            $table->foreign('arrival_address_id')
+                ->references('id')
+                ->on('addresses');
+            $table->string('authorization_filename', 50)
+                ->nullable();
             $table->string('name_receive', 150);
             $table->string('email_receive', 150);
             $table->text('comment_receive')

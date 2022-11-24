@@ -2,6 +2,7 @@
 
 namespace App\Core\Traits;
 
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\Resource;
@@ -59,9 +60,10 @@ trait ApiResponse
     }
 
     /**
+     * @param Resource|JsonResource $resource
      * Función que retorna un JSON con un registro
      */
-    protected function showOne(Resource $resource, int $code = 200): JsonResponse
+    protected function showOne($resource, int $code = 200): JsonResponse
     {
         return $this->successResponse($resource, $code);
     }

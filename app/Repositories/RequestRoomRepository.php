@@ -4,7 +4,7 @@ namespace App\Repositories;
 
 use App\Contracts\Repositories\RequestRoomRepositoryInterface;
 use App\Core\BaseRepository;
-use App\Models\Enums\Lookups\StatusRequestLookup;
+use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\RequestRoom;
 use App\Models\User;
 use Carbon\Carbon;
@@ -53,7 +53,7 @@ class RequestRoomRepository extends BaseRepository implements RequestRoomReposit
             ->join('rooms', 'rooms.id', '=', 'request_room.room_id')
             ->join('requests', 'requests.id', '=', 'request_room.request_id')
             ->join('lookups AS st', 'st.id', '=', 'requests.status_id')
-            ->where('st.code', StatusRequestLookup::code(StatusRequestLookup::APPROVED))
+            ->where('st.code', StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED))
             ->whereDate('requests.start_date', '>=', now()->startOfDay())
             ->filterOfficeOrUser($user)
             ->get()
@@ -72,7 +72,7 @@ class RequestRoomRepository extends BaseRepository implements RequestRoomReposit
             ->join('rooms', 'rooms.id', '=', 'request_room.room_id')
             ->join('requests', 'requests.id', '=', 'request_room.request_id')
             ->join('lookups AS st', 'st.id', '=', 'requests.status_id')
-            ->where('st.code', StatusRequestLookup::code(StatusRequestLookup::APPROVED))
+            ->where('st.code', StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED))
             ->whereDate('requests.start_date', now())
             ->filterOfficeOrUser($user)
             ->orderBy('requests.start_date', 'ASC')

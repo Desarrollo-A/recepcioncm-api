@@ -4,7 +4,7 @@ namespace App\Repositories;
 
 use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Core\BaseRepository;
-use App\Models\Enums\Lookups\StatusRequestLookup;
+use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Request;
 use App\Models\User;
@@ -41,8 +41,8 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
             ->join('lookups', 'lookups.id', '=', 'requests.status_id')
             ->where('start_date', '>=', $startDate)
             ->where('end_date', '<=', $endDate)
-            ->whereIn('lookups.code', [StatusRequestLookup::code(StatusRequestLookup::APPROVED),
-                StatusRequestLookup::code(StatusRequestLookup::PROPOSAL)])
+            ->whereIn('lookups.code', [StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED),
+                StatusRoomRequestLookup::code(StatusRoomRequestLookup::PROPOSAL)])
             ->count();
         return $requests === 0;
     }
@@ -53,8 +53,8 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
             ->with('status')
             ->join('lookups', 'lookups.id', '=', 'requests.status_id')
             ->whereDate('start_date', $date)
-            ->whereIn('lookups.code', [StatusRequestLookup::code(StatusRequestLookup::APPROVED),
-                StatusRequestLookup::code(StatusRequestLookup::IN_REVIEW)])
+            ->whereIn('lookups.code', [StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED),
+                StatusRoomRequestLookup::code(StatusRoomRequestLookup::IN_REVIEW)])
             ->get();
     }
 
@@ -93,7 +93,7 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
             ->join('lookups AS status', 'status.id', '=', 'requests.status_id')
             ->join('lookups AS type', 'type.id', '=', 'requests.type_id')
             ->whereDate('start_date', now()->addDay())
-            ->where('status.code', StatusRequestLookup::code(StatusRequestLookup::APPROVED))
+            ->where('status.code', StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED))
             ->whereIn('type.code', [TypeRequestLookup::code(TypeRequestLookup::ROOM),
                 TypeRequestLookup::code(TypeRequestLookup::TRAVEL)])
             ->get();
@@ -148,9 +148,9 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
             ->whereRaw("DATEPART(WEEKDAY, start_date) = $weekday")
             ->whereDate('start_date', '>=', now())
             ->where('t.code', TypeRequestLookup::code(TypeRequestLookup::ROOM))
-            ->whereIn('s.code', [StatusRequestLookup::code(StatusRequestLookup::APPROVED),
-                StatusRequestLookup::code(StatusRequestLookup::PROPOSAL),
-                StatusRequestLookup::code(StatusRequestLookup::IN_REVIEW)])
+            ->whereIn('s.code', [StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED),
+                StatusRoomRequestLookup::code(StatusRoomRequestLookup::PROPOSAL),
+                StatusRoomRequestLookup::code(StatusRoomRequestLookup::IN_REVIEW)])
             ->count();
     }
 
@@ -163,9 +163,9 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
             ->whereRaw("DATEPART(WEEKDAY, start_date) = $weekday")
             ->whereDate('start_date', '>=', now())
             ->where('t.code', TypeRequestLookup::code(TypeRequestLookup::ROOM))
-            ->whereNotIn('s.code', [StatusRequestLookup::code(StatusRequestLookup::APPROVED),
-                StatusRequestLookup::code(StatusRequestLookup::PROPOSAL),
-                StatusRequestLookup::code(StatusRequestLookup::IN_REVIEW)])
+            ->whereNotIn('s.code', [StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED),
+                StatusRoomRequestLookup::code(StatusRoomRequestLookup::PROPOSAL),
+                StatusRoomRequestLookup::code(StatusRoomRequestLookup::IN_REVIEW)])
             ->get(['requests.*']);
     }
 }
