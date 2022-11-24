@@ -22,7 +22,7 @@ class RequestResource extends Resource
             'code' => $this->code,
             'title' => $this->title,
             'startDate' => $this->start_date->toDateTimeString(),
-            'endDate' => $this->end_date->toDateTimeString(),
+            'endDate' => is_null($this->end_date) ? null : $this->end_date->toDateTimeString(),
             'typeId' => $this->type_id,
             'comment' => $this->comment,
             'addGoogleCalendar' => $this->add_google_calendar,

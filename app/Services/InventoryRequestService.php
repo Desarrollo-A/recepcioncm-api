@@ -14,7 +14,7 @@ use App\Models\Dto\InventoryDTO;
 use App\Models\Dto\InventoryHistoryDTO;
 use App\Models\Dto\InventoryRequestDTO;
 use App\Models\Enums\Lookups\InventoryTypeLookup;
-use App\Models\Enums\Lookups\StatusRequestLookup;
+use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\Enums\TypeLookup;
 use App\Models\InventoryRequest;
 use Illuminate\Database\Eloquent\Collection;
@@ -133,12 +133,12 @@ class InventoryRequestService extends BaseService implements InventoryRequestSer
      */
     private function validationInsertOrUpdate(InventoryRequestDTO $dto, int $officeId, int $oldQuantity = 0)
     {
-        $newStatusId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::APPROVED),
+        $newStatusId = $this->lookupRepository->findByCodeAndType(StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED),
             TypeLookup::STATUS_ROOM_REQUEST)->id;
         $request = $this->requestRepository->findById($dto->request_id);
 
         if ($request->status_id !== $newStatusId) {
-            throw new CustomErrorException('La solicitud debe estar en estatus ' . StatusRequestLookup::code(StatusRequestLookup::APPROVED),
+            throw new CustomErrorException('La solicitud debe estar en estatus ' . StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED),
                 Response::HTTP_BAD_REQUEST);
         }
 

@@ -21,6 +21,7 @@ class File
 {
     const INVENTORY_HEIGHT_IMAGE = 512;
     const IMAGE_NAME_LENGHT = 40;
+    const FILE_NAME_LENGHT = 40;
 
     /**
      * @throws CustomErrorException
@@ -31,7 +32,7 @@ class File
             $imageName = Str::random(self::IMAGE_NAME_LENGHT) .
                 self::getFileExtension($imageFile->getClientOriginalName());
 
-            $pathUrl = self::getFilePublicPath($imageName, $customPath);
+            $pathUrl = self::getFilePublicPath($customPath, $imageName);
 
             Image::make($imageFile)
                 ->resize(null, $sizeHeight, function ($constraint) {
@@ -43,6 +44,14 @@ class File
         } catch (\Exception $e) {
             throw new CustomErrorException($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public static function uploadFile(UploadedFile $file, string $customPath): string
+    {
+        $filename = Str::random(self::FILE_NAME_LENGHT).self::getFileExtension($file->getClientOriginalName());
+        $pathUrl = self::getFilePublicPath($customPath);
+        $file->move($pathUrl, $filename);
+        return $filename;
     }
 
     public static function generatePDF(string $view, array $data, string $filename = 'download', bool $isLandscape = false)
@@ -88,8 +97,11 @@ class File
         return '.' . pathinfo($file, PATHINFO_EXTENSION);
     }
 
-    public static function getFilePublicPath(string $filename, string $path): string
+    public static function getFilePublicPath(string $path, string $filename = null): string
     {
+        if (is_null($filename)) {
+            return public_path(Path::STORAGE . $path);
+        }
         return public_path(Path::STORAGE . $path . $filename);
     }
 

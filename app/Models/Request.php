@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Enums\Lookups\StatusRequestLookup;
+use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\Enums\NameRole;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -85,8 +85,8 @@ class Request extends Model
 
     public function scopeExpired(Builder $query): Builder
     {
-        $query->where('lookups.code', StatusRequestLookup::code(StatusRequestLookup::NEW));
-        $query->orWhere('lookups.code', StatusRequestLookup::code(StatusRequestLookup::IN_REVIEW));
+        $query->where('lookups.code', StatusRoomRequestLookup::code(StatusRoomRequestLookup::NEW));
+        $query->orWhere('lookups.code', StatusRoomRequestLookup::code(StatusRoomRequestLookup::IN_REVIEW));
         return $query;
     }
 
