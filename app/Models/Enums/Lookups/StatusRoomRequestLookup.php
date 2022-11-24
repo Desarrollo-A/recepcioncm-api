@@ -4,7 +4,7 @@ namespace App\Models\Enums\Lookups;
 
 use Illuminate\Support\Collection;
 
-class StatusRequestLookup
+class StatusRoomRequestLookup
 {
     const NEW = 'Nueva';
     const APPROVED = 'Aprobada';

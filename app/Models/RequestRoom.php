@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Enums\Lookups\StatusRequestLookup;
+use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\Enums\NameRole;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -29,7 +29,7 @@ class RequestRoom extends Model
     {
         return Request::query()
             ->join('lookups', 'lookups.id', '=', 'requests.status_id')
-            ->where('lookups.code', StatusRequestLookup::code(StatusRequestLookup::APPROVED))
+            ->where('lookups.code', StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED))
             ->where('start_date', '>=', now()->startOfDay())
             ->where('user_id', $this->request->user_id)
             ->count();
