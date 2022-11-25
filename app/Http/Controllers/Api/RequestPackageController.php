@@ -49,6 +49,6 @@ class RequestPackageController extends BaseApiController
     {
         $user = auth()->user();
         $requestPackages = $this->requestPackageService->findAllRoomsPaginated($request, $user);
-        return $this->showAll(new RequestPackageViewCollection($requestPackages));
+        return $this->showAll(new RequestPackageViewCollection($requestPackages, true));
     }
 }

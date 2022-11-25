@@ -193,6 +193,10 @@ Route::prefix('v1')->group(function () {
                 Route::delete('/room/{id}', 'RequestController@deleteRequestRoom')
                     ->name('delete-request-room')
                     ->where('id', Validation::INTEGER_ID);
+
+                Route::delete('/package/{id}', 'RequestController@deleteRequestPackage')
+                    ->name('delete-request-package')
+                    ->where('id', Validation::INTEGER_ID);
             });
 
         Route::prefix('users')

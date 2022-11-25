@@ -53,6 +53,12 @@ class RequestController extends BaseApiController
         return $this->noContentResponse();
     }
 
+    public function deleteRequestPackage(int $requestId): JsonResponse
+    {
+        $this->requestService->deleteRequestPackage($requestId);
+        return $this->noContentResponse();
+    }
+
     /**
      * @throws CustomErrorException
      */

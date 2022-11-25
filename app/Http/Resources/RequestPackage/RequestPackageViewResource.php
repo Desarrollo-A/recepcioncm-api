@@ -14,6 +14,7 @@ class RequestPackageViewResource extends JsonResource
             'title' => $this->title,
             'startDate' => $this->start_date->toDateTimeString(),
             'statusName' => $this->status_name,
+            'statusCode' => $this->status_code,
             'fullName' => $this->full_name,
             'statePickup' => $this->state_pickup,
             'stateArrival' => $this->state_arrival
