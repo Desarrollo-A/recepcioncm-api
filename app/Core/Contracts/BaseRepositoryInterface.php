@@ -8,10 +8,9 @@ interface BaseRepositoryInterface
 
     public function bulkInsert(array $data): bool;
 
-    /**
-     * @return void
-     */
-    public function delete(int $id);
+    public function delete(int $id): void;
+
+    public function bulkDelete(array $ids): bool;
 
     public function findAll(array $filter = [], string $sort = null, array $columns = ['*']):
     \Illuminate\Database\Eloquent\Collection;

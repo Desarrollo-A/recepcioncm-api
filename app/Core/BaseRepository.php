@@ -34,12 +34,16 @@ class BaseRepository implements BaseRepositoryInterface
 
     /**
      * @throws \Throwable
-     * @return void
      */
-    public function delete(int $id)
+    public function delete(int $id): void
     {
         $entity = $this->findById($id);
         $entity->delete();
+    }
+
+    public function bulkDelete(array $ids): bool
+    {
+        return $this->entity->whereIn('id', $ids)->delete();
     }
 
     /**

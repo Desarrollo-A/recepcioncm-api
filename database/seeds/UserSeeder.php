@@ -11,7 +11,7 @@ use App\Models\Enums\Lookups\StatusUserLookup;
 
 class UserSeeder extends Seeder
 {
-    const TOTAL_USERS_APPLICANT = 5;
+    const TOTAL_USERS_APPLICANT = 3;
 
     /**
      * Run the database seeds.

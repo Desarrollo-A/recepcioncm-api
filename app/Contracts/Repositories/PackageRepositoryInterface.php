@@ -10,5 +10,5 @@ use App\Models\Package;
  */
 interface PackageRepositoryInterface extends BaseRepositoryInterface
 {
-    //
+    public function findByRequestId(int $requestId): Package;
 }

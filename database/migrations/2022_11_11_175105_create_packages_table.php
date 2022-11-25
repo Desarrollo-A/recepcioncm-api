@@ -32,7 +32,8 @@ class CreatePackagesTable extends Migration
             $table->unsignedBigInteger('request_id');
             $table->foreign('request_id')
                 ->references('id')
-                ->on('requests');
+                ->on('requests')
+                ->onDelete('cascade');
             $table->unsignedInteger('office_id');
             $table->foreign('office_id')
                 ->references('id')

@@ -193,6 +193,10 @@ Route::prefix('v1')->group(function () {
                 Route::delete('/room/{id}', 'RequestController@deleteRequestRoom')
                     ->name('delete-request-room')
                     ->where('id', Validation::INTEGER_ID);
+
+                Route::delete('/package/{id}', 'RequestController@deleteRequestPackage')
+                    ->name('delete-request-package')
+                    ->where('id', Validation::INTEGER_ID);
             });
 
         Route::prefix('users')
@@ -233,17 +237,17 @@ Route::prefix('v1')->group(function () {
                     ->name('find-all-paginated');
 
                 Route::get('/input-output/pdf', 'InputOutputInventoryViewController@getReportPdf')
-                    ->name('report.pdf');
+                    ->name('report-pdf');
 
                 Route::get('/input-output/excel', 'InputOutputInventoryViewController@getReportExcel')
-                    ->name('report.excel');
+                    ->name('report-excel');
             });
         
         Route::prefix('offices')
             ->name('offices.')
             ->group(function(){
                 Route::get('/state-driver/{stateId}', 'OfficeController@getOfficeByStateWithDriver')
-                    ->name('state.driver')
+                    ->name('state-driver')
                     ->where('stateId', Validation::INTEGER_ID);
             });
         
@@ -262,7 +266,7 @@ Route::prefix('v1')->group(function () {
             ->name('request-packages.')
             ->group(function () {
                 Route::put('/upload-file/{id}', 'RequestPackageController@uploadAuthorizationFile')
-                    ->name('upload.file')
+                    ->name('upload-file')
                     ->where('id', Validation::INTEGER_ID);
             });
 
@@ -278,6 +282,6 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('notifications', 'NotificationController')->only('show');
         Route::apiResource('request-emails', 'RequestEmailController')->only('store', 'update', 'destroy');
         Route::apiResource('drivers', 'DriverController')->only('index');
-        Route::apiResource('request-packages', 'RequestPackageController')->only('store');
+        Route::apiResource('request-packages', 'RequestPackageController')->only('store', 'index');
     });
 });
