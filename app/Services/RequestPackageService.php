@@ -59,7 +59,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
 
         $dto->request->status_id = $this->lookupRepository
             ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW),
-                TypeLookup::STATUS_ROOM_REQUEST)
+                TypeLookup::STATUS_PACKAGE_REQUEST)
             ->id;
 
         $dto->request->type_id = $this->lookupRepository
