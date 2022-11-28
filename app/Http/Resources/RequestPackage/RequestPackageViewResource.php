@@ -9,7 +9,8 @@ class RequestPackageViewResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'id' => $this->id,
+            'requestId' => $this->request_id,
+            'packageId' => $this->package_id,
             'code' => $this->code,
             'title' => $this->title,
             'startDate' => $this->start_date->toDateTimeString(),

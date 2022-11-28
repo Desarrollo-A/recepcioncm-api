@@ -265,9 +265,13 @@ Route::prefix('v1')->group(function () {
         Route::prefix('request-packages')
             ->name('request-packages.')
             ->group(function () {
-                Route::put('/upload-file/{id}', 'RequestPackageController@uploadAuthorizationFile')
+                Route::get('/{requestId}', 'RequestPackageController@show')
+                    ->name('show')
+                    ->where('requestId', Validation::INTEGER_ID);
+
+                Route::put('/upload-file/{requestId}', 'RequestPackageController@uploadAuthorizationFile')
                     ->name('upload-file')
-                    ->where('id', Validation::INTEGER_ID);
+                    ->where('requestId', Validation::INTEGER_ID);
             });
 
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');

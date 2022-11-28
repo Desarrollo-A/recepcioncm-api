@@ -20,6 +20,7 @@ use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Enums\TypeLookup;
 use App\Models\Package;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -94,5 +95,10 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $perPage = Validation::getPerPage($request->get(QueryParam::PAGINATION_KEY));
         $sort = $request->get(QueryParam::ORDER_BY_KEY);
         return $this->requestPackageViewRepository->findAllPackagesPaginated($filters, $perPage, $user, $sort);
+    }
+
+    public function findById(int $id): Package
+    {
+        return $this->packageRepository->findById($id);
     }
 }
