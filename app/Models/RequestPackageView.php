@@ -14,12 +14,13 @@ class RequestPackageView extends Model implements ScopeFilterInterface
 
     protected $table = 'request_package_view';
 
-    public $allowedSorts = ['id', 'code', 'title', 'start_date', 'status_name', 'full_name', 'state_pickup', 'state_arrival'];
+    public $allowedSorts = ['request_id', 'code', 'title', 'start_date', 'status_name', 'full_name', 'state_pickup', 'state_arrival'];
 
     protected $casts = [
-        'id' => 'integer',
+        'request_id' => 'integer',
         'start_date' => 'datetime',
-        'office_id' => 'integer'
+        'office_id' => 'integer',
+        'package_id' => 'integer'
     ];
 
     public function scopeFilter(Builder $query, array $params = []): Builder
