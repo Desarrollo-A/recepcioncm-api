@@ -11,7 +11,7 @@ use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
 use App\Helpers\Enum\Message;
 use App\Models\Dto\RequestDTO;
-use App\Models\Enums\Lookups\StatusRoomRequestLookup;
+use App\Models\Enums\Lookups\StatusRequestLookup;
 use App\Models\Enums\TypeLookup;
 use App\Models\Request;
 use Illuminate\Database\Eloquent\Collection;
@@ -40,12 +40,12 @@ class RequestService extends BaseService implements RequestServiceInterface
      */
     public function deleteRequestRoom(int $requestId, int $userId): Request
     {
-        $newStatusId = $this->lookupRepository->findByCodeAndType(StatusRoomRequestLookup::code(StatusRoomRequestLookup::NEW),
+        $newStatusId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::NEW),
             TypeLookup::STATUS_ROOM_REQUEST)->id;
         $request = $this->entityRepository->findById($requestId)->fresh(['requestRoom', 'requestRoom.room']);
 
         if ($request->status_id !== $newStatusId) {
-            throw new CustomErrorException('La solicitud debe de estar en estatus '.StatusRoomRequestLookup::code(StatusRoomRequestLookup::NEW),
+            throw new CustomErrorException('La solicitud debe de estar en estatus '.StatusRequestLookup::code(StatusRequestLookup::NEW),
                 Response::HTTP_BAD_REQUEST);
         }
 
@@ -63,12 +63,12 @@ class RequestService extends BaseService implements RequestServiceInterface
      */
     public function responseRejectRequest(int $id, RequestDTO $dto): Request
     {
-        $proposalStatusId = $this->lookupRepository->findByCodeAndType(StatusRoomRequestLookup::code(StatusRoomRequestLookup::PROPOSAL),
+        $proposalStatusId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::PROPOSAL),
             TypeLookup::STATUS_ROOM_REQUEST)->id;
         $request = $this->entityRepository->findById($id);
 
         if ($request->status_id !== $proposalStatusId) {
-            throw new CustomErrorException('La solicitud debe de estar en estatus '.StatusRoomRequestLookup::PROPOSAL,
+            throw new CustomErrorException('La solicitud debe de estar en estatus '.StatusRequestLookup::PROPOSAL,
                 Response::HTTP_BAD_REQUEST);
         }
 
@@ -76,7 +76,7 @@ class RequestService extends BaseService implements RequestServiceInterface
 
         $this->proposalRequestRepository->deleteByRequestId($id);
 
-        $data = ($dto->status->code === StatusRoomRequestLookup::code(StatusRoomRequestLookup::IN_REVIEW))
+        $data = ($dto->status->code === StatusRequestLookup::code(StatusRequestLookup::IN_REVIEW))
             ? $dto->toArray(['status_id', 'start_date', 'end_date'])
             : $dto->toArray(['status_id']);
 
@@ -97,11 +97,11 @@ class RequestService extends BaseService implements RequestServiceInterface
     public function changeToFinished(): Collection
     {
         $requests = $this->entityRepository
-            ->getPreviouslyByCode(StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED), ['requests.id',
+            ->getPreviouslyByCode(StatusRequestLookup::code(StatusRequestLookup::APPROVED), ['requests.id',
                 'requests.user_id', 'requests.code']);
         if ($requests->count() > 0) {
             $statusId = $this->lookupRepository
-                ->findByCodeAndType(StatusRoomRequestLookup::code(StatusRoomRequestLookup::FINISHED),
+                ->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::FINISHED),
                     TypeLookup::STATUS_ROOM_REQUEST)->id;
             $this->entityRepository->bulkStatusUpdate(array_values($requests->pluck('id')->toArray()), $statusId);
         }
@@ -112,14 +112,14 @@ class RequestService extends BaseService implements RequestServiceInterface
     public function changeToExpired()
     {
         $expired = $this->entityRepository->getExpired(['requests.id']);
-        $statusId = $this->lookupRepository->findByCodeAndType(StatusRoomRequestLookup::code(StatusRoomRequestLookup::EXPIRED),
+        $statusId = $this->lookupRepository->findByCodeAndType(StatusRequestLookup::code(StatusRequestLookup::EXPIRED),
             TypeLookup::STATUS_ROOM_REQUEST)->id;
         if ($expired->count() > 0) {
             $this->entityRepository->bulkStatusUpdate(array_values($expired->toArray()), $statusId);
         }
 
         $proposalRequests = $this->entityRepository
-            ->getPreviouslyByCode(StatusRoomRequestLookup::code(StatusRoomRequestLookup::PROPOSAL), ['requests.id']);
+            ->getPreviouslyByCode(StatusRequestLookup::code(StatusRequestLookup::PROPOSAL), ['requests.id']);
         if ($proposalRequests->count() > 0) {
             $this->proposalRequestRepository->deleteInRequestIds(array_values($proposalRequests->toArray()));
             $this->entityRepository->bulkStatusUpdate(array_values($proposalRequests->toArray()), $statusId);

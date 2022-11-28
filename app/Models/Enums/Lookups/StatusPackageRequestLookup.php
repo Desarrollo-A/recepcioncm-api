@@ -8,12 +8,12 @@ class StatusPackageRequestLookup
     const NEW = 'Nueva';
     const APPROVED = 'Aprobada';
     const REJECTED = 'Rechazada';
-    const FINISHED = 'Terminada';
+    const DELIVERED = 'Entregado';
     const ROAD = 'En camino';
 
     public static function getAll(): Collection
     {
-        return collect([self::NEW, self::APPROVED, self::REJECTED, self::FINISHED, self::ROAD]);
+        return collect([self::NEW, self::APPROVED, self::REJECTED, self::DELIVERED, self::ROAD]);
     }
 
     public static function code($const)

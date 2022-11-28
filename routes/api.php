@@ -261,6 +261,10 @@ Route::prefix('v1')->group(function () {
         Route::prefix('request-packages')
             ->name('request-packages.')
             ->group(function () {
+
+                Route::post('/insert-score', 'RequestPackageController@insertScore')
+                    ->name('insert.score');
+
                 Route::put('/upload-file/{id}', 'RequestPackageController@uploadAuthorizationFile')
                     ->name('upload.file')
                     ->where('id', Validation::INTEGER_ID);

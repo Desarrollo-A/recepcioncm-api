@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Contracts\Services\RequestPackageServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
+use App\Http\Requests\Request\StarRatingRequest;
 use App\Http\Requests\RequestPackage\StoreRequestPackageRequest;
 use App\Http\Requests\RequestPackage\UploadFileRequestPackageRequest;
 use App\Http\Resources\Package\PackageResource;
@@ -17,7 +18,7 @@ class RequestPackageController extends BaseApiController
 
     public function __construct(RequestPackageServiceInterface $requestPackageService)
     {
-        $this->middleware('role.permission:'.NameRole::APPLICANT);
+        $this->middleware('role.permission:'.NameRole::APPLICANT)->except('insertScore');
         $this->requestPackageService = $requestPackageService;
     }
 
@@ -38,6 +39,13 @@ class RequestPackageController extends BaseApiController
     {
         $dto = $request->toDTO();
         $this->requestPackageService->uploadAuthorizationFile($id, $dto);
+        return $this->noContentResponse();
+    }
+
+    public function insertScore(StarRatingRequest $request): JsonResponse
+    {
+        $scoreDTO = $request->toDTO();
+        $this->requestPackageService->insertScore($scoreDTO);
         return $this->noContentResponse();
     }
 }
