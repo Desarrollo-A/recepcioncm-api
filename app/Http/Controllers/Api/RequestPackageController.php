@@ -19,9 +19,10 @@ class RequestPackageController extends BaseApiController
 
     public function __construct(RequestPackageServiceInterface $requestPackageService)
     {
-        $this->middleware('role.permission:'.NameRole::APPLICANT)->only('store', 'uploadAuthorizationFile');
+        $this->middleware('role.permission:'.NameRole::APPLICANT)
+            ->only('store', 'uploadAuthorizationFile');
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
-            ->only('index');
+            ->only('index', 'show');
         $this->requestPackageService = $requestPackageService;
     }
 
@@ -38,10 +39,10 @@ class RequestPackageController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function uploadAuthorizationFile(int $id, UploadFileRequestPackageRequest $request): JsonResponse
+    public function uploadAuthorizationFile(int $requestId, UploadFileRequestPackageRequest $request): JsonResponse
     {
         $dto = $request->toDTO();
-        $this->requestPackageService->uploadAuthorizationFile($id, $dto);
+        $this->requestPackageService->uploadAuthorizationFile($requestId, $dto);
         return $this->noContentResponse();
     }
 
@@ -50,5 +51,11 @@ class RequestPackageController extends BaseApiController
         $user = auth()->user();
         $requestPackages = $this->requestPackageService->findAllRoomsPaginated($request, $user);
         return $this->showAll(new RequestPackageViewCollection($requestPackages, true));
+    }
+
+    public function show(int $requestId): JsonResponse
+    {
+        $package = $this->requestPackageService->findById($requestId);
+        return $this->showOne(new PackageResource($package));
     }
 }

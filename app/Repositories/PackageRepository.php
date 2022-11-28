@@ -27,4 +27,12 @@ class PackageRepository extends BaseRepository implements PackageRepositoryInter
             ->where('request_id', $requestId)
             ->firstOrFail();
     }
+
+    public function findById(int $id, array $columns = ['*'])
+    {
+        return $this->entity
+            ->with(['pickupAddress', 'pickupAddress.country', 'arrivalAddress', 'arrivalAddress.country', 'request',
+                'request.user', 'request.status'])
+            ->findOrFail($id, $columns);
+    }
 }
