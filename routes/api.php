@@ -262,6 +262,10 @@ Route::prefix('v1')->group(function () {
             ->name('request-packages.')
             ->group(function () {
 
+                Route::get('/completed/{requestPackageId}', 'RequestPackageController@isPackageCompleted')
+                ->name('completed')
+                ->where('requestPackageId', Validation::INTEGER_ID);
+
                 Route::post('/insert-score', 'RequestPackageController@insertScore')
                     ->name('insert.score');
 

@@ -14,4 +14,6 @@ interface RequestPackageServiceInterface extends BaseServiceInterface
     public function uploadAuthorizationFile(int $id, PackageDTO $dto): void;
 
     public function insertScore(ScoreDTO $score): void;
+
+    public function isPackageCompleted(int $requestPackageId): bool;
 }

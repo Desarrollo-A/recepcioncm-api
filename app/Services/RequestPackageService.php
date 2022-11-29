@@ -86,36 +86,37 @@ class RequestPackageService extends BaseService implements RequestPackageService
     public function insertScore(ScoreDTO $score): void
     {
         $typeRequestId = $this->requestRepository->findById($score->request_id);
-
         $typeStatusId = $this->lookupRepository
             ->findByCodeAndType(TypeRequestLookup::code(TypeRequestLookup::PARCEL),
                 TypeLookup::TYPE_REQUEST)
             ->id;
-
         if ($typeRequestId->type_id !== $typeStatusId) {
             throw new CustomErrorException("El tipo de solicitud debe ser de paquetería", HttpCodes::HTTP_BAD_REQUEST);
         }
-
         $statusPackageId = $this->lookupRepository
         ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::ROAD),
             TypeLookup::STATUS_PACKAGE_REQUEST)
         ->id;
-
         if ($typeRequestId->status_id !== $statusPackageId) {
             throw new CustomErrorException("El estatus de solicitud debe estar ".StatusPackageRequestLookup::ROAD, 
                 HttpCodes::HTTP_BAD_REQUEST);
         }
-
         $statusId = $this->lookupRepository
             ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::DELIVERED),
                 TypeLookup::STATUS_PACKAGE_REQUEST)
             ->id;
         $request = new RequestDTO(['status_id' => $statusId]);
-
         $this->requestRepository->update($score->request_id, $request->toArray(['status_id']));
-
         $this->scoreRepository->create($score->toArray(['request_id', 'score', 'comment']));
-
     }
-
+    
+    public function isPackageCompleted(int $requestPackageId): bool
+    {
+        $statusId = $this->lookupRepository
+            ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::ROAD),
+                TypeLookup::STATUS_PACKAGE_REQUEST)
+            ->id;
+        $statusRequestPackageId = $this->requestRepository->findById($requestPackageId);
+        return $statusId === $statusRequestPackageId->status_id;
+    }
 }

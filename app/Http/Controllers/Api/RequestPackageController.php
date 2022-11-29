@@ -11,6 +11,8 @@ use App\Http\Requests\RequestPackage\UploadFileRequestPackageRequest;
 use App\Http\Resources\Package\PackageResource;
 use App\Models\Enums\NameRole;
 use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response as HttpCodes;
+
 
 class RequestPackageController extends BaseApiController
 {
@@ -18,7 +20,7 @@ class RequestPackageController extends BaseApiController
 
     public function __construct(RequestPackageServiceInterface $requestPackageService)
     {
-        $this->middleware('role.permission:'.NameRole::APPLICANT)->except('insertScore');
+        $this->middleware('role.permission:'.NameRole::APPLICANT)->except('insertScore', 'isPackageCompleted');
         $this->requestPackageService = $requestPackageService;
     }
 
@@ -47,5 +49,11 @@ class RequestPackageController extends BaseApiController
         $scoreDTO = $request->toDTO();
         $this->requestPackageService->insertScore($scoreDTO);
         return $this->noContentResponse();
+    }
+
+    public function isPackageCompleted(int $requestPackageId): JsonResponse
+    {
+        $requests = $this->requestPackageService->isPackageCompleted($requestPackageId);
+        return $this->successResponse(['deliveredPackage' => $requests], HttpCodes::HTTP_OK);
     }
 }
