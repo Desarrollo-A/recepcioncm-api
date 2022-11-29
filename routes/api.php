@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Helpers\Validation;
-use App\Http\Controllers\Api\RequestController;
 
 Route::prefix('v1')->group(function () {
     Route::prefix('auth')
@@ -253,35 +252,41 @@ Route::prefix('v1')->group(function () {
         
         Route::prefix('drivers')
             ->name('drivers.')
-            ->group(function(){
-                Route::post('/car', 'DriverController@insertDriverCar')
-                ->name('car');
-
+            ->group(function() {
                 Route::get('/{driverId}', 'DriverController@show')
-                ->name('show')
-                ->where('driver_id', Validation::INTEGER_ID);
+                    ->name('show')
+                    ->where('driverId', Validation::INTEGER_ID);
+
+                Route::get('/find-all-office', 'DriverController@findAllByOfficeId')
+                    ->name('find-all-office');
+
+                Route::post('/car', 'DriverController@insertDriverCar')
+                    ->name('car');
         });
 
         Route::prefix('request-packages')
             ->name('request-packages.')
             ->group(function () {
+                Route::get('/completed/{requestPackageId}', 'RequestPackageController@isPackageCompleted')
+                    ->name('completed')
+                    ->where('requestPackageId', Validation::INTEGER_ID);
+
                 Route::get('/{requestId}', 'RequestPackageController@show')
                     ->name('show')
                     ->where('requestId', Validation::INTEGER_ID);
 
-                Route::get('/completed/{requestPackageId}', 'RequestPackageController@isPackageCompleted')
-                ->name('completed')
-                ->where('requestPackageId', Validation::INTEGER_ID);
+                Route::get('/status/{code}', 'RequestPackageController@getStatusByStatusCurrent')
+                    ->name('status-by-status-current');
 
                 Route::post('/insert-score', 'RequestPackageController@insertScore')
                     ->name('insert.score');
 
-                Route::put('/upload-file/{id}', 'RequestPackageController@uploadAuthorizationFile')
-                    ->name('upload.file')
-                    ->where('id', Validation::INTEGER_ID);
-                
                 Route::put('/upload-file/{requestId}', 'RequestPackageController@uploadAuthorizationFile')
                     ->name('upload-file')
+                    ->where('requestId', Validation::INTEGER_ID);
+
+                Route::patch('/cancel/{requestId}', 'RequestPackageController@cancelRequest')
+                    ->name('cancel-request-package')
                     ->where('requestId', Validation::INTEGER_ID);
 
             });

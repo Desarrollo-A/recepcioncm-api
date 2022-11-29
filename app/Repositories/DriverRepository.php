@@ -6,19 +6,20 @@ use App\Core\BaseRepository;
 use App\Models\Driver;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class DriverRepository extends BaseRepository implements DriverRepositoryInterface
 {
     /**
-     * @var Builder|Model|QueryBuilder|
+     * @var Builder|Model|QueryBuilder|Driver
      */
     protected $entity;
 
-    public function __construct(Driver $dri)
+    public function __construct(Driver $driver)
     {
-        $this->entity = $dri;
+        $this->entity = $driver;
     }
 
     public function findAllPaginatedOffice(int $OfficeId, array $filters, int $limit, string $sort = null, array $columns = ['*']):
@@ -39,5 +40,9 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
             ->findOrFail($id, $columns);
     }
 
+    public function findAllByOfficeId(int $officeId): Collection
+    {
+        return $this->entity->where('office_id', $officeId)->get();
+    }
 }
 

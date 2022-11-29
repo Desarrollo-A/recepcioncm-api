@@ -23,7 +23,7 @@ class RequestPackageSeeder extends Seeder
     public function run()
     {
         $statusNew = Lookup::query()
-            ->where('type', TypeLookup::STATUS_ROOM_REQUEST)
+            ->where('type', TypeLookup::STATUS_PACKAGE_REQUEST)
             ->where('code', StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW))
             ->first()
             ->id;

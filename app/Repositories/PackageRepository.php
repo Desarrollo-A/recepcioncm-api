@@ -32,7 +32,7 @@ class PackageRepository extends BaseRepository implements PackageRepositoryInter
     {
         return $this->entity
             ->with(['pickupAddress', 'pickupAddress.country', 'arrivalAddress', 'arrivalAddress.country', 'request',
-                'request.user', 'request.status'])
+                'request.user', 'request.status', 'request.cancelRequest', 'request.cancelRequest.user'])
             ->findOrFail($id, $columns);
     }
 }

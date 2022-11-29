@@ -28,7 +28,7 @@ class DriverSeeder extends Seeder
                 return $query->where('name', \App\Models\Enums\NameRole::RECEPCIONIST);
             })
             ->get()->each(function (User $user) use ($status) {
-                factory(Driver::class, 10)
+                factory(Driver::class, 5)
                     ->create([
                         'office_id' => $user->office_id,
                         'status_id' => $status
