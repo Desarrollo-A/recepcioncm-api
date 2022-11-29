@@ -8,6 +8,8 @@ use App\Exceptions\CustomErrorException;
 use App\Http\Requests\Request\StarRatingRequest;
 use App\Http\Requests\RequestPackage\StoreRequestPackageRequest;
 use App\Http\Requests\RequestPackage\UploadFileRequestPackageRequest;
+use App\Http\Requests\RequestRoom\CancelRequestRoomRequest;
+use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\Package\PackageResource;
 use App\Http\Resources\RequestPackage\RequestPackageViewCollection;
 use App\Models\Enums\NameRole;
@@ -25,7 +27,7 @@ class RequestPackageController extends BaseApiController
         $this->middleware('role.permission:'.NameRole::APPLICANT)
             ->only('store', 'uploadAuthorizationFile');
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
-            ->only('index', 'show');
+            ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest');
         $this->requestPackageService = $requestPackageService;
     }
 
@@ -73,5 +75,23 @@ class RequestPackageController extends BaseApiController
     {
         $requests = $this->requestPackageService->isPackageCompleted($requestPackageId);
         return $this->successResponse(['deliveredPackage' => $requests], HttpCodes::HTTP_OK);
+    }
+
+    public function getStatusByStatusCurrent(string $code): JsonResponse
+    {
+        $roleName = auth()->user()->role->name;
+        $status = $this->requestPackageService->getStatusByStatusCurrent($code, $roleName);
+        return $this->showAll(LookupResource::collection($status));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function cancelRequest(int $requestId, CancelRequestRoomRequest $request): JsonResponse
+    {
+        $dto = $request->toDTO();
+        $dto->request_id = $requestId;
+        $this->requestPackageService->cancelRequest($dto);
+        return $this->noContentResponse();
     }
 }

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Package extends Model
 {
     protected $fillable = ['pickup_address_id', 'arrival_address_id', 'authorization_filename', 'name_receive', 'email_receive',
-        'comment_receive', 'request_id', 'office_id', 'tracking_code'];
+        'request_id', 'office_id', 'tracking_code'];
 
     protected $casts = [
         'id' => 'integer',

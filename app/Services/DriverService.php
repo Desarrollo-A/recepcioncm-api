@@ -5,8 +5,10 @@ namespace App\Services;
 use App\Contracts\Repositories\DriverRepositoryInterface;
 use App\Contracts\Services\DriverServiceInterface;
 use App\Core\BaseService;
+use App\Exceptions\CustomErrorException;
 use App\Helpers\Enum\QueryParam;
 use App\Helpers\Validation;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -19,6 +21,9 @@ class DriverService extends BaseService implements DriverServiceInterface
         $this->entityRepository = $driverRepository;
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function findAllPaginatedOffice(int $OfficeId, Request $request, array $columns = ['*']): LengthAwarePaginator
     {
         $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
@@ -30,5 +35,10 @@ class DriverService extends BaseService implements DriverServiceInterface
     public function insertDriverCar(int $carId, int $driverId): void
     {
         $this->entityRepository->sync($driverId, 'cars', ['car_id' => $carId]);
+    }
+
+    public function findAllByOfficeId(int $officeId): Collection
+    {
+        return $this->entityRepository->findAllByOfficeId($officeId);
     }
 }
