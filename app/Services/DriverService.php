@@ -11,6 +11,7 @@ use App\Helpers\Enum\QueryParam;
 use App\Helpers\Validation;
 use App\Models\Driver;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,6 +28,9 @@ class DriverService extends BaseService implements DriverServiceInterface
         $this->carRepository = $carRepository;
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function findAllPaginatedOffice(int $OfficeId, Request $request, array $columns = ['*']): LengthAwarePaginator
     {
         $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
@@ -40,10 +44,15 @@ class DriverService extends BaseService implements DriverServiceInterface
         $officeIdCar = $this->carRepository->findById($carId);
         $officeIdDriver = $this->entityRepository->findById($driverId);
         if ($officeIdCar->office_id !== $officeIdDriver->office_id){
-            throw new CustomErrorException('La oficina del conducto no coincide con la oficina del automóvil', 
+            throw new CustomErrorException('La oficina del conductor no coincide con la oficina del automóvil',
                                             Response::HTTP_BAD_REQUEST);
         }
         $this->entityRepository->sync($driverId, 'cars', ['car_id' => $carId]);
+    }
+
+    public function findAllByOfficeId(int $officeId): Collection
+    {
+        return $this->entityRepository->findAllByOfficeId($officeId);
     }
 
     public function findById(int $id): Driver

@@ -40,4 +40,10 @@ class DriverController extends BaseApiController
         $conductor = $this->driverService->findById($driverId);
         return $this->showOne(new DriverResource($conductor));
     }
+
+    public function findAllByOfficeId(): JsonResponse
+    {
+        $drivers = $this->driverService->findAllByOfficeId(auth()->user()->office_id);
+        return $this->showAll(DriverResource::collection($drivers));
+    }
 }
