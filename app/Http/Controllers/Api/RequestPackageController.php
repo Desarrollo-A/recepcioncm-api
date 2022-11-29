@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Contracts\Services\RequestPackageServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
+use App\Http\Requests\Request\StarRatingRequest;
 use App\Http\Requests\RequestPackage\StoreRequestPackageRequest;
 use App\Http\Requests\RequestPackage\UploadFileRequestPackageRequest;
 use App\Http\Resources\Package\PackageResource;
@@ -12,6 +13,8 @@ use App\Http\Resources\RequestPackage\RequestPackageViewCollection;
 use App\Models\Enums\NameRole;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response as HttpCodes;
+
 
 class RequestPackageController extends BaseApiController
 {
@@ -57,5 +60,18 @@ class RequestPackageController extends BaseApiController
     {
         $package = $this->requestPackageService->findById($requestId);
         return $this->showOne(new PackageResource($package));
+    }
+    
+    public function insertScore(StarRatingRequest $request): JsonResponse
+    {
+        $scoreDTO = $request->toDTO();
+        $this->requestPackageService->insertScore($scoreDTO);
+        return $this->noContentResponse();
+    }
+
+    public function isPackageCompleted(int $requestPackageId): JsonResponse
+    {
+        $requests = $this->requestPackageService->isPackageCompleted($requestPackageId);
+        return $this->successResponse(['deliveredPackage' => $requests], HttpCodes::HTTP_OK);
     }
 }

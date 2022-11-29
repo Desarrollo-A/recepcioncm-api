@@ -96,6 +96,11 @@ class RequestDTO
     public $requestEmail;
 
     /**
+     * @var ScoreDTO
+     */
+    public $score;
+
+    /**
      * @throws CustomErrorException
      */
     public function __construct(array $data = [])

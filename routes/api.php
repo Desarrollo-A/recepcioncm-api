@@ -269,9 +269,21 @@ Route::prefix('v1')->group(function () {
                     ->name('show')
                     ->where('requestId', Validation::INTEGER_ID);
 
+                Route::get('/completed/{requestPackageId}', 'RequestPackageController@isPackageCompleted')
+                ->name('completed')
+                ->where('requestPackageId', Validation::INTEGER_ID);
+
+                Route::post('/insert-score', 'RequestPackageController@insertScore')
+                    ->name('insert.score');
+
+                Route::put('/upload-file/{id}', 'RequestPackageController@uploadAuthorizationFile')
+                    ->name('upload.file')
+                    ->where('id', Validation::INTEGER_ID);
+                
                 Route::put('/upload-file/{requestId}', 'RequestPackageController@uploadAuthorizationFile')
                     ->name('upload-file')
                     ->where('requestId', Validation::INTEGER_ID);
+
             });
 
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');
