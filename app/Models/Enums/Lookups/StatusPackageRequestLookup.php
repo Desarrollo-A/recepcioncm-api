@@ -9,14 +9,14 @@ class StatusPackageRequestLookup
     const APPROVED = 'Aprobada';
     const CANCELLED = 'Cancelada';
     const REJECTED = 'Rechazada';
-    const FINISHED = 'Terminada';
+    const DELIVERED = 'Entregado';
     const ROAD = 'En camino';
     const EXPIRED = 'Expirada';
     const PROPOSAL = 'Propuesta';
 
     public static function getAll(): Collection
     {
-        return collect([self::NEW, self::APPROVED, self::CANCELLED, self::REJECTED, self::FINISHED, self::ROAD,
+        return collect([self::NEW, self::APPROVED, self::CANCELLED, self::REJECTED, self::DELIVERED, self::ROAD,
             self::EXPIRED, self::PROPOSAL]);
     }
 
