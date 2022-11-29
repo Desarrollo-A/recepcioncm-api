@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Helpers\Validation;
-use App\Http\Controllers\Api\RequestController;
 
 Route::prefix('v1')->group(function () {
     Route::prefix('auth')
@@ -265,6 +264,10 @@ Route::prefix('v1')->group(function () {
         Route::prefix('request-packages')
             ->name('request-packages.')
             ->group(function () {
+                Route::get('/completed/{requestPackageId}', 'RequestPackageController@isPackageCompleted')
+                    ->name('completed')
+                    ->where('requestPackageId', Validation::INTEGER_ID);
+
                 Route::get('/{requestId}', 'RequestPackageController@show')
                     ->name('show')
                     ->where('requestId', Validation::INTEGER_ID);
@@ -272,6 +275,13 @@ Route::prefix('v1')->group(function () {
                 Route::put('/upload-file/{requestId}', 'RequestPackageController@uploadAuthorizationFile')
                     ->name('upload-file')
                     ->where('requestId', Validation::INTEGER_ID);
+
+                Route::post('/insert-score', 'RequestPackageController@insertScore')
+                    ->name('insert.score');
+
+                Route::put('/upload-file/{id}', 'RequestPackageController@uploadAuthorizationFile')
+                    ->name('upload.file')
+                    ->where('id', Validation::INTEGER_ID);
             });
 
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');
@@ -286,6 +296,6 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('notifications', 'NotificationController')->only('show');
         Route::apiResource('request-emails', 'RequestEmailController')->only('store', 'update', 'destroy');
         Route::apiResource('drivers', 'DriverController')->only('index');
-        Route::apiResource('request-packages', 'RequestPackageController')->only('store', 'index');
+        Route::apiResource('request-packages', 'RequestPackageController')->only('store');
     });
 });

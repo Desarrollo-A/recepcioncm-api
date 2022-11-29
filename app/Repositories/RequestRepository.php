@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Core\BaseRepository;
+use App\Models\Enums\Lookups\StatusPackageRequestLookup;
 use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Request;
@@ -31,7 +32,7 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
     public function findById(int $id, array $columns = ['*']): Request
     {
         return $this->entity
-            ->with(['type'])
+            ->with(['type', 'status'])
             ->findOrFail($id, $columns);
     }
 
@@ -168,4 +169,5 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
                 StatusRoomRequestLookup::code(StatusRoomRequestLookup::IN_REVIEW)])
             ->get(['requests.*']);
     }
+
 }
