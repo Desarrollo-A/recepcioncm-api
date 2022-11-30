@@ -28,4 +28,6 @@ interface RequestPackageServiceInterface extends BaseServiceInterface
     public function getStatusByStatusCurrent(string $code, string $roleName): Collection;
 
     public function cancelRequest(CancelRequestDTO $dto): Request;
+
+    public function transferRequest(int $packageId, PackageDTO $dto): void;
 }

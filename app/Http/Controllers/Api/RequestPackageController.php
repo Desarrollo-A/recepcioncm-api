@@ -7,6 +7,7 @@ use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\Request\StarRatingRequest;
 use App\Http\Requests\RequestPackage\StoreRequestPackageRequest;
+use App\Http\Requests\RequestPackage\TransferPackageRequest;
 use App\Http\Requests\RequestPackage\UploadFileRequestPackageRequest;
 use App\Http\Requests\RequestRoom\CancelRequestRoomRequest;
 use App\Http\Resources\Lookup\LookupResource;
@@ -28,6 +29,8 @@ class RequestPackageController extends BaseApiController
             ->only('store', 'uploadAuthorizationFile');
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
             ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest');
+        $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
+            ->only('transferRequest');
         $this->requestPackageService = $requestPackageService;
     }
 
@@ -92,6 +95,15 @@ class RequestPackageController extends BaseApiController
         $dto = $request->toDTO();
         $dto->request_id = $requestId;
         $this->requestPackageService->cancelRequest($dto);
+        return $this->noContentResponse();
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function transferRequest(int $packageId, TransferPackageRequest $request): JsonResponse
+    {
+        $this->requestPackageService->transferRequest($packageId, $request->toDTO());
         return $this->noContentResponse();
     }
 }

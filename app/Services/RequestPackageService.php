@@ -251,4 +251,12 @@ class RequestPackageService extends BaseService implements RequestPackageService
 
         return $request->fresh(['package']);
     }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function transferRequest(int $packageId, PackageDTO $dto): void
+    {
+        $this->packageRepository->update($packageId, $dto->toArray(['office_id']));
+    }
 }
