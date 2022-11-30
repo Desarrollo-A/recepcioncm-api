@@ -248,6 +248,10 @@ Route::prefix('v1')->group(function () {
                 Route::get('/state-driver/{stateId}', 'OfficeController@getOfficeByStateWithDriver')
                     ->name('state-driver')
                     ->where('stateId', Validation::INTEGER_ID);
+
+                Route::get('/state-driver-whitout-office/{officeId}', 'OfficeController@getByStateWithDriverWithoutOffice')
+                    ->name('state-driver-whitout-office')
+                    ->where('officeId', Validation::INTEGER_ID);
             });
         
         Route::prefix('drivers')
@@ -289,6 +293,9 @@ Route::prefix('v1')->group(function () {
                     ->name('cancel-request-package')
                     ->where('requestId', Validation::INTEGER_ID);
 
+                Route::patch('/transfer/{packageId}', 'RequestPackageController@transferRequest')
+                    ->name('transfer')
+                    ->where('packageId', Validation::INTEGER_ID);
             });
 
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');
@@ -303,6 +310,6 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('notifications', 'NotificationController')->only('show');
         Route::apiResource('request-emails', 'RequestEmailController')->only('store', 'update', 'destroy');
         Route::apiResource('drivers', 'DriverController')->only('index');
-        Route::apiResource('request-packages', 'RequestPackageController')->only('store', 'index');
+        Route::apiResource('request-packages', 'RequestPackageController')->only('index', 'store');
     });
 });
