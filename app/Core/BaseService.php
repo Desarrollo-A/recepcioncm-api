@@ -43,7 +43,7 @@ class BaseService implements BaseServiceInterface
         return $this->entityRepository->findAllPaginated($filters, $perPage, $sort, $columns);
     }
 
-    public function findById(int $id): Model
+    public function findById(int $id)
     {
         return $this->entityRepository->findById($id);
     }

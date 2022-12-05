@@ -12,12 +12,10 @@ class PackageResource extends JsonResource
 {
     public function toArray($request): array
     {
-        info(!is_null($this->authorization_filename));
-        info(!empty($this->authorization_filename));
         return [
             'id' => $this->id,
             'authorizationFilename' => is_null($this->authorization_filename)
-                ? ''
+                ? null
                 : File::getExposedPath($this->authorization_filename, Path::PACKAGE_AUTHORIZATION_DOCUMENTS),
             'nameReceive' => $this->name_receive,
             'emailReceive' => $this->email_receive,

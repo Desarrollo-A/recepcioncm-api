@@ -39,4 +39,16 @@ class OfficeRepository extends BaseRepository implements OfficeRepositoryInterfa
             ->get();
     }
 
+    public function getByStateWithDriverWithoutOffice(Office $office): Collection
+    {
+        return $this->entity
+            ->where('state_id', $office->state_id)
+            ->whereIn('id', function($query) {
+                return $query->selectRaw('DISTINCT(office_id)')
+                    ->from('drivers');
+            })
+            ->where('id', '!=', $office->id)
+            ->orderBy('name', 'ASC')
+            ->get();
+    }
 }

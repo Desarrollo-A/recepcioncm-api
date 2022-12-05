@@ -7,10 +7,17 @@ use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\Request\StarRatingRequest;
 use App\Http\Requests\RequestPackage\StoreRequestPackageRequest;
+use App\Http\Requests\RequestPackage\TransferPackageRequest;
 use App\Http\Requests\RequestPackage\UploadFileRequestPackageRequest;
+use App\Http\Requests\RequestRoom\CancelRequestRoomRequest;
+use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\Package\PackageResource;
+use App\Http\Resources\RequestPackage\RequestPackageViewCollection;
+use App\Http\Resources\Util\StartDateEndDateResource;
 use App\Models\Enums\NameRole;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response as HttpCodes;
 
 
@@ -20,7 +27,12 @@ class RequestPackageController extends BaseApiController
 
     public function __construct(RequestPackageServiceInterface $requestPackageService)
     {
-        $this->middleware('role.permission:'.NameRole::APPLICANT)->except('insertScore', 'isPackageCompleted');
+        $this->middleware('role.permission:'.NameRole::APPLICANT)
+            ->only('store', 'uploadAuthorizationFile');
+        $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
+            ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest');
+        $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
+            ->only('transferRequest', 'getDriverSchedule');
         $this->requestPackageService = $requestPackageService;
     }
 
@@ -37,11 +49,24 @@ class RequestPackageController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function uploadAuthorizationFile(int $id, UploadFileRequestPackageRequest $request): JsonResponse
+    public function uploadAuthorizationFile(int $requestId, UploadFileRequestPackageRequest $request): JsonResponse
     {
         $dto = $request->toDTO();
-        $this->requestPackageService->uploadAuthorizationFile($id, $dto);
+        $this->requestPackageService->uploadAuthorizationFile($requestId, $dto);
         return $this->noContentResponse();
+    }
+
+    public function index(Request $request): JsonResponse
+    {
+        $user = auth()->user();
+        $requestPackages = $this->requestPackageService->findAllRoomsPaginated($request, $user);
+        return $this->showAll(new RequestPackageViewCollection($requestPackages, true));
+    }
+
+    public function show(int $requestId): JsonResponse
+    {
+        $package = $this->requestPackageService->findById($requestId);
+        return $this->showOne(new PackageResource($package));
     }
 
     public function insertScore(StarRatingRequest $request): JsonResponse
@@ -55,5 +80,44 @@ class RequestPackageController extends BaseApiController
     {
         $requests = $this->requestPackageService->isPackageCompleted($requestPackageId);
         return $this->successResponse(['deliveredPackage' => $requests], HttpCodes::HTTP_OK);
+    }
+
+    public function getStatusByStatusCurrent(string $code): JsonResponse
+    {
+        $roleName = auth()->user()->role->name;
+        $status = $this->requestPackageService->getStatusByStatusCurrent($code, $roleName);
+        return $this->showAll(LookupResource::collection($status));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function cancelRequest(int $requestId, CancelRequestRoomRequest $request): JsonResponse
+    {
+        $dto = $request->toDTO();
+        $dto->request_id = $requestId;
+        $this->requestPackageService->cancelRequest($dto);
+        return $this->noContentResponse();
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function transferRequest(int $packageId, TransferPackageRequest $request): JsonResponse
+    {
+        $this->requestPackageService->transferRequest($packageId, $request->toDTO());
+        return $this->noContentResponse();
+    }
+
+    public function getDriverSchedule(int $officeId): JsonResponse
+    {
+        $schedule = $this->requestPackageService->getScheduleDriver($officeId);
+        return $this->showAll(StartDateEndDateResource::collection($schedule));
+    }
+
+    public function getPackagesByDriverId(int $driverId, string $date): JsonResponse
+    {
+        $packages = $this->requestPackageService->getPackagesByDriverId($driverId, new Carbon($date));
+        return $this->showAll(PackageResource::collection($packages));
     }
 }

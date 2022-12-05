@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Helpers\Validation;
-use App\Http\Controllers\Api\RequestController;
 
 Route::prefix('v1')->group(function () {
     Route::prefix('auth')
@@ -206,6 +205,10 @@ Route::prefix('v1')->group(function () {
                 Route::delete('/room/{id}', 'RequestController@deleteRequestRoom')
                     ->name('delete-request-room')
                     ->where('id', Validation::INTEGER_ID);
+
+                Route::delete('/package/{id}', 'RequestController@deleteRequestPackage')
+                    ->name('delete-request-package')
+                    ->where('id', Validation::INTEGER_ID);
             });
 
         Route::prefix('users')
@@ -246,38 +249,75 @@ Route::prefix('v1')->group(function () {
                     ->name('find-all-paginated');
 
                 Route::get('/input-output/pdf', 'InputOutputInventoryViewController@getReportPdf')
-                    ->name('report.pdf');
+                    ->name('report-pdf');
 
                 Route::get('/input-output/excel', 'InputOutputInventoryViewController@getReportExcel')
-                    ->name('report.excel');
+                    ->name('report-excel');
             });
         
         Route::prefix('offices')
             ->name('offices.')
             ->group(function(){
                 Route::get('/state-driver/{stateId}', 'OfficeController@getOfficeByStateWithDriver')
-                    ->name('state.driver')
+                    ->name('state-driver')
                     ->where('stateId', Validation::INTEGER_ID);
+
+                Route::get('/state-driver-whitout-office/{officeId}', 'OfficeController@getByStateWithDriverWithoutOffice')
+                    ->name('state-driver-whitout-office')
+                    ->where('officeId', Validation::INTEGER_ID);
             });
         
         Route::prefix('drivers')
             ->name('drivers.')
-            ->group(function(){
-                Route::post('/car', 'DriverController@insertDriverCar')
-                ->name('car');
+            ->group(function() {
+                Route::get('/{id}', 'DriverController@show')
+                    ->name('show')
+                    ->where('id', Validation::INTEGER_ID);
 
-                Route::get('/{driverId}', 'DriverController@show')
-                ->name('show')
-                ->where('driver_id', Validation::INTEGER_ID);
+                Route::get('/find-all-office', 'DriverController@findAllByOfficeId')
+                    ->name('find-all-office');
+
+                Route::get('/available-package/{officeId}/{date}', 'DriverController@getAvailableDriversPackage')
+                    ->name('find-all-car-relation')
+                    ->where('officeId', Validation::INTEGER_ID)
+                    ->where('date', Validation::DATE_REGEX);
+
+                Route::post('/car', 'DriverController@insertDriverCar')
+                    ->name('car');
         });
 
         Route::prefix('request-packages')
             ->name('request-packages.')
             ->group(function () {
-                
-                Route::put('/upload-file/{id}', 'RequestPackageController@uploadAuthorizationFile')
-                    ->name('upload.file')
-                    ->where('id', Validation::INTEGER_ID);
+                Route::get('/{requestId}', 'RequestPackageController@show')
+                    ->name('show')
+                    ->where('requestId', Validation::INTEGER_ID);
+
+                Route::get('/schedule-drivers/{officeId}', 'RequestPackageController@getDriverSchedule')
+                    ->name('schedule-drivers')
+                    ->where('officeId', Validation::INTEGER_ID);
+
+                Route::get('/completed/{requestPackageId}', 'RequestPackageController@isPackageCompleted')
+                    ->name('completed')
+                    ->where('requestPackageId', Validation::INTEGER_ID);
+
+                Route::get('/status/{code}', 'RequestPackageController@getStatusByStatusCurrent')
+                    ->name('status-by-status-current');
+
+                Route::post('/insert-score', 'RequestPackageController@insertScore')
+                    ->name('insert.score');
+
+                Route::put('/upload-file/{requestId}', 'RequestPackageController@uploadAuthorizationFile')
+                    ->name('upload-file')
+                    ->where('requestId', Validation::INTEGER_ID);
+
+                Route::patch('/cancel/{requestId}', 'RequestPackageController@cancelRequest')
+                    ->name('cancel-request-package')
+                    ->where('requestId', Validation::INTEGER_ID);
+
+                Route::patch('/transfer/{packageId}', 'RequestPackageController@transferRequest')
+                    ->name('transfer')
+                    ->where('packageId', Validation::INTEGER_ID);
             });
 
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');
@@ -292,6 +332,6 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('notifications', 'NotificationController')->only('show');
         Route::apiResource('request-emails', 'RequestEmailController')->only('store', 'update', 'destroy');
         Route::apiResource('drivers', 'DriverController')->only('index');
-        Route::apiResource('request-packages', 'RequestPackageController')->only('store');
+        Route::apiResource('request-packages', 'RequestPackageController')->only('index', 'store');
     });
 });

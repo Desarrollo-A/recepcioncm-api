@@ -14,13 +14,22 @@ class OfficeController extends BaseApiController
 
     public function __construct(OfficeServiceInterface $officeService)
     {
-        $this->middleware('role.permission:'.NameRole::APPLICANT);
+        $this->middleware('role.permission:'.NameRole::APPLICANT)
+            ->only('getOfficeByStateWithDriver');
+        $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
+            ->only('getByStateWithDriverWithoutOffice');
         $this->officeService = $officeService;
     }
 
     public function getOfficeByStateWithDriver(int $stateId): JsonResponse
     {
         $offices = $this->officeService->getOfficeByStateWithDriver($stateId);
+        return $this->showAll(OfficeResource::collection($offices));
+    }
+
+    public function getByStateWithDriverWithoutOffice(int $officeId): JsonResponse
+    {
+        $offices = $this->officeService->getByStateWithDriverWithoutOffice($officeId);
         return $this->showAll(OfficeResource::collection($offices));
     }
 }

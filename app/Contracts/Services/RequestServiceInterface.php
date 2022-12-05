@@ -24,5 +24,6 @@ interface RequestServiceInterface extends BaseServiceInterface
      * @return void
      */
     public function changeToExpired();
-    
+
+    public function deleteRequestPackage(int $requestId): void;
 }

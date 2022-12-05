@@ -11,7 +11,7 @@ use App\Models\Enums\Lookups\StatusUserLookup;
 
 class UserSeeder extends Seeder
 {
-    const TOTAL_USERS_APPLICANT = 5;
+    const TOTAL_USERS_APPLICANT = 3;
 
     /**
      * Run the database seeds.
@@ -29,7 +29,7 @@ class UserSeeder extends Seeder
             ->first()
             ->id;
 
-        for($i = 0; $i < 3; $i++) {
+        for($i = 0; $i < 5; $i++) {
             factory(User::class)->create([
                 'role_id' => $reception,
                 'status_id' => $activeStatus,

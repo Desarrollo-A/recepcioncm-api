@@ -19,4 +19,10 @@ class OfficeService extends BaseService implements OfficeServiceInterface
     {
         return $this->entityRepository->getOfficeByStateWithDriver($stateId);
     }
+
+    public function getByStateWithDriverWithoutOffice(int $officeId): Collection
+    {
+        $office = $this->entityRepository->findById($officeId);
+        return $this->entityRepository->getByStateWithDriverWithoutOffice($office);
+    }
 }

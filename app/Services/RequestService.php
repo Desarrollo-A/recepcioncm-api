@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use App\Contracts\Repositories\AddressRepositoryInterface;
 use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\NotificationRepositoryInterface;
+use App\Contracts\Repositories\PackageRepositoryInterface;
 use App\Contracts\Repositories\ProposalRequestRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Contracts\Services\RequestServiceInterface;
@@ -23,16 +25,22 @@ class RequestService extends BaseService implements RequestServiceInterface
     protected $lookupRepository;
     protected $notificationRepository;
     protected $proposalRequestRepository;
+    protected $packageRepository;
+    protected $addressRepository;
 
     public function __construct(RequestRepositoryInterface $requestRepository,
                                 LookupRepositoryInterface $lookupRepository,
                                 NotificationRepositoryInterface $notificationRepository,
-                                ProposalRequestRepositoryInterface $proposalRequestRepository)
+                                ProposalRequestRepositoryInterface $proposalRequestRepository,
+                                PackageRepositoryInterface $packageRepository,
+                                AddressRepositoryInterface $addressRepository)
     {
         $this->entityRepository = $requestRepository;
         $this->lookupRepository = $lookupRepository;
         $this->notificationRepository = $notificationRepository;
         $this->proposalRequestRepository = $proposalRequestRepository;
+        $this->packageRepository = $packageRepository;
+        $this->addressRepository = $addressRepository;
     }
 
     /**
@@ -124,5 +132,12 @@ class RequestService extends BaseService implements RequestServiceInterface
             $this->proposalRequestRepository->deleteInRequestIds(array_values($proposalRequests->toArray()));
             $this->entityRepository->bulkStatusUpdate(array_values($proposalRequests->toArray()), $statusId);
         }
+    }
+
+    public function deleteRequestPackage(int $requestId): void
+    {
+        $package = $this->packageRepository->findByRequestId($requestId);
+        $this->entityRepository->delete($requestId);
+        $this->addressRepository->bulkDelete([$package->pickup_address_id, $package->arrival_address_id]);
     }
 }
