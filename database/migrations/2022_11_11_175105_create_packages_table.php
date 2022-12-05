@@ -40,6 +40,8 @@ class CreatePackagesTable extends Migration
             $table->string('tracking_code', 25)
                 ->nullable()
                 ->index();
+            $table->string('auth_code', 50)
+                ->nullable();
             $table->timestamps();
         });
     }
