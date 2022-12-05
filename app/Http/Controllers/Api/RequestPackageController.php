@@ -13,7 +13,9 @@ use App\Http\Requests\RequestRoom\CancelRequestRoomRequest;
 use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\Package\PackageResource;
 use App\Http\Resources\RequestPackage\RequestPackageViewCollection;
+use App\Http\Resources\Util\StartDateEndDateResource;
 use App\Models\Enums\NameRole;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response as HttpCodes;
@@ -30,7 +32,7 @@ class RequestPackageController extends BaseApiController
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
             ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
-            ->only('transferRequest');
+            ->only('transferRequest', 'getDriverSchedule');
         $this->requestPackageService = $requestPackageService;
     }
 
@@ -105,5 +107,17 @@ class RequestPackageController extends BaseApiController
     {
         $this->requestPackageService->transferRequest($packageId, $request->toDTO());
         return $this->noContentResponse();
+    }
+
+    public function getDriverSchedule(int $officeId): JsonResponse
+    {
+        $schedule = $this->requestPackageService->getScheduleDriver($officeId);
+        return $this->showAll(StartDateEndDateResource::collection($schedule));
+    }
+
+    public function getPackagesByDriverId(int $driverId, string $date): JsonResponse
+    {
+        $packages = $this->requestPackageService->getPackagesByDriverId($driverId, new Carbon($date));
+        return $this->showAll(PackageResource::collection($packages));
     }
 }

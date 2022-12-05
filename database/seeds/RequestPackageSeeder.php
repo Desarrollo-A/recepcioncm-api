@@ -53,32 +53,34 @@ class RequestPackageSeeder extends Seeder
                     })
                     ->get('id');
 
-                $pickupAddress = factory(Address::class)
-                    ->create([
-                        'country_id' => $countries->shuffle()->first()->id
-                    ]);
+                foreach (range(0,2) as $i) {
+                    $pickupAddress = factory(Address::class)
+                        ->create([
+                            'country_id' => $countries->shuffle()->first()->id
+                        ]);
 
-                $arrivalAddress = factory(Address::class)
-                    ->create([
-                        'country_id' => $countries->shuffle()->first()->id
-                    ]);
+                    $arrivalAddress = factory(Address::class)
+                        ->create([
+                            'country_id' => $countries->shuffle()->first()->id
+                        ]);
 
-                $request = factory(Request::class)
-                    ->create([
-                        'start_date' => "$date 00:00:00.000",
-                        'user_id' => $user->id,
-                        'status_id' => $statusNew,
-                        'type_id' => $typePackage,
-                        'people' => null
-                    ]);
+                    $request = factory(Request::class)
+                        ->create([
+                            'start_date' => "$date 00:00:00.000",
+                            'user_id' => $user->id,
+                            'status_id' => $statusNew,
+                            'type_id' => $typePackage,
+                            'people' => null
+                        ]);
 
-                factory(Package::class)
-                    ->create([
-                        'pickup_address_id' => $pickupAddress->id,
-                        'arrival_address_id' => $arrivalAddress->id,
-                        'request_id' => $request->id,
-                        'office_id' => $officesIds->shuffle()->first()->id
-                    ]);
+                    factory(Package::class)
+                        ->create([
+                            'pickup_address_id' => $pickupAddress->id,
+                            'arrival_address_id' => $arrivalAddress->id,
+                            'request_id' => $request->id,
+                            'office_id' => $officesIds->shuffle()->first()->id
+                        ]);
+                }
             });
     }
 }

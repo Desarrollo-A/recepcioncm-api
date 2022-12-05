@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Contracts\Repositories\AddressRepositoryInterface;
 use App\Contracts\Repositories\CancelRequestRepositoryInterface;
+use App\Contracts\Repositories\DriverPackageScheduleRepositoryInterface;
 use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\PackageRepositoryInterface;
 use App\Contracts\Repositories\RequestPackageViewRepositoryInterface;
@@ -28,6 +29,7 @@ use App\Models\Enums\TypeLookup;
 use App\Models\Package;
 use App\Models\Request;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -42,6 +44,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
     protected $requestPackageViewRepository;
     protected $scoreRepository;
     protected $cancelRequestRepository;
+    protected $driverPackageScheduleRepository;
 
     protected $calendarService;
 
@@ -52,7 +55,8 @@ class RequestPackageService extends BaseService implements RequestPackageService
                                 RequestPackageViewRepositoryInterface $requestPackageViewRepository,
                                 ScoreRepositoryInterface $scoreRepository,
                                 CancelRequestRepositoryInterface $cancelRequestRepository,
-                                CalendarServiceInterface $calendarService)
+                                CalendarServiceInterface $calendarService,
+                                DriverPackageScheduleRepositoryInterface $driverPackageScheduleRepository)
     {
         $this->requestRepository = $requestRepository;
         $this->packageRepository = $packageRepository;
@@ -62,6 +66,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $this->scoreRepository = $scoreRepository;
         $this->cancelRequestRepository = $cancelRequestRepository;
         $this->calendarService = $calendarService;
+        $this->driverPackageScheduleRepository = $driverPackageScheduleRepository;
     }
 
     /**
@@ -258,5 +263,15 @@ class RequestPackageService extends BaseService implements RequestPackageService
     public function transferRequest(int $packageId, PackageDTO $dto): void
     {
         $this->packageRepository->update($packageId, $dto->toArray(['office_id']));
+    }
+
+    public function getScheduleDriver(int $officeId): Collection
+    {
+        return $this->driverPackageScheduleRepository->getScheduleDriverPackage($officeId);
+    }
+
+    public function getPackagesByDriverId(int $driverId, Carbon $date): Collection
+    {
+        return $this->packageRepository->getPackagesByDriverId($driverId, $date);
     }
 }
