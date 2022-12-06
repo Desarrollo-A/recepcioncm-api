@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DriverSchedule extends Model
 {
@@ -14,4 +15,9 @@ class DriverSchedule extends Model
         'start_date' => 'datetime',
         'end_date' => 'datetime'
     ];
+
+    public function driver(): BelongsTo
+    {
+        return $this->belongsTo(Driver::class);
+    }
 }

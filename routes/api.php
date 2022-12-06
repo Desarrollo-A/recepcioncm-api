@@ -14,7 +14,6 @@ Route::prefix('v1')->group(function () {
     Route::prefix('request-packages')
         ->name('request-packages.')
         ->group(function () {
-
             Route::get('/completed/{requestPackageId}', 'RequestPackageController@isPackageCompleted')
                 ->name('completed')
                 ->where('requestPackageId', Validation::INTEGER_ID);
@@ -28,7 +27,6 @@ Route::prefix('v1')->group(function () {
 
             Route::post('/insert-score', 'RequestPackageController@insertScore')
                 ->name('insert.score');
-
     });
 
     Route::apiResource('users', 'UserController')->only(['store']);
@@ -296,9 +294,9 @@ Route::prefix('v1')->group(function () {
         Route::prefix('request-packages')
             ->name('request-packages.')
             ->group(function () {
-                Route::get('/{requestId}', 'RequestPackageController@show')
+                Route::get('/{packageId}', 'RequestPackageController@show')
                     ->name('show')
-                    ->where('requestId', Validation::INTEGER_ID);
+                    ->where('packageId', Validation::INTEGER_ID);
 
                 Route::get('/schedule-drivers/{officeId}', 'RequestPackageController@getDriverSchedule')
                     ->name('schedule-drivers')
