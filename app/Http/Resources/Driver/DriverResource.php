@@ -23,7 +23,7 @@ class DriverResource extends Resource
             'statusId'      =>  $this->status_id,
             'status'        =>  LookupResource::make($this->whenLoaded('status')),
             'office'        =>  OfficeResource::make($this->whenLoaded('office')),
-            'cars'          => CarCollection::make($this->whenLoaded('cars'))
+            'cars'          =>  CarCollection::make($this->whenLoaded('cars'))
         ];
     }
 }

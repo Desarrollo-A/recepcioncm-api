@@ -291,8 +291,16 @@ Route::prefix('v1')->group(function () {
                 Route::get('/status/{code}', 'RequestPackageController@getStatusByStatusCurrent')
                     ->name('status-by-status-current');
 
+                Route::get('/driver/{driverId}/{date}', 'RequestPackageController@getPackagesByDriverId')
+                    ->name('driver')
+                    ->where('driverId', Validation::INTEGER_ID)
+                    ->where('date', Validation::DATE_REGEX);
+
                 Route::post('/insert-score', 'RequestPackageController@insertScore')
                     ->name('insert.score');
+
+                Route::post('/approved', 'RequestPackageController@approvedRequestPackage')
+                    ->name('approved');
 
                 Route::put('/upload-file/{requestId}', 'RequestPackageController@uploadAuthorizationFile')
                     ->name('upload-file')

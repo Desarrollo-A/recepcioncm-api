@@ -57,11 +57,11 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
             ->where('drivers.office_id', $officeId)
             ->whereNotIn('drivers.id', function ($query) use ($date) {
                 return $query
-                    ->select(['driver_schedule.driver_id'])
-                    ->from('driver_package_schedule')
-                    ->join('driver_schedule','driver_package_schedule.driver_schedule_id','=','driver_schedule.id')
-                    ->whereDate('driver_schedule.start_date', $date)
-                    ->whereDate('driver_schedule.end_date', $date);
+                    ->select(['driver_schedules.driver_id'])
+                    ->from('driver_request_schedules')
+                    ->join('driver_schedules','driver_request_schedules.driver_schedule_id','=','driver_schedules.id')
+                    ->whereDate('driver_schedules.start_date', $date)
+                    ->whereDate('driver_schedules.end_date', $date);
             })
             ->get(['drivers.*']);
     }

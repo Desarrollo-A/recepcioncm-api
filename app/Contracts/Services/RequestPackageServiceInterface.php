@@ -35,4 +35,6 @@ interface RequestPackageServiceInterface extends BaseServiceInterface
     public function getScheduleDriver(int $officeId): Collection;
 
     public function getPackagesByDriverId(int $driverId, Carbon $date): Collection;
+
+    public function approvedRequestPackage(PackageDTO $dto): void;
 }

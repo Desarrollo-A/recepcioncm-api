@@ -76,9 +76,19 @@ class PackageDTO
     public $tracking_code;
 
     /**
+     * @var string
+     */
+    public $url_tracking;
+
+    /**
      * @var RequestDTO
      */
     public $request;
+
+    /**
+     * @var DriverPackageScheduleDTO
+     */
+    public $driverPackageSchedule;
 
     /**
      * @throws CustomErrorException

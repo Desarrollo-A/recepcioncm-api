@@ -4,7 +4,9 @@ namespace App\Services;
 
 use App\Contracts\Repositories\AddressRepositoryInterface;
 use App\Contracts\Repositories\CancelRequestRepositoryInterface;
+use App\Contracts\Repositories\CarScheduleRepositoryInterface;
 use App\Contracts\Repositories\DriverPackageScheduleRepositoryInterface;
+use App\Contracts\Repositories\DriverScheduleRepositoryInterface;
 use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\PackageRepositoryInterface;
 use App\Contracts\Repositories\RequestPackageViewRepositoryInterface;
@@ -37,6 +39,9 @@ use Symfony\Component\HttpFoundation\Response as HttpCodes;
 
 class RequestPackageService extends BaseService implements RequestPackageServiceInterface
 {
+    public $START_TIME_WORKING = '08:00:00.000';
+    public $END_TIME_WORKING = '18:00:00.000';
+
     protected $packageRepository;
     protected $requestRepository;
     protected $lookupRepository;
@@ -44,6 +49,8 @@ class RequestPackageService extends BaseService implements RequestPackageService
     protected $requestPackageViewRepository;
     protected $scoreRepository;
     protected $cancelRequestRepository;
+    protected $driverScheduleRepository;
+    protected $carScheduleRepository;
     protected $driverPackageScheduleRepository;
 
     protected $calendarService;
@@ -56,6 +63,8 @@ class RequestPackageService extends BaseService implements RequestPackageService
                                 ScoreRepositoryInterface $scoreRepository,
                                 CancelRequestRepositoryInterface $cancelRequestRepository,
                                 CalendarServiceInterface $calendarService,
+                                DriverScheduleRepositoryInterface $driverScheduleRepository,
+                                CarScheduleRepositoryInterface $carScheduleRepository,
                                 DriverPackageScheduleRepositoryInterface $driverPackageScheduleRepository)
     {
         $this->requestRepository = $requestRepository;
@@ -66,6 +75,8 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $this->scoreRepository = $scoreRepository;
         $this->cancelRequestRepository = $cancelRequestRepository;
         $this->calendarService = $calendarService;
+        $this->driverScheduleRepository = $driverScheduleRepository;
+        $this->carScheduleRepository = $carScheduleRepository;
         $this->driverPackageScheduleRepository = $driverPackageScheduleRepository;
     }
 
@@ -273,5 +284,43 @@ class RequestPackageService extends BaseService implements RequestPackageService
     public function getPackagesByDriverId(int $driverId, Carbon $date): Collection
     {
         return $this->packageRepository->getPackagesByDriverId($driverId, $date);
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function approvedRequestPackage(PackageDTO $dto): void
+    {
+        $dto->request->status_id = $this->lookupRepository
+            ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED),
+                TypeLookup::STATUS_PACKAGE_REQUEST)
+            ->id;
+        $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id']));
+
+        if (is_null($dto->tracking_code)) {
+            $request = $this->requestRepository->findById($dto->request_id);
+
+            $startDate = "{$request->start_date->toDateString()} $this->START_TIME_WORKING";
+            $endDate = "{$request->start_date->toDateString()} $this->END_TIME_WORKING";
+
+            // TODO: Agregar la parte del código para mandar el comentario en la URL
+
+            $dto->driverPackageSchedule->carSchedule->start_date = $startDate;
+            $dto->driverPackageSchedule->carSchedule->end_date = $endDate;
+            $carSchedule = $this->carScheduleRepository
+                ->create($dto->driverPackageSchedule->carSchedule->toArray(['car_id', 'start_date', 'end_date']));
+
+            $dto->driverPackageSchedule->driverSchedule->start_date = $startDate;
+            $dto->driverPackageSchedule->driverSchedule->end_date = $endDate;
+            $driverSchedule = $this->driverScheduleRepository
+                ->create($dto->driverPackageSchedule->driverSchedule->toArray(['driver_id', 'start_date', 'end_date']));
+
+            $dto->driverPackageSchedule->driver_schedule_id = $driverSchedule->id;
+            $dto->driverPackageSchedule->car_schedule_id = $carSchedule->id;
+            $this->driverPackageScheduleRepository
+                ->create($dto->driverPackageSchedule->toArray(['package_id', 'driver_schedule_id', 'car_schedule_id']));
+        } else {
+            $this->packageRepository->update($dto->id, $dto->toArray(['tracking_code', 'url_tracking']));
+        }
     }
 }

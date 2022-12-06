@@ -6,6 +6,7 @@ use App\Contracts\Services\RequestPackageServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\Request\StarRatingRequest;
+use App\Http\Requests\RequestPackage\ApprovedPackageRequest;
 use App\Http\Requests\RequestPackage\StoreRequestPackageRequest;
 use App\Http\Requests\RequestPackage\TransferPackageRequest;
 use App\Http\Requests\RequestPackage\UploadFileRequestPackageRequest;
@@ -32,7 +33,7 @@ class RequestPackageController extends BaseApiController
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
             ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
-            ->only('transferRequest', 'getDriverSchedule');
+            ->only('transferRequest', 'getDriverSchedule', 'getPackagesByDriverId');
         $this->requestPackageService = $requestPackageService;
     }
 
@@ -119,5 +120,15 @@ class RequestPackageController extends BaseApiController
     {
         $packages = $this->requestPackageService->getPackagesByDriverId($driverId, new Carbon($date));
         return $this->showAll(PackageResource::collection($packages));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function approvedRequestPackage(ApprovedPackageRequest $request): JsonResponse
+    {
+        $dto = $request->toDTO();
+        $this->requestPackageService->approvedRequestPackage($dto);
+        return $this->noContentResponse();
     }
 }
