@@ -91,6 +91,11 @@ class PackageDTO
     public $driverPackageSchedule;
 
     /**
+     * @var string
+     */
+    public $auth_code;
+
+    /**
      * @throws CustomErrorException
      */
     public function __construct(array $data = [])
