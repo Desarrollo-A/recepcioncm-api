@@ -16,6 +16,7 @@ class Validation
     // Expresiones regulares
     const PHONE_REGEX = '/^[0-9]{10}$/';
     const INTEGER_ID = '[0-9]+';
+    const DATE_REGEX = '^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$';
 
     public static function getPerPage(string $queryParam = null): int
     {

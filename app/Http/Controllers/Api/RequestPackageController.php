@@ -6,6 +6,7 @@ use App\Contracts\Services\RequestPackageServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\Request\StarRatingRequest;
+use App\Http\Requests\RequestPackage\ApprovedPackageRequest;
 use App\Http\Requests\RequestPackage\StoreRequestPackageRequest;
 use App\Http\Requests\RequestPackage\TransferPackageRequest;
 use App\Http\Requests\RequestPackage\UploadFileRequestPackageRequest;
@@ -13,7 +14,9 @@ use App\Http\Requests\RequestRoom\CancelRequestRoomRequest;
 use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\Package\PackageResource;
 use App\Http\Resources\RequestPackage\RequestPackageViewCollection;
+use App\Http\Resources\Util\StartDateEndDateResource;
 use App\Models\Enums\NameRole;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response as HttpCodes;
@@ -30,7 +33,7 @@ class RequestPackageController extends BaseApiController
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
             ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
-            ->only('transferRequest');
+            ->only('transferRequest', 'getDriverSchedule', 'getPackagesByDriverId');
         $this->requestPackageService = $requestPackageService;
     }
 
@@ -104,6 +107,28 @@ class RequestPackageController extends BaseApiController
     public function transferRequest(int $packageId, TransferPackageRequest $request): JsonResponse
     {
         $this->requestPackageService->transferRequest($packageId, $request->toDTO());
+        return $this->noContentResponse();
+    }
+
+    public function getDriverSchedule(int $officeId): JsonResponse
+    {
+        $schedule = $this->requestPackageService->getScheduleDriver($officeId);
+        return $this->showAll(StartDateEndDateResource::collection($schedule));
+    }
+
+    public function getPackagesByDriverId(int $driverId, string $date): JsonResponse
+    {
+        $packages = $this->requestPackageService->getPackagesByDriverId($driverId, new Carbon($date));
+        return $this->showAll(PackageResource::collection($packages));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function approvedRequestPackage(ApprovedPackageRequest $request): JsonResponse
+    {
+        $dto = $request->toDTO();
+        $this->requestPackageService->approvedRequestPackage($dto);
         return $this->noContentResponse();
     }
 }

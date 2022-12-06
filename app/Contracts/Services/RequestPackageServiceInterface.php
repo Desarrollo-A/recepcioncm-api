@@ -9,6 +9,7 @@ use App\Models\Dto\ScoreDTO;
 use App\Models\Package;
 use App\Models\Request;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -30,4 +31,10 @@ interface RequestPackageServiceInterface extends BaseServiceInterface
     public function cancelRequest(CancelRequestDTO $dto): Request;
 
     public function transferRequest(int $packageId, PackageDTO $dto): void;
+
+    public function getScheduleDriver(int $officeId): Collection;
+
+    public function getPackagesByDriverId(int $driverId, Carbon $date): Collection;
+
+    public function approvedRequestPackage(PackageDTO $dto): void;
 }

@@ -11,6 +11,7 @@ use App\Helpers\Enum\QueryParam;
 use App\Helpers\Validation;
 use App\Models\Driver;
 use Illuminate\Auth\Access\AuthorizationException;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -53,6 +54,11 @@ class DriverService extends BaseService implements DriverServiceInterface
     public function findAllByOfficeId(int $officeId): Collection
     {
         return $this->entityRepository->findAllByOfficeId($officeId);
+    }
+
+    public function getAvailableDriversPackage(int $officeId, Carbon $date): Collection
+    {
+        return $this->entityRepository->getAvailableDriversPackage($officeId, $date);
     }
 
     public function findById(int $id): Driver

@@ -19,7 +19,7 @@ class CreateCarRequestImagesTable extends Migration
             $table->unsignedBigInteger('request_car_id');
             $table->foreign('request_car_id')
                 ->references('id')
-                ->on('request_car');
+                ->on('request_cars');
             $table->timestamps();
         });
     }

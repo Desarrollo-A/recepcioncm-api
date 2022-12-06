@@ -2,6 +2,7 @@
 namespace App\Contracts\Repositories;
 
 use App\Core\Contracts\BaseRepositoryInterface;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -11,4 +12,6 @@ interface DriverRepositoryInterface extends BaseRepositoryInterface
         LengthAwarePaginator;
 
     public function findAllByOfficeId(int $officeId): Collection;
+
+    public function getAvailableDriversPackage(int $officeId, Carbon $date): Collection;
 }

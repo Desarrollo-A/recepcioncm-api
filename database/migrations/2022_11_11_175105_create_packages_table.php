@@ -39,6 +39,8 @@ class CreatePackagesTable extends Migration
             $table->string('tracking_code', 25)
                 ->nullable()
                 ->index();
+            $table->string('url_tracking')
+                ->nullable();
             $table->timestamps();
         });
     }

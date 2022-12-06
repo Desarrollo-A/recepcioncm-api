@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRequestCarTable extends Migration
+class CreateRequestCarsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateRequestCarTable extends Migration
      */
     public function up()
     {
-        Schema::create('request_car', function (Blueprint $table) {
+        Schema::create('request_cars', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('pickup_address_id');
             $table->foreign('pickup_address_id')
@@ -38,6 +38,6 @@ class CreateRequestCarTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('request_car');
+        Schema::dropIfExists('request_cars');
     }
 }

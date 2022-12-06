@@ -3,6 +3,7 @@
 namespace App\Contracts\Services;
 
 use App\Core\Contracts\BaseServiceInterface;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use App\Models\Driver;
 use Illuminate\Http\Request;
@@ -19,4 +20,6 @@ interface DriverServiceInterface extends BaseServiceInterface
     public function insertDriverCar(int $carId, int $driverId): void;
 
     public function findAllByOfficeId(int $officeId): Collection;
+
+    public function getAvailableDriversPackage(int $officeId, Carbon $date): Collection;
 }
