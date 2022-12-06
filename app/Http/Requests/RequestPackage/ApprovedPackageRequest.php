@@ -26,7 +26,8 @@ class ApprovedPackageRequest extends FormRequest implements ReturnDtoInterface
             'carId' => ['nullable', 'integer'],
             'driverId' => ['nullable', 'integer'],
             'trackingCode' => ['nullable', 'min:10', 'max:25'],
-            'urlTracking' => ['nullable', 'min:10', 'max:255']
+            'urlTracking' => ['nullable', 'min:10', 'max:255'],
+            'endDate' => ['required', 'date', 'date_format:Y-m-d', 'after:now'],
         ];
     }
 
@@ -38,7 +39,8 @@ class ApprovedPackageRequest extends FormRequest implements ReturnDtoInterface
             'driverId' => 'ID Conductor',
             'packageId' => 'ID Paquetería',
             'trackingCode' => 'Código de rastreo',
-            'urlTracking' => 'URL para consultar el código'
+            'urlTracking' => 'URL para consultar el código',
+            'endDate' => 'Fecha de llegada'
         ];
     }
 
@@ -47,8 +49,13 @@ class ApprovedPackageRequest extends FormRequest implements ReturnDtoInterface
      */
     public function toDTO(): PackageDTO
     {
+        $requestDTO = new RequestDTO();
+
+        if (!is_null($this->trackingCode)) {
+            $requestDTO->end_date = $this->endDate;
+        }
+
         if (is_null($this->trackingCode)) {
-            $requestDTO = new RequestDTO();
             $carScheduleDTO = new CarScheduleDTO(['car_id' => $this->carId]);
             $driverScheduleDTO = new DriverScheduleDTO(['driver_id' => $this->driverId]);
             $driverPackageScheduleDTO = new DriverPackageScheduleDTO([
@@ -68,7 +75,8 @@ class ApprovedPackageRequest extends FormRequest implements ReturnDtoInterface
             'id' => $this->packageId,
             'request_id' => $this->requestId,
             'tracking_code' => $this->trackingCode,
-            'url_tracking' => $this->urlTracking
+            'url_tracking' => $this->urlTracking,
+            'request' => $requestDTO
         ]);
     }
 }

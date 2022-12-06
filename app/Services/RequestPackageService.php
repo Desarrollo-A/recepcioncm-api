@@ -295,13 +295,15 @@ class RequestPackageService extends BaseService implements RequestPackageService
             ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED),
                 TypeLookup::STATUS_PACKAGE_REQUEST)
             ->id;
-        $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id']));
 
         if (is_null($dto->tracking_code)) {
             $request = $this->requestRepository->findById($dto->request_id);
 
             $startDate = "{$request->start_date->toDateString()} $this->START_TIME_WORKING";
             $endDate = "{$request->start_date->toDateString()} $this->END_TIME_WORKING";
+
+            $dto->request->end_date = $endDate;
+            $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id', 'end_date']));
 
             // TODO: Agregar la parte del código para mandar el comentario en la URL
 
@@ -320,6 +322,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
             $this->driverPackageScheduleRepository
                 ->create($dto->driverPackageSchedule->toArray(['package_id', 'driver_schedule_id', 'car_schedule_id']));
         } else {
+            $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id', 'end_date']));
             $this->packageRepository->update($dto->id, $dto->toArray(['tracking_code', 'url_tracking']));
         }
     }
