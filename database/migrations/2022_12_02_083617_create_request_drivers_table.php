@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRequestDriverTable extends Migration
+class CreateRequestDriversTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateRequestDriverTable extends Migration
      */
     public function up()
     {
-        Schema::create('request_driver', function (Blueprint $table) {
+        Schema::create('request_drivers', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('pickup_address_id');
             $table->foreign('pickup_address_id')
@@ -36,6 +36,6 @@ class CreateRequestDriverTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('request_driver');
+        Schema::dropIfExists('request_drivers');
     }
 }

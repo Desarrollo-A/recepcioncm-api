@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCarRequestScheduleTable extends Migration
+class CreateDriverPackageSchedulesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,15 +13,19 @@ class CreateCarRequestScheduleTable extends Migration
      */
     public function up()
     {
-        Schema::create('car_request_schedule', function (Blueprint $table) {
-            $table->unsignedBigInteger('request_car_id');
-            $table->foreign('request_car_id')
+        Schema::create('driver_package_schedules', function (Blueprint $table) {
+            $table->unsignedBigInteger('package_id');
+            $table->foreign('package_id')
                 ->references('id')
-                ->on('request_car');
+                ->on('packages');
+            $table->unsignedBigInteger('driver_schedule_id');
+            $table->foreign('driver_schedule_id')
+                ->references('id')
+                ->on('driver_schedules');
             $table->unsignedBigInteger('car_schedule_id');
             $table->foreign('car_schedule_id')
                 ->references('id')
-                ->on('car_schedule');
+                ->on('car_schedules');
             $table->timestamps();
         });
     }
@@ -33,6 +37,6 @@ class CreateCarRequestScheduleTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('car_request_schedule');
+        Schema::dropIfExists('driver_package_schedules');
     }
 }

@@ -257,12 +257,17 @@ Route::prefix('v1')->group(function () {
         Route::prefix('drivers')
             ->name('drivers.')
             ->group(function() {
-                Route::get('/{driverId}', 'DriverController@show')
+                Route::get('/{id}', 'DriverController@show')
                     ->name('show')
-                    ->where('driverId', Validation::INTEGER_ID);
+                    ->where('id', Validation::INTEGER_ID);
 
                 Route::get('/find-all-office', 'DriverController@findAllByOfficeId')
                     ->name('find-all-office');
+
+                Route::get('/available-package/{officeId}/{date}', 'DriverController@getAvailableDriversPackage')
+                    ->name('find-all-car-relation')
+                    ->where('officeId', Validation::INTEGER_ID)
+                    ->where('date', Validation::DATE_REGEX);
 
                 Route::post('/car', 'DriverController@insertDriverCar')
                     ->name('car');
@@ -271,19 +276,31 @@ Route::prefix('v1')->group(function () {
         Route::prefix('request-packages')
             ->name('request-packages.')
             ->group(function () {
-                Route::get('/completed/{requestPackageId}', 'RequestPackageController@isPackageCompleted')
-                    ->name('completed')
-                    ->where('requestPackageId', Validation::INTEGER_ID);
-
                 Route::get('/{requestId}', 'RequestPackageController@show')
                     ->name('show')
                     ->where('requestId', Validation::INTEGER_ID);
 
+                Route::get('/schedule-drivers/{officeId}', 'RequestPackageController@getDriverSchedule')
+                    ->name('schedule-drivers')
+                    ->where('officeId', Validation::INTEGER_ID);
+
+                Route::get('/completed/{requestPackageId}', 'RequestPackageController@isPackageCompleted')
+                    ->name('completed')
+                    ->where('requestPackageId', Validation::INTEGER_ID);
+
                 Route::get('/status/{code}', 'RequestPackageController@getStatusByStatusCurrent')
                     ->name('status-by-status-current');
 
+                Route::get('/driver/{driverId}/{date}', 'RequestPackageController@getPackagesByDriverId')
+                    ->name('driver')
+                    ->where('driverId', Validation::INTEGER_ID)
+                    ->where('date', Validation::DATE_REGEX);
+
                 Route::post('/insert-score', 'RequestPackageController@insertScore')
                     ->name('insert.score');
+
+                Route::post('/approved', 'RequestPackageController@approvedRequestPackage')
+                    ->name('approved');
 
                 Route::put('/upload-file/{requestId}', 'RequestPackageController@uploadAuthorizationFile')
                     ->name('upload-file')

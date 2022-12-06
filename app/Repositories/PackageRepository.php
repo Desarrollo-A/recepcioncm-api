@@ -5,7 +5,9 @@ namespace App\Repositories;
 use App\Contracts\Repositories\PackageRepositoryInterface;
 use App\Core\BaseRepository;
 use App\Models\Package;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 
@@ -24,6 +26,7 @@ class PackageRepository extends BaseRepository implements PackageRepositoryInter
     public function findByRequestId(int $requestId): Package
     {
         return $this->entity
+            ->with('request')
             ->where('request_id', $requestId)
             ->firstOrFail();
     }
@@ -34,5 +37,16 @@ class PackageRepository extends BaseRepository implements PackageRepositoryInter
             ->with(['pickupAddress', 'pickupAddress.country', 'arrivalAddress', 'arrivalAddress.country', 'request',
                 'request.user', 'request.status', 'request.cancelRequest', 'request.cancelRequest.user'])
             ->findOrFail($id, $columns);
+    }
+
+    public function getPackagesByDriverId(int $driverId, Carbon $date): Collection
+    {
+        return $this->entity
+            ->with(['pickupAddress', 'pickupAddress.country', 'arrivalAddress', 'arrivalAddress.country', 'request'])
+            ->join('driver_package_schedules','driver_package_schedules.package_id','=','packages.id')
+            ->join('driver_schedules','driver_package_schedules.driver_schedule_id','=','driver_schedules.id')
+            ->whereDate('driver_schedules.start_date', $date)
+            ->where('driver_schedules.driver_id', $driverId)
+            ->get(['packages.*']);
     }
 }

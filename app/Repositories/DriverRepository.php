@@ -4,6 +4,8 @@ namespace App\Repositories;
 use App\Contracts\Repositories\DriverRepositoryInterface;
 use App\Core\BaseRepository;
 use App\Models\Driver;
+use App\Models\Enums\Lookups\StatusDriverLookup;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Query\Builder as QueryBuilder;
@@ -44,5 +46,23 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
     {
         return $this->entity->where('office_id', $officeId)->get();
     }
-}
 
+    public function getAvailableDriversPackage(int $officeId, Carbon $date): Collection
+    {
+        return $this->entity
+            ->with('cars')
+            ->join('car_driver', 'car_driver.driver_id', '=', 'drivers.id')
+            ->join('lookups', 'lookups.id', '=', 'drivers.status_id')
+            ->where('lookups.code', StatusDriverLookup::code(StatusDriverLookup::ACTIVE))
+            ->where('drivers.office_id', $officeId)
+            ->whereNotIn('drivers.id', function ($query) use ($date) {
+                return $query
+                    ->select(['driver_schedules.driver_id'])
+                    ->from('driver_request_schedules')
+                    ->join('driver_schedules','driver_request_schedules.driver_schedule_id','=','driver_schedules.id')
+                    ->whereDate('driver_schedules.start_date', $date)
+                    ->whereDate('driver_schedules.end_date', $date);
+            })
+            ->get(['drivers.*']);
+    }
+}
