@@ -81,6 +81,11 @@ class PackageDTO
     public $request;
 
     /**
+     * @var string
+     */
+    public $auth_code;
+
+    /**
      * @throws CustomErrorException
      */
     public function __construct(array $data = [])

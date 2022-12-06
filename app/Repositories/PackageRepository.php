@@ -26,6 +26,7 @@ class PackageRepository extends BaseRepository implements PackageRepositoryInter
     public function findByRequestId(int $requestId): Package
     {
         return $this->entity
+            ->with('request')
             ->where('request_id', $requestId)
             ->firstOrFail();
     }
@@ -47,5 +48,15 @@ class PackageRepository extends BaseRepository implements PackageRepositoryInter
             ->whereDate('driver_schedule.start_date', $date)
             ->where('driver_schedule.driver_id', $driverId)
             ->get(['packages.*']);
+    }
+
+    /**
+     * @return Package|null 
+     */
+    public function findByAuthCode(string $authCodePackage)
+    {
+        return $this->entity
+            ->where('auth_code', $authCodePackage)
+            ->first();
     }
 }

@@ -16,11 +16,18 @@ Route::prefix('v1')->group(function () {
         ->group(function () {
 
             Route::get('/completed/{requestPackageId}', 'RequestPackageController@isPackageCompleted')
-            ->name('completed')
-            ->where('requestPackageId', Validation::INTEGER_ID);
+                ->name('completed')
+                ->where('requestPackageId', Validation::INTEGER_ID);
+
+            Route::get('auth-code/{authCodePackage}', 'RequestPackageController@isAuthPackage')
+                ->name('auth.code');
+
+            Route::get('/show/{packageId}', 'RequestPackageController@showPackage')
+                ->name('show-package')
+                ->where('packageId', Validation::INTEGER_ID);
 
             Route::post('/insert-score', 'RequestPackageController@insertScore')
-            ->name('insert.score');
+                ->name('insert.score');
 
     });
 
@@ -297,15 +304,8 @@ Route::prefix('v1')->group(function () {
                     ->name('schedule-drivers')
                     ->where('officeId', Validation::INTEGER_ID);
 
-                Route::get('/completed/{requestPackageId}', 'RequestPackageController@isPackageCompleted')
-                    ->name('completed')
-                    ->where('requestPackageId', Validation::INTEGER_ID);
-
                 Route::get('/status/{code}', 'RequestPackageController@getStatusByStatusCurrent')
                     ->name('status-by-status-current');
-
-                Route::post('/insert-score', 'RequestPackageController@insertScore')
-                    ->name('insert.score');
 
                 Route::put('/upload-file/{requestId}', 'RequestPackageController@uploadAuthorizationFile')
                     ->name('upload-file')

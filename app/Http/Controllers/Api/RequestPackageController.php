@@ -11,6 +11,7 @@ use App\Http\Requests\RequestPackage\TransferPackageRequest;
 use App\Http\Requests\RequestPackage\UploadFileRequestPackageRequest;
 use App\Http\Requests\RequestRoom\CancelRequestRoomRequest;
 use App\Http\Resources\Lookup\LookupResource;
+use App\Http\Resources\Package\PackageExposedResource;
 use App\Http\Resources\Package\PackageResource;
 use App\Http\Resources\RequestPackage\RequestPackageViewCollection;
 use App\Http\Resources\Util\StartDateEndDateResource;
@@ -33,6 +34,7 @@ class RequestPackageController extends BaseApiController
             ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
             ->only('transferRequest', 'getDriverSchedule');
+
         $this->requestPackageService = $requestPackageService;
     }
 
@@ -67,19 +69,6 @@ class RequestPackageController extends BaseApiController
     {
         $package = $this->requestPackageService->findById($requestId);
         return $this->showOne(new PackageResource($package));
-    }
-
-    public function insertScore(StarRatingRequest $request): JsonResponse
-    {
-        $scoreDTO = $request->toDTO();
-        $this->requestPackageService->insertScore($scoreDTO);
-        return $this->noContentResponse();
-    }
-
-    public function isPackageCompleted(int $requestPackageId): JsonResponse
-    {
-        $requests = $this->requestPackageService->isPackageCompleted($requestPackageId);
-        return $this->successResponse(['deliveredPackage' => $requests], HttpCodes::HTTP_OK);
     }
 
     public function getStatusByStatusCurrent(string $code): JsonResponse
@@ -120,4 +109,30 @@ class RequestPackageController extends BaseApiController
         $packages = $this->requestPackageService->getPackagesByDriverId($driverId, new Carbon($date));
         return $this->showAll(PackageResource::collection($packages));
     }
+
+    public function insertScore(StarRatingRequest $request): JsonResponse
+    {
+        $scoreDTO = $request->toDTO();
+        $this->requestPackageService->insertScore($scoreDTO);
+        return $this->noContentResponse();
+    }
+
+    public function isPackageCompleted(int $requestPackageId): JsonResponse
+    {
+        $requests = $this->requestPackageService->isPackageCompleted($requestPackageId);
+        return $this->successResponse(['deliveredPackage' => $requests], HttpCodes::HTTP_OK);
+    }
+
+    public function isAuthPackage(string $authCodePackage): JsonResponse
+    {
+        $requestPackageAuthCode = $this->requestPackageService->isAuthPackage($authCodePackage);
+        return $this->successResponse(['authCodePackage' => $requestPackageAuthCode], HttpCodes::HTTP_OK);
+    }
+
+    public function showPackage(int $requestId): JsonResponse
+    {
+        $package = $this->requestPackageService->findByRequestId($requestId);
+        return $this->showOne(new PackageExposedResource($package));
+    }
+
 }
