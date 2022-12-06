@@ -37,4 +37,8 @@ interface RequestPackageServiceInterface extends BaseServiceInterface
     public function getPackagesByDriverId(int $driverId, Carbon $date): Collection;
 
     public function approvedRequestPackage(PackageDTO $dto): void;
+
+    public function isAuthPackage(string $authCodePackage): bool;
+
+    public function findByRequestId(int $requestId): Package;
 }

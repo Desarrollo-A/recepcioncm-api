@@ -11,6 +11,26 @@ Route::prefix('v1')->group(function () {
             Route::post('/restore-password', 'AuthController@restorePassword')->name('restore-password');
         });
 
+    Route::prefix('request-packages')
+        ->name('request-packages.')
+        ->group(function () {
+
+            Route::get('/completed/{requestPackageId}', 'RequestPackageController@isPackageCompleted')
+                ->name('completed')
+                ->where('requestPackageId', Validation::INTEGER_ID);
+
+            Route::get('auth-code/{authCodePackage}', 'RequestPackageController@isAuthPackage')
+                ->name('auth.code');
+
+            Route::get('/show/{packageId}', 'RequestPackageController@showPackage')
+                ->name('show-package')
+                ->where('packageId', Validation::INTEGER_ID);
+
+            Route::post('/insert-score', 'RequestPackageController@insertScore')
+                ->name('insert.score');
+
+    });
+
     Route::apiResource('users', 'UserController')->only(['store']);
 
     // Rutas con autenticación
@@ -284,10 +304,6 @@ Route::prefix('v1')->group(function () {
                     ->name('schedule-drivers')
                     ->where('officeId', Validation::INTEGER_ID);
 
-                Route::get('/completed/{requestPackageId}', 'RequestPackageController@isPackageCompleted')
-                    ->name('completed')
-                    ->where('requestPackageId', Validation::INTEGER_ID);
-
                 Route::get('/status/{code}', 'RequestPackageController@getStatusByStatusCurrent')
                     ->name('status-by-status-current');
 
@@ -295,9 +311,6 @@ Route::prefix('v1')->group(function () {
                     ->name('driver')
                     ->where('driverId', Validation::INTEGER_ID)
                     ->where('date', Validation::DATE_REGEX);
-
-                Route::post('/insert-score', 'RequestPackageController@insertScore')
-                    ->name('insert.score');
 
                 Route::post('/approved', 'RequestPackageController@approvedRequestPackage')
                     ->name('approved');
