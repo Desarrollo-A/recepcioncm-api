@@ -27,7 +27,7 @@ class ApprovedPackageRequest extends FormRequest implements ReturnDtoInterface
             'driverId' => ['nullable', 'integer'],
             'trackingCode' => ['nullable', 'min:10', 'max:25'],
             'urlTracking' => ['nullable', 'min:10', 'max:255'],
-            'endDate' => ['required', 'date', 'date_format:Y-m-d', 'after:now'],
+            'endDate' => ['nullable', 'date', 'date_format:Y-m-d', 'after:now'],
         ];
     }
 
