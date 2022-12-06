@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Package extends Model
 {
@@ -31,5 +32,10 @@ class Package extends Model
     public function arrivalAddress(): BelongsTo
     {
         return $this->belongsTo(Address::class, 'arrival_address_id');
+    }
+
+    public function driverPackageSchedule(): HasOne
+    {
+        return $this->hasOne(DriverPackageSchedule::class);
     }
 }
