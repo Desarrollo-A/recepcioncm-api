@@ -324,6 +324,10 @@ Route::prefix('v1')->group(function () {
                 Route::patch('/transfer/{packageId}', 'RequestPackageController@transferRequest')
                     ->name('transfer')
                     ->where('packageId', Validation::INTEGER_ID);
+
+                Route::patch('/road/{requestId}', 'RequestPackageController@onReadPackage')
+                    ->name('road')
+                    ->where('requestId', Validation::INTEGER_ID);
             });
 
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');
