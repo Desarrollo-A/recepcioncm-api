@@ -45,10 +45,20 @@ class DriverService extends BaseService implements DriverServiceInterface
         $officeIdCar = $this->carRepository->findById($carId);
         $officeIdDriver = $this->entityRepository->findById($driverId);
         if ($officeIdCar->office_id !== $officeIdDriver->office_id){
-            throw new CustomErrorException('La oficina del conducto no coincide con la oficina del automóvil', 
+            throw new CustomErrorException('La oficina del conductor no coincide con la oficina del automóvil',
                                             Response::HTTP_BAD_REQUEST);
         }
         $this->entityRepository->sync($driverId, 'cars', ['car_id' => $carId]);
+    }
+
+    public function findAllByOfficeId(int $officeId): Collection
+    {
+        return $this->entityRepository->findAllByOfficeId($officeId);
+    }
+
+    public function getAvailableDriversPackage(int $officeId, Carbon $date): Collection
+    {
+        return $this->entityRepository->getAvailableDriversPackage($officeId, $date);
     }
 
     public function findById(int $id): Driver
@@ -59,15 +69,5 @@ class DriverService extends BaseService implements DriverServiceInterface
             throw new AuthorizationException();
         }
         return $officeIdDriver;
-    }
-    
-    public function findAllByOfficeId(int $officeId): Collection
-    {
-        return $this->entityRepository->findAllByOfficeId($officeId);
-    }
-
-    public function getAvailableDriversPackage(int $officeId, Carbon $date): Collection
-    {
-        return $this->entityRepository->getAvailableDriversPackage($officeId, $date);
     }
 }

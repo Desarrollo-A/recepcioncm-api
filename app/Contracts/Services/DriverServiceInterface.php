@@ -3,9 +3,9 @@
 namespace App\Contracts\Services;
 
 use App\Core\Contracts\BaseServiceInterface;
-use App\Models\Driver;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use App\Models\Driver;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
