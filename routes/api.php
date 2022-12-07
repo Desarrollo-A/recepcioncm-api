@@ -294,9 +294,9 @@ Route::prefix('v1')->group(function () {
         Route::prefix('request-packages')
             ->name('request-packages.')
             ->group(function () {
-                Route::get('/{packageId}', 'RequestPackageController@show')
+                Route::get('/{requestId}', 'RequestPackageController@show')
                     ->name('show')
-                    ->where('packageId', Validation::INTEGER_ID);
+                    ->where('requestId', Validation::INTEGER_ID);
 
                 Route::get('/schedule-drivers/{officeId}', 'RequestPackageController@getDriverSchedule')
                     ->name('schedule-drivers')
