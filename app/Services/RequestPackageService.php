@@ -139,7 +139,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
 
     public function findById(int $id): Package
     {
-        return $this->packageRepository->findById($id);
+        return $this->packageRepository->findByRequestId($id);
     }
 
     /**
