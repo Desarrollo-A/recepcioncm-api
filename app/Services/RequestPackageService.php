@@ -319,7 +319,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
                 TypeLookup::STATUS_PACKAGE_REQUEST)
             ->id;
         if ($typeRequestId->status_id !== $statusPackageId) {
-            throw new CustomErrorException("El estatus de solicitud debe estar ".StatusPackageRequestLookup::ROAD,
+            throw new CustomErrorException("El estatus de la solicitud debe estar ".StatusPackageRequestLookup::ROAD,
                 HttpCodes::HTTP_BAD_REQUEST);
         }
 
@@ -365,10 +365,34 @@ class RequestPackageService extends BaseService implements RequestPackageService
     {
         $findAuthCodePackage = $this->packageRepository->findByAuthCode($authCodePackage);
         return !is_null($findAuthCodePackage);
-
     }
 
-    public function findByRequestId(int $requestId): Package{
+    public function findByRequestId(int $requestId): Package
+    {
         return $this->packageRepository->findByRequestId($requestId);
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function onReadPackage(int $requestId): void
+    {
+        $statusApprovedId = $this->lookupRepository
+            ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED),
+                TypeLookup::STATUS_PACKAGE_REQUEST)->id;
+        
+        $request = $this->requestRepository->findById($requestId);
+        
+        if ($request->status->id !== $statusApprovedId) {
+            throw new CustomErrorException("El estatus de la solicitud debe estar ".StatusPackageRequestLookup::APPROVED,
+                HttpCodes::HTTP_BAD_REQUEST);
+        }
+
+        $onReadId = $this->lookupRepository
+            ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::ROAD),
+                TypeLookup::STATUS_PACKAGE_REQUEST)->id;
+
+        $requestDTO = new RequestDTO(['status_id' => $onReadId]);
+        $this->requestRepository->update($requestId, $requestDTO->toArray(['status_id']));
     }
 }

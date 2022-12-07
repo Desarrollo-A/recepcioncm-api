@@ -41,4 +41,6 @@ interface RequestPackageServiceInterface extends BaseServiceInterface
     public function isAuthPackage(string $authCodePackage): bool;
 
     public function findByRequestId(int $requestId): Package;
+
+    public function onReadPackage(int $requestId): void;
 }
