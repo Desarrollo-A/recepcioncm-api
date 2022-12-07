@@ -65,6 +65,7 @@ class ApprovedPackageRequest extends FormRequest implements ReturnDtoInterface
             ]);
 
             return new PackageDTO([
+                'id' => $this->packageId,
                 'request_id' => $this->requestId,
                 'request' => $requestDTO,
                 'driverPackageSchedule' => $driverPackageScheduleDTO
