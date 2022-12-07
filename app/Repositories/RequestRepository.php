@@ -32,7 +32,7 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
     public function findById(int $id, array $columns = ['*']): Request
     {
         return $this->entity
-            ->with(['type', 'status'])
+            ->with(['type', 'status', 'score'])
             ->findOrFail($id, $columns);
     }
 

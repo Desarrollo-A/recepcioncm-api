@@ -11,6 +11,8 @@ use App\Helpers\Enum\QueryParam;
 use App\Helpers\Validation;
 use App\Models\Driver;
 use Illuminate\Auth\Access\AuthorizationException;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,6 +29,9 @@ class DriverService extends BaseService implements DriverServiceInterface
         $this->carRepository = $carRepository;
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function findAllPaginatedOffice(int $OfficeId, Request $request, array $columns = ['*']): LengthAwarePaginator
     {
         $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
@@ -54,5 +59,15 @@ class DriverService extends BaseService implements DriverServiceInterface
             throw new AuthorizationException();
         }
         return $officeIdDriver;
+    }
+    
+    public function findAllByOfficeId(int $officeId): Collection
+    {
+        return $this->entityRepository->findAllByOfficeId($officeId);
+    }
+
+    public function getAvailableDriversPackage(int $officeId, Carbon $date): Collection
+    {
+        return $this->entityRepository->getAvailableDriversPackage($officeId, $date);
     }
 }

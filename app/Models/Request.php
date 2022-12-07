@@ -41,6 +41,11 @@ class Request extends Model
         return $this->hasOne(RequestRoom::class);
     }
 
+    public function package(): HasOne
+    {
+        return $this->hasOne(Package::class);
+    }
+
     public function status(): BelongsTo
     {
         return $this->belongsTo(Lookup::class, 'status_id', 'id');

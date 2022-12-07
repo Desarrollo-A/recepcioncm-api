@@ -8,6 +8,7 @@ use App\Http\Requests\DriverCar\DriverCarRequest;
 use App\Http\Resources\Driver\DriverCollection;
 use App\Http\Resources\Driver\DriverResource;
 use App\Models\Enums\NameRole;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -39,5 +40,17 @@ class DriverController extends BaseApiController
     {
         $conductor = $this->driverService->findById($driverId);
         return $this->showOne(new DriverResource($conductor));
+    }
+
+    public function findAllByOfficeId(): JsonResponse
+    {
+        $drivers = $this->driverService->findAllByOfficeId(auth()->user()->office_id);
+        return $this->showAll(DriverResource::collection($drivers));
+    }
+
+    public function getAvailableDriversPackage(int $officeId, Carbon $date): JsonResponse
+    {
+        $drivers = $this->driverService->getAvailableDriversPackage($officeId, $date);
+        return $this->showAll(DriverResource::collection($drivers));
     }
 }

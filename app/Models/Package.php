@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Package extends Model
 {
-    protected $fillable = ['pickup_address_id', 'arrival_address_id', 'authorization_filename', 'name_receive', 'email_receive',
-        'comment_receive', 'request_id', 'office_id', 'tracking_code'];
+    protected $fillable = ['pickup_address_id', 'arrival_address_id', 'authorization_filename', 'name_receive',
+        'email_receive', 'request_id', 'office_id', 'tracking_code', 'url_tracking', 'auth_code'];
 
     protected $casts = [
         'id' => 'integer',
@@ -31,5 +32,10 @@ class Package extends Model
     public function arrivalAddress(): BelongsTo
     {
         return $this->belongsTo(Address::class, 'arrival_address_id');
+    }
+
+    public function driverPackageSchedule(): HasOne
+    {
+        return $this->hasOne(DriverPackageSchedule::class);
     }
 }

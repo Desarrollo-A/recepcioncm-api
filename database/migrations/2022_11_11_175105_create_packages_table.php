@@ -27,8 +27,6 @@ class CreatePackagesTable extends Migration
                 ->nullable();
             $table->string('name_receive', 150);
             $table->string('email_receive', 150);
-            $table->text('comment_receive')
-                ->nullable();
             $table->unsignedBigInteger('request_id');
             $table->foreign('request_id')
                 ->references('id')
@@ -41,6 +39,10 @@ class CreatePackagesTable extends Migration
             $table->string('tracking_code', 25)
                 ->nullable()
                 ->index();
+            $table->string('url_tracking')
+                ->nullable();
+            $table->string('auth_code', 50)
+                ->nullable();
             $table->timestamps();
         });
     }

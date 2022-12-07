@@ -10,12 +10,6 @@ use Illuminate\Http\Resources\Json\Resource;
 
 class DriverResource extends Resource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
-     */
     public function toArray($request): array
     {
         return [
@@ -29,7 +23,7 @@ class DriverResource extends Resource
             'statusId'      =>  $this->status_id,
             'status'        =>  LookupResource::make($this->whenLoaded('status')),
             'office'        =>  OfficeResource::make($this->whenLoaded('office')),
-            'cars'           => CarCollection::make($this->whenLoaded('cars'))
+            'cars'          =>  CarCollection::make($this->whenLoaded('cars'))
         ];
     }
 }

@@ -11,4 +11,6 @@ interface OfficeRepositoryInterface extends BaseRepositoryInterface
     public function findByName(string $name): Office;
     
     public function getOfficeByStateWithDriver(int $stateId): Collection;
+
+    public function getByStateWithDriverWithoutOffice(Office $office): Collection;
 }
