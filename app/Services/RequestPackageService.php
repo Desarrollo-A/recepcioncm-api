@@ -28,6 +28,7 @@ use App\Models\Enums\Lookups\StatusPackageRequestLookup;
 use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
+use App\Models\Lookup;
 use App\Models\Package;
 use App\Models\Request;
 use App\Models\User;
@@ -195,9 +196,6 @@ class RequestPackageService extends BaseService implements RequestPackageService
 
         $request = $this->requestRepository->findById($dto->request_id);
 
-        info($request->status_id);
-        info(print_r($status->pluck('id')->toArray()));
-
         if (!in_array($request->status_id, $status->pluck('id')->toArray())) {
             throw new CustomErrorException('La solicitud debe estar en estatus '
                 .StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW).' o '
@@ -210,18 +208,34 @@ class RequestPackageService extends BaseService implements RequestPackageService
                 TypeLookup::STATUS_PACKAGE_REQUEST)
             ->id;
 
-        $requestDTO = new RequestDTO([
-            'status_id' => $cancelStatusId,
-            'event_google_calendar_id' => null
-        ]);
+        $requestDTO = new RequestDTO(['status_id' => $cancelStatusId]);
 
         if (config('app.enable_google_calendar', false)) {
             $this->calendarService->deleteEvent($request->event_google_calendar_id);
         }
 
+        $lastStatusId = $request->status_id;
+
         $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id', 'event_google_calendar_id']));
 
         $this->cancelRequestRepository->create($dto->toArray(['request_id', 'cancel_comment', 'user_id']));
+
+        $statusApproved = $status->first(function (Lookup $lookup) {
+            return $lookup->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED);
+        });
+
+        // Si la solicitud fue aprobada anteriormente
+        if ($lastStatusId === $statusApproved->id) {
+            $package = $this->packageRepository->findByRequestId($dto->request_id);
+            if (is_null($package->tracking_code)) {
+                $this->driverPackageScheduleRepository->deleteByPackageId($package->id);
+                $this->carScheduleRepository->delete($package->driverPackageSchedule->carSchedule->id);
+                $this->driverScheduleRepository->delete($package->driverPackageSchedule->driverSchedule->id);
+            }
+
+            $this->packageRepository->update($package->id, (new PackageDTO())
+                ->toArray(['tracking_code', 'url_tracking', 'auth_code']));
+        }
 
         return $request->fresh(['package']);
     }
