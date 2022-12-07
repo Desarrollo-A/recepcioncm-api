@@ -56,7 +56,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
                 $query->where('name', NameRole::RECEPCIONIST);
             })
             ->whereHas('status', function(Builder $query){
-                $query->where('name', StatusUserLookup::code(StatusUserLookup::ACTIVE));
+                $query->where('code', StatusUserLookup::code(StatusUserLookup::ACTIVE));
             })
             ->where('office_id', $officeId)
             ->firstOr(function () {

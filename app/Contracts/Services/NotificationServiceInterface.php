@@ -5,6 +5,7 @@ namespace App\Contracts\Services;
 use App\Core\Contracts\BaseServiceInterface;
 use App\Models\Inventory;
 use App\Models\Notification;
+use App\Models\Package;
 use App\Models\Request;
 use App\Models\RequestRoom;
 use App\Models\User;
@@ -50,4 +51,7 @@ interface NotificationServiceInterface extends BaseServiceInterface
     public function minimumStockNotification(Inventory $inventory);
 
     public function createScoreRequestNotification(Collection $requests);
+
+    public function createRequestPackageNotification(Package $package): Notification;
+    
 }

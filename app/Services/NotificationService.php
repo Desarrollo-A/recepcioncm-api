@@ -24,6 +24,7 @@ use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
 use App\Models\Inventory;
 use App\Models\Notification;
+use App\Models\Package;
 use App\Models\Request;
 use App\Models\RequestRoom;
 use App\Models\User;
@@ -239,6 +240,19 @@ class NotificationService extends BaseService implements NotificationServiceInte
         Utils::eventAlertNotification($notification);
     }
 
+    public function createRequestPackageNotification(Package $package): Notification
+    {
+        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($package->office_id)->id;
+        $notificationDTO = new NotificationDTO([
+            'message' => "Nueva solicitud de paquetería {$package->request->code}",
+            'user_id' => $userId,
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::PARCEL),
+            'color_id' => $this->getColorId(NotificationColorLookup::BLUE),
+            'icon_id' => $this->getIconId(NotificationIconLookup::TRUCK)
+        ]);
+        return $this->createRow($notificationDTO);
+    }
+
     /**
      * @return void
      * @throws CustomErrorException
@@ -291,4 +305,5 @@ class NotificationService extends BaseService implements NotificationServiceInte
         return $this->lookupRepository->findByCodeAndType(NotificationIconLookup::code($value),
             TypeLookup::NOTIFICATION_ICON)->id;
     }
+
 }
