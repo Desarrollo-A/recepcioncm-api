@@ -34,7 +34,7 @@ class RequestPackageController extends BaseApiController
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
             ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
-            ->only('transferRequest', 'getDriverSchedule', 'getPackagesByDriverId');
+            ->only('transferRequest', 'getDriverSchedule', 'getPackagesByDriverId', 'onReadRequest');
         $this->requestPackageService = $requestPackageService;
     }
 
@@ -145,4 +145,9 @@ class RequestPackageController extends BaseApiController
         return $this->showOne(new PackageExposedResource($package));
     }
 
+    public function onReadPackage(int $requestId): JsonResponse
+    {
+        $this->requestPackageService->onReadPackage($requestId);
+        return $this->noContentResponse();
+    }
 }
