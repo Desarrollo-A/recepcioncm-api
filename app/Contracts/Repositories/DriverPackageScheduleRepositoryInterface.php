@@ -12,4 +12,6 @@ use Illuminate\Database\Eloquent\Collection;
 interface DriverPackageScheduleRepositoryInterface extends BaseRepositoryInterface
 {
     public function getScheduleDriverPackage(int $officeId): Collection;
+
+    public function deleteByPackageId(int $packageId): void;
 }

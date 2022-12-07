@@ -26,7 +26,8 @@ class PackageRepository extends BaseRepository implements PackageRepositoryInter
     public function findByRequestId(int $requestId): Package
     {
         return $this->entity
-            ->with('request')
+            ->with('request', 'driverPackageSchedule', 'driverPackageSchedule.carSchedule',
+                'driverPackageSchedule.driverSchedule')
             ->where('request_id', $requestId)
             ->firstOrFail();
     }
