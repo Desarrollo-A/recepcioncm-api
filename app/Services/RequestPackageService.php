@@ -20,6 +20,7 @@ use App\Helpers\Enum\Path;
 use App\Helpers\Enum\QueryParam;
 use App\Helpers\File;
 use App\Helpers\Validation;
+use App\Mail\Package\ApprovedPackageMail;
 use App\Models\Dto\CancelRequestDTO;
 use App\Models\Dto\PackageDTO;
 use App\Models\Dto\RequestDTO;
@@ -36,7 +37,9 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\Response as HttpCodes;
+use Illuminate\Support\Str;
 
 class RequestPackageService extends BaseService implements RequestPackageServiceInterface
 {
@@ -265,6 +268,12 @@ class RequestPackageService extends BaseService implements RequestPackageService
 
             // TODO: Agregar la parte del código para mandar el comentario en la URL
 
+            $codePackage = Str::random(40);
+            $packageUpdate = $this->packageRepository->update($dto->id, ['auth_code' => $codePackage]);
+            $codeRequest = $this->packageRepository->findByRequestId($packageUpdate->request_id)->request->code;
+            
+            Mail::to($packageUpdate->email_receive)->send(new ApprovedPackageMail($packageUpdate, $codeRequest));
+
             $dto->driverPackageSchedule->carSchedule->start_date = $startDate;
             $dto->driverPackageSchedule->carSchedule->end_date = $endDate;
             $carSchedule = $this->carScheduleRepository
@@ -357,4 +366,5 @@ class RequestPackageService extends BaseService implements RequestPackageService
     public function findByRequestId(int $requestId): Package{
         return $this->packageRepository->findByRequestId($requestId);
     }
+    
 }
