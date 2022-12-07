@@ -280,13 +280,8 @@ class RequestPackageService extends BaseService implements RequestPackageService
             $dto->request->end_date = $endDate;
             $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id', 'end_date']));
 
-            // TODO: Agregar la parte del código para mandar el comentario en la URL
-
             $codePackage = Str::random(40);
             $packageUpdate = $this->packageRepository->update($dto->id, ['auth_code' => $codePackage]);
-            $codeRequest = $this->packageRepository->findByRequestId($packageUpdate->request_id)->request->code;
-            
-            Mail::to($packageUpdate->email_receive)->send(new ApprovedPackageMail($packageUpdate, $codeRequest));
 
             $dto->driverPackageSchedule->carSchedule->start_date = $startDate;
             $dto->driverPackageSchedule->carSchedule->end_date = $endDate;
@@ -302,6 +297,8 @@ class RequestPackageService extends BaseService implements RequestPackageService
             $dto->driverPackageSchedule->car_schedule_id = $carSchedule->id;
             $this->driverPackageScheduleRepository
                 ->create($dto->driverPackageSchedule->toArray(['package_id', 'driver_schedule_id', 'car_schedule_id']));
+            
+            Mail::to($packageUpdate->email_receive)->send(new ApprovedPackageMail($packageUpdate, $request->code));
         } else {
             $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id', 'end_date']));
             $this->packageRepository->update($dto->id, $dto->toArray(['tracking_code', 'url_tracking']));
@@ -366,6 +363,10 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $statusPackageRoadId = $this->lookupRepository
             ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::ROAD),
                 TypeLookup::STATUS_PACKAGE_REQUEST)->id;
+
+        if ($packageRequestData->status_id !== $statusPackageRoadId) {
+            throw new CustomErrorException('La solicitud no se encuentra habilitada.', HttpCodes::HTTP_NOT_FOUND);
+        }
 
         return $statusPackageRoadId === $packageRequestData->status_id;
     }

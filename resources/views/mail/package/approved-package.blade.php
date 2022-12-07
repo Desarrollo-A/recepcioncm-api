@@ -1,10 +1,10 @@
 @component('mail::message')
 Hola {{ $fullName }}
 
-@component('mail::panel')
-Por favor calificar tu solicitud de paquetería con código:
-        <b>{{ $codeRequest }}</b> en el siguiente enlace.
-    <br><a>{{$url}}</a>
+Para terminar el proceso, visita el siguiente enlace una vez ya recibido el paquete.
+
+@component('mail::button', ['url' => $url])
+    CLIC AQUÍ
 @endcomponent
 
 Gracias,<br>
