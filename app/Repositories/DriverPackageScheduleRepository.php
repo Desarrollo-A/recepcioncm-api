@@ -33,4 +33,11 @@ class DriverPackageScheduleRepository extends BaseRepository implements DriverPa
             ->where('d.office_id', $officeId)
             ->get(['ds.start_date', 'ds.end_date']);
     }
+
+    public function deleteByPackageId(int $packageId): void
+    {
+        $this->entity
+            ->where('package_id', $packageId)
+            ->delete();
+    }
 }

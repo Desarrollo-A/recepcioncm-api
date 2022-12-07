@@ -5,6 +5,7 @@ namespace App\Http\Resources\Package;
 use App\Helpers\Enum\Path;
 use App\Helpers\File;
 use App\Http\Resources\Address\AddressResource;
+use App\Http\Resources\DriverPackageSchedule\DriverPackageScheduleResource;
 use App\Http\Resources\Request\RequestResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -25,9 +26,11 @@ class PackageResource extends JsonResource
             'requestId' => $this->request_id,
             'officeId' => $this->office_id,
             'trackingCode' => $this->tracking_code,
+            'urlTracking' => $this->url_tracking,
             'pickupAddress' => AddressResource::make($this->whenLoaded('pickupAddress')),
             'arrivalAddress' => AddressResource::make($this->whenLoaded('arrivalAddress')),
-            'request' => RequestResource::make($this->whenLoaded('request'))
+            'request' => RequestResource::make($this->whenLoaded('request')),
+            'driverPackageSchedule' => DriverPackageScheduleResource::make($this->whenLoaded('driverPackageSchedule'))
         ];
     }
 }
