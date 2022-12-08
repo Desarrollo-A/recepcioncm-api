@@ -253,6 +253,19 @@ class NotificationService extends BaseService implements NotificationServiceInte
         return $this->createRow($notificationDTO);
     }
 
+    public function deleteRequestPackageNotification (Package $package): void
+    {
+        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($package->office_id)->id;
+        $notificationDTO = new NotificationDTO([
+            'message' => "La solicitud de paquetería {$package->request->code} fue eliminada",
+            'user_id' => $userId,
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::PARCEL),
+            'color_id' => $this->getColorId(NotificationColorLookup::RED),
+            'icon_id' => $this->getIconId(NotificationIconLookup::TRUCK)
+        ]);
+        $notificationDelete = $this->createRow($notificationDTO);
+        Utils::eventAlertNotification($notificationDelete);
+    }
     /**
      * @return void
      * @throws CustomErrorException

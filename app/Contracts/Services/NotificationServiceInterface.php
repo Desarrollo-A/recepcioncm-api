@@ -54,4 +54,5 @@ interface NotificationServiceInterface extends BaseServiceInterface
 
     public function createRequestPackageNotification(Package $package): Notification;
     
+    public function deleteRequestPackageNotification (Package $package): void;
 }
