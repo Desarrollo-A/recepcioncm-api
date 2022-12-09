@@ -15,7 +15,7 @@ class OfficeController extends BaseApiController
     public function __construct(OfficeServiceInterface $officeService)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
-            ->only('getOfficeByStateWithDriver');
+            ->only('getOfficeByStateWithDriver', 'getOfficeByStateWithDriverAndCar');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
             ->only('getByStateWithDriverWithoutOffice');
         $this->officeService = $officeService;
@@ -30,6 +30,12 @@ class OfficeController extends BaseApiController
     public function getByStateWithDriverWithoutOffice(int $officeId): JsonResponse
     {
         $offices = $this->officeService->getByStateWithDriverWithoutOffice($officeId);
+        return $this->showAll(OfficeResource::collection($offices));
+    }
+
+    public function getOfficeByStateWithDriverAndCar(int $stateId, int $noPeople): JsonResponse
+    {
+        $offices = $this->officeService->getOfficeByStateWithDriverAndCar($stateId, $noPeople);
         return $this->showAll(OfficeResource::collection($offices));
     }
 }
