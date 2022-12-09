@@ -25,7 +25,7 @@ class CreateRequestsTable extends Migration
             $table->datetime('end_date')
                 ->nullable();
             $table->index('end_date');
-            $table->unsignedSmallInteger('type_id');
+            $table->unsignedInteger('type_id');
             $table->foreign('type_id')
                 ->references('id')
                 ->on('lookups');
@@ -40,7 +40,7 @@ class CreateRequestsTable extends Migration
             $table->foreign('user_id')
                 ->references('id')
                 ->on('users');
-            $table->unsignedSmallInteger('status_id');
+            $table->unsignedInteger('status_id');
             $table->foreign('status_id')
                 ->references('id')
                 ->on('lookups');

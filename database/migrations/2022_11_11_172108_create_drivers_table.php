@@ -28,7 +28,7 @@ class CreateDriversTable extends Migration
             $table->foreign('office_id')
                 ->references('id')
                 ->on('offices');
-            $table->unsignedSmallInteger('status_id');
+            $table->unsignedInteger('status_id');
             $table->foreign('status_id')
                 ->references('id')
                 ->on('lookups');

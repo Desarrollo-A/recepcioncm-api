@@ -15,10 +15,6 @@ class CreateRequestCarsTable extends Migration
     {
         Schema::create('request_cars', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('pickup_address_id');
-            $table->foreign('pickup_address_id')
-                ->references('id')
-                ->on('addresses');
             $table->unsignedBigInteger('arrival_address_id');
             $table->foreign('arrival_address_id')
                 ->references('id')
@@ -27,6 +23,15 @@ class CreateRequestCarsTable extends Migration
                 ->nullable();
             $table->string('responsive_filename', 50)
                 ->nullable();
+            $table->unsignedBigInteger('request_id');
+            $table->foreign('request_id')
+                ->references('id')
+                ->on('requests')
+                ->onDelete('cascade');
+            $table->unsignedInteger('office_id');
+            $table->foreign('office_id')
+                ->references('id')
+                ->on('offices');
             $table->timestamps();
         });
     }

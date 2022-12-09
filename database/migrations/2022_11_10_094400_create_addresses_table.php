@@ -24,7 +24,7 @@ class CreateAddressesTable extends Migration
             $table->string('postal_code', 25)
                 ->nullable();
             $table->string('state', 100);
-            $table->unsignedSmallInteger('country_id');
+            $table->unsignedInteger('country_id');
             $table->foreign('country_id')
                 ->references('id')
                 ->on('lookups');

@@ -19,7 +19,7 @@ class CreateActionRequestNotificationsTable extends Migration
                 ->references('id')
                 ->on('request_notifications');
             $table->boolean('is_answered')->default(false);
-            $table->unsignedSmallInteger('type_id');
+            $table->unsignedInteger('type_id');
             $table->foreign('type_id')
                 ->references('id')
                 ->on('lookups');
