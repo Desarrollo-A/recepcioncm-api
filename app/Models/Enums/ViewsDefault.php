@@ -16,7 +16,8 @@ class ViewsDefault
             'path' => '/dashboard/solicitudes',
             'submenus' => [
                 ['path' => '/sala'],
-                ['path' => '/paqueteria']
+                ['path' => '/paqueteria'],
+                ['path' => '/conductor']
             ]
         ],
         [
@@ -48,14 +49,16 @@ class ViewsDefault
             'path' => '/dashboard/solicitud',
             'submenus' => [
                 ['path' => '/sala'],
-                ['path' => '/paqueteria']
+                ['path' => '/paqueteria'],
+                ['path' => '/conductor']
             ]
         ],
         [
             'path' => '/dashboard/historial',
             'submenus' => [
                 ['path' => '/sala'],
-                ['path' => '/paqueteria']
+                ['path' => '/paqueteria'],
+                ['path' => '/conductor']
             ]
         ],
         [

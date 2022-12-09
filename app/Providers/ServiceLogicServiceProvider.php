@@ -36,7 +36,8 @@ class ServiceLogicServiceProvider extends ServiceProvider
         'ScoreServiceInterface' => 'ScoreService',
         'OfficeServiceInterface'    =>  'OfficeService',
         'DriverServiceInterface'    =>  'DriverService',
-        'RequestPackageServiceInterface' => 'RequestPackageService'
+        'RequestPackageServiceInterface' => 'RequestPackageService',
+        'RequestDriverServiceInterface' => 'RequestDriverService',
     ];
 
     public function register()

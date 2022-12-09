@@ -267,6 +267,11 @@ Route::prefix('v1')->group(function () {
                     ->name('state-driver')
                     ->where('stateId', Validation::INTEGER_ID);
 
+                Route::get('/state-driver-car/{stateId}/{noPeople}', 'OfficeController@getOfficeByStateWithDriverAndCar')
+                    ->name('state-driver-car')
+                    ->where('stateId', Validation::INTEGER_ID)
+                    ->where('noPeople', Validation::INTEGER_ID);
+
                 Route::get('/state-driver-whitout-office/{officeId}', 'OfficeController@getByStateWithDriverWithoutOffice')
                     ->name('state-driver-whitout-office')
                     ->where('officeId', Validation::INTEGER_ID);
@@ -330,6 +335,14 @@ Route::prefix('v1')->group(function () {
                     ->where('requestId', Validation::INTEGER_ID);
             });
 
+        Route::prefix('request-drivers')
+            ->name('request-drivers.')
+            ->group(function () {
+                Route::put('/upload-file/{requestId}', 'RequestDriverController@uploadAuthorizationFile')
+                    ->name('upload-file')
+                    ->where('requestId', Validation::INTEGER_ID);
+            });
+
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');
         Route::apiResource('rooms', 'RoomController')->only('store', 'index', 'update', 'destroy');
         Route::apiResource('request-rooms', 'RequestRoomController')->only('store', 'index');
@@ -343,5 +356,6 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('request-emails', 'RequestEmailController')->only('store', 'update', 'destroy');
         Route::apiResource('drivers', 'DriverController')->only('index');
         Route::apiResource('request-packages', 'RequestPackageController')->only('index', 'store');
+        Route::apiResource('request-drivers', 'RequestDriverController')->only('store');
     });
 });

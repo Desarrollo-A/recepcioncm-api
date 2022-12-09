@@ -25,6 +25,15 @@ class CreateRequestDriversTable extends Migration
                 ->on('addresses');
             $table->string('authorization_filename', 50)
                 ->nullable();
+            $table->unsignedBigInteger('request_id');
+            $table->foreign('request_id')
+                ->references('id')
+                ->on('requests')
+                ->onDelete('cascade');
+            $table->unsignedInteger('office_id');
+            $table->foreign('office_id')
+                ->references('id')
+                ->on('offices');
             $table->timestamps();
         });
     }
