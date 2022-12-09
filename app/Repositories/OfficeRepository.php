@@ -4,6 +4,8 @@ namespace App\Repositories;
 
 use App\Contracts\Repositories\OfficeRepositoryInterface;
 use App\Core\BaseRepository;
+use App\Models\Enums\Lookups\StatusCarLookup;
+use App\Models\Enums\Lookups\StatusDriverLookup;
 use App\Models\Office;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -45,9 +47,32 @@ class OfficeRepository extends BaseRepository implements OfficeRepositoryInterfa
             ->where('state_id', $office->state_id)
             ->whereIn('id', function($query) {
                 return $query->selectRaw('DISTINCT(office_id)')
-                    ->from('drivers');
+                    ->from('drivers')
+                    ->join('lookups', 'lookups.id', '=', 'drivers.status_id')
+                    ->where('lookups.code', StatusDriverLookup::code(StatusDriverLookup::ACTIVE));
             })
             ->where('id', '!=', $office->id)
+            ->orderBy('name', 'ASC')
+            ->get();
+    }
+
+    public function getOfficeByStateWithDriverAndCar(int $stateId, int $noPeople): Collection
+    {
+        return $this->entity
+            ->where('state_id', $stateId)
+            ->whereIn('id', function($query) {
+                return $query->selectRaw('DISTINCT(office_id)')
+                    ->from('drivers')
+                    ->join('lookups', 'lookups.id', '=', 'drivers.status_id')
+                    ->where('lookups.code', StatusDriverLookup::code(StatusDriverLookup::ACTIVE));
+            })
+            ->whereIn('id', function($query) use ($noPeople) {
+                return $query->selectRaw('DISTINCT(office_id)')
+                    ->from('cars')
+                    ->join('lookups', 'lookups.id', '=', 'cars.status_id')
+                    ->where('lookups.code', StatusCarLookup::code(StatusCarLookup::ACTIVE))
+                    ->where('people', '>=', $noPeople);
+            })
             ->orderBy('name', 'ASC')
             ->get();
     }
