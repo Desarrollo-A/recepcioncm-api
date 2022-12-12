@@ -111,7 +111,7 @@ class NotificationService extends BaseService implements NotificationServiceInte
     public function newToDeletedRequestRoomNotification(Request $request)
     {
         $notificationDTO = new NotificationDTO([
-            'message' => "La solicitud $request->code fue Eliminada",
+            'message' => "La solicitud de sala $request->code fue eliminada",
             'user_id' => $request->requestRoom->room->recepcionist_id,
             'type_id' => $this->getTypeId(TypeNotificationsLookup::ROOM),
             'color_id' => $this->getColorId(NotificationColorLookup::RED),
@@ -283,6 +283,54 @@ class NotificationService extends BaseService implements NotificationServiceInte
         return $this->createRow($notificationDTO);
     }
 
+    public function transferPackageRequestNotification(Package $packageTransfer): Notification
+    {
+        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($packageTransfer->office_id)->id;
+        $notificationDTO = new NotificationDTO([
+            'message' => "La solicitud de paquetería {$packageTransfer->request->code} fue transferida",
+            'user_id' => $userId,
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::PARCEL),
+            'color_id' => $this->getColorId(NotificationColorLookup::BLUE),
+            'icon_id' => $this->getIconId(NotificationIconLookup::TRUCK)
+        ]);
+        return $this->createRow($notificationDTO);
+    }
+
+    public function approvedPackageRequestNotification(Package $packageApproved): Notification
+    {
+        $notificationDTO = new NotificationDTO([
+            'message' => "La solicitud de paquetería {$packageApproved->request->code} fue aprobada",
+            'user_id' => $packageApproved->request->user_id,
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::PARCEL),
+            'color_id' => $this->getColorId(NotificationColorLookup::GREEN),
+            'icon_id' => $this->getIconId(NotificationIconLookup::TRUCK)
+        ]);
+        return $this->createRow($notificationDTO);
+    }
+
+    public function onRoadPackageRequestNotification(Request $requestPackageOnRoad): Notification
+    {
+        $notificationDTO = new NotificationDTO([
+            'message' => "El paquete de la solicitud {$requestPackageOnRoad->code} está en camino",
+            'user_id' => $requestPackageOnRoad->user_id,
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::PARCEL),
+            'color_id' => $this->getColorId(NotificationColorLookup::BLUE),
+            'icon_id' => $this->getIconId(NotificationIconLookup::TRUCK)
+        ]);
+        return $this->createRow($notificationDTO);
+    }
+
+    public function deliveredPackageRequestNotification(Request $requestPackageDelivered): Notification
+    {
+        $notificationDTO = new NotificationDTO([
+            'message' => "El paquete de la solicitud {$requestPackageDelivered->code} fue entregado",
+            'user_id' => $requestPackageDelivered->user_id,
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::PARCEL),
+            'color_id' => $this->getColorId(NotificationColorLookup::GREEN),
+            'icon_id' => $this->getIconId(NotificationIconLookup::BOX)
+        ]);
+        return $this->createRow($notificationDTO);
+    }
     /**
      * @return void
      * @throws CustomErrorException

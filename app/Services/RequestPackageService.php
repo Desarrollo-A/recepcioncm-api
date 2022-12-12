@@ -246,9 +246,9 @@ class RequestPackageService extends BaseService implements RequestPackageService
     /**
      * @throws CustomErrorException
      */
-    public function transferRequest(int $packageId, PackageDTO $dto): void
+    public function transferRequest(int $packageId, PackageDTO $dto): Package
     {
-        $this->packageRepository->update($packageId, $dto->toArray(['office_id']));
+        return $this->packageRepository->update($packageId, $dto->toArray(['office_id']));
     }
 
     public function getScheduleDriver(int $officeId): Collection
@@ -264,7 +264,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
     /**
      * @throws CustomErrorException
      */
-    public function approvedRequestPackage(PackageDTO $dto): void
+    public function approvedRequestPackage(PackageDTO $dto): Package
     {
         $dto->request->status_id = $this->lookupRepository
             ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED),
@@ -301,14 +301,15 @@ class RequestPackageService extends BaseService implements RequestPackageService
             Mail::to($packageUpdate->email_receive)->send(new ApprovedPackageMail($packageUpdate, $request->code));
         } else {
             $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id', 'end_date']));
-            $this->packageRepository->update($dto->id, $dto->toArray(['tracking_code', 'url_tracking']));
+            $packageUpdate = $this->packageRepository->update($dto->id, $dto->toArray(['tracking_code', 'url_tracking']));
         }
+        return $packageUpdate;
     }
 
     /**
      * @throws CustomErrorException
      */
-    public function insertScore(ScoreDTO $score): void
+    public function insertScore(ScoreDTO $score): Request
     {
         $typeRequestId = $this->requestRepository->findById($score->request_id);
         $typeStatusId = $this->lookupRepository
@@ -334,10 +335,11 @@ class RequestPackageService extends BaseService implements RequestPackageService
                 TypeLookup::STATUS_PACKAGE_REQUEST)
             ->id;
         $request = new RequestDTO(['status_id' => $statusId]);
-        $this->requestRepository->update($score->request_id, $request->toArray(['status_id']));
+        $updateRequestDelivered = $this->requestRepository->update($score->request_id, $request->toArray(['status_id']));
         $packageId = $this->packageRepository->findByRequestId($typeRequestId->id)->id;
         $this->packageRepository->update($packageId, ['auth_code' => null]);
         $this->scoreRepository->create($score->toArray(['request_id', 'score', 'comment']));
+        return $updateRequestDelivered;
     }
 
     public function isPackageCompleted(int $requestPackageId): bool
@@ -385,7 +387,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
     /**
      * @throws CustomErrorException
      */
-    public function onReadPackage(int $requestId): void
+    public function onRoadPackage(int $requestId): Request
     {
         $statusApprovedId = $this->lookupRepository
             ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED),
@@ -403,6 +405,6 @@ class RequestPackageService extends BaseService implements RequestPackageService
                 TypeLookup::STATUS_PACKAGE_REQUEST)->id;
 
         $requestDTO = new RequestDTO(['status_id' => $onReadId]);
-        $this->requestRepository->update($requestId, $requestDTO->toArray(['status_id']));
+        return $this->requestRepository->update($requestId, $requestDTO->toArray(['status_id']));
     }
 }

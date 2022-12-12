@@ -57,4 +57,12 @@ interface NotificationServiceInterface extends BaseServiceInterface
     public function deleteRequestPackageNotification (Package $package): void;
 
     public function cancelRequestPackageNotification(Request $request, User $informationUserAndRole): Notification;
+
+    public function transferPackageRequestNotification(Package $packageTransfer): Notification;
+
+    public function approvedPackageRequestNotification(Package $packageApproved): Notification;
+
+    public function onRoadPackageRequestNotification(Request $requestPackageOnRoad): Notification;
+
+    public function deliveredPackageRequestNotification(Request $requestPackageDelivered): Notification;
 }

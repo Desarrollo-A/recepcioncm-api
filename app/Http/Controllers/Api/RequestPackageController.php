@@ -108,7 +108,11 @@ class RequestPackageController extends BaseApiController
      */
     public function transferRequest(int $packageId, TransferPackageRequest $request): JsonResponse
     {
-        $this->requestPackageService->transferRequest($packageId, $request->toDTO());
+        $packageTransfer = $this->requestPackageService->transferRequest($packageId, $request->toDTO());
+        $packageTransferNotification = $this->notificationServiceInterface
+            ->transferPackageRequestNotification($packageTransfer);
+        $this->requestNotificationService->create($packageTransfer->request->id, $packageTransferNotification->id);
+        Utils::eventAlertNotification($packageTransferNotification);
         return $this->noContentResponse();
     }
 
@@ -130,14 +134,22 @@ class RequestPackageController extends BaseApiController
     public function approvedRequestPackage(ApprovedPackageRequest $request): JsonResponse
     {
         $dto = $request->toDTO();
-        $this->requestPackageService->approvedRequestPackage($dto);
+        $packageApproved = $this->requestPackageService->approvedRequestPackage($dto);
+        $packageApprovedNotification = $this->notificationServiceInterface
+            ->approvedPackageRequestNotification($packageApproved);
+        $this->requestNotificationService->create($packageApproved->request->id, $packageApprovedNotification->id);
+        Utils::eventAlertNotification($packageApprovedNotification);
         return $this->noContentResponse();
     }
 
     public function insertScore(StarRatingRequest $request): JsonResponse
     {
         $scoreDTO = $request->toDTO();
-        $this->requestPackageService->insertScore($scoreDTO);
+        $packageDelivered = $this->requestPackageService->insertScore($scoreDTO);
+        $packeDeliveredNotification = $this->notificationServiceInterface
+            ->deliveredPackageRequestNotification($packageDelivered);
+        $this->requestNotificationService->create($packageDelivered->id, $packeDeliveredNotification->id);
+        Utils::eventAlertNotification($packeDeliveredNotification);
         return $this->noContentResponse();
     }
 
@@ -159,9 +171,13 @@ class RequestPackageController extends BaseApiController
         return $this->showOne(new PackageExposedResource($package));
     }
 
-    public function onReadPackage(int $requestId): JsonResponse
+    public function onRoadPackage(int $requestId): JsonResponse
     {
-        $this->requestPackageService->onReadPackage($requestId);
+        $requestPackageOnRoad = $this->requestPackageService->onRoadPackage($requestId);
+        $requestPackageRoadNotification = $this->notificationServiceInterface
+            ->onRoadPackageRequestNotification($requestPackageOnRoad);
+        $this->requestNotificationService->create($requestPackageOnRoad->id, $requestPackageRoadNotification->id);
+        Utils::eventAlertNotification($requestPackageRoadNotification);
         return $this->noContentResponse();
     }
 }
