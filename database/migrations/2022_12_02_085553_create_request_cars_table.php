@@ -15,10 +15,6 @@ class CreateRequestCarsTable extends Migration
     {
         Schema::create('request_cars', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('arrival_address_id');
-            $table->foreign('arrival_address_id')
-                ->references('id')
-                ->on('addresses');
             $table->string('authorization_filename', 50)
                 ->nullable();
             $table->string('responsive_filename', 50)

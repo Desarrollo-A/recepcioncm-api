@@ -19,6 +19,7 @@ use App\Models\Enums\Lookups\StatusDriverLookup;
 use App\Models\Enums\Lookups\StatusPackageRequestLookup;
 use App\Models\Enums\Lookups\CountryAddressLookup;
 use App\Models\Enums\Lookups\StatusDriverRequestLookup;
+use App\Models\Enums\Lookups\StatusCarRequestLookup;
 
 class LookupSeeder extends Seeder
 {
@@ -153,6 +154,14 @@ class LookupSeeder extends Seeder
             Lookup::query()->create([
                 'type' => TypeLookup::STATUS_DRIVER_REQUEST,
                 'code' => StatusDriverRequestLookup::code($lookup),
+                'name' => $lookup
+            ]);
+        });
+
+        StatusCarRequestLookup::getAll()->each(function (string $lookup) {
+            Lookup::query()->create([
+                'type' => TypeLookup::STATUS_CAR_REQUEST,
+                'code' => StatusCarRequestLookup::code($lookup),
                 'name' => $lookup
             ]);
         });

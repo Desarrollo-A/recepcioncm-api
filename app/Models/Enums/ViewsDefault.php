@@ -17,7 +17,8 @@ class ViewsDefault
             'submenus' => [
                 ['path' => '/sala'],
                 ['path' => '/paqueteria'],
-                ['path' => '/conductor']
+                ['path' => '/conductor'],
+                ['path' => '/automovil']
             ]
         ],
         [
@@ -50,7 +51,8 @@ class ViewsDefault
             'submenus' => [
                 ['path' => '/sala'],
                 ['path' => '/paqueteria'],
-                ['path' => '/conductor']
+                ['path' => '/conductor'],
+                ['path' => '/automovil']
             ]
         ],
         [
@@ -58,7 +60,8 @@ class ViewsDefault
             'submenus' => [
                 ['path' => '/sala'],
                 ['path' => '/paqueteria'],
-                ['path' => '/conductor']
+                ['path' => '/conductor'],
+                ['path' => '/automovil']
             ]
         ],
         [
