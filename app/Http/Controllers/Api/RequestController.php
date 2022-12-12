@@ -55,7 +55,8 @@ class RequestController extends BaseApiController
 
     public function deleteRequestPackage(int $requestId): JsonResponse
     {
-        $this->requestService->deleteRequestPackage($requestId);
+        $package = $this->requestService->deleteRequestPackage($requestId);
+        $this->notificationService->deleteRequestPackageNotification($package);
         return $this->noContentResponse();
     }
 

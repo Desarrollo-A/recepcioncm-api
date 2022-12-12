@@ -22,7 +22,7 @@ interface RequestPackageServiceInterface extends BaseServiceInterface
 
     public function findAllRoomsPaginated(HttpRequest $request, User $user, array $columns = ['*']): LengthAwarePaginator;
 
-    public function insertScore(ScoreDTO $score): void;
+    public function insertScore(ScoreDTO $score): Request;
 
     public function isPackageCompleted(int $requestPackageId): bool;
 
@@ -30,17 +30,17 @@ interface RequestPackageServiceInterface extends BaseServiceInterface
 
     public function cancelRequest(CancelRequestDTO $dto): Request;
 
-    public function transferRequest(int $packageId, PackageDTO $dto): void;
+    public function transferRequest(int $packageId, PackageDTO $dto): Package;
 
     public function getScheduleDriver(int $officeId): Collection;
 
     public function getPackagesByDriverId(int $driverId, Carbon $date): Collection;
 
-    public function approvedRequestPackage(PackageDTO $dto): void;
+    public function approvedRequestPackage(PackageDTO $dto): Package;
 
     public function isAuthPackage(string $authCodePackage): bool;
 
     public function findByRequestId(int $requestId): Package;
 
-    public function onReadPackage(int $requestId): void;
+    public function onRoadPackage(int $requestId): Request;
 }
