@@ -11,6 +11,6 @@ $factory->define(\App\Models\Car::class, function (Faker $faker) {
         'license_plate' => strtoupper(\Illuminate\Support\Str::random(7)),
         'serie' => strtoupper(\Illuminate\Support\Str::random(17)),
         'circulation_card' => $this->faker->randomNumber(7),
-        'people' => $this->faker->randomDigit()
+        'people' => rand(2,12)
     ];
 });

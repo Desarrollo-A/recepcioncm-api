@@ -37,6 +37,8 @@ class DatabaseSeeder extends Seeder
         $this->call(RequestRoomSeeder::class);
         $this->call(InventoryHistorySeeder::class);
         $this->call(RequestPackageSeeder::class);
+        $this->call(RequestDriverSeeder::class);
+        $this->call(RequestCarSeeder::class);
 
         Schema::enableForeignKeyConstraints();
     }
