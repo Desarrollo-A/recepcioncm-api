@@ -4,6 +4,7 @@ namespace App\Contracts\Services;
 
 use App\Core\Contracts\BaseServiceInterface;
 use App\Models\Dto\RequestDTO;
+use App\Models\Package;
 use App\Models\Request;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -25,5 +26,5 @@ interface RequestServiceInterface extends BaseServiceInterface
      */
     public function changeToExpired();
 
-    public function deleteRequestPackage(int $requestId): void;
+    public function deleteRequestPackage(int $requestId): Package;
 }

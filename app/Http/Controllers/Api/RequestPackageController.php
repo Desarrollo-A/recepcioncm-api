@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Contracts\Services\NotificationServiceInterface;
+use App\Contracts\Services\RequestNotificationServiceInterface;
 use App\Contracts\Services\RequestPackageServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
+use App\Helpers\Utils;
 use App\Http\Requests\Request\StarRatingRequest;
 use App\Http\Requests\RequestPackage\ApprovedPackageRequest;
 use App\Http\Requests\RequestPackage\StoreRequestPackageRequest;
@@ -26,8 +29,12 @@ use Symfony\Component\HttpFoundation\Response as HttpCodes;
 class RequestPackageController extends BaseApiController
 {
     private $requestPackageService;
+    private $notificationServiceInterface;
+    private $requestNotificationService;
 
-    public function __construct(RequestPackageServiceInterface $requestPackageService)
+    public function __construct(RequestPackageServiceInterface $requestPackageService,
+                                NotificationServiceInterface $notificationServiceInterface,
+                                RequestNotificationServiceInterface $requestNotificationService)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
             ->only('store', 'uploadAuthorizationFile');
@@ -35,7 +42,10 @@ class RequestPackageController extends BaseApiController
             ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
             ->only('transferRequest', 'getDriverSchedule', 'getPackagesByDriverId', 'onReadRequest');
+        
         $this->requestPackageService = $requestPackageService;
+        $this->notificationServiceInterface = $notificationServiceInterface;
+        $this->requestNotificationService = $requestNotificationService;
     }
 
     /**
@@ -85,7 +95,11 @@ class RequestPackageController extends BaseApiController
     {
         $dto = $request->toDTO();
         $dto->request_id = $requestId;
-        $this->requestPackageService->cancelRequest($dto);
+        $requestCanceled = $this->requestPackageService->cancelRequest($dto);
+        $notificationCancel = $this->notificationServiceInterface
+            ->cancelRequestPackageNotification($requestCanceled, auth()->user());
+        $this->requestNotificationService->create($requestCanceled->id, $notificationCancel->id);
+        Utils::eventAlertNotification($notificationCancel);
         return $this->noContentResponse();
     }
 
@@ -94,7 +108,11 @@ class RequestPackageController extends BaseApiController
      */
     public function transferRequest(int $packageId, TransferPackageRequest $request): JsonResponse
     {
-        $this->requestPackageService->transferRequest($packageId, $request->toDTO());
+        $packageTransfer = $this->requestPackageService->transferRequest($packageId, $request->toDTO());
+        $packageTransferNotification = $this->notificationServiceInterface
+            ->transferPackageRequestNotification($packageTransfer);
+        $this->requestNotificationService->create($packageTransfer->request->id, $packageTransferNotification->id);
+        Utils::eventAlertNotification($packageTransferNotification);
         return $this->noContentResponse();
     }
 
@@ -116,14 +134,22 @@ class RequestPackageController extends BaseApiController
     public function approvedRequestPackage(ApprovedPackageRequest $request): JsonResponse
     {
         $dto = $request->toDTO();
-        $this->requestPackageService->approvedRequestPackage($dto);
+        $packageApproved = $this->requestPackageService->approvedRequestPackage($dto);
+        $packageApprovedNotification = $this->notificationServiceInterface
+            ->approvedPackageRequestNotification($packageApproved);
+        $this->requestNotificationService->create($packageApproved->request->id, $packageApprovedNotification->id);
+        Utils::eventAlertNotification($packageApprovedNotification);
         return $this->noContentResponse();
     }
 
     public function insertScore(StarRatingRequest $request): JsonResponse
     {
         $scoreDTO = $request->toDTO();
-        $this->requestPackageService->insertScore($scoreDTO);
+        $packageDelivered = $this->requestPackageService->insertScore($scoreDTO);
+        $packeDeliveredNotification = $this->notificationServiceInterface
+            ->deliveredPackageRequestNotification($packageDelivered);
+        $this->requestNotificationService->create($packageDelivered->id, $packeDeliveredNotification->id);
+        Utils::eventAlertNotification($packeDeliveredNotification);
         return $this->noContentResponse();
     }
 
@@ -145,9 +171,13 @@ class RequestPackageController extends BaseApiController
         return $this->showOne(new PackageExposedResource($package));
     }
 
-    public function onReadPackage(int $requestId): JsonResponse
+    public function onRoadPackage(int $requestId): JsonResponse
     {
-        $this->requestPackageService->onReadPackage($requestId);
+        $requestPackageOnRoad = $this->requestPackageService->onRoadPackage($requestId);
+        $requestPackageRoadNotification = $this->notificationServiceInterface
+            ->onRoadPackageRequestNotification($requestPackageOnRoad);
+        $this->requestNotificationService->create($requestPackageOnRoad->id, $requestPackageRoadNotification->id);
+        Utils::eventAlertNotification($requestPackageRoadNotification);
         return $this->noContentResponse();
     }
 }

@@ -24,6 +24,7 @@ use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
 use App\Models\Inventory;
 use App\Models\Notification;
+use App\Models\Package;
 use App\Models\Request;
 use App\Models\RequestRoom;
 use App\Models\User;
@@ -110,7 +111,7 @@ class NotificationService extends BaseService implements NotificationServiceInte
     public function newToDeletedRequestRoomNotification(Request $request)
     {
         $notificationDTO = new NotificationDTO([
-            'message' => "La solicitud $request->code fue Eliminada",
+            'message' => "La solicitud de sala $request->code fue eliminada",
             'user_id' => $request->requestRoom->room->recepcionist_id,
             'type_id' => $this->getTypeId(TypeNotificationsLookup::ROOM),
             'color_id' => $this->getColorId(NotificationColorLookup::RED),
@@ -239,6 +240,97 @@ class NotificationService extends BaseService implements NotificationServiceInte
         Utils::eventAlertNotification($notification);
     }
 
+    public function createRequestPackageNotification(Package $package): Notification
+    {
+        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($package->office_id)->id;
+        $notificationDTO = new NotificationDTO([
+            'message' => "Nueva solicitud de paquetería {$package->request->code}",
+            'user_id' => $userId,
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::PARCEL),
+            'color_id' => $this->getColorId(NotificationColorLookup::BLUE),
+            'icon_id' => $this->getIconId(NotificationIconLookup::TRUCK)
+        ]);
+        return $this->createRow($notificationDTO);
+    }
+
+    public function deleteRequestPackageNotification (Package $package): void
+    {
+        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($package->office_id)->id;
+        $notificationDTO = new NotificationDTO([
+            'message' => "La solicitud de paquetería {$package->request->code} fue eliminada",
+            'user_id' => $userId,
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::PARCEL),
+            'color_id' => $this->getColorId(NotificationColorLookup::RED),
+            'icon_id' => $this->getIconId(NotificationIconLookup::TRUCK)
+        ]);
+        $notificationDelete = $this->createRow($notificationDTO);
+        Utils::eventAlertNotification($notificationDelete);
+    }
+
+    public function cancelRequestPackageNotification(Request $request, User $informationUserAndRole): Notification
+    {
+        $userId = ($informationUserAndRole->role->name === NameRole::RECEPCIONIST)
+            ? $request->user_id
+            : $this->userRepository->findByOfficeIdAndRoleRecepcionist($request->package->office_id)->id;
+            
+        $notificationDTO = new NotificationDTO([
+            'message' => "La solicitud de paquetería {$request->code} fue cancelada",
+            'user_id' => $userId,
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::PARCEL),
+            'color_id' => $this->getColorId(NotificationColorLookup::RED),
+            'icon_id' => $this->getIconId(NotificationIconLookup::TRUCK)
+        ]);
+        return $this->createRow($notificationDTO);
+    }
+
+    public function transferPackageRequestNotification(Package $packageTransfer): Notification
+    {
+        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($packageTransfer->office_id)->id;
+        $notificationDTO = new NotificationDTO([
+            'message' => "La solicitud de paquetería {$packageTransfer->request->code} fue transferida",
+            'user_id' => $userId,
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::PARCEL),
+            'color_id' => $this->getColorId(NotificationColorLookup::BLUE),
+            'icon_id' => $this->getIconId(NotificationIconLookup::TRUCK)
+        ]);
+        return $this->createRow($notificationDTO);
+    }
+
+    public function approvedPackageRequestNotification(Package $packageApproved): Notification
+    {
+        $notificationDTO = new NotificationDTO([
+            'message' => "La solicitud de paquetería {$packageApproved->request->code} fue aprobada",
+            'user_id' => $packageApproved->request->user_id,
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::PARCEL),
+            'color_id' => $this->getColorId(NotificationColorLookup::GREEN),
+            'icon_id' => $this->getIconId(NotificationIconLookup::TRUCK)
+        ]);
+        return $this->createRow($notificationDTO);
+    }
+
+    public function onRoadPackageRequestNotification(Request $requestPackageOnRoad): Notification
+    {
+        $notificationDTO = new NotificationDTO([
+            'message' => "El paquete de la solicitud {$requestPackageOnRoad->code} está en camino",
+            'user_id' => $requestPackageOnRoad->user_id,
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::PARCEL),
+            'color_id' => $this->getColorId(NotificationColorLookup::BLUE),
+            'icon_id' => $this->getIconId(NotificationIconLookup::TRUCK)
+        ]);
+        return $this->createRow($notificationDTO);
+    }
+
+    public function deliveredPackageRequestNotification(Request $requestPackageDelivered): Notification
+    {
+        $notificationDTO = new NotificationDTO([
+            'message' => "El paquete de la solicitud {$requestPackageDelivered->code} fue entregado",
+            'user_id' => $requestPackageDelivered->user_id,
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::PARCEL),
+            'color_id' => $this->getColorId(NotificationColorLookup::GREEN),
+            'icon_id' => $this->getIconId(NotificationIconLookup::BOX)
+        ]);
+        return $this->createRow($notificationDTO);
+    }
     /**
      * @return void
      * @throws CustomErrorException
@@ -291,4 +383,5 @@ class NotificationService extends BaseService implements NotificationServiceInte
         return $this->lookupRepository->findByCodeAndType(NotificationIconLookup::code($value),
             TypeLookup::NOTIFICATION_ICON)->id;
     }
+
 }

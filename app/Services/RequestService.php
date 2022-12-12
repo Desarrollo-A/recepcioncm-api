@@ -17,6 +17,7 @@ use App\Helpers\File;
 use App\Models\Dto\RequestDTO;
 use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\Enums\TypeLookup;
+use App\Models\Package;
 use App\Models\Request;
 use Illuminate\Database\Eloquent\Collection;
 use Symfony\Component\HttpFoundation\Response;
@@ -136,11 +137,12 @@ class RequestService extends BaseService implements RequestServiceInterface
         }
     }
 
-    public function deleteRequestPackage(int $requestId): void
+    public function deleteRequestPackage(int $requestId): Package
     {
         $package = $this->packageRepository->findByRequestId($requestId);
         File::deleteFile($package->authorization_filename, Path::PACKAGE_AUTHORIZATION_DOCUMENTS);
         $this->entityRepository->delete($requestId);
         $this->addressRepository->bulkDelete([$package->pickup_address_id, $package->arrival_address_id]);
+        return $package;
     }
 }

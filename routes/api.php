@@ -335,7 +335,7 @@ Route::prefix('v1')->group(function () {
                     ->name('transfer')
                     ->where('packageId', Validation::INTEGER_ID);
 
-                Route::patch('/road/{requestId}', 'RequestPackageController@onReadPackage')
+                Route::patch('/road/{requestId}', 'RequestPackageController@onRoadPackage')
                     ->name('road')
                     ->where('requestId', Validation::INTEGER_ID);
             });
