@@ -14,11 +14,11 @@ class CreateSubmenusTable extends Migration
     public function up()
     {
         Schema::create('submenus', function (Blueprint $table) {
-            $table->smallIncrements('id');
+            $table->increments('id');
             $table->string('path_route');
             $table->string('label', 120);
             $table->tinyInteger('order');
-            $table->unsignedSmallInteger('menu_id');
+            $table->unsignedInteger('menu_id');
             $table->foreign('menu_id')
                 ->references('id')
                 ->on('menus');

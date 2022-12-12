@@ -25,7 +25,7 @@ class CreateRoomsTable extends Migration
             $table->foreign('recepcionist_id')
                 ->references('id')
                 ->on('users');
-            $table->unsignedSmallInteger('status_id');
+            $table->unsignedInteger('status_id');
             $table->foreign('status_id')
                 ->references('id')
                 ->on('lookups');

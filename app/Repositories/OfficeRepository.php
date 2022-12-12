@@ -35,7 +35,9 @@ class OfficeRepository extends BaseRepository implements OfficeRepositoryInterfa
             ->where('state_id', $stateId)
             ->whereIn('id', function($query){
                 return $query->selectRaw('DISTINCT(office_id)')
-                    ->from('drivers');
+                    ->from('drivers')
+                    ->join('lookups', 'lookups.id', '=', 'drivers.status_id')
+                    ->where('lookups.code', StatusDriverLookup::code(StatusDriverLookup::ACTIVE));
             })
             ->orderBy('name', 'ASC')
             ->get();
@@ -66,6 +68,21 @@ class OfficeRepository extends BaseRepository implements OfficeRepositoryInterfa
                     ->join('lookups', 'lookups.id', '=', 'drivers.status_id')
                     ->where('lookups.code', StatusDriverLookup::code(StatusDriverLookup::ACTIVE));
             })
+            ->whereIn('id', function($query) use ($noPeople) {
+                return $query->selectRaw('DISTINCT(office_id)')
+                    ->from('cars')
+                    ->join('lookups', 'lookups.id', '=', 'cars.status_id')
+                    ->where('lookups.code', StatusCarLookup::code(StatusCarLookup::ACTIVE))
+                    ->where('people', '>=', $noPeople);
+            })
+            ->orderBy('name', 'ASC')
+            ->get();
+    }
+
+    public function getOfficeByStateWithCar(int $stateId, int $noPeople): Collection
+    {
+        return $this->entity
+            ->where('state_id', $stateId)
             ->whereIn('id', function($query) use ($noPeople) {
                 return $query->selectRaw('DISTINCT(office_id)')
                     ->from('cars')

@@ -14,7 +14,7 @@ class CreateMenuUserTable extends Migration
     public function up()
     {
         Schema::create('menu_user', function (Blueprint $table) {
-            $table->unsignedSmallInteger('menu_id');
+            $table->unsignedInteger('menu_id');
             $table->foreign('menu_id')
                 ->references('id')
                 ->on('menus');

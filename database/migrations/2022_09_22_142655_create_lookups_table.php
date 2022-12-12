@@ -14,7 +14,7 @@ class CreateLookupsTable extends Migration
     public function up()
     {
         Schema::create('lookups', function (Blueprint $table) {
-            $table->smallIncrements('id');
+            $table->increments('id');
             $table->smallInteger('type');
             $table->string('code', 50);
             $table->string('name');
