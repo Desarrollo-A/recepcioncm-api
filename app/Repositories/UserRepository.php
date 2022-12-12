@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Contracts\Repositories\UserRepositoryInterface;
 use App\Core\BaseRepository;
 use App\Exceptions\CustomErrorException;
+use App\Models\Enums\Lookups\StatusUserLookup;
 use App\Models\Enums\NameRole;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -53,6 +54,9 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         return $this->entity
             ->whereHas('role', function (Builder $query) {
                 $query->where('name', NameRole::RECEPCIONIST);
+            })
+            ->whereHas('status', function(Builder $query){
+                $query->where('code', StatusUserLookup::code(StatusUserLookup::ACTIVE));
             })
             ->where('office_id', $officeId)
             ->firstOr(function () {
