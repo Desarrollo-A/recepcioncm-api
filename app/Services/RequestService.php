@@ -140,6 +140,6 @@ class RequestService extends BaseService implements RequestServiceInterface
         $package = $this->packageRepository->findByRequestId($requestId);
         $this->entityRepository->delete($requestId);
         $this->addressRepository->bulkDelete([$package->pickup_address_id, $package->arrival_address_id]);
-        return $package->fresh('request');
+        return $package;
     }
 }

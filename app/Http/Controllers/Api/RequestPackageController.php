@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Contracts\Services\NotificationServiceInterface;
+use App\Contracts\Services\RequestNotificationServiceInterface;
 use App\Contracts\Services\RequestPackageServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
+use App\Helpers\Utils;
 use App\Http\Requests\Request\StarRatingRequest;
 use App\Http\Requests\RequestPackage\ApprovedPackageRequest;
 use App\Http\Requests\RequestPackage\StoreRequestPackageRequest;
@@ -26,8 +29,12 @@ use Symfony\Component\HttpFoundation\Response as HttpCodes;
 class RequestPackageController extends BaseApiController
 {
     private $requestPackageService;
+    private $notificationServiceInterface;
+    private $requestNotificationService;
 
-    public function __construct(RequestPackageServiceInterface $requestPackageService)
+    public function __construct(RequestPackageServiceInterface $requestPackageService,
+                                NotificationServiceInterface $notificationServiceInterface,
+                                RequestNotificationServiceInterface $requestNotificationService)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
             ->only('store', 'uploadAuthorizationFile');
@@ -35,7 +42,10 @@ class RequestPackageController extends BaseApiController
             ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
             ->only('transferRequest', 'getDriverSchedule', 'getPackagesByDriverId', 'onReadRequest');
+        
         $this->requestPackageService = $requestPackageService;
+        $this->notificationServiceInterface = $notificationServiceInterface;
+        $this->requestNotificationService = $requestNotificationService;
     }
 
     /**
@@ -85,7 +95,11 @@ class RequestPackageController extends BaseApiController
     {
         $dto = $request->toDTO();
         $dto->request_id = $requestId;
-        $this->requestPackageService->cancelRequest($dto);
+        $requestCanceled = $this->requestPackageService->cancelRequest($dto);
+        $notificationCancel = $this->notificationServiceInterface
+            ->cancelRequestPackageNotification($requestCanceled, auth()->user());
+        $this->requestNotificationService->create($requestCanceled->id, $notificationCancel->id);
+        Utils::eventAlertNotification($notificationCancel);
         return $this->noContentResponse();
     }
 
