@@ -7,13 +7,14 @@ use Illuminate\Support\Collection;
 class TypeRequestLookup
 {
     const ROOM = 'Sala de junta';
-    const TRAVEL = 'Traslados';
+    const DRIVER = 'Chofer';
+    const CAR = 'Automóvil';
     const PAPER = 'Papelería';
     const PARCEL = 'Paquetería';
 
     public static function getAll(): Collection
     {
-        return collect([self::ROOM, self::TRAVEL, self::PAPER, self::PARCEL]);
+        return collect([self::ROOM, self::DRIVER, self::CAR, self::PAPER, self::PARCEL]);
     }
 
     public static function code($const)

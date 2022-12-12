@@ -26,7 +26,7 @@ class CreateUsersTable extends Migration
                 ->nullable();
             $table->string('position', 100);
             $table->string('area', 100);
-            $table->unsignedSmallInteger('status_id');
+            $table->unsignedInteger('status_id');
             $table->foreign('status_id')
                 ->references('id')
                 ->on('lookups');

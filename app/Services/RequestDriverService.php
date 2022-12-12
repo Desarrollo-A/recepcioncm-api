@@ -53,7 +53,7 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
                 TypeLookup::STATUS_DRIVER_REQUEST)
             ->id;
         $dto->request->type_id = $this->lookupRepository
-            ->findByCodeAndType(TypeRequestLookup::code(TypeRequestLookup::PARCEL),
+            ->findByCodeAndType(TypeRequestLookup::code(TypeRequestLookup::DRIVER),
                 TypeLookup::TYPE_REQUEST)
             ->id;
 

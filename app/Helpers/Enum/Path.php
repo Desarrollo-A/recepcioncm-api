@@ -10,4 +10,5 @@ class Path
     const INVENTORY_IMAGES = 'inventory\\';
     const PACKAGE_AUTHORIZATION_DOCUMENTS = 'documents\\packages\\';
     const DRIVER_AUTHORIZATION_DOCUMENTS = 'documents\\driver-request\\';
+    const CAR_AUTHORIZATION_DOCUMENTS = 'documents\\car-request\\';
 }

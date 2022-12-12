@@ -28,11 +28,11 @@ class CreateInventoriesTable extends Migration
             $table->boolean('status')
                 ->default(true);
             $table->string('image', 50);
-            $table->unsignedSmallInteger('type_id');
+            $table->unsignedInteger('type_id');
             $table->foreign('type_id')
                 ->references('id')
                 ->on('lookups');
-            $table->unsignedSmallInteger('unit_id');
+            $table->unsignedInteger('unit_id');
             $table->foreign('unit_id')
                 ->references('id')
                 ->on('lookups');

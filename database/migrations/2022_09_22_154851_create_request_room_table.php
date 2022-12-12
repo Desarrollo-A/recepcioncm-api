@@ -25,7 +25,7 @@ class CreateRequestRoomTable extends Migration
                 ->on('rooms');
             $table->tinyInteger('external_people');
             $table->smallInteger('duration');
-            $table->unsignedSmallInteger('level_id');
+            $table->unsignedInteger('level_id');
             $table->foreign('level_id')
                 ->references('id')
                 ->on('lookups');

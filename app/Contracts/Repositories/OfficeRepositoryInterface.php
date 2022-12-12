@@ -15,4 +15,6 @@ interface OfficeRepositoryInterface extends BaseRepositoryInterface
     public function getByStateWithDriverWithoutOffice(Office $office): Collection;
 
     public function getOfficeByStateWithDriverAndCar(int $stateId, int $noPeople): Collection;
+
+    public function getOfficeByStateWithCar(int $stateId, int $noPeople): Collection;
 }

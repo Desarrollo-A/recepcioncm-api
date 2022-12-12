@@ -22,15 +22,15 @@ class CreateNotificationsTable extends Migration
             $table->foreign('user_id')
                 ->references('id')
                 ->on('users');
-            $table->unsignedSmallInteger('type_id');
+            $table->unsignedInteger('type_id');
             $table->foreign('type_id')
                 ->references('id')
                 ->on('lookups');
-            $table->unsignedSmallInteger('color_id');
+            $table->unsignedInteger('color_id');
             $table->foreign('color_id')
                 ->references('id')
                 ->on('lookups');
-            $table->unsignedSmallInteger('icon_id');
+            $table->unsignedInteger('icon_id');
             $table->foreign('icon_id')
                 ->references('id')
                 ->on('lookups');
