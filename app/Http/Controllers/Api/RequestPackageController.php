@@ -70,8 +70,7 @@ class RequestPackageController extends BaseApiController
 
     public function index(Request $request): JsonResponse
     {
-        $user = auth()->user();
-        $requestPackages = $this->requestPackageService->findAllRoomsPaginated($request, $user);
+        $requestPackages = $this->requestPackageService->findAllPackagesPaginated($request, auth()->user());
         return $this->showAll(new RequestPackageViewCollection($requestPackages, true));
     }
 

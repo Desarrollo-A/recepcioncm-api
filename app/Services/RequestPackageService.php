@@ -129,7 +129,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
     /**
      * @throws CustomErrorException
      */
-    public function findAllRoomsPaginated(HttpRequest $request, User $user, array $columns = ['*']): LengthAwarePaginator
+    public function findAllPackagesPaginated(HttpRequest $request, User $user, array $columns = ['*']): LengthAwarePaginator
     {
         $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
         $perPage = Validation::getPerPage($request->get(QueryParam::PAGINATION_KEY));
