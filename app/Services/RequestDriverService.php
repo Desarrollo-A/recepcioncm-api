@@ -5,17 +5,23 @@ namespace App\Services;
 use App\Contracts\Repositories\AddressRepositoryInterface;
 use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\RequestDriverRepositoryInterface;
+use App\Contracts\Repositories\RequestDriverViewRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Contracts\Services\RequestDriverServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
 use App\Helpers\Enum\Path;
+use App\Helpers\Enum\QueryParam;
 use App\Helpers\File;
+use App\Helpers\Validation;
 use App\Models\Dto\RequestDriverDTO;
 use App\Models\Enums\Lookups\StatusDriverRequestLookup;
 use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Enums\TypeLookup;
 use App\Models\RequestDriver;
+use App\Models\User;
+use Illuminate\Http\Request as HttpRequest;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class RequestDriverService extends BaseService implements RequestDriverServiceInterface
 {
@@ -23,16 +29,19 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
     protected $requestRepository;
     protected $lookupRepository;
     protected $addressRepository;
+    protected $requestDriverViewRepository;
 
     public function __construct(RequestDriverRepositoryInterface $requestDriverRepository,
                                 RequestRepositoryInterface $requestRepository,
                                 LookupRepositoryInterface $lookupRepository,
-                                AddressRepositoryInterface $addressRepository)
+                                AddressRepositoryInterface $addressRepository,
+                                RequestDriverViewRepositoryInterface $requestDriverViewRepository)
     {
         $this->entityRepository = $requestDriverRepository;
         $this->requestRepository = $requestRepository;
         $this->lookupRepository = $lookupRepository;
         $this->addressRepository = $addressRepository;
+        $this->requestDriverViewRepository = $requestDriverViewRepository;
     }
 
     /**
@@ -73,5 +82,13 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
     {
         $dto->authorization_filename = File::uploadFile($dto->authorization_file, Path::DRIVER_AUTHORIZATION_DOCUMENTS);
         $this->entityRepository->update($id, $dto->toArray(['authorization_filename']));
+    }
+
+    public function findAllDriversPaginated(HttpRequest $request, User $user, array $columns = ['*']): LengthAwarePaginator
+    {
+        $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
+        $perPage = Validation::getPerPage($request->get(QueryParam::PAGINATION_KEY));
+        $sort = $request->get(QueryParam::ORDER_BY_KEY);
+        return $this->requestDriverViewRepository->findAllDriversPaginated($filters, $perPage, $user, $sort);
     }
 }
