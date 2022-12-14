@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Requests\RequestRoom;
+namespace App\Http\Requests\CancelRequest;
 
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\Contracts\ReturnDtoInterface;
 use App\Models\Dto\CancelRequestDTO;
 use Illuminate\Foundation\Http\FormRequest;
 
-class CancelRequestRoomRequest extends FormRequest implements ReturnDtoInterface
+class CancelRequest extends FormRequest implements ReturnDtoInterface
 {
     public function authorize(): bool
     {

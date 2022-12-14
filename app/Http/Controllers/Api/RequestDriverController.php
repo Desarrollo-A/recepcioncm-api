@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Contracts\Services\RequestDriverServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
+use App\Http\Requests\CancelRequest\CancelRequest;
 use App\Http\Requests\RequestDriver\StoreRequestDriverRequest;
 use App\Http\Requests\RequestDriver\UploadFileDriverRequest;
+use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\RequestDriver\RequestDriverResource;
 use App\Http\Resources\RequestDriver\RequestDriverViewCollection;
 use App\Models\Enums\NameRole;
@@ -56,5 +58,23 @@ class RequestDriverController extends BaseApiController
     {
         $requestDriver = $this->requestDriverService->findById($requestId);
         return $this->showOne(new RequestDriverResource($requestDriver));
+    }
+
+    public function getStatusByStatusCurrent(string $code): JsonResponse
+    {
+        $roleName = auth()->user()->role->name;
+        $status = $this->requestDriverService->getStatusByStatusCurrent($code, $roleName);
+        return $this->showAll(LookupResource::collection($status));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function cancelRequest(int $requestId, CancelRequest $request): JsonResponse
+    {
+        $dto = $request->toDTO();
+        $dto->request_id = $requestId;
+        $this->requestDriverService->cancelRequest($dto);
+        return $this->noContentResponse();
     }
 }
