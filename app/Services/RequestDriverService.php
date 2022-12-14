@@ -84,11 +84,19 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
         $this->entityRepository->update($id, $dto->toArray(['authorization_filename']));
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function findAllDriversPaginated(HttpRequest $request, User $user, array $columns = ['*']): LengthAwarePaginator
     {
         $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
         $perPage = Validation::getPerPage($request->get(QueryParam::PAGINATION_KEY));
         $sort = $request->get(QueryParam::ORDER_BY_KEY);
         return $this->requestDriverViewRepository->findAllDriversPaginated($filters, $perPage, $user, $sort);
+    }
+
+    public function findById(int $id): RequestDriver
+    {
+        return $this->entityRepository->findByRequestId($id);
     }
 }

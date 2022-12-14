@@ -347,6 +347,10 @@ Route::prefix('v1')->group(function () {
         Route::prefix('request-drivers')
             ->name('request-drivers.')
             ->group(function () {
+                Route::get('/{requestId}', 'RequestDriverController@show')
+                    ->name('show')
+                    ->where('requestId', Validation::INTEGER_ID);
+
                 Route::put('/upload-file/{requestId}', 'RequestDriverController@uploadAuthorizationFile')
                     ->name('upload-file')
                     ->where('requestId', Validation::INTEGER_ID);
