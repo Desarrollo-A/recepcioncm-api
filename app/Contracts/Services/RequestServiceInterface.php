@@ -6,6 +6,7 @@ use App\Core\Contracts\BaseServiceInterface;
 use App\Models\Dto\RequestDTO;
 use App\Models\Package;
 use App\Models\Request;
+use App\Models\RequestDriver;
 use Illuminate\Database\Eloquent\Collection;
 
 interface RequestServiceInterface extends BaseServiceInterface
@@ -27,4 +28,6 @@ interface RequestServiceInterface extends BaseServiceInterface
     public function changeToExpired();
 
     public function deleteRequestPackage(int $requestId): Package;
+
+    public function deleteRequestDriver(int $requestId): RequestDriver;
 }

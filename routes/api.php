@@ -214,6 +214,10 @@ Route::prefix('v1')->group(function () {
                 Route::delete('/package/{id}', 'RequestController@deleteRequestPackage')
                     ->name('delete-request-package')
                     ->where('id', Validation::INTEGER_ID);
+
+                Route::delete('/driver/{id}', 'RequestController@deleteRequestDriver')
+                    ->name('delete-request-driver')
+                    ->where('id', Validation::INTEGER_ID);
             });
 
         Route::prefix('users')

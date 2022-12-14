@@ -10,5 +10,5 @@ use App\Models\RequestDriver;
  */
 interface RequestDriverRepositoryInterface extends BaseRepositoryInterface
 {
-    //
+    public function findByRequestId(int $requestId): RequestDriver;
 }
