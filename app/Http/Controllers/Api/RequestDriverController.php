@@ -22,7 +22,7 @@ class RequestDriverController extends BaseApiController
         $this->middleware('role.permission:'.NameRole::APPLICANT)
             ->only('store', 'uploadAuthorizationFile');
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
-            ->only('index');
+            ->only('index', 'show');
         $this->requestDriverService = $requestDriverService;
     }
 
@@ -50,5 +50,11 @@ class RequestDriverController extends BaseApiController
     {
         $requestDrivers = $this->requestDriverService->findAllDriversPaginated($request, auth()->user());
         return $this->showAll(new RequestDriverViewCollection($requestDrivers , true));
+    }
+
+    public function show(int $requestId): JsonResponse
+    {
+        $requestDriver = $this->requestDriverService->findById($requestId);
+        return $this->showOne(new RequestDriverResource($requestDriver));
     }
 }

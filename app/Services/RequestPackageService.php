@@ -151,7 +151,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
             throw new CustomErrorException('No existe el estatus', HttpCodes::HTTP_NOT_FOUND);
         }
 
-        $status = Collection::make([]);
+        $status = Collection::make();
         if ($roleName === NameRole::RECEPCIONIST) {
             switch ($code) {
                 case StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW):
