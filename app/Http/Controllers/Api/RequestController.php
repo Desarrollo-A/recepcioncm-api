@@ -28,7 +28,7 @@ class RequestController extends BaseApiController
                                 ScoreServiceInterface $scoreService)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
-            ->only('responseRejectRequest', 'deleteRequestRoom', 'starRatingRequest');
+            ->only('responseRejectRequest', 'deleteRequestRoom', 'starRatingRequest', 'deleteRequestPackage');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST.','.NameRole::APPLICANT)
             ->only('show');
         $this->middleware('role.permission:'.NameRole::ADMIN)
@@ -57,6 +57,12 @@ class RequestController extends BaseApiController
     {
         $package = $this->requestService->deleteRequestPackage($requestId);
         $this->notificationService->deleteRequestPackageNotification($package);
+        return $this->noContentResponse();
+    }
+
+    public function deleteRequestDriver(int $id): JsonResponse
+    {
+        $this->requestService->deleteRequestDriver($id);
         return $this->noContentResponse();
     }
 

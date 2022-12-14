@@ -7,6 +7,7 @@ use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\NotificationRepositoryInterface;
 use App\Contracts\Repositories\PackageRepositoryInterface;
 use App\Contracts\Repositories\ProposalRequestRepositoryInterface;
+use App\Contracts\Repositories\RequestDriverRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Contracts\Services\RequestServiceInterface;
 use App\Core\BaseService;
@@ -19,6 +20,7 @@ use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\Enums\TypeLookup;
 use App\Models\Package;
 use App\Models\Request;
+use App\Models\RequestDriver;
 use Illuminate\Database\Eloquent\Collection;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -30,13 +32,15 @@ class RequestService extends BaseService implements RequestServiceInterface
     protected $proposalRequestRepository;
     protected $packageRepository;
     protected $addressRepository;
+    protected $requestDriverRepository;
 
     public function __construct(RequestRepositoryInterface $requestRepository,
                                 LookupRepositoryInterface $lookupRepository,
                                 NotificationRepositoryInterface $notificationRepository,
                                 ProposalRequestRepositoryInterface $proposalRequestRepository,
                                 PackageRepositoryInterface $packageRepository,
-                                AddressRepositoryInterface $addressRepository)
+                                AddressRepositoryInterface $addressRepository,
+                                RequestDriverRepositoryInterface $requestDriverRepository)
     {
         $this->entityRepository = $requestRepository;
         $this->lookupRepository = $lookupRepository;
@@ -44,6 +48,7 @@ class RequestService extends BaseService implements RequestServiceInterface
         $this->proposalRequestRepository = $proposalRequestRepository;
         $this->packageRepository = $packageRepository;
         $this->addressRepository = $addressRepository;
+        $this->requestDriverRepository = $requestDriverRepository;
     }
 
     /**
@@ -144,5 +149,14 @@ class RequestService extends BaseService implements RequestServiceInterface
         $this->entityRepository->delete($requestId);
         $this->addressRepository->bulkDelete([$package->pickup_address_id, $package->arrival_address_id]);
         return $package;
+    }
+
+    public function deleteRequestDriver(int $requestId): RequestDriver
+    {
+        $requestDriver = $this->requestDriverRepository->findByRequestId($requestId);
+        File::deleteFile($requestDriver->authorization_filename, Path::DRIVER_AUTHORIZATION_DOCUMENTS);
+        $this->entityRepository->delete($requestId);
+        $this->addressRepository->bulkDelete([$requestDriver->pickup_address_id, $requestDriver->arrival_address_id]);
+        return $requestDriver;
     }
 }

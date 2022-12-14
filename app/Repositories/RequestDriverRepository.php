@@ -20,4 +20,11 @@ class RequestDriverRepository extends BaseRepository implements RequestDriverRep
     {
         $this->entity = $requestDriver;
     }
+
+    public function findByRequestId(int $requestId): RequestDriver
+    {
+        return $this->entity
+            ->where('request_id', $requestId)
+            ->firstOrFail();
+    }
 }
