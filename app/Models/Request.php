@@ -46,6 +46,11 @@ class Request extends Model
         return $this->hasOne(Package::class);
     }
 
+    public function requestDriver(): HasOne
+    {
+        return $this->hasOne(RequestDriver::class);
+    }
+
     public function status(): BelongsTo
     {
         return $this->belongsTo(Lookup::class, 'status_id', 'id');

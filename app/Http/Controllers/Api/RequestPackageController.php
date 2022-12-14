@@ -8,12 +8,12 @@ use App\Contracts\Services\RequestPackageServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Helpers\Utils;
+use App\Http\Requests\CancelRequest\CancelRequest;
 use App\Http\Requests\Request\StarRatingRequest;
 use App\Http\Requests\RequestPackage\ApprovedPackageRequest;
 use App\Http\Requests\RequestPackage\StoreRequestPackageRequest;
 use App\Http\Requests\RequestPackage\TransferPackageRequest;
 use App\Http\Requests\RequestPackage\UploadFileRequestPackageRequest;
-use App\Http\Requests\RequestRoom\CancelRequestRoomRequest;
 use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\Package\PackageExposedResource;
 use App\Http\Resources\Package\PackageResource;
@@ -90,7 +90,7 @@ class RequestPackageController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function cancelRequest(int $requestId, CancelRequestRoomRequest $request): JsonResponse
+    public function cancelRequest(int $requestId, CancelRequest $request): JsonResponse
     {
         $dto = $request->toDTO();
         $dto->request_id = $requestId;

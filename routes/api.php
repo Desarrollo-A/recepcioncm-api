@@ -351,8 +351,15 @@ Route::prefix('v1')->group(function () {
                     ->name('show')
                     ->where('requestId', Validation::INTEGER_ID);
 
+                Route::get('/status/{code}', 'RequestDriverController@getStatusByStatusCurrent')
+                    ->name('status-by-status-current');
+
                 Route::put('/upload-file/{requestId}', 'RequestDriverController@uploadAuthorizationFile')
                     ->name('upload-file')
+                    ->where('requestId', Validation::INTEGER_ID);
+
+                Route::patch('/cancel/{requestId}', 'RequestDriverController@cancelRequest')
+                    ->name('cancel-request-package')
                     ->where('requestId', Validation::INTEGER_ID);
             });
 

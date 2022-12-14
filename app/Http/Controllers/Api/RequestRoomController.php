@@ -12,9 +12,9 @@ use App\Contracts\Services\RequestRoomServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Helpers\Utils;
+use App\Http\Requests\CancelRequest\CancelRequest;
 use App\Http\Requests\RequestRoom\AssignSnackRequest;
 use App\Http\Requests\RequestRoom\AvailableScheduleRequestRoomRequest;
-use App\Http\Requests\RequestRoom\CancelRequestRoomRequest;
 use App\Http\Requests\RequestRoom\ProposalRequestRoomRequest;
 use App\Http\Requests\RequestRoom\StoreRequestRoomRequest;
 use App\Http\Resources\Lookup\LookupResource;
@@ -122,7 +122,7 @@ class RequestRoomController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function cancelRequest(int $requestId, CancelRequestRoomRequest $request): JsonResponse
+    public function cancelRequest(int $requestId, CancelRequest $request): JsonResponse
     {
         $dto = $request->toDTO();
         $dto->request_id = $requestId;
