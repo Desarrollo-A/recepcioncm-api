@@ -13,4 +13,6 @@ interface OfficeServiceInterface extends BaseServiceInterface
     public function getOfficeByStateWithDriverAndCar(int $stateId, int $noPeople): Collection;
 
     public function getOfficeByStateWithCar(int $stateId, int $noPeople): Collection;
+
+    public function getOfficeByStateWithDriverAndCarWithoutOffice(int $officeId, int $noPeople): Collection;
 }
