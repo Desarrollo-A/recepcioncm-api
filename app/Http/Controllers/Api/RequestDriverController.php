@@ -7,6 +7,7 @@ use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\CancelRequest\CancelRequest;
 use App\Http\Requests\RequestDriver\StoreRequestDriverRequest;
+use App\Http\Requests\RequestDriver\TransferDriverRequest;
 use App\Http\Requests\RequestDriver\UploadFileDriverRequest;
 use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\RequestDriver\RequestDriverResource;
@@ -24,7 +25,9 @@ class RequestDriverController extends BaseApiController
         $this->middleware('role.permission:'.NameRole::APPLICANT)
             ->only('store', 'uploadAuthorizationFile');
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
-            ->only('index', 'show');
+            ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest');
+        $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
+            ->only('transferRequest');
         $this->requestDriverService = $requestDriverService;
     }
 
@@ -75,6 +78,15 @@ class RequestDriverController extends BaseApiController
         $dto = $request->toDTO();
         $dto->request_id = $requestId;
         $this->requestDriverService->cancelRequest($dto);
+        return $this->noContentResponse();
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function transferRequest(int $requestDriverId, TransferDriverRequest $request): JsonResponse
+    {
+        $this->requestDriverService->transferRequest($requestDriverId, $request->toDTO());
         return $this->noContentResponse();
     }
 }
