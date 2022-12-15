@@ -8,8 +8,10 @@ use App\Exceptions\CustomErrorException;
 use App\Http\Requests\RequestCar\StoreRequestCarRequest;
 use App\Http\Requests\RequestCar\UploadFileRequestCarRequest;
 use App\Http\Resources\RequestCar\RequestCarResource;
+use App\Http\Resources\RequestCar\RequestCarViewCollection;
 use App\Models\Enums\NameRole;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class RequestCarController extends BaseApiController
 {
@@ -19,7 +21,16 @@ class RequestCarController extends BaseApiController
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
             ->only('store', 'uploadAuthorizationFile');
+        $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
+            ->only('index');
         $this->requestCarService = $requestCarService;
+    }
+
+    public function index(Request $request): JsonResponse
+    {
+        $user = auth()->user();
+        $requestCars = $this->requestCarService->findAllCarsPaginated($request, $user);
+        return $this->showAll(new RequestCarViewCollection($requestCars, true));
     }
 
     /**

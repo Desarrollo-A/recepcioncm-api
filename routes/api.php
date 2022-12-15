@@ -395,5 +395,6 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('drivers', 'DriverController')->only('index');
         Route::apiResource('request-packages', 'RequestPackageController')->only('index', 'store');
         Route::apiResource('request-drivers', 'RequestDriverController')->only('index', 'store');
+        Route::apiResource('request-cars', 'RequestCarController')->only('store', 'index');
     });
 });
