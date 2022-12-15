@@ -4,32 +4,41 @@ namespace App\Services;
 
 use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\RequestCarRepositoryInterface;
+use App\Contracts\Repositories\RequestCarViewRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Contracts\Services\RequestCarServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
 use App\Helpers\Enum\Path;
+use App\Helpers\Enum\QueryParam;
 use App\Helpers\File;
+use App\Helpers\Validation;
 use App\Models\Dto\RequestCarDTO;
 use App\Models\Enums\Lookups\StatusCarRequestLookup;
-use App\Models\Enums\Lookups\StatusDriverRequestLookup;
 use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Enums\TypeLookup;
 use App\Models\RequestCar;
+use App\Models\User;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Http\Request as HttpRequest;
+
 
 class RequestCarService extends BaseService implements RequestCarServiceInterface
 {
     protected $entityRepository;
     protected $requestRepository;
     protected $lookupRepository;
+    protected $requestCarViewRepository;
 
     public function __construct(RequestCarRepositoryInterface $requestCarRepository,
                                 RequestRepositoryInterface $requestRepository,
-                                LookupRepositoryInterface $lookupRepository)
+                                LookupRepositoryInterface $lookupRepository,
+                                RequestCarViewRepositoryInterface $requestCarViewRepository)
     {
         $this->entityRepository = $requestCarRepository;
         $this->requestRepository = $requestRepository;
         $this->lookupRepository = $lookupRepository;
+        $this->requestCarViewRepository = $requestCarViewRepository;
     }
 
     /**
@@ -62,5 +71,16 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
     {
         $dto->authorization_filename = File::uploadFile($dto->authorization_file, Path::CAR_AUTHORIZATION_DOCUMENTS);
         $this->entityRepository->update($id, $dto->toArray(['authorization_filename']));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function findAllCarsPaginated(HttpRequest $request, User $user, array $columns = ['*']): LengthAwarePaginator
+    {
+        $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
+        $perPage = Validation::getPerPage($request->get(QueryParam::PAGINATION_KEY));
+        $sort = $request->get(QueryParam::ORDER_BY_KEY);
+        return $this->requestCarViewRepository->findAllRequestsCarPaginated($filters, $perPage, $user, $sort);
     }
 }
