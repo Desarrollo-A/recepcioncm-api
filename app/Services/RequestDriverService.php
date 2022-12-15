@@ -195,4 +195,12 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
 
         return $request;
     }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function transferRequest(int $requestDriverId, RequestDriverDTO $dto): RequestDriver
+    {
+        return $this->entityRepository->update($requestDriverId, $dto->toArray(['office_id']));
+    }
 }

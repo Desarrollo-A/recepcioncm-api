@@ -93,4 +93,26 @@ class OfficeRepository extends BaseRepository implements OfficeRepositoryInterfa
             ->orderBy('name', 'ASC')
             ->get();
     }
+
+    public function getOfficeByStateWithDriverAndCarWithoutOffice(Office $office, int $noPeople): Collection
+    {
+        return $this->entity
+            ->where('state_id', $office->state_id)
+            ->whereIn('id', function($query) {
+                return $query->selectRaw('DISTINCT(office_id)')
+                    ->from('drivers')
+                    ->join('lookups', 'lookups.id', '=', 'drivers.status_id')
+                    ->where('lookups.code', StatusDriverLookup::code(StatusDriverLookup::ACTIVE));
+            })
+            ->whereIn('id', function($query) use ($noPeople) {
+                return $query->selectRaw('DISTINCT(office_id)')
+                    ->from('cars')
+                    ->join('lookups', 'lookups.id', '=', 'cars.status_id')
+                    ->where('lookups.code', StatusCarLookup::code(StatusCarLookup::ACTIVE))
+                    ->where('people', '>=', $noPeople);
+            })
+            ->where('id', '!=', $office->id)
+            ->orderBy('name', 'ASC')
+            ->get();
+    }
 }

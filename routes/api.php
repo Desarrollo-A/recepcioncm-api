@@ -284,6 +284,12 @@ Route::prefix('v1')->group(function () {
                 Route::get('/state-driver-whitout-office/{officeId}', 'OfficeController@getByStateWithDriverWithoutOffice')
                     ->name('state-driver-whitout-office')
                     ->where('officeId', Validation::INTEGER_ID);
+
+                Route::get('/state-driver-car-without-office/{officeId}/{noPeople}',
+                    'OfficeController@getOfficeByStateWithDriverAndCarWithoutOffice')
+                    ->name('state-driver-car-without-office')
+                    ->where('officeId', Validation::INTEGER_ID)
+                    ->where('noPeople', Validation::INTEGER_ID);
             });
         
         Route::prefix('drivers')
@@ -361,6 +367,10 @@ Route::prefix('v1')->group(function () {
                 Route::patch('/cancel/{requestId}', 'RequestDriverController@cancelRequest')
                     ->name('cancel-request-package')
                     ->where('requestId', Validation::INTEGER_ID);
+
+                Route::patch('/transfer/{requestDriverId}', 'RequestDriverController@transferRequest')
+                    ->name('transfer')
+                    ->where('requestDriverId', Validation::INTEGER_ID);
             });
 
         Route::prefix('request-cars')
