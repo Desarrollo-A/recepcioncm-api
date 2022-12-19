@@ -10,5 +10,5 @@ use App\Models\RequestCar;
  */
 interface RequestCarRepositoryInterface extends BaseRepositoryInterface
 {
-    //
+    public function deleteRequestCar($requestCarId, $officeUserId): void;
 }

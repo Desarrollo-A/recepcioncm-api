@@ -41,4 +41,10 @@ class RequestCarController extends BaseApiController
         $this->requestCarService->uploadAuthorizationFile($requestId, $dto);
         return $this->noContentResponse();
     }
+
+    public function deleteRequestCar(int $requestCarId): JsonResponse
+    {
+        $this->requestCarService->deleteRequestCar($requestCarId, auth()->user());
+        return $this->noContentResponse();
+    }
 }

@@ -9,13 +9,18 @@ use App\Contracts\Services\RequestCarServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
 use App\Helpers\Enum\Path;
+use App\Helpers\Enum\QueryParam;
 use App\Helpers\File;
+use App\Helpers\Validation;
 use App\Models\Dto\RequestCarDTO;
 use App\Models\Enums\Lookups\StatusCarRequestLookup;
 use App\Models\Enums\Lookups\StatusDriverRequestLookup;
 use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Enums\TypeLookup;
 use App\Models\RequestCar;
+use App\Models\User;
+use Illuminate\Http\Request as HttpRequest;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class RequestCarService extends BaseService implements RequestCarServiceInterface
 {
@@ -62,5 +67,21 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
     {
         $dto->authorization_filename = File::uploadFile($dto->authorization_file, Path::CAR_AUTHORIZATION_DOCUMENTS);
         $this->entityRepository->update($id, $dto->toArray(['authorization_filename']));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function findAllCarsPaginated(HttpRequest $request, User $user, array $columns = ['*']): LengthAwarePaginator
+    {
+        $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
+        $perPage = Validation::getPerPage($request->get(QueryParam::PAGINATION_KEY));
+        $sort = $request->get(QueryParam::ORDER_BY_KEY);
+        return $this->requestCarViewRepository->findAllRequestsCarPaginated($filters, $perPage, $user, $sort);
+    }
+
+    public function deleteRequestCar($requestCarId, $user): void
+    {
+        $this->entityRepository->deleteRequestCar($requestCarId, $user->office_id);
     }
 }

@@ -20,4 +20,12 @@ class RequestCarRepository extends BaseRepository implements RequestCarRepositor
     {
         $this->entity = $requestCar;
     }
+
+    public function deleteRequestCar($requestCarId, $officeUserId): void
+    {
+        $this->entity
+            ->where('request_id', $requestCarId)
+            ->where('office_id', $officeUserId)
+            ->delete();
+    }
 }
