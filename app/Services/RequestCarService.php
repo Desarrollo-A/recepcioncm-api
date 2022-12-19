@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\RequestCarRepositoryInterface;
+use App\Contracts\Repositories\RequestCarViewRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Contracts\Services\RequestCarServiceInterface;
 use App\Core\BaseService;
@@ -14,7 +15,6 @@ use App\Helpers\File;
 use App\Helpers\Validation;
 use App\Models\Dto\RequestCarDTO;
 use App\Models\Enums\Lookups\StatusCarRequestLookup;
-use App\Models\Enums\Lookups\StatusDriverRequestLookup;
 use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Enums\TypeLookup;
 use App\Models\RequestCar;
@@ -27,14 +27,17 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
     protected $entityRepository;
     protected $requestRepository;
     protected $lookupRepository;
+    protected $requestCarViewRepository;
 
     public function __construct(RequestCarRepositoryInterface $requestCarRepository,
                                 RequestRepositoryInterface $requestRepository,
-                                LookupRepositoryInterface $lookupRepository)
+                                LookupRepositoryInterface $lookupRepository,
+                                RequestCarViewRepositoryInterface $requestCarViewRepository)
     {
         $this->entityRepository = $requestCarRepository;
         $this->requestRepository = $requestRepository;
         $this->lookupRepository = $lookupRepository;
+        $this->requestCarViewRepository = $requestCarViewRepository;
     }
 
     /**
