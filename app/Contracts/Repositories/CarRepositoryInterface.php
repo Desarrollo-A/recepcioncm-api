@@ -5,6 +5,7 @@ namespace App\Contracts\Repositories;
 use App\Core\Contracts\BaseRepositoryInterface;
 use App\Models\Car;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -19,4 +20,6 @@ interface CarRepositoryInterface extends BaseRepositoryInterface
                                            array $columns = ['*']): LengthAwarePaginator;
                                            
     public function findAllAvailableByDriverId(int $driverId, int $officeId): Collection;
+
+    public function getAvailableCarsInRequestDriver(int $driverId, Carbon $startDate, Carbon $endDate): Collection;
 }
