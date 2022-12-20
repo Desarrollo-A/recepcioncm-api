@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\Enums\NameRole;
+use App\Models\Enums\TypeLookup;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -30,6 +31,7 @@ class RequestRoom extends Model
         return Request::query()
             ->join('lookups', 'lookups.id', '=', 'requests.status_id')
             ->where('lookups.code', StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED))
+            ->where('lookups.type', TypeLookup::STATUS_ROOM_REQUEST)
             ->where('start_date', '>=', now()->startOfDay())
             ->where('user_id', $this->request->user_id)
             ->count();
