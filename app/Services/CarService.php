@@ -14,6 +14,7 @@ use App\Models\Dto\CarDTO;
 use App\Models\Enums\Lookups\StatusCarLookup;
 use App\Models\Enums\TypeLookup;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -77,5 +78,10 @@ class CarService extends BaseService implements CarServiceInterface
     public function findAllAvailableByDriverId(int $driverId, int $officeId): Collection
     {
         return $this->entityRepository->findAllAvailableByDriverId($driverId, $officeId);
+    }
+
+    public function getAvailableCarsInRequestDriver(int $driverId, Carbon $startDate, Carbon $endDate): Collection
+    {
+        return $this->entityRepository->getAvailableCarsInRequestDriver($driverId, $startDate, $endDate);
     }
 }

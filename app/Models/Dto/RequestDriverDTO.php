@@ -61,6 +61,11 @@ class RequestDriverDTO
     public $request;
 
     /**
+     * @var DriverRequestScheduleDTO
+     */
+    public $driverRequestSchedule;
+
+    /**
      * @throws CustomErrorException
      */
     public function __construct(array $data = [])

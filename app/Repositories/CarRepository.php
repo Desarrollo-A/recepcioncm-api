@@ -7,6 +7,7 @@ use App\Core\BaseRepository;
 use App\Models\Car;
 use App\Models\Enums\Lookups\StatusCarLookup;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -59,5 +60,22 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
                     ->where('driver_id', '<>', $driverId);
             })
             ->get('cars.*');
+    }
+
+    public function getAvailableCarsInRequestDriver(int $driverId, Carbon $startDate, Carbon $endDate): Collection
+    {
+        return $this->entity
+            ->join('car_driver', 'car_driver.car_id', '=', 'cars.id')
+            ->where('car_driver.car_id', $driverId)
+            ->whereNotIn('cars.id', function (QueryBuilder $query) use ($startDate, $endDate) {
+                return $query
+                    ->select(['car_id'])
+                    ->from('car_schedules')
+                    ->whereDate('start_date', $startDate)
+                    ->orWhereDate('end_date', $startDate)
+                    ->whereDate('start_date', $endDate)
+                    ->orWhereDate('end_date', $endDate);
+            })
+            ->get(['cars.*']);
     }
 }

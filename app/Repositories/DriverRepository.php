@@ -61,7 +61,26 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
                     ->from('driver_request_schedules')
                     ->join('driver_schedules','driver_request_schedules.driver_schedule_id','=','driver_schedules.id')
                     ->whereDate('driver_schedules.start_date', $date)
-                    ->whereDate('driver_schedules.end_date', $date);
+                    ->orWhereDate('driver_schedules.end_date', $date);
+            })
+            ->get(['drivers.*']);
+    }
+
+    public function getAvailableDriversRequest(int $officeId, Carbon $startDate, Carbon $endDate): Collection
+    {
+        return $this->entity
+            ->join('car_driver', 'car_driver.driver_id', '=', 'drivers.id')
+            ->join('lookups', 'lookups.id', '=', 'drivers.status_id')
+            ->where('lookups.code', StatusDriverLookup::code(StatusDriverLookup::ACTIVE))
+            ->where('drivers.office_id', $officeId)
+            ->whereNotIn('drivers.id', function (QueryBuilder $query) use ($startDate, $endDate) {
+                return $query
+                    ->select(['driver_id'])
+                    ->from('driver_schedules')
+                    ->whereDate('start_date', $startDate)
+                    ->orWhereDate('start_date', $endDate)
+                    ->orWhereDate('end_date', $endDate)
+                    ->orWhereDate('end_date', $endDate);
             })
             ->get(['drivers.*']);
     }

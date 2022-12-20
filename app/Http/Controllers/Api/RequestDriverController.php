@@ -6,6 +6,7 @@ use App\Contracts\Services\RequestDriverServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\CancelRequest\CancelRequest;
+use App\Http\Requests\RequestDriver\ApprovedDriverRequest;
 use App\Http\Requests\RequestDriver\StoreRequestDriverRequest;
 use App\Http\Requests\RequestDriver\TransferDriverRequest;
 use App\Http\Requests\RequestDriver\UploadFileDriverRequest;
@@ -87,6 +88,16 @@ class RequestDriverController extends BaseApiController
     public function transferRequest(int $requestDriverId, TransferDriverRequest $request): JsonResponse
     {
         $this->requestDriverService->transferRequest($requestDriverId, $request->toDTO());
+        return $this->noContentResponse();
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function approvedRequest(ApprovedDriverRequest $request): JsonResponse
+    {
+        $dto = $request->toDTO();
+        $this->requestDriverService->approvedRequest($dto);
         return $this->noContentResponse();
     }
 }
