@@ -108,6 +108,10 @@ Route::prefix('v1')->group(function () {
                     ->name('show')
                     ->where('driverId', Validation::INTEGER_ID);
 
+                Route::get('/available-driver-request/{driverId}', 'CarController@getAvailableCarsInRequestDriver')
+                    ->name('available-driver-request')
+                    ->where('driverId', Validation::INTEGER_ID);
+
                 Route::patch('/change-status/{id}', 'CarController@changeStatus')
                     ->name('change-status')
                     ->where('id', Validation::INTEGER_ID);
@@ -291,7 +295,7 @@ Route::prefix('v1')->group(function () {
                     ->where('officeId', Validation::INTEGER_ID)
                     ->where('noPeople', Validation::INTEGER_ID);
             });
-        
+
         Route::prefix('drivers')
             ->name('drivers.')
             ->group(function() {
@@ -306,6 +310,10 @@ Route::prefix('v1')->group(function () {
                     ->name('find-all-car-relation')
                     ->where('officeId', Validation::INTEGER_ID)
                     ->where('date', Validation::DATE_REGEX);
+
+                Route::get('/available-request/{officeId}', 'DriverController@getAvailableDriversRequest')
+                    ->name('available-request')
+                    ->where('officeId', Validation::INTEGER_ID);
 
                 Route::post('/car', 'DriverController@insertDriverCar')
                     ->name('car');
@@ -359,6 +367,9 @@ Route::prefix('v1')->group(function () {
 
                 Route::get('/status/{code}', 'RequestDriverController@getStatusByStatusCurrent')
                     ->name('status-by-status-current');
+
+                Route::post('/approved', 'RequestDriverController@approvedRequest')
+                    ->name('approved');
 
                 Route::put('/upload-file/{requestId}', 'RequestDriverController@uploadAuthorizationFile')
                     ->name('upload-file')

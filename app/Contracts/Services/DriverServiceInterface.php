@@ -22,4 +22,6 @@ interface DriverServiceInterface extends BaseServiceInterface
     public function findAllByOfficeId(int $officeId): Collection;
 
     public function getAvailableDriversPackage(int $officeId, Carbon $date): Collection;
+
+    public function getAvailableDriversRequest(int $officeId, Carbon $startDate, Carbon $endDate): Collection;
 }

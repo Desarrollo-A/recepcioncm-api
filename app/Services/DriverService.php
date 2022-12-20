@@ -70,4 +70,12 @@ class DriverService extends BaseService implements DriverServiceInterface
         }
         return $officeIdDriver;
     }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function getAvailableDriversRequest(int $officeId, Carbon $startDate, Carbon $endDate): Collection
+    {
+        return $this->entityRepository->getAvailableDriversRequest($officeId, $startDate, $endDate);
+    }
 }

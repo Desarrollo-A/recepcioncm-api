@@ -7,6 +7,7 @@ use App\Contracts\Services\LookupServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Helpers\Enum\Message;
+use App\Helpers\Validation;
 use App\Http\Requests\Car\ChangeStatusCarRequest;
 use App\Http\Requests\Car\StoreCarRequest;
 use App\Http\Requests\Car\UpdateCarRequest;
@@ -14,6 +15,7 @@ use App\Http\Resources\Car\CarCollection;
 use App\Http\Resources\Car\CarResource;
 use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response as HttpCodes;
@@ -88,7 +90,17 @@ class CarController extends BaseApiController
     {
         $officeId = auth()->user()->office_id;
         $cars = $this->carService->findAllAvailableByDriverId($driverId, $officeId);
-        //return $this->showAll(CarResource::collection($cars));
         return $this->showAll(new CarCollection($cars));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function getAvailableCarsInRequestDriver(int $driverId, Request $request): JsonResponse
+    {
+        $startDate = new Carbon(Validation::validateDate($request->get('start_date')));
+        $endDate = new Carbon(Validation::validateDate($request->get('end_date')));
+        $cars = $this->carService->getAvailableCarsInRequestDriver($driverId, $startDate, $endDate);
+        return $this->showAll(CarResource::collection($cars));
     }
 }
