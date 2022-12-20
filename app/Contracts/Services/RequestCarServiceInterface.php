@@ -17,5 +17,5 @@ interface RequestCarServiceInterface extends BaseServiceInterface
 
     public function findAllCarsPaginated(HttpRequest $request, User $user, array $columns = ['*']): LengthAwarePaginator;
 
-    public function deleteRequestCar($requestCarId, $user): void;
+    public function deleteRequestCar($requestId, $user): void;
 }

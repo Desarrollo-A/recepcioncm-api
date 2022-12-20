@@ -20,7 +20,7 @@ class RequestCarController extends BaseApiController
     public function __construct(RequestCarServiceInterface $requestCarService)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
-            ->only('store', 'uploadAuthorizationFile');
+            ->only('store', 'uploadAuthorizationFile', 'deleteRequestCar');
         $this->requestCarService = $requestCarService;
     }
 
@@ -51,9 +51,9 @@ class RequestCarController extends BaseApiController
         return $this->noContentResponse();
     }
 
-    public function deleteRequestCar(int $requestCarId): JsonResponse
+    public function deleteRequestCar(int $requestId): JsonResponse
     {
-        $this->requestCarService->deleteRequestCar($requestCarId, auth()->user());
+        $this->requestCarService->deleteRequestCar($requestId, auth()->user());
         return $this->noContentResponse();
     }
 }

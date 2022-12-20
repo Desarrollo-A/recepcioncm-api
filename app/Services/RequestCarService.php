@@ -19,6 +19,7 @@ use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Enums\TypeLookup;
 use App\Models\RequestCar;
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -83,8 +84,18 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         return $this->requestCarViewRepository->findAllRequestsCarPaginated($filters, $perPage, $user, $sort);
     }
 
-    public function deleteRequestCar($requestCarId, $user): void
+    public function deleteRequestCar($requestId, $user): void
     {
-        $this->entityRepository->deleteRequestCar($requestCarId, $user->office_id);
+        $requestCar = $this->entityRepository->findByRequestId($requestId);
+        
+        if($requestCar->request->user_id !== $user->id){
+            throw new AuthorizationException();
+        }
+
+        if(isset($requestCar->authorization_filename)){
+            File::deleteFile($requestCar->authorization_filename, Path::CAR_AUTHORIZATION_DOCUMENTS);
+        }
+
+        $this->requestRepository->delete($requestId);
     }
 }

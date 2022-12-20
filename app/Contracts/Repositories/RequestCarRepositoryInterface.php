@@ -7,8 +7,9 @@ use App\Models\RequestCar;
 
 /**
  * @method RequestCar create(array $data)
+ * @method RequestCar findById(int $id, array $columns = ['*'])
  */
 interface RequestCarRepositoryInterface extends BaseRepositoryInterface
 {
-    public function deleteRequestCar($requestCarId, $officeUserId): void;
+    public function findByRequestId(int $requestCarId): RequestCar;
 }
