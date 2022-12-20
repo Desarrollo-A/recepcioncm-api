@@ -43,13 +43,6 @@ class RequestCarController extends BaseApiController
         return $this->showOne(new RequestCarResource($requestCar));
     }
 
-    public function index(Request $request): JsonResponse
-    {
-        $user = auth()->user();
-        $requestCars = $this->requestCarService->findAllCarsPaginated($request, $user);
-        return $this->showAll(new RequestCarViewCollection($requestCars, true));
-    }
-
     /**
      * @throws CustomErrorException
      */

@@ -76,7 +76,7 @@ class RequestPackageController extends BaseApiController
 
     public function show(int $requestId): JsonResponse
     {
-        $package = $this->requestPackageService->findById($requestId);
+        $package = $this->requestPackageService->findByPackageRequestId($requestId, auth()->user());
         return $this->showOne(new PackageResource($package));
     }
 

@@ -27,7 +27,7 @@ interface RequestServiceInterface extends BaseServiceInterface
      */
     public function changeToExpired();
 
-    public function deleteRequestPackage(int $requestId): Package;
+    public function deleteRequestPackage(int $requestId, int $userId): Package;
 
-    public function deleteRequestDriver(int $requestId): RequestDriver;
+    public function deleteRequestDriver(int $requestId, int $userId): RequestDriver;
 }

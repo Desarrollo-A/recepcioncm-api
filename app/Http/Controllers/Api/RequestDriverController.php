@@ -59,7 +59,7 @@ class RequestDriverController extends BaseApiController
 
     public function show(int $requestId): JsonResponse
     {
-        $requestDriver = $this->requestDriverService->findById($requestId);
+        $requestDriver = $this->requestDriverService->findByDriverRequestId($requestId, auth()->user());
         return $this->showOne(new RequestDriverResource($requestDriver));
     }
 

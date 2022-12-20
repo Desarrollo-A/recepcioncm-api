@@ -55,14 +55,14 @@ class RequestController extends BaseApiController
 
     public function deleteRequestPackage(int $requestId): JsonResponse
     {
-        $package = $this->requestService->deleteRequestPackage($requestId);
+        $package = $this->requestService->deleteRequestPackage($requestId, auth()->user()->id);
         $this->notificationService->deleteRequestPackageNotification($package);
         return $this->noContentResponse();
     }
 
     public function deleteRequestDriver(int $id): JsonResponse
     {
-        $this->requestService->deleteRequestDriver($id);
+        $this->requestService->deleteRequestDriver($id, auth()->user()->id);
         return $this->noContentResponse();
     }
 

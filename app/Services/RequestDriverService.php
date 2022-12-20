@@ -12,6 +12,7 @@ use App\Contracts\Services\CalendarServiceInterface;
 use App\Contracts\Services\RequestDriverServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
+use App\Helpers\Enum\Message;
 use App\Helpers\Enum\Path;
 use App\Helpers\Enum\QueryParam;
 use App\Helpers\File;
@@ -26,10 +27,12 @@ use App\Models\Enums\TypeLookup;
 use App\Models\Request;
 use App\Models\RequestDriver;
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Symfony\Component\HttpFoundation\Response as HttpCodes;
+use Symfony\Component\HttpFoundation\Response;
 
 class RequestDriverService extends BaseService implements RequestDriverServiceInterface
 {
@@ -110,9 +113,19 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
         return $this->requestDriverViewRepository->findAllDriversPaginated($filters, $perPage, $user, $sort);
     }
 
-    public function findById(int $id): RequestDriver
+    public function findByDriverRequestId(int $id, User $user): RequestDriver
     {
-        return $this->entityRepository->findByRequestId($id);
+        $driver = $this->entityRepository->findByRequestId($id);
+        if ($user->role->name === NameRole::RECEPCIONIST) {
+            if($user->office_id !== $driver->office_id){
+                throw new AuthorizationException();
+            }
+        }elseif ($user->role->name === NameRole::APPLICANT) {
+            if ($user->id !== $driver->request->user_id) {
+                throw new AuthorizationException();
+            }
+        }
+        return $driver;
     }
 
     /**
