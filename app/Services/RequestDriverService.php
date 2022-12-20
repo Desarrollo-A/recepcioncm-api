@@ -4,6 +4,9 @@ namespace App\Services;
 
 use App\Contracts\Repositories\AddressRepositoryInterface;
 use App\Contracts\Repositories\CancelRequestRepositoryInterface;
+use App\Contracts\Repositories\CarScheduleRepositoryInterface;
+use App\Contracts\Repositories\DriverRequestScheduleRepositoryInterface;
+use App\Contracts\Repositories\DriverScheduleRepositoryInterface;
 use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\RequestDriverRepositoryInterface;
 use App\Contracts\Repositories\RequestDriverViewRepositoryInterface;
@@ -42,6 +45,9 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
     protected $addressRepository;
     protected $requestDriverViewRepository;
     protected $cancelRequestRepository;
+    protected $driverScheduleRepository;
+    protected $carScheduleRepository;
+    protected $driverRequestScheduleRepository;
 
     protected $calendarService;
 
@@ -51,6 +57,9 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
                                 AddressRepositoryInterface $addressRepository,
                                 RequestDriverViewRepositoryInterface $requestDriverViewRepository,
                                 CancelRequestRepositoryInterface $cancelRequestRepository,
+                                DriverScheduleRepositoryInterface $driverScheduleRepository,
+                                CarScheduleRepositoryInterface $carScheduleRepository,
+                                DriverRequestScheduleRepositoryInterface $driverRequestScheduleRepository,
                                 CalendarServiceInterface $calendarService)
     {
         $this->entityRepository = $requestDriverRepository;
@@ -59,6 +68,9 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
         $this->addressRepository = $addressRepository;
         $this->requestDriverViewRepository = $requestDriverViewRepository;
         $this->cancelRequestRepository = $cancelRequestRepository;
+        $this->driverScheduleRepository = $driverScheduleRepository;
+        $this->carScheduleRepository = $carScheduleRepository;
+        $this->driverRequestScheduleRepository = $driverRequestScheduleRepository;
         $this->calendarService = $calendarService;
     }
 
@@ -215,5 +227,36 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
     public function transferRequest(int $requestDriverId, RequestDriverDTO $dto): RequestDriver
     {
         return $this->entityRepository->update($requestDriverId, $dto->toArray(['office_id']));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function approvedRequest(RequestDriverDTO $dto): Request
+    {
+        $dto->request->status_id = $this->lookupRepository
+            ->findByCodeAndType(StatusDriverRequestLookup::code(StatusDriverRequestLookup::APPROVED),
+                TypeLookup::STATUS_DRIVER_REQUEST)
+            ->id;
+
+        $request = $this->requestRepository->findById($dto->request_id);
+        $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id']));
+
+        $dto->driverRequestSchedule->carSchedule->start_date = $request->start_date;
+        $dto->driverRequestSchedule->carSchedule->end_date = $request->end_date;
+        $carSchedule = $this->carScheduleRepository
+            ->create($dto->driverRequestSchedule->carSchedule->toArray(['car_id', 'start_date', 'end_date']));
+
+        $dto->driverRequestSchedule->driverSchedule->start_date = $request->start_date;
+        $dto->driverRequestSchedule->driverSchedule->end_date = $request->end_date;
+        $driverSchedule = $this->driverScheduleRepository
+            ->create($dto->driverRequestSchedule->driverSchedule->toArray(['driver_id', 'start_date', 'end_date']));
+
+        $dto->driverRequestSchedule->driver_schedule_id = $driverSchedule->id;
+        $dto->driverRequestSchedule->car_schedule_id = $carSchedule->id;
+        $this->driverRequestScheduleRepository
+            ->create($dto->driverRequestSchedule->toArray(['request_driver_id', 'driver_schedule_id', 'car_schedule_id']));
+
+        return $request;
     }
 }

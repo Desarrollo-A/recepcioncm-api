@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Contracts\Services\DriverServiceInterface;
 use App\Core\BaseApiController;
+use App\Exceptions\CustomErrorException;
+use App\Helpers\Validation;
 use App\Http\Requests\DriverCar\DriverCarRequest;
 use App\Http\Resources\Driver\DriverCollection;
 use App\Http\Resources\Driver\DriverResource;
@@ -51,6 +53,17 @@ class DriverController extends BaseApiController
     public function getAvailableDriversPackage(int $officeId, Carbon $date): JsonResponse
     {
         $drivers = $this->driverService->getAvailableDriversPackage($officeId, $date);
+        return $this->showAll(DriverResource::collection($drivers));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function getAvailableDriversRequest(int $officeId, Request $request): JsonResponse
+    {
+        $startDate = new Carbon(Validation::validateDate($request->get('start_date')));
+        $endDate = new Carbon(Validation::validateDate($request->get('end_date')));
+        $drivers = $this->driverService->getAvailableDriversRequest($officeId, $startDate, $endDate);
         return $this->showAll(DriverResource::collection($drivers));
     }
 }
