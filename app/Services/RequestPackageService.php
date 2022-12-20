@@ -16,6 +16,7 @@ use App\Contracts\Services\CalendarServiceInterface;
 use App\Contracts\Services\RequestPackageServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
+use App\Helpers\Enum\Message;
 use App\Helpers\Enum\Path;
 use App\Helpers\Enum\QueryParam;
 use App\Helpers\File;
@@ -34,6 +35,7 @@ use App\Models\Package;
 use App\Models\Request;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request as HttpRequest;
@@ -41,6 +43,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\Response as HttpCodes;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response;
 
 class RequestPackageService extends BaseService implements RequestPackageServiceInterface
 {
@@ -137,9 +140,19 @@ class RequestPackageService extends BaseService implements RequestPackageService
         return $this->requestPackageViewRepository->findAllPackagesPaginated($filters, $perPage, $user, $sort);
     }
 
-    public function findById(int $id): Package
+    public function findByPackageRequestId(int $id, User $user): Package
     {
-        return $this->packageRepository->findByRequestId($id);
+        $package = $this->packageRepository->findByRequestId($id);
+        if ($user->role->name === NameRole::RECEPCIONIST) {
+            if($user->office_id !== $package->office_id){
+                throw new AuthorizationException();
+            }
+        }elseif ($user->role->name === NameRole::APPLICANT) {
+            if ($user->id !== $package->request->user_id) {
+               throw new AuthorizationException();
+            }
+        }
+        return $package;
     }
 
     /**

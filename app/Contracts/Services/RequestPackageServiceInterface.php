@@ -43,4 +43,6 @@ interface RequestPackageServiceInterface extends BaseServiceInterface
     public function findByRequestId(int $requestId): Package;
 
     public function onRoadPackage(int $requestId): Request;
+
+    public function findByPackageRequestId(int $requestId, User $user): Package;
 }

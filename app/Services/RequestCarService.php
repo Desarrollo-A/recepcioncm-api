@@ -92,7 +92,7 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
             throw new AuthorizationException();
         }
 
-        if(isset($requestCar->authorization_filename)){
+        if(!is_null($requestCar->authorization_filename)){
             File::deleteFile($requestCar->authorization_filename, Path::CAR_AUTHORIZATION_DOCUMENTS);
         }
 

@@ -32,6 +32,7 @@ use App\Models\Request;
 use App\Models\RequestRoom;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -245,11 +246,11 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         $requestRoom = $this->entityRepository->findById($requestId);
         if ($user->role->name === NameRole::RECEPCIONIST) {
             if ($user->office_id !== $requestRoom->room->office_id) {
-                throw new CustomErrorException(Message::AUTHORIZATION_EXCEPTION, Response::HTTP_FORBIDDEN);
+                throw new AuthorizationException();
             }
         } else if ($user->role->name === NameRole::APPLICANT) {
             if ($user->id !== $requestRoom->request->user_id) {
-                throw new CustomErrorException(Message::AUTHORIZATION_EXCEPTION, Response::HTTP_FORBIDDEN);
+                throw new AuthorizationException();
             }
         }
 
