@@ -379,6 +379,10 @@ Route::prefix('v1')->group(function () {
                 Route::put('/upload-file/{requestId}', 'RequestCarController@uploadAuthorizationFile')
                     ->name('upload-file')
                     ->where('requestId', Validation::INTEGER_ID);
+
+                Route::delete('/{requestId}', 'RequestCarController@deleteRequestCar')
+                    ->name('delete')
+                    ->where('reuqestId', validation::INTEGER_ID);
             });
 
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');
