@@ -16,4 +16,6 @@ interface RequestCarServiceInterface extends BaseServiceInterface
     public function uploadAuthorizationFile(int $id, RequestCarDTO $dto): void;
 
     public function findAllCarsPaginated(HttpRequest $request, User $user, array $columns = ['*']): LengthAwarePaginator;
+
+    public function deleteRequestCar($requestId, $user): void;
 }

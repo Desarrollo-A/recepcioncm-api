@@ -20,9 +20,9 @@ class RequestCarController extends BaseApiController
     public function __construct(RequestCarServiceInterface $requestCarService)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
-            ->only('store', 'uploadAuthorizationFile');
+            ->only('store', 'uploadAuthorizationFile', 'deleteRequestCar');
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
-            ->only('index');
+            ->only('index', 'store', 'uploadAuthorizationFile');
         $this->requestCarService = $requestCarService;
     }
 
@@ -43,6 +43,13 @@ class RequestCarController extends BaseApiController
         return $this->showOne(new RequestCarResource($requestCar));
     }
 
+    public function index(Request $request): JsonResponse
+    {
+        $user = auth()->user();
+        $requestCars = $this->requestCarService->findAllCarsPaginated($request, $user);
+        return $this->showAll(new RequestCarViewCollection($requestCars, true));
+    }
+
     /**
      * @throws CustomErrorException
      */
@@ -50,6 +57,12 @@ class RequestCarController extends BaseApiController
     {
         $dto = $request->toDTO();
         $this->requestCarService->uploadAuthorizationFile($requestId, $dto);
+        return $this->noContentResponse();
+    }
+
+    public function deleteRequestCar(int $requestId): JsonResponse
+    {
+        $this->requestCarService->deleteRequestCar($requestId, auth()->user());
         return $this->noContentResponse();
     }
 }
