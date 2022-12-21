@@ -27,6 +27,7 @@ use App\Models\Enums\Lookups\StatusDriverRequestLookup;
 use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
+use App\Models\Lookup;
 use App\Models\Request;
 use App\Models\RequestDriver;
 use App\Models\User;
@@ -212,6 +213,20 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
 
         if (config('app.enable_google_calendar', false)) {
             $this->calendarService->deleteEvent($request->event_google_calendar_id);
+        }
+
+        $lastStatusId = $request->status_id;
+
+        $statusApproved = $status->first(function (Lookup $lookup) {
+            return $lookup->code === StatusDriverRequestLookup::code(StatusDriverRequestLookup::APPROVED);
+        });
+
+        // Si la solicitud fue aprobada anteriormente
+        if ($lastStatusId === $statusApproved->id) {
+            $requestDriver = $this->entityRepository->findByRequestId($dto->request_id);
+            $this->driverRequestScheduleRepository->deleteByRequestDriverId($requestDriver->id);
+            $this->carScheduleRepository->delete($requestDriver->driverRequestSchedule->carSchedule->id);
+            $this->driverScheduleRepository->delete($requestDriver->driverRequestSchedule->driverSchedule->id);
         }
 
         $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id', 'event_google_calendar_id']));

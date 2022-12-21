@@ -25,7 +25,9 @@ class RequestDriverRepository extends BaseRepository implements RequestDriverRep
     {
         return $this->entity
             ->with(['pickupAddress', 'pickupAddress.country', 'arrivalAddress', 'arrivalAddress.country', 'request',
-                'request.user', 'request.status', 'request.cancelRequest', 'request.cancelRequest.user'])
+                'request.user', 'request.status', 'request.cancelRequest', 'request.cancelRequest.user', 
+                'driverRequestSchedule', 'driverRequestSchedule.carSchedule', 'driverRequestSchedule.driverSchedule',
+                'driverRequestSchedule.carSchedule.car', 'driverRequestSchedule.driverSchedule.driver'])
             ->where('request_id', $requestId)
             ->firstOrFail();
     }
