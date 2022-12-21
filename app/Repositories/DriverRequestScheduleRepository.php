@@ -20,4 +20,11 @@ class DriverRequestScheduleRepository extends BaseRepository implements DriverRe
     {
         $this->entity = $driverRequestSchedule;
     }
+
+    public function deleteByRequestDriverId(int $requestDriverId): void
+    {
+        $this->entity
+            ->where('request_driver_id', $requestDriverId)
+            ->delete();
+    }
 }
