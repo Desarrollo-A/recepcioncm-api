@@ -10,5 +10,5 @@ use App\Models\DriverRequestSchedule;
  */
 interface DriverRequestScheduleRepositoryInterface extends BaseRepositoryInterface
 {
-    //
+    public function deleteByRequestDriverId(int $requestDriverId): void;
 }

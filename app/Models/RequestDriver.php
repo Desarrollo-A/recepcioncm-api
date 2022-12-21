@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class RequestDriver extends Model
 {
@@ -30,5 +31,10 @@ class RequestDriver extends Model
     public function arrivalAddress(): BelongsTo
     {
         return $this->belongsTo(Address::class, 'arrival_address_id');
+    }
+
+    public function driverRequestSchedule(): HasOne
+    {
+        return $this->hasOne(DriverRequestSchedule::class);
     }
 }
