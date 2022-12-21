@@ -387,6 +387,10 @@ Route::prefix('v1')->group(function () {
         Route::prefix('request-cars')
             ->name('request-cars.')
             ->group(function () {
+                Route::get('/{requestId}', 'RequestCarController@show')
+                    ->name('show')
+                    ->where('requestId', Validation::INTEGER_ID);
+
                 Route::put('/upload-file/{requestId}', 'RequestCarController@uploadAuthorizationFile')
                     ->name('upload-file')
                     ->where('requestId', Validation::INTEGER_ID);
