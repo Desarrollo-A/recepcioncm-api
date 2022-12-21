@@ -16,6 +16,7 @@ use App\Helpers\Validation;
 use App\Models\Dto\RequestCarDTO;
 use App\Models\Enums\Lookups\StatusCarRequestLookup;
 use App\Models\Enums\Lookups\TypeRequestLookup;
+use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
 use App\Models\RequestCar;
 use App\Models\User;
@@ -97,5 +98,25 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         }
 
         $this->requestRepository->delete($requestId);
+    }
+
+    /**
+     * @throws AuthorizationException
+     */
+    public function findByRequestId(int $requestId, User $user): RequestCar
+    {
+        $requestCar = $this->entityRepository->findByRequestId($requestId);
+
+        if ($user->role->name === NameRole::RECEPCIONIST) {
+            if ($user->office_id !== $requestCar->office_id){
+                throw new AuthorizationException();
+            }
+        } else if ($user->role->name === NameRole::APPLICANT) {
+            if ($user->id !== $requestCar->request->user_id) {
+                throw new AuthorizationException();
+            }
+        }
+
+        return $requestCar;
     }
 }
