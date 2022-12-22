@@ -50,4 +50,10 @@ class OfficeController extends BaseApiController
         $offices = $this->officeService->getOfficeByStateWithDriverAndCarWithoutOffice($officeId, $noPeople);
         return $this->showAll(OfficeResource::collection($offices));
     }
+
+    public function getOfficeByStateWithCarWithoutOffice(int $officeId, int $noPeople): JsonResponse
+    {
+        $offices = $this->officeService->getOfficeByStateWithCarWithoutOffice($officeId, $noPeople);
+        return $this->showAll(OfficeResource::collection($offices));
+    }
 }

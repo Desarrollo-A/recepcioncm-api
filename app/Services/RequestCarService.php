@@ -21,8 +21,10 @@ use App\Models\Enums\TypeLookup;
 use App\Models\RequestCar;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Symfony\Component\HttpFoundation\Response as HttpCodes;
 
 class RequestCarService extends BaseService implements RequestCarServiceInterface
 {
@@ -85,7 +87,7 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         return $this->requestCarViewRepository->findAllRequestsCarPaginated($filters, $perPage, $user, $sort);
     }
 
-    public function deleteRequestCar($requestId, $user): void
+    public function deleteRequestCar(int $requestId, User $user): void
     {
         $requestCar = $this->entityRepository->findByRequestId($requestId);
 
@@ -118,5 +120,54 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         }
 
         return $requestCar;
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function getStatusByStatusCurrent(string $code, string $roleName): Collection
+    {
+        if (!in_array($code, StatusCarRequestLookup::getAllCodes()->all())) {
+            throw new CustomErrorException('No existe el estatus', HttpCodes::HTTP_NOT_FOUND);
+        }
+
+        $status = Collection::make();
+        if ($roleName === NameRole::RECEPCIONIST) {
+            switch ($code) {
+                case StatusCarRequestLookup::code(StatusCarRequestLookup::NEW):
+                    $status = $this->lookupRepository->findByCodeWhereInAndType([
+                        StatusCarRequestLookup::code(StatusCarRequestLookup::PROPOSAL),
+                        StatusCarRequestLookup::code(StatusCarRequestLookup::APPROVED),
+                        StatusCarRequestLookup::code(StatusCarRequestLookup::TRANSFER),
+                        StatusCarRequestLookup::code(StatusCarRequestLookup::CANCELLED)
+                    ], TypeLookup::STATUS_CAR_REQUEST);
+                    break;
+                case StatusCarRequestLookup::code(StatusCarRequestLookup::APPROVED):
+                    $status = $this->lookupRepository->findByCodeWhereInAndType([
+                        StatusCarRequestLookup::code(StatusCarRequestLookup::CANCELLED)
+                    ], TypeLookup::STATUS_CAR_REQUEST);
+                    break;
+            }
+        } else if ($roleName === NameRole::APPLICANT) {
+            switch ($code) {
+                case StatusCarRequestLookup::code(StatusCarRequestLookup::PROPOSAL):
+                    $status = $this->lookupRepository->findByCodeWhereInAndType([
+                        StatusCarRequestLookup::code(StatusCarRequestLookup::REJECTED)
+                    ], TypeLookup::STATUS_CAR_REQUEST);
+                    break;
+                case StatusCarRequestLookup::code(StatusCarRequestLookup::APPROVED):
+                    $status = $this->lookupRepository->findByCodeWhereInAndType([
+                        StatusCarRequestLookup::code(StatusCarRequestLookup::CANCELLED)
+                    ], TypeLookup::STATUS_CAR_REQUEST);
+                    break;
+            }
+        }
+
+        return $status;
+    }
+
+    public function transferRequest(int $requestCarId, RequestCarDTO $dto): RequestCar
+    {
+        return $this->entityRepository->update($requestCarId, $dto->toArray(['office_id']));
     }
 }
