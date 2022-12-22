@@ -3,7 +3,9 @@
 namespace App\Contracts\Services;
 
 use App\Core\Contracts\BaseServiceInterface;
+use App\Models\Dto\CancelRequestDTO;
 use App\Models\Dto\RequestCarDTO;
+use App\Models\Request;
 use App\Models\RequestCar;
 use App\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -35,4 +37,6 @@ interface RequestCarServiceInterface extends BaseServiceInterface
     public function getStatusByStatusCurrent(string $code, string $roleName): Collection;
 
     public function transferRequest(int $requestCarId, RequestCarDTO $dto): RequestCar;
+
+    public function cancelRequest(CancelRequestDTO $dto): Request;
 }

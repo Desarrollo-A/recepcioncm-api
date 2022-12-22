@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class RequestCar extends Model
 {
@@ -18,5 +19,10 @@ class RequestCar extends Model
     public function request(): BelongsTo
     {
         return $this->belongsTo(Request::class);
+    }
+
+    public function carRequestSchedule(): HasOne
+    {
+        return $this->hasOne(CarRequestSchedule::class);
     }
 }
