@@ -2,10 +2,15 @@
 
 namespace App\Services;
 
+use App\Contracts\Repositories\CancelRequestRepositoryInterface;
+use App\Contracts\Repositories\CarRequestScheduleRepositoryInterface;
+use App\Contracts\Repositories\CarScheduleRepositoryInterface;
+use App\Contracts\Repositories\DriverScheduleRepositoryInterface;
 use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\RequestCarRepositoryInterface;
 use App\Contracts\Repositories\RequestCarViewRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
+use App\Contracts\Services\CalendarServiceInterface;
 use App\Contracts\Services\RequestCarServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
@@ -13,11 +18,15 @@ use App\Helpers\Enum\Path;
 use App\Helpers\Enum\QueryParam;
 use App\Helpers\File;
 use App\Helpers\Validation;
+use App\Models\Dto\CancelRequestDTO;
 use App\Models\Dto\RequestCarDTO;
+use App\Models\Dto\RequestDTO;
 use App\Models\Enums\Lookups\StatusCarRequestLookup;
 use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
+use App\Models\Lookup;
+use App\Models\Request;
 use App\Models\RequestCar;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -32,16 +41,29 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
     protected $requestRepository;
     protected $lookupRepository;
     protected $requestCarViewRepository;
+    protected $cancelRequestRepository;
+    protected $carScheduleRepository;
+    protected $carRequestScheduleRepository;
+
+    protected $calendarService;
 
     public function __construct(RequestCarRepositoryInterface $requestCarRepository,
                                 RequestRepositoryInterface $requestRepository,
                                 LookupRepositoryInterface $lookupRepository,
-                                RequestCarViewRepositoryInterface $requestCarViewRepository)
+                                RequestCarViewRepositoryInterface $requestCarViewRepository,
+                                CancelRequestRepositoryInterface $cancelRequestRepository,
+                                CarScheduleRepositoryInterface $carScheduleRepository,
+                                CarRequestScheduleRepositoryInterface $carRequestScheduleRepository,
+                                CalendarServiceInterface $calendarService)
     {
         $this->entityRepository = $requestCarRepository;
         $this->requestRepository = $requestRepository;
         $this->lookupRepository = $lookupRepository;
         $this->requestCarViewRepository = $requestCarViewRepository;
+        $this->cancelRequestRepository = $cancelRequestRepository;
+        $this->carScheduleRepository = $carScheduleRepository;
+        $this->carRequestScheduleRepository = $carRequestScheduleRepository;
+        $this->calendarService = $calendarService;
     }
 
     /**
@@ -169,5 +191,55 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
     public function transferRequest(int $requestCarId, RequestCarDTO $dto): RequestCar
     {
         return $this->entityRepository->update($requestCarId, $dto->toArray(['office_id']));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function cancelRequest(CancelRequestDTO $dto): Request
+    {
+        $status = $this->lookupRepository->findByCodeWhereInAndType([
+            StatusCarRequestLookup::code(StatusCarRequestLookup::NEW),
+            StatusCarRequestLookup::code(StatusCarRequestLookup::APPROVED),
+        ], TypeLookup::STATUS_CAR_REQUEST);
+
+        $request = $this->requestRepository->findById($dto->request_id);
+
+        if (!in_array($request->status_id, $status->pluck('id')->toArray())) {
+            throw new CustomErrorException('La solicitud debe estar en estatus '
+                .StatusCarRequestLookup::code(StatusCarRequestLookup::NEW).' o '
+                .StatusCarRequestLookup::code(StatusCarRequestLookup::APPROVED),
+                HttpCodes::HTTP_BAD_REQUEST);
+        }
+
+        $cancelStatusId = $this->lookupRepository
+            ->findByCodeAndType(StatusCarRequestLookup::code(StatusCarRequestLookup::CANCELLED),
+                TypeLookup::STATUS_CAR_REQUEST)
+            ->id;
+
+        $requestDTO = new RequestDTO(['status_id' => $cancelStatusId]);
+
+        if (config('app.enable_google_calendar', false)) {
+            $this->calendarService->deleteEvent($request->event_google_calendar_id);
+        }
+
+        $lastStatusId = $request->status_id;
+
+        $statusApproved = $status->first(function (Lookup $lookup) {
+            return $lookup->code === StatusCarRequestLookup::code(StatusCarRequestLookup::APPROVED);
+        });
+
+        // Si la solicitud fue aprobada anteriormente
+        if ($lastStatusId === $statusApproved->id) {
+            $requestCar = $this->entityRepository->findByRequestId($dto->request_id);
+            $this->carRequestScheduleRepository->deleteByRequestCarId($requestCar->id);
+            $this->carScheduleRepository->delete($requestCar->carRequestSchedule->carSchedule->id);
+        }
+
+        $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id', 'event_google_calendar_id']));
+
+        $this->cancelRequestRepository->create($dto->toArray(['request_id', 'cancel_comment', 'user_id']));
+
+        return $request;
     }
 }
