@@ -21,6 +21,13 @@ class StatusCarRequestLookup
             self::PROPOSAL, self::TRANSFER]);
     }
 
+    public static function getAllCodes(): Collection
+    {
+        return collect([self::code(self::NEW), self::code(self::APPROVED), self::code(self::CANCELLED),
+            self::code(self::REJECTED), self::code(self::FINISHED), self::code(self::EXPIRED),
+            self::code(self::PROPOSAL), self::code(self::TRANSFER)]);
+    }
+
     public static function code($const)
     {
         $class = new \ReflectionClass(__CLASS__);
