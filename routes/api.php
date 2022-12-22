@@ -294,6 +294,12 @@ Route::prefix('v1')->group(function () {
                     ->name('state-driver-car-without-office')
                     ->where('officeId', Validation::INTEGER_ID)
                     ->where('noPeople', Validation::INTEGER_ID);
+
+                Route::get('/state-car-without-office/{officeId}/{noPeople}',
+                    'OfficeController@getOfficeByStateWithCarWithoutOffice')
+                    ->name('state-car-without-office')
+                    ->where('officeId', Validation::INTEGER_ID)
+                    ->where('noPeople', Validation::INTEGER_ID);
             });
 
         Route::prefix('drivers')
@@ -391,13 +397,20 @@ Route::prefix('v1')->group(function () {
                     ->name('show')
                     ->where('requestId', Validation::INTEGER_ID);
 
+                Route::get('/status/{code}', 'RequestCarController@getStatusByStatusCurrent')
+                    ->name('status-by-status-current');
+
                 Route::put('/upload-file/{requestId}', 'RequestCarController@uploadAuthorizationFile')
                     ->name('upload-file')
                     ->where('requestId', Validation::INTEGER_ID);
 
+                Route::patch('/transfer/{requestCarId}', 'RequestCarController@transferRequest')
+                    ->name('transfer')
+                    ->where('requestCarId', Validation::INTEGER_ID);
+
                 Route::delete('/{requestId}', 'RequestCarController@deleteRequestCar')
                     ->name('delete')
-                    ->where('reuqestId', validation::INTEGER_ID);
+                    ->where('requestId', validation::INTEGER_ID);
             });
 
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');

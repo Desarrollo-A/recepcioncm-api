@@ -6,7 +6,9 @@ use App\Contracts\Services\RequestCarServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\RequestCar\StoreRequestCarRequest;
+use App\Http\Requests\RequestCar\TransferCarRequest;
 use App\Http\Requests\RequestCar\UploadFileRequestCarRequest;
+use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\RequestCar\RequestCarResource;
 use App\Http\Resources\RequestCar\RequestCarViewCollection;
 use App\Models\Enums\NameRole;
@@ -63,5 +65,18 @@ class RequestCarController extends BaseApiController
     {
         $requestCar = $this->requestCarService->findByRequestId($requestId, auth()->user());
         return $this->showOne(new RequestCarResource($requestCar));
+    }
+
+    public function getStatusByStatusCurrent(string $code): JsonResponse
+    {
+        $roleName = auth()->user()->role->name;
+        $status = $this->requestCarService->getStatusByStatusCurrent($code, $roleName);
+        return $this->showAll(LookupResource::collection($status));
+    }
+
+    public function transferRequest(int $requestCarId, TransferCarRequest $request): JsonResponse
+    {
+        $this->requestCarService->transferRequest($requestCarId, $request->toDTO());
+        return $this->noContentResponse();
     }
 }
