@@ -62,7 +62,8 @@ class RequestController extends BaseApiController
 
     public function deleteRequestDriver(int $id): JsonResponse
     {
-        $this->requestService->deleteRequestDriver($id, auth()->user()->id);
+        $requestDriver = $this->requestService->deleteRequestDriver($id, auth()->user()->id);
+        $this->notificationService->deleteRequestDriverNotification($requestDriver);
         return $this->noContentResponse();
     }
 

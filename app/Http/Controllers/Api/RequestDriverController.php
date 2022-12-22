@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Contracts\Services\NotificationServiceInterface;
 use App\Contracts\Services\RequestDriverServiceInterface;
+use App\Contracts\Services\RequestNotificationServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
+use App\Helpers\Utils;
 use App\Http\Requests\CancelRequest\CancelRequest;
 use App\Http\Requests\RequestDriver\ApprovedDriverRequest;
 use App\Http\Requests\RequestDriver\StoreRequestDriverRequest;
@@ -20,8 +23,12 @@ use Illuminate\Http\Request;
 class RequestDriverController extends BaseApiController
 {
     private $requestDriverService;
+    private $notificationServiceInterface;
+    private $requestNotificationServiceInterface;
 
-    public function __construct(RequestDriverServiceInterface $requestDriverService)
+    public function __construct(RequestDriverServiceInterface $requestDriverService,
+                                NotificationServiceInterface $notificationServiceInterface,
+                                RequestNotificationServiceInterface  $requestNotificationServiceInterface)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
             ->only('store', 'uploadAuthorizationFile');
@@ -29,7 +36,10 @@ class RequestDriverController extends BaseApiController
             ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
             ->only('transferRequest');
+
         $this->requestDriverService = $requestDriverService;
+        $this->notificationServiceInterface = $notificationServiceInterface;
+        $this->requestNotificationServiceInterface = $requestNotificationServiceInterface;
     }
 
     /**
@@ -78,7 +88,10 @@ class RequestDriverController extends BaseApiController
     {
         $dto = $request->toDTO();
         $dto->request_id = $requestId;
-        $this->requestDriverService->cancelRequest($dto);
+        $requestDriver = $this->requestDriverService->cancelRequest($dto);
+        $notificationCancel = $this->notificationServiceInterface->cancelRequestDriverNotification($requestDriver->fresh('requestDriver'), auth()->user());
+        $this->requestNotificationServiceInterface->create($requestDriver->id, $notificationCancel->id);
+        Utils::eventAlertNotification($notificationCancel);
         return $this->noContentResponse();
     }
 
@@ -87,7 +100,10 @@ class RequestDriverController extends BaseApiController
      */
     public function transferRequest(int $requestDriverId, TransferDriverRequest $request): JsonResponse
     {
-        $this->requestDriverService->transferRequest($requestDriverId, $request->toDTO());
+        $requestDriver = $this->requestDriverService->transferRequest($requestDriverId, $request->toDTO());
+        $notificationTransfer = $this->notificationServiceInterface->transferRequestDriverNotification($requestDriver);
+        $this->requestNotificationServiceInterface->create($requestDriver->request_id, $notificationTransfer->id);
+        Utils::eventAlertNotification($notificationTransfer);
         return $this->noContentResponse();
     }
 
@@ -97,7 +113,10 @@ class RequestDriverController extends BaseApiController
     public function approvedRequest(ApprovedDriverRequest $request): JsonResponse
     {
         $dto = $request->toDTO();
-        $this->requestDriverService->approvedRequest($dto);
+        $request = $this->requestDriverService->approvedRequest($dto);
+        $notificationApproved = $this->notificationServiceInterface->approvedRequestDriverNotification($request);
+        $this->requestNotificationServiceInterface->create($request->id, $notificationApproved->id);
+        Utils::eventAlertNotification($notificationApproved);
         return $this->noContentResponse();
     }
 }
