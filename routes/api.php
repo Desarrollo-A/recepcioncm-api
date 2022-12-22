@@ -408,6 +408,10 @@ Route::prefix('v1')->group(function () {
                     ->name('transfer')
                     ->where('requestCarId', Validation::INTEGER_ID);
 
+                Route::patch('/cancel/{requestId}', 'RequestCarController@cancelRequest')
+                    ->name('cancel-request-package')
+                    ->where('requestId', Validation::INTEGER_ID);
+
                 Route::delete('/{requestId}', 'RequestCarController@deleteRequestCar')
                     ->name('delete')
                     ->where('requestId', validation::INTEGER_ID);

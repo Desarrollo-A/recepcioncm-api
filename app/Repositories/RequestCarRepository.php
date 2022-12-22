@@ -24,7 +24,8 @@ class RequestCarRepository extends BaseRepository implements RequestCarRepositor
     public function findByRequestId(int $requestCarId): RequestCar
     {
         return $this->entity
-            ->with(['request', 'request.user', 'request.status', 'request.cancelRequest', 'request.cancelRequest.user'])
+            ->with(['request', 'request.user', 'request.status', 'request.cancelRequest', 'request.cancelRequest.user',
+                'carRequestSchedule', 'carRequestSchedule.carSchedule', 'carRequestSchedule.carSchedule.car'])
             ->where('request_id', $requestCarId)
             ->firstOrFail();
     }
