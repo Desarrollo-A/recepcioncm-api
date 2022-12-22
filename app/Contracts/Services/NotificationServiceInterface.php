@@ -7,6 +7,7 @@ use App\Models\Inventory;
 use App\Models\Notification;
 use App\Models\Package;
 use App\Models\Request;
+use App\Models\RequestDriver;
 use App\Models\RequestRoom;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
@@ -65,4 +66,14 @@ interface NotificationServiceInterface extends BaseServiceInterface
     public function onRoadPackageRequestNotification(Request $requestPackageOnRoad): Notification;
 
     public function deliveredPackageRequestNotification(Request $requestPackageDelivered): Notification;
+
+    public function createRequestDriverNotification(RequestDriver $requestDriver): Notification;
+
+    public function deleteRequestDriverNotification(RequestDriver $requestDriver): void;
+
+    public function cancelRequestDriverNotification(Request $request, User $user): Notification;
+
+    public function transferRequestDriverNotification(RequestDriver $requestDriver): Notification;
+
+    public function approvedRequestDriverNotification(Request $request): Notification;
 }

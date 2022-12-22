@@ -7,7 +7,8 @@ use Illuminate\Support\Collection;
 class TypeNotificationsLookup
 {
     const ROOM = 'Sala';
-    const TRAVEL = 'Traslado';
+    const DRIVER = 'Chofer';
+    const CAR = 'Automóvil';
     const INVENTORY = 'Inventario';
     const PAPER = 'Papelería';
     const PARCEL = 'Paquetería';
@@ -15,7 +16,7 @@ class TypeNotificationsLookup
 
     public static function getAll(): Collection
     {
-        return collect([self::ROOM, self::TRAVEL, self::INVENTORY, self::PAPER, self::PARCEL, self::GENERAL]);
+        return collect([self::ROOM, self::DRIVER, self::CAR, self::INVENTORY, self::PAPER, self::PARCEL, self::GENERAL]);
     }
 
     public static function code($const)

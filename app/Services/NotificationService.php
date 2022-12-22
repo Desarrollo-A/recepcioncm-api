@@ -26,6 +26,7 @@ use App\Models\Inventory;
 use App\Models\Notification;
 use App\Models\Package;
 use App\Models\Request;
+use App\Models\RequestDriver;
 use App\Models\RequestRoom;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
@@ -328,6 +329,73 @@ class NotificationService extends BaseService implements NotificationServiceInte
             'type_id' => $this->getTypeId(TypeNotificationsLookup::PARCEL),
             'color_id' => $this->getColorId(NotificationColorLookup::GREEN),
             'icon_id' => $this->getIconId(NotificationIconLookup::BOX)
+        ]);
+        return $this->createRow($notificationDTO);
+    }
+
+    public function createRequestDriverNotification(RequestDriver $requestDriver): Notification
+    {
+        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($requestDriver->office_id)->id;
+        $notificationDTO = new NotificationDTO([
+            'message' => "Nueva solicitud de chofer {$requestDriver->request->code}",
+            'user_id' => $userId,
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::DRIVER),
+            'color_id' => $this->getColorId(NotificationColorLookup::BLUE),
+            'icon_id' => $this->getIconId(NotificationIconLookup::DRIVER)
+        ]);
+        return $this->createRow($notificationDTO);
+    }
+
+    public function deleteRequestDriverNotification(RequestDriver $requestDriver): void
+    {
+        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($requestDriver->office_id)->id;
+        $notificationDTO = new NotificationDTO([
+            'message' => "La solicitud de chofer {$requestDriver->request->code} fue eliminada",
+            'user_id' => $userId,
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::DRIVER),
+            'color_id' => $this->getColorId(NotificationColorLookup::RED),
+            'icon_id' => $this->getIconId(NotificationIconLookup::DRIVER)
+        ]);
+        $notificationDelete = $this->createRow($notificationDTO);
+        Utils::eventAlertNotification($notificationDelete);
+    }
+
+    public function cancelRequestDriverNotification(Request $request, User $user): Notification
+    {
+        $userId = ($user->role->name === NameRole::RECEPCIONIST)
+                ?$request->user_id
+                :$this->userRepository->findByOfficeIdAndRoleRecepcionist($request->requestDriver->office_id)->id;
+        $notificationDTO = new NotificationDTO([
+            'message' => "La solicitud de chofer {$request->code} fue cancelada",
+            'user_id' => $userId,
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::DRIVER),
+            'color_id' => $this->getColorId(NotificationColorLookup::RED),
+            'icon_id' => $this->getIconId(NotificationIconLookup::DRIVER)
+        ]);
+        return $this->createRow($notificationDTO);
+    }
+
+    public function transferRequestDriverNotification(RequestDriver $requestDriver): Notification
+    {
+        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($requestDriver->office_id)->id;
+        $notificationDTO = new NotificationDTO([
+            'message' => "La solicitud de chofer {$requestDriver->request->code} fue transferida",
+            'user_id' => $userId,
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::DRIVER),
+            'color_id' => $this->getColorId(NotificationColorLookup::BLUE),
+            'icon_id' => $this->getIconId(NotificationIconLookup::DRIVER)
+        ]);
+        return $this->createRow($notificationDTO);
+    }
+
+    public function approvedRequestDriverNotification(Request $request): Notification
+    {
+        $notificationDTO = new NotificationDTO([
+            'message' => "La solicitud de chofer {$request->code} fue aprobada",
+            'user_id' => $request->user_id,
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::DRIVER),
+            'color_id' => $this->getColorId(NotificationColorLookup::GREEN),
+            'icon_id' => $this->getIconId(NotificationIconLookup::DRIVER)
         ]);
         return $this->createRow($notificationDTO);
     }

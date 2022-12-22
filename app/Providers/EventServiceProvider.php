@@ -6,11 +6,13 @@ use App\Models\Inventory;
 use App\Models\InventoryRequest;
 use App\Models\Package;
 use App\Models\Request;
+use App\Models\RequestDriver;
 use App\Models\RequestRoom;
 use App\Models\Room;
 use App\Observers\InventoryObserver;
 use App\Observers\InventoryRequestObserver;
 use App\Observers\PackageObserver;
+use App\Observers\RequestDriverObserver;
 use App\Observers\RequestObserver;
 use App\Observers\RequestRoomObserver;
 use App\Observers\RoomObserver;
@@ -44,5 +46,6 @@ class EventServiceProvider extends ServiceProvider
         RequestRoom::observe(RequestRoomObserver::class);
         Request::observe(RequestObserver::class);
         Package::observe(PackageObserver::class);
+        RequestDriver::observe(RequestDriverObserver::class);
     }
 }
