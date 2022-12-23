@@ -26,6 +26,7 @@ use App\Models\Inventory;
 use App\Models\Notification;
 use App\Models\Package;
 use App\Models\Request;
+use App\Models\RequestCar;
 use App\Models\RequestDriver;
 use App\Models\RequestRoom;
 use App\Models\User;
@@ -399,6 +400,74 @@ class NotificationService extends BaseService implements NotificationServiceInte
         ]);
         return $this->createRow($notificationDTO);
     }
+
+    public function createRequestCarNotification(RequestCar $requestCar): Notification
+    {
+        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($requestCar->office_id)->id;
+        $notificationDTO = new NotificationDTO([
+            'message' => "Nueva solicitud de vehículo {$requestCar->request->code}",
+            'user_id' => $userId,
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::CAR),
+            'color_id' => $this->getColorId(NotificationColorLookup::BLUE),
+            'icon_id' => $this->getIconId(NotificationIconLookup::CAR)
+        ]);
+        return $this->createRow($notificationDTO);
+    }
+
+    public function deleteRequestCarNotification(RequestCar $requestCar): void
+    {
+        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($requestCar->office_id)->id;
+        $notificationDTO = new NotificationDTO([
+            'message' => "La solicitud del vehículo {$requestCar->request->code} fue eliminada",
+            'user_id' => $userId,
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::CAR),
+            'color_id' => $this->getColorId(NotificationColorLookup::RED),
+            'icon_id' => $this->getIconId(NotificationIconLookup::CAR)
+        ]);
+        $notificationDelete = $this->createRow($notificationDTO);
+        Utils::eventAlertNotification($notificationDelete);
+    }
+
+    public function transferRequestCarNotification(RequestCar $requestCar): Notification
+    {
+        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($requestCar->office_id)->id;
+        $notificationDTO = new NotificationDTO([
+            'message' => "La solicitud del vehículo {$requestCar->request->code} fue transferida",
+            'user_id' => $userId,
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::CAR),
+            'color_id' => $this->getColorId(NotificationColorLookup::BLUE),
+            'icon_id' => $this->getIconId(NotificationIconLookup::CAR)
+        ]);
+        return $this->createRow($notificationDTO);
+    }
+
+    public function cancelRequestCarNotification(Request $request, User $user): Notification
+    {
+        $userId = ($user->role->name === NameRole::RECEPCIONIST)
+                ?$request->user_id
+                :$this->userRepository->findByOfficeIdAndRoleRecepcionist($request->requestCar->office_id)->id;
+        $notificationDTO = new NotificationDTO([
+            'message' => "La solicitud del vehículo {$request->code} fue cancelada",
+            'user_id' => $userId,
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::CAR),
+            'color_id' => $this->getColorId(NotificationColorLookup::RED),
+            'icon_id' => $this->getIconId(NotificationIconLookup::CAR)
+        ]);
+        return $this->createRow($notificationDTO);
+    }
+
+    public function approvedRequestCarNotification(Request $request): Notification
+    {
+        $notificationDTO = new NotificationDTO([
+            'message' => "La solicitud del vehículo {$request->code} fue aprobada",
+            'user_id' => $request->user_id,
+            'type_id' => $this->getTypeId(TypeNotificationsLookup::CAR),
+            'color_id' => $this->getColorId(NotificationColorLookup::GREEN),
+            'icon_id' => $this->getIconId(NotificationIconLookup::CAR)
+        ]);
+        return $this->createRow($notificationDTO);
+    }
+
     /**
      * @return void
      * @throws CustomErrorException
