@@ -103,4 +103,15 @@ class CarController extends BaseApiController
         $cars = $this->carService->getAvailableCarsInRequestDriver($driverId, $startDate, $endDate);
         return $this->showAll(CarResource::collection($cars));
     }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function getAvailableCarsInRequestCar(int $officeId, Request $request): JsonResponse
+    {
+        $startDate = new Carbon(Validation::validateDate($request->get('start_date')));
+        $endDate = new Carbon(Validation::validateDate($request->get('end_date')));
+        $cars = $this->carService->getAvailableCarsInRequestCar($officeId, $startDate, $endDate);
+        return $this->showAll(CarResource::collection($cars));
+    }
 }

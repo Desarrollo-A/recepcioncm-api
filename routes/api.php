@@ -112,6 +112,10 @@ Route::prefix('v1')->group(function () {
                     ->name('available-driver-request')
                     ->where('driverId', Validation::INTEGER_ID);
 
+                Route::get('/available-car-request/{officeId}', 'CarController@getAvailableCarsInRequestCar')
+                    ->name('available-car-request')
+                    ->where('officeId', Validation::INTEGER_ID);
+
                 Route::patch('/change-status/{id}', 'CarController@changeStatus')
                     ->name('change-status')
                     ->where('id', Validation::INTEGER_ID);
@@ -399,6 +403,9 @@ Route::prefix('v1')->group(function () {
 
                 Route::get('/status/{code}', 'RequestCarController@getStatusByStatusCurrent')
                     ->name('status-by-status-current');
+
+                Route::post('/approved', 'RequestCarController@approvedRequest')
+                    ->name('approved');
 
                 Route::put('/upload-file/{requestId}', 'RequestCarController@uploadAuthorizationFile')
                     ->name('upload-file')

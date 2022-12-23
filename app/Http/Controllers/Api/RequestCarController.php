@@ -6,6 +6,7 @@ use App\Contracts\Services\RequestCarServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\CancelRequest\CancelRequest;
+use App\Http\Requests\RequestCar\ApprovedCarRequest;
 use App\Http\Requests\RequestCar\StoreRequestCarRequest;
 use App\Http\Requests\RequestCar\TransferCarRequest;
 use App\Http\Requests\RequestCar\UploadFileRequestCarRequest;
@@ -27,7 +28,7 @@ class RequestCarController extends BaseApiController
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
             ->only('index', 'store', 'uploadAuthorizationFile', 'show', 'cancelRequest');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
-            ->only('transferRequest');
+            ->only('transferRequest', 'approvedRequest');
         $this->requestCarService = $requestCarService;
     }
 
@@ -91,6 +92,16 @@ class RequestCarController extends BaseApiController
         $dto = $request->toDTO();
         $dto->request_id = $requestId;
         $this->requestCarService->cancelRequest($dto);
+        return $this->noContentResponse();
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function approvedRequest(ApprovedCarRequest $request): JsonResponse
+    {
+        $dto = $request->toDTO();
+        $this->requestCarService->approvedRequest($dto);
         return $this->noContentResponse();
     }
 }

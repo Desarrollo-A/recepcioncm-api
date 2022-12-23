@@ -46,7 +46,7 @@ class ApprovedDriverRequest extends FormRequest implements ReturnDtoInterface
         $requestDTO = new RequestDTO();
         $carScheduleDTO = new CarScheduleDTO(['car_id' => $this->carId]);
         $driverScheduleDTO = new DriverScheduleDTO(['driver_id' => $this->driverId]);
-        $driverDriverScheduleDTO = new DriverRequestScheduleDTO([
+        $driverRequestScheduleDTO = new DriverRequestScheduleDTO([
             'request_driver_id' => $this->requestDriverId,
             'carSchedule' => $carScheduleDTO,
             'driverSchedule' => $driverScheduleDTO
@@ -55,7 +55,7 @@ class ApprovedDriverRequest extends FormRequest implements ReturnDtoInterface
         return new RequestDriverDTO([
             'id' => $this->requestDriverId,
             'request_id' => $this->requestId,
-            'driverRequestSchedule' => $driverDriverScheduleDTO,
+            'driverRequestSchedule' => $driverRequestScheduleDTO,
             'request' => $requestDTO
         ]);
     }
