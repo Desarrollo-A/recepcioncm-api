@@ -51,6 +51,11 @@ class RequestCarDTO
     public $request;
 
     /**
+     * @var CarRequestScheduleDTO
+     */
+    public $carRequestSchedule;
+
+    /**
      * @throws CustomErrorException
      */
     public function __construct(array $data = [])

@@ -65,8 +65,28 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
     public function getAvailableCarsInRequestDriver(int $driverId, Carbon $startDate, Carbon $endDate): Collection
     {
         return $this->entity
+            ->join('lookups', 'lookups.id', '=', 'cars.status_id')
             ->join('car_driver', 'car_driver.car_id', '=', 'cars.id')
+            ->where('lookups.code', StatusCarLookup::code(StatusCarLookup::ACTIVE))
             ->where('car_driver.car_id', $driverId)
+            ->whereNotIn('cars.id', function (QueryBuilder $query) use ($startDate, $endDate) {
+                return $query
+                    ->select(['car_id'])
+                    ->from('car_schedules')
+                    ->whereDate('start_date', $startDate)
+                    ->orWhereDate('end_date', $startDate)
+                    ->whereDate('start_date', $endDate)
+                    ->orWhereDate('end_date', $endDate);
+            })
+            ->get(['cars.*']);
+    }
+
+    public function getAvailableCarsInRequestCar(int $officeId, Carbon $startDate, Carbon $endDate): Collection
+    {
+        return $this->entity
+            ->join('lookups', 'lookups.id', '=', 'cars.status_id')
+            ->where('lookups.code', StatusCarLookup::code(StatusCarLookup::ACTIVE))
+            ->where('office_id', $officeId)
             ->whereNotIn('cars.id', function (QueryBuilder $query) use ($startDate, $endDate) {
                 return $query
                     ->select(['car_id'])

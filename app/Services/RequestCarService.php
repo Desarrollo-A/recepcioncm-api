@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Contracts\Repositories\CancelRequestRepositoryInterface;
 use App\Contracts\Repositories\CarRequestScheduleRepositoryInterface;
 use App\Contracts\Repositories\CarScheduleRepositoryInterface;
-use App\Contracts\Repositories\DriverScheduleRepositoryInterface;
 use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\RequestCarRepositoryInterface;
 use App\Contracts\Repositories\RequestCarViewRepositoryInterface;
@@ -239,6 +238,31 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id', 'event_google_calendar_id']));
 
         $this->cancelRequestRepository->create($dto->toArray(['request_id', 'cancel_comment', 'user_id']));
+
+        return $request;
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function approvedRequest(RequestCarDTO $dto): Request
+    {
+        $dto->request->status_id = $this->lookupRepository
+            ->findByCodeAndType(StatusCarRequestLookup::code(StatusCarRequestLookup::APPROVED),
+                TypeLookup::STATUS_CAR_REQUEST)
+            ->id;
+
+        $request = $this->requestRepository->findById($dto->request_id);
+        $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id']));
+
+        $dto->carRequestSchedule->carSchedule->start_date = $request->start_date;
+        $dto->carRequestSchedule->carSchedule->end_date = $request->end_date;
+        $carSchedule = $this->carScheduleRepository
+            ->create($dto->carRequestSchedule->carSchedule->toArray(['car_id', 'start_date', 'end_date']));
+
+        $dto->carRequestSchedule->car_schedule_id = $carSchedule->id;
+        $this->carRequestScheduleRepository
+            ->create($dto->carRequestSchedule->toArray(['request_car_id', 'car_schedule_id']));
 
         return $request;
     }
