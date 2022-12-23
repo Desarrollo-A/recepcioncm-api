@@ -5,6 +5,7 @@ namespace App\Http\Resources\RequestDriver;
 use App\Helpers\Enum\Path;
 use App\Helpers\File;
 use App\Http\Resources\Address\AddressResource;
+use App\Http\Resources\DriverRequestSchedule\DriverRequestScheduleResource;
 use App\Http\Resources\Request\RequestResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -24,6 +25,7 @@ class RequestDriverResource extends JsonResource
             'pickupAddress' => AddressResource::make($this->whenLoaded('pickupAddress')),
             'arrivalAddress' => AddressResource::make($this->whenLoaded('arrivalAddress')),
             'request' => RequestResource::make($this->whenLoaded('request')),
+            'driverRequestSchedule' => DriverRequestScheduleResource::make($this->whenLoaded('driverRequestSchedule')),
         ];
     }
 }
