@@ -4,7 +4,7 @@ namespace App\Repositories;
 
 use App\Contracts\Repositories\CarRequestScheduleRepositoryInterface;
 use App\Core\BaseRepository;
-use App\Models\RequestCar;
+use App\Models\CarRequestSchedule;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
@@ -12,13 +12,13 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 class CarRequestScheduleRepository extends BaseRepository implements CarRequestScheduleRepositoryInterface
 {
     /**
-     * @var Builder|Model|QueryBuilder|RequestCar
+     * @var Builder|Model|QueryBuilder|CarRequestSchedule
      */
     protected $entity;
 
-    public function __construct(RequestCar $requestCar)
+    public function __construct(CarRequestSchedule $carRequestSchedule)
     {
-        $this->entity = $requestCar;
+        $this->entity = $carRequestSchedule;
     }
 
     public function deleteByRequestCarId(int $requestCarId): void

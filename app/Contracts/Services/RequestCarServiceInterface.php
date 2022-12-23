@@ -39,4 +39,6 @@ interface RequestCarServiceInterface extends BaseServiceInterface
     public function transferRequest(int $requestCarId, RequestCarDTO $dto): RequestCar;
 
     public function cancelRequest(CancelRequestDTO $dto): Request;
+
+    public function approvedRequest(RequestCarDTO $dto): Request;
 }
