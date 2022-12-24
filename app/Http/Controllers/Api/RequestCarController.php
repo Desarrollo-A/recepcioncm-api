@@ -71,7 +71,7 @@ class RequestCarController extends BaseApiController
     public function deleteRequestCar(int $requestId): JsonResponse
     {
         $requestCar = $this->requestCarService->deleteRequestCar($requestId, auth()->user());
-        $this->notificationService->deleteRequestCarNotification($requestCar);
+        $this->notificationServiceInterface->deleteRequestCarNotification($requestCar);
         return $this->noContentResponse();
     }
 
@@ -92,7 +92,7 @@ class RequestCarController extends BaseApiController
     {
         $requestCar = $this->requestCarService->transferRequest($requestCarId, $request->toDTO());
         $notificationTransfer = $this->notificationServiceInterface->transferRequestCarNotification($requestCar);
-        $this->requestNotificationServiceInterface->create($requestCar->reuquest_id, $notificationTransfer->id);
+        $this->requestNotificationServiceInterface->create($requestCar->request_id, $notificationTransfer->id);
         Utils::eventAlertNotification($notificationTransfer);
         return $this->noContentResponse();
     }
