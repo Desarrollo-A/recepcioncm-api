@@ -28,6 +28,12 @@ class CreateRequestCarsTable extends Migration
             $table->foreign('office_id')
                 ->references('id')
                 ->on('offices');
+            $table->integer('initial_km')
+                ->nullable();
+            $table->integer('final_km')
+                ->nullable();
+            $table->text('delivery_condition')
+                ->nullable();
             $table->timestamps();
         });
     }
