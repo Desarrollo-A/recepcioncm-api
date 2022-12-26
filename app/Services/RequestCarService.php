@@ -108,7 +108,7 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         return $this->requestCarViewRepository->findAllRequestsCarPaginated($filters, $perPage, $user, $sort);
     }
 
-    public function deleteRequestCar(int $requestId, User $user): void
+    public function deleteRequestCar(int $requestId, User $user): RequestCar
     {
         $requestCar = $this->entityRepository->findByRequestId($requestId);
 
@@ -121,6 +121,8 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         }
 
         $this->requestRepository->delete($requestId);
+
+        return $requestCar;
     }
 
     /**

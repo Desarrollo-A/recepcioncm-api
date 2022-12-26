@@ -27,7 +27,7 @@ interface RequestCarServiceInterface extends BaseServiceInterface
     /**
      * @param User|Authenticatable $user
      */
-    public function deleteRequestCar(int $requestId, User $user): void;
+    public function deleteRequestCar(int $requestId, User $user): RequestCar;
 
     /**
      * @param User|Authenticatable $user

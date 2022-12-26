@@ -7,6 +7,7 @@ use App\Models\Inventory;
 use App\Models\Notification;
 use App\Models\Package;
 use App\Models\Request;
+use App\Models\RequestCar;
 use App\Models\RequestDriver;
 use App\Models\RequestRoom;
 use App\Models\User;
@@ -76,4 +77,14 @@ interface NotificationServiceInterface extends BaseServiceInterface
     public function transferRequestDriverNotification(RequestDriver $requestDriver): Notification;
 
     public function approvedRequestDriverNotification(Request $request): Notification;
+
+    public function createRequestCarNotification(RequestCar $requestCar): Notification;
+
+    public function deleteRequestCarNotification(RequestCar $requestCar): void;
+
+    public function transferRequestCarNotification(RequestCar $requestCar): Notification;
+
+    public function cancelRequestCarNotification(Request $request, User $user): Notification;
+
+    public function approvedRequestCarNotification(Request $request): Notification;
 }

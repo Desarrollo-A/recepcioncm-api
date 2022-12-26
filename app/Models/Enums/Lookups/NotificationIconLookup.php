@@ -13,10 +13,11 @@ class NotificationIconLookup
     const TRUCK = 'mat:local_shipping';
     const BOX = 'mat:inventory_2';
     const DRIVER = 'mat:airline_seat_recline_normal';
+    const CAR = 'mat:directions_car';
 
     public static function getAll(): Collection
     {
-        return collect([self::ROOM, self::CONFIRM, self::WARNING, self::STAR, self::TRUCK, self::BOX, self::DRIVER]);
+        return collect([self::ROOM, self::CONFIRM, self::WARNING, self::STAR, self::TRUCK, self::BOX, self::DRIVER, self::CAR]);
     }
 
     public static function code($const)
