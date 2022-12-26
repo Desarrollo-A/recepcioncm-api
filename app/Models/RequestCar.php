@@ -8,12 +8,15 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class RequestCar extends Model
 {
-    protected $fillable = ['authorization_filename', 'responsive_filename', 'request_id', 'office_id'];
+    protected $fillable = ['authorization_filename', 'responsive_filename', 'request_id', 'office_id', 'initial_km',
+        'final_km', 'delivery_condition'];
 
     protected $casts = [
         'id' => 'integer',
         'request_id' => 'integer',
-        'office_id' => 'integer'
+        'office_id' => 'integer',
+        'initial_km' => 'integer',
+        'final_km' => 'integer'
     ];
 
     public function request(): BelongsTo
