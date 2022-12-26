@@ -242,6 +242,9 @@ class NotificationService extends BaseService implements NotificationServiceInte
         Utils::eventAlertNotification($notification);
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function createRequestPackageNotification(Package $package): Notification
     {
         $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($package->office_id)->id;
@@ -255,6 +258,9 @@ class NotificationService extends BaseService implements NotificationServiceInte
         return $this->createRow($notificationDTO);
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function deleteRequestPackageNotification (Package $package): void
     {
         $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($package->office_id)->id;
@@ -269,6 +275,9 @@ class NotificationService extends BaseService implements NotificationServiceInte
         Utils::eventAlertNotification($notificationDelete);
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function cancelRequestPackageNotification(Request $request, User $informationUserAndRole): Notification
     {
         $userId = ($informationUserAndRole->role->name === NameRole::RECEPCIONIST)
@@ -285,6 +294,9 @@ class NotificationService extends BaseService implements NotificationServiceInte
         return $this->createRow($notificationDTO);
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function transferPackageRequestNotification(Package $packageTransfer): Notification
     {
         $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($packageTransfer->office_id)->id;
@@ -298,6 +310,9 @@ class NotificationService extends BaseService implements NotificationServiceInte
         return $this->createRow($notificationDTO);
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function approvedPackageRequestNotification(Package $packageApproved): Notification
     {
         $notificationDTO = new NotificationDTO([
@@ -310,6 +325,9 @@ class NotificationService extends BaseService implements NotificationServiceInte
         return $this->createRow($notificationDTO);
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function onRoadPackageRequestNotification(Request $requestPackageOnRoad): Notification
     {
         $notificationDTO = new NotificationDTO([
@@ -322,6 +340,9 @@ class NotificationService extends BaseService implements NotificationServiceInte
         return $this->createRow($notificationDTO);
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function deliveredPackageRequestNotification(Request $requestPackageDelivered): Notification
     {
         $notificationDTO = new NotificationDTO([
@@ -334,6 +355,9 @@ class NotificationService extends BaseService implements NotificationServiceInte
         return $this->createRow($notificationDTO);
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function createRequestDriverNotification(RequestDriver $requestDriver): Notification
     {
         $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($requestDriver->office_id)->id;
@@ -347,6 +371,9 @@ class NotificationService extends BaseService implements NotificationServiceInte
         return $this->createRow($notificationDTO);
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function deleteRequestDriverNotification(RequestDriver $requestDriver): void
     {
         $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($requestDriver->office_id)->id;
@@ -361,11 +388,14 @@ class NotificationService extends BaseService implements NotificationServiceInte
         Utils::eventAlertNotification($notificationDelete);
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function cancelRequestDriverNotification(Request $request, User $user): Notification
     {
         $userId = ($user->role->name === NameRole::RECEPCIONIST)
-                ?$request->user_id
-                :$this->userRepository->findByOfficeIdAndRoleRecepcionist($request->requestDriver->office_id)->id;
+                ? $request->user_id
+                : $this->userRepository->findByOfficeIdAndRoleRecepcionist($request->requestDriver->office_id)->id;
         $notificationDTO = new NotificationDTO([
             'message' => "La solicitud de chofer {$request->code} fue cancelada",
             'user_id' => $userId,
@@ -376,6 +406,9 @@ class NotificationService extends BaseService implements NotificationServiceInte
         return $this->createRow($notificationDTO);
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function transferRequestDriverNotification(RequestDriver $requestDriver): Notification
     {
         $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($requestDriver->office_id)->id;
@@ -389,6 +422,9 @@ class NotificationService extends BaseService implements NotificationServiceInte
         return $this->createRow($notificationDTO);
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function approvedRequestDriverNotification(Request $request): Notification
     {
         $notificationDTO = new NotificationDTO([
@@ -401,6 +437,9 @@ class NotificationService extends BaseService implements NotificationServiceInte
         return $this->createRow($notificationDTO);
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function createRequestCarNotification(RequestCar $requestCar): Notification
     {
         $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($requestCar->office_id)->id;
@@ -414,6 +453,9 @@ class NotificationService extends BaseService implements NotificationServiceInte
         return $this->createRow($notificationDTO);
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function deleteRequestCarNotification(RequestCar $requestCar): void
     {
         $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($requestCar->office_id)->id;
@@ -428,6 +470,9 @@ class NotificationService extends BaseService implements NotificationServiceInte
         Utils::eventAlertNotification($notificationDelete);
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function transferRequestCarNotification(RequestCar $requestCar): Notification
     {
         $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($requestCar->office_id)->id;
@@ -441,11 +486,14 @@ class NotificationService extends BaseService implements NotificationServiceInte
         return $this->createRow($notificationDTO);
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function cancelRequestCarNotification(Request $request, User $user): Notification
     {
         $userId = ($user->role->name === NameRole::RECEPCIONIST)
-                ?$request->user_id
-                :$this->userRepository->findByOfficeIdAndRoleRecepcionist($request->requestCar->office_id)->id;
+                ? $request->user_id
+                : $this->userRepository->findByOfficeIdAndRoleRecepcionist($request->requestCar->office_id)->id;
         $notificationDTO = new NotificationDTO([
             'message' => "La solicitud del vehículo {$request->code} fue cancelada",
             'user_id' => $userId,
@@ -456,6 +504,9 @@ class NotificationService extends BaseService implements NotificationServiceInte
         return $this->createRow($notificationDTO);
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function approvedRequestCarNotification(Request $request): Notification
     {
         $notificationDTO = new NotificationDTO([
