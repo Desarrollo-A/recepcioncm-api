@@ -46,6 +46,21 @@ class RequestCarDTO
     public $request_id;
 
     /**
+     * @var int
+     */
+    public $initial_km;
+
+    /**
+     * @var int
+     */
+    public $final_km;
+
+    /**
+     * @var string
+     */
+    public $delivery_condition;
+
+    /**
      * @var RequestDTO
      */
     public $request;

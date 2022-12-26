@@ -4,6 +4,7 @@ namespace App\Http\Resources\RequestCar;
 
 use App\Helpers\Enum\Path;
 use App\Helpers\File;
+use App\Http\Resources\CarRequestSchedule\CarRequestScheduleResource;
 use App\Http\Resources\Request\RequestResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -21,7 +22,11 @@ class RequestCarResource extends JsonResource
                 : File::getExposedPath($this->responsive_filename, Path::CAR_AUTHORIZATION_DOCUMENTS),
             'requestId' => $this->request_id,
             'officeId' => $this->office_id,
-            'request' => RequestResource::make($this->whenLoaded('request'))
+            'initialKm' => $this->initial_km,
+            'finalKm' => $this->final_km,
+            'deliveryCondition' => $this->delivery_condition,
+            'request' => RequestResource::make($this->whenLoaded('request')),
+            'carRequestSchedule' => CarRequestScheduleResource::make($this->whenLoaded('carRequestSchedule'))
         ];
     }
 }
