@@ -4,10 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Contracts\Services\NotificationServiceInterface;
 use App\Contracts\Services\RequestCarServiceInterface;
-use App\Contracts\Services\RequestNotificationServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
-use App\Helpers\Utils;
 use App\Http\Requests\CancelRequest\CancelRequest;
 use App\Http\Requests\RequestCar\ApprovedCarRequest;
 use App\Http\Requests\RequestCar\StoreRequestCarRequest;
@@ -24,11 +22,9 @@ class RequestCarController extends BaseApiController
 {
     private $requestCarService;
     private $notificationService;
-    private $requestNotificationService;
 
     public function __construct(RequestCarServiceInterface $requestCarService,
-                                NotificationServiceInterface $notificationService,
-                                RequestNotificationServiceInterface  $requestNotificationService)
+                                NotificationServiceInterface $notificationService)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
             ->only('store', 'uploadAuthorizationFile', 'deleteRequestCar');
@@ -38,7 +34,6 @@ class RequestCarController extends BaseApiController
             ->only('transferRequest', 'approvedRequest');
         $this->requestCarService = $requestCarService;
         $this->notificationService = $notificationService;
-        $this->requestNotificationService = $requestNotificationService;
     }
 
     public function index(Request $request): JsonResponse
@@ -91,9 +86,7 @@ class RequestCarController extends BaseApiController
     public function transferRequest(int $requestCarId, TransferCarRequest $request): JsonResponse
     {
         $requestCar = $this->requestCarService->transferRequest($requestCarId, $request->toDTO());
-        $notificationTransfer = $this->notificationService->transferRequestCarNotification($requestCar);
-        $this->requestNotificationService->create($requestCar->request_id, $notificationTransfer->id);
-        Utils::eventAlertNotification($notificationTransfer);
+        $this->notificationService->transferRequestCarNotification($requestCar);
         return $this->noContentResponse();
     }
 
@@ -105,9 +98,7 @@ class RequestCarController extends BaseApiController
         $dto = $request->toDTO();
         $dto->request_id = $requestId;
         $requestCar = $this->requestCarService->cancelRequest($dto);
-        $notificationCancel = $this->notificationService->cancelRequestCarNotification($requestCar->fresh('requestCar'), auth()->user());
-        $this->requestNotificationService->create($requestCar->id, $notificationCancel->id);
-        Utils::eventAlertNotification($notificationCancel);
+        $this->notificationService->cancelRequestCarNotification($requestCar->fresh('requestCar'), auth()->user());
         return $this->noContentResponse();
     }
 
@@ -118,9 +109,7 @@ class RequestCarController extends BaseApiController
     {
         $dto = $request->toDTO();
         $requestCar= $this->requestCarService->approvedRequest($dto);
-        $notificationApproved = $this->notificationService->approvedRequestCarNotification($requestCar);
-        $this->requestNotificationService->create($requestCar->id, $notificationApproved->id);
-        Utils::eventAlertNotification($notificationApproved);
+        $this->notificationService->approvedRequestCarNotification($requestCar);
         return $this->noContentResponse();
     }
 }

@@ -4,87 +4,84 @@ namespace App\Contracts\Services;
 
 use App\Core\Contracts\BaseServiceInterface;
 use App\Models\Inventory;
-use App\Models\Notification;
 use App\Models\Package;
 use App\Models\Request;
 use App\Models\RequestCar;
 use App\Models\RequestDriver;
 use App\Models\RequestRoom;
 use App\Models\User;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection;
 
 interface NotificationServiceInterface extends BaseServiceInterface
 {
-    public function createRequestRoomNotification(RequestRoom $requestRoom): Notification;
+    public function createRequestRoomNotification(RequestRoom $requestRoom): void;
 
     public function getAllNotificationLast5Days(int $userId): Collection;
 
-    public function newOrResponseToApprovedRequestRoomNotification(Request $request): Notification;
+    public function newOrResponseToApprovedRequestRoomNotification(Request $request): void;
 
-    public function newToProposalRequestRoomNotification(Request $request): Notification;
+    public function newToProposalRequestRoomNotification(Request $request): void;
 
-    /**
-     * @return void
-     */
-    public function newToDeletedRequestRoomNotification(Request $request);
-
-    public function approvedToCancelledRequestRoomNotification(Request $request, User $user): Notification;
-
-    public function proposalToRejectedOrResponseRequestRoomNotification(Request $request): Notification;
+    public function newToDeletedRequestRoomNotification(Request $request): void;
 
     /**
-     * @return void
+     * @param User|Authenticatable $user
      */
-    public function readNotification(int $id);
+    public function approvedToCancelledRequestRoomNotification(Request $request, User $user): void;
 
-    /**
-     * @return void
-     */
-    public function readAllNotificationUser(int $userId);
+    public function proposalToRejectedOrResponseRequestRoomNotification(Request $request): void;
 
-    /**
-     * @return void
-     */
-    public function createConfirmNotification();
+    public function readNotification(int $id): void;
 
-    /**
-     * @return void
-     */
-    public function minimumStockNotification(Inventory $inventory);
+    public function readAllNotificationUser(int $userId): void;
 
-    public function createScoreRequestNotification(Collection $requests);
+    public function createConfirmNotification(): void;
 
-    public function createRequestPackageNotification(Package $package): Notification;
+    public function minimumStockNotification(Inventory $inventory): void;
+
+    public function createScoreRequestNotification(Collection $requests): void;
+
+    public function createRequestPackageNotification(Package $package): void;
     
     public function deleteRequestPackageNotification (Package $package): void;
 
-    public function cancelRequestPackageNotification(Request $request, User $informationUserAndRole): Notification;
+    /**
+     * @param User|Authenticatable $user
+     */
+    public function cancelRequestPackageNotification(Request $request, User $user): void;
 
-    public function transferPackageRequestNotification(Package $packageTransfer): Notification;
+    public function transferPackageRequestNotification(Package $package): void;
 
-    public function approvedPackageRequestNotification(Package $packageApproved): Notification;
+    public function approvedPackageRequestNotification(Package $package): void;
 
-    public function onRoadPackageRequestNotification(Request $requestPackageOnRoad): Notification;
+    public function onRoadPackageRequestNotification(Request $request): void;
 
-    public function deliveredPackageRequestNotification(Request $requestPackageDelivered): Notification;
+    public function deliveredPackageRequestNotification(Request $request): void;
 
-    public function createRequestDriverNotification(RequestDriver $requestDriver): Notification;
+    public function createRequestDriverNotification(RequestDriver $requestDriver): void;
 
     public function deleteRequestDriverNotification(RequestDriver $requestDriver): void;
 
-    public function cancelRequestDriverNotification(Request $request, User $user): Notification;
+    /**
+     * @param User|Authenticatable $user
+     */
+    public function cancelRequestDriverNotification(Request $request, User $user): void;
 
-    public function transferRequestDriverNotification(RequestDriver $requestDriver): Notification;
+    public function transferRequestDriverNotification(RequestDriver $requestDriver): void;
 
-    public function approvedRequestDriverNotification(Request $request): Notification;
+    public function approvedRequestDriverNotification(Request $request): void;
 
-    public function createRequestCarNotification(RequestCar $requestCar): Notification;
+    public function createRequestCarNotification(RequestCar $requestCar): void;
 
     public function deleteRequestCarNotification(RequestCar $requestCar): void;
 
-    public function transferRequestCarNotification(RequestCar $requestCar): Notification;
+    public function transferRequestCarNotification(RequestCar $requestCar): void;
 
-    public function cancelRequestCarNotification(Request $request, User $user): Notification;
+    /**
+     * @param User|Authenticatable $user
+     */
+    public function cancelRequestCarNotification(Request $request, User $user): void;
 
-    public function approvedRequestCarNotification(Request $request): Notification;
+    public function approvedRequestCarNotification(Request $request): void;
 }

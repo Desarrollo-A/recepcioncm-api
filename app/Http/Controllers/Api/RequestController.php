@@ -3,12 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Contracts\Services\NotificationServiceInterface;
-use App\Contracts\Services\RequestNotificationServiceInterface;
 use App\Contracts\Services\RequestServiceInterface;
 use App\Contracts\Services\ScoreServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
-use App\Helpers\Utils;
 use App\Http\Requests\Request\ResponseRejectRequestRequest;
 use App\Http\Requests\Request\StarRatingRequest;
 use App\Http\Resources\Request\RequestResource;
@@ -19,12 +17,10 @@ class RequestController extends BaseApiController
 {
     private $requestService;
     private $notificationService;
-    private $requestNotificationService;
     private $scoreService;
 
     public function __construct(RequestServiceInterface $requestService,
                                 NotificationServiceInterface $notificationService,
-                                RequestNotificationServiceInterface $requestNotificationService,
                                 ScoreServiceInterface $scoreService)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
@@ -36,7 +32,6 @@ class RequestController extends BaseApiController
 
         $this->requestService = $requestService;
         $this->notificationService = $notificationService;
-        $this->requestNotificationService = $requestNotificationService;
         $this->scoreService = $scoreService;
     }
 
@@ -74,9 +69,7 @@ class RequestController extends BaseApiController
     {
         $dto = $request->toDTO();
         $requestModel = $this->requestService->responseRejectRequest($id, $dto);
-        $notification = $this->notificationService->proposalToRejectedOrResponseRequestRoomNotification($requestModel);
-        $this->requestNotificationService->create($requestModel->id, $notification->id);
-        Utils::eventAlertNotification($notification);
+        $this->notificationService->proposalToRejectedOrResponseRequestRoomNotification($requestModel);
         return $this->noContentResponse();
     }
 

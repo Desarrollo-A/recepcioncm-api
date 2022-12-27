@@ -30,11 +30,9 @@ class RequestPackageController extends BaseApiController
 {
     private $requestPackageService;
     private $notificationServiceInterface;
-    private $requestNotificationService;
 
     public function __construct(RequestPackageServiceInterface $requestPackageService,
-                                NotificationServiceInterface $notificationServiceInterface,
-                                RequestNotificationServiceInterface $requestNotificationService)
+                                NotificationServiceInterface $notificationServiceInterface)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
             ->only('store', 'uploadAuthorizationFile');
@@ -45,7 +43,6 @@ class RequestPackageController extends BaseApiController
         
         $this->requestPackageService = $requestPackageService;
         $this->notificationServiceInterface = $notificationServiceInterface;
-        $this->requestNotificationService = $requestNotificationService;
     }
 
     /**
@@ -95,10 +92,7 @@ class RequestPackageController extends BaseApiController
         $dto = $request->toDTO();
         $dto->request_id = $requestId;
         $requestCanceled = $this->requestPackageService->cancelRequest($dto);
-        $notificationCancel = $this->notificationServiceInterface
-            ->cancelRequestPackageNotification($requestCanceled, auth()->user());
-        $this->requestNotificationService->create($requestCanceled->id, $notificationCancel->id);
-        Utils::eventAlertNotification($notificationCancel);
+        $this->notificationServiceInterface->cancelRequestPackageNotification($requestCanceled, auth()->user());
         return $this->noContentResponse();
     }
 
@@ -108,10 +102,7 @@ class RequestPackageController extends BaseApiController
     public function transferRequest(int $packageId, TransferPackageRequest $request): JsonResponse
     {
         $packageTransfer = $this->requestPackageService->transferRequest($packageId, $request->toDTO());
-        $packageTransferNotification = $this->notificationServiceInterface
-            ->transferPackageRequestNotification($packageTransfer);
-        $this->requestNotificationService->create($packageTransfer->request->id, $packageTransferNotification->id);
-        Utils::eventAlertNotification($packageTransferNotification);
+        $this->notificationServiceInterface->transferPackageRequestNotification($packageTransfer);
         return $this->noContentResponse();
     }
 
@@ -134,21 +125,18 @@ class RequestPackageController extends BaseApiController
     {
         $dto = $request->toDTO();
         $packageApproved = $this->requestPackageService->approvedRequestPackage($dto);
-        $packageApprovedNotification = $this->notificationServiceInterface
-            ->approvedPackageRequestNotification($packageApproved);
-        $this->requestNotificationService->create($packageApproved->request->id, $packageApprovedNotification->id);
-        Utils::eventAlertNotification($packageApprovedNotification);
+        $this->notificationServiceInterface->approvedPackageRequestNotification($packageApproved);
         return $this->noContentResponse();
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function insertScore(StarRatingRequest $request): JsonResponse
     {
         $scoreDTO = $request->toDTO();
         $packageDelivered = $this->requestPackageService->insertScore($scoreDTO);
-        $packeDeliveredNotification = $this->notificationServiceInterface
-            ->deliveredPackageRequestNotification($packageDelivered);
-        $this->requestNotificationService->create($packageDelivered->id, $packeDeliveredNotification->id);
-        Utils::eventAlertNotification($packeDeliveredNotification);
+        $this->notificationServiceInterface->deliveredPackageRequestNotification($packageDelivered);
         return $this->noContentResponse();
     }
 
@@ -173,10 +161,7 @@ class RequestPackageController extends BaseApiController
     public function onRoadPackage(int $requestId): JsonResponse
     {
         $requestPackageOnRoad = $this->requestPackageService->onRoadPackage($requestId);
-        $requestPackageRoadNotification = $this->notificationServiceInterface
-            ->onRoadPackageRequestNotification($requestPackageOnRoad);
-        $this->requestNotificationService->create($requestPackageOnRoad->id, $requestPackageRoadNotification->id);
-        Utils::eventAlertNotification($requestPackageRoadNotification);
+        $this->notificationServiceInterface->onRoadPackageRequestNotification($requestPackageOnRoad);
         return $this->noContentResponse();
     }
 }
