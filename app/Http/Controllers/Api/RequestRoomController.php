@@ -35,7 +35,6 @@ class RequestRoomController extends BaseApiController
     private $inventoryService;
     private $inventoryRequestService;
     private $notificationService;
-    private $requestNotificationService;
     private $requestEmailService;
 
     public function __construct(RequestRoomServiceInterface $requestRoomService,
@@ -43,7 +42,6 @@ class RequestRoomController extends BaseApiController
                                 InventoryServiceInterface $inventoryService,
                                 InventoryRequestServiceInterface $inventoryRequestService,
                                 NotificationServiceInterface $notificationService,
-                                RequestNotificationServiceInterface $requestNotificationService,
                                 RequestEmailServiceInterface $requestEmailService)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)->only('store');
@@ -57,7 +55,6 @@ class RequestRoomController extends BaseApiController
         $this->inventoryService = $inventoryService;
         $this->inventoryRequestService = $inventoryRequestService;
         $this->notificationService = $notificationService;
-        $this->requestNotificationService = $requestNotificationService;
         $this->requestEmailService = $requestEmailService;
     }
 
@@ -102,13 +99,10 @@ class RequestRoomController extends BaseApiController
     public function assignSnack(AssignSnackRequest $request): JsonResponse
     {
         $dto = $request->toDTO();
-        $officeId = auth()->user()->office_id;
-        $requestModel = $this->requestRoomService->assignSnack($dto, $officeId);
+        $requestModel = $this->requestRoomService->assignSnack($dto, auth()->user()->office_id);
         $this->requestRoomService->checkRequestsByDay($requestModel, auth()->id());
-        $notification = $this->notificationService->newOrResponseToApprovedRequestRoomNotification($requestModel);
+        $this->notificationService->newOrResponseToApprovedRequestRoomNotification($requestModel);
         $this->requestEmailService->sendApprovedRequestMail($requestModel);
-        $this->requestNotificationService->create($requestModel->id, $notification->id);
-        Utils::eventAlertNotification($notification);
         return $this->noContentResponse();
     }
 
@@ -130,9 +124,7 @@ class RequestRoomController extends BaseApiController
         $snacks = $this->inventoryRequestService->deleteSnacks($requestId);
         $this->inventoryService->restoreStockAfterInventoriesRequestDeleted($snacks);
         $this->requestEmailService->sendCancelledRequestMail($requestModel);
-        $notification = $this->notificationService->approvedToCancelledRequestRoomNotification($requestModel, auth()->user());
-        $this->requestNotificationService->create($requestModel->id, $notification->id);
-        Utils::eventAlertNotification($notification);
+        $this->notificationService->approvedToCancelledRequestRoomNotification($requestModel, auth()->user());
         return $this->noContentResponse();
     }
 
@@ -150,9 +142,7 @@ class RequestRoomController extends BaseApiController
         $dto = $request->toDTO();
         $requestModel = $this->requestRoomService->proposalRequest($requestId, $dto);
         $this->requestRoomService->checkRequestsByDay($requestModel, auth()->id());
-        $notification = $this->notificationService->newToProposalRequestRoomNotification($requestModel);
-        $this->requestNotificationService->create($requestModel->id, $notification->id);
-        Utils::eventAlertNotification($notification);
+        $this->notificationService->newToProposalRequestRoomNotification($requestModel);
         return $this->noContentResponse();
     }
 
