@@ -21,8 +21,8 @@ class DatabaseSeeder extends Seeder
         Schema::disableForeignKeyConstraints();
 
         $this->call(StateSeeder::class);
-        $this->call(OfficeSeeder::class);
         $this->call(LookupSeeder::class);
+        $this->call(OfficeSeeder::class);
         $this->call(RoleSeeder::class);
         $this->call(UserAdminSeeder::class);
         $this->call(UserSeeder::class);
