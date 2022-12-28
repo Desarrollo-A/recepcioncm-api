@@ -7,4 +7,5 @@ class NameRole
     const ADMIN = 'Administrador';
     const RECEPCIONIST = 'Recepción';
     const APPLICANT = 'Solicitante';
+    const DRIVER = 'Conductor';
 }
