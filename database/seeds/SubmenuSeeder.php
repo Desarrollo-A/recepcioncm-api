@@ -18,6 +18,7 @@ class SubmenuSeeder extends Seeder
         $historyRecepcionistMenu = Menu::query()->where('path_route', '/dashboard/solicitudes')->first()->id;
         $mantoMenu = Menu::query()->where('path_route', '/dashboard/mantenimiento')->first()->id;
         $reportMenu = Menu::query()->where('path_route', '/dashboard/reporte')->first()->id;
+        $requestAssignsMenu = Menu::query()->where('path_route', '/dashboard/solicitudes-asignadas')->first()->id;
 
         Submenu::query()->create([
             'path_route' => '/sala',
@@ -129,6 +130,13 @@ class SubmenuSeeder extends Seeder
             'label' => 'Entradas/Salidas Inventario',
             'order' => 1,
             'menu_id' => $reportMenu
+        ]);
+
+        Submenu::query()->create([
+            'path_route' => '/paqueteria',
+            'label' => 'Paquetería',
+            'order' => 1,
+            'menu_id' => $requestAssignsMenu
         ]);
     }
 }

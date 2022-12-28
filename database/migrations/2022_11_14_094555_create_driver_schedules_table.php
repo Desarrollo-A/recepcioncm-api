@@ -18,7 +18,7 @@ class CreateDriverSchedulesTable extends Migration
             $table->unsignedBigInteger('driver_id');
             $table->foreign('driver_id')
                 ->references('id')
-                ->on('drivers');
+                ->on('users');
             $table->dateTime('start_date');
             $table->dateTime('end_date');
             $table->timestamps();

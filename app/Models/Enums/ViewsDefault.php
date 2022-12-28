@@ -69,4 +69,13 @@ class ViewsDefault
             'submenus' => []
         ]
     ];
+
+    const VIEWS_DEFAULT_DRIVER = [
+        [
+            'path' => '/dashboard/solicitudes-asignadas',
+            'submenus' => [
+                ['path' => '/paqueteria']
+            ]
+        ]
+    ];
 }

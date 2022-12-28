@@ -67,5 +67,12 @@ class MenuSeeder extends Seeder
             'icon' => 'mat:engineering',
             'order' => 8
         ]);
+
+        Menu::query()->create([
+            'path_route' => '/dashboard/solicitudes-asignadas',
+            'label' => 'Solicitudes',
+            'icon' => 'mat:assignment_turned_in',
+            'order' => 9
+        ]);
     }
 }
