@@ -3,6 +3,10 @@
 use Illuminate\Database\Seeder;
 use App\Models\State;
 use App\Models\Office;
+use App\Models\Address;
+use App\Models\Lookup;
+use App\Models\Enums\TypeLookup;
+use App\Models\Enums\Lookups\CountryAddressLookup;
 
 class OfficeSeeder extends Seeder
 {
@@ -23,123 +27,137 @@ class OfficeSeeder extends Seeder
         $tijuanaState = State::query()->where('name', 'TIJUANA')->first()->id;
         $smaState = State::query()->where('name', 'SAN MIGUEL DE ALLENDE')->first()->id;
 
-        Office::query()->create(['name' => 'JURICA', 'state_id' => $qroState]);
-        Office::query()->create([
-            'name' => '5 DE MAYO',
-            'address' => '5 DE MAYO NO. 75, CENTRO HISTÓRICO, C.P. 76000 QUERÉTARO, QRO.',
-            'state_id' => $qroState]);
-        Office::query()->create([
-            'name' => 'BQ3',
-            'address' => 'BLVD. BERNARDO QUINTANA 558, LOCAL B, COL. ARBOLEDAS, QUERÉTARO, QRO.',
-            'state_id' => $qroState]);
-        Office::query()->create([
-            'name' => 'CIMATARIO',
-            'address' => 'CERRO DE ACULTZINGO 302, COL. COLINAS DEL CIMATARIO, QUERÉTARO, QRO.',
-            'state_id' => $qroState]);
-        Office::query()->create([
-            'name' => 'BQ1',
-            'address' => 'BLVD. BERNARDO QUINTANA 160, PLAZA BQ160, COL. CARRETAS, QUERÉTARO, QRO.',
-            'state_id' => $qroState]);
-        Office::query()->create([
-            'name' => 'OFICINA CONSTRUCCION',
-            'address' => 'CARR. 57 MEX-QRO. KM 201.5 INT 109. PARQUE INDUSTRIAL EUROBUSINESS PARK COL. SAN ISIDRO CP. 76240 EL MARQUÉS QRO.',
-            'state_id' => $qroState]);
-        Office::query()->create([
-            'name' => 'NASCAA',
-            'address' => 'SANTA ROSA JAUREGUI, QRO.',
-            'state_id' => $qroState]);
-        Office::query()->create([
-            'name' => 'CARRANZA QRO',
-            'address' => 'CALLE VENUSTIANO CARRANZA #36 COLONIA CENTRO, QUERÉTARO, QRO. CP: 76000',
-            'state_id' => $qroState]);
-        Office::query()->create([
-            'name' => 'VORTICE',
-            'address' => 'VORTICE ITECH PARK #174 COL. ANILLO VIAL III OTE. SALDARRIAGA, QRO.',
-            'state_id' => $qroState]);
-        Office::query()->create([
-            'name' => 'TIERRA PARAISO',
-            'address' => 'CARRETERA A HUIMILPAN KM 11, EL ROSARIO, EL MARQUES, 76240 QRO.',
-            'state_id' => $qroState]);
-        Office::query()->create([
-            'name' => 'ARCOS',
-            'address' => 'CALZ. DE LOS ARCOS #12 COL. BOSQUES DEL ACUEDUCTO, C.P 76020 QUERÉTARO, QRO.',
-            'state_id' => $qroState]);
-        Office::query()->create([
-            'name' => 'BQ2',
-            'address' => 'BOULEVARD BERNARDO QUINTANA 149, COLONIA LOMA DORADA 76060, QUERÉTARO, QUERÉTARO',
-            'state_id' => $qroState]);
-        Office::query()->create([
-            'name' => 'GALINDAS',
-            'address' => 'PRIVADA AV. DE LAS TORRES 145, GALINDAS, 76177 SANTIAGO DE QUERÉTARO, QRO.',
-            'state_id' => $qroState]);
-        Office::query()->create([
-            'name' => 'AMAZCALA',
-            'address' => 'EL MARQUES QUERETARO',
-            'state_id' => $qroState]);
-        Office::query()->create([
-            'name' => 'CONSTITUYENTES',
-            'address' => 'CONSTITUYENTES',
-            'state_id' => $qroState]);
-        Office::query()->create([
-            'name' => 'QRO-VILLA',
-            'address' => '5 DE MAYO',
-            'state_id' => $qroState]);
-        Office::query()->create([
-            'name' => 'OFICINA CONSTRUCCION 100',
-            'address' => 'CARR. 57 MEX-QRO. KM 201.5 INT 100. PARQUE INDUSTRIAL EUROBUSINESS PARK COL. SAN ISIDRO CP. 76240 EL MARQUÉS QRO.',
-            'state_id' => $qroState]);
-        Office::query()->create([
-            'name' => 'PETUNIAS',
-            'address' => 'GRANJA "LA PETUNIA" COMUNIDAD PUNTA DE OBRAJUELO, APASEO EL GRANDE, GTO.',
-            'state_id' => $qroState]);
-        Office::query()->create([
-            'name' => 'SENDAS',
-            'address' => 'CARRETERA ESTATAL 210-KM 1, 76245 LA PIEDAD, QRO.',
-            'state_id' => $qroState]);
+        $countryMx = Lookup::query()
+            ->where('type', TypeLookup::COUNTRY_ADDRESS)
+            ->where('code', CountryAddressLookup::code(CountryAddressLookup::MEX))
+            ->firstOrFail()
+            ->id;
+
+        $address = $this->createAddress('NA','NA','JURICA', '00000', 'QUERÉTARO',
+            $countryMx);
+        Office::query()->create(['name' => 'JURICA', 'state_id' => $qroState, 'address_id' => $address->id]);
+
+        $address = $this->createAddress('5 DE MAYO','75','CENTRO HISTÓRICO', '76000',
+            'QUERÉTARO', $countryMx);
+        Office::query()->create(['name' => '5 DE MAYO', 'address_id' => $address->id, 'state_id' => $qroState]);
+
+        $address = $this->createAddress('BLVD. BERNARDO QUINTANA','558','ARBOLEDAS', '00000',
+            'QUERÉTARO', $countryMx, 'LOCAL B');
+        Office::query()->create(['name' => 'BQ3', 'address_id' => $address->id, 'state_id' => $qroState]);
+
+        $address = $this->createAddress('CERRO DE ACULTZINGO','302','COLINAS DEL CIMATARIO',
+            '00000','QUERÉTARO', $countryMx);
+        Office::query()->create(['name' => 'CIMATARIO', 'address_id' => $address->id, 'state_id' => $qroState]);
+
+        $address = $this->createAddress('BLVD. BERNARDO QUINTANA','160','CARRETAS',
+            '00000','QUERÉTARO', $countryMx, 'PLAZA BQ160');
+        Office::query()->create(['name' => 'BQ1', 'address_id' => $address->id, 'state_id' => $qroState]);
+
+        $address = $this->createAddress('CARR. 57 MEX-QRO. PARQUE INDUSTRIAL EUROBUSINESS PARK',
+            'KM 201.5','SAN ISIDRO', '76240','EL MARQUÉS, QUERÉTARO', $countryMx, '109');
+        Office::query()->create(['name' => 'OFICINA CONSTRUCCION', 'address_id' => $address->id, 'state_id' => $qroState]);
+
+        $address = $this->createAddress('NA','NA','SANTA ROSA JAUREGUI',
+            '00000','QUERÉTARO', $countryMx);
+        Office::query()->create(['name' => 'NASCAA', 'address_id' => $address->id, 'state_id' => $qroState]);
+
+        $address = $this->createAddress('VENUSTIANO CARRANZA','36','CENTRO',
+            '76000','QUERÉTARO', $countryMx);
+        Office::query()->create(['name' => 'CARRANZA QRO', 'address_id' => $address->id, 'state_id' => $qroState]);
+
+        $address = $this->createAddress('VORTICE ITECH PARK','174','ANILLO VIAL III OTE.',
+            '00000','SALDARRIAGA, QUERÉTARO', $countryMx);
+        Office::query()->create(['name' => 'VORTICE', 'address_id' => $address->id, 'state_id' => $qroState]);
+
+        $address = $this->createAddress('CARRETERA A HUIMILPAN','KM 11','EL ROSARIO',
+            '76240','EL MARQUÉS, QUERÉTARO', $countryMx);
+        Office::query()->create(['name' => 'TIERRA PARAISO', 'address_id' => $address->id, 'state_id' => $qroState]);
+
+        $address = $this->createAddress('CALZ. DE LOS ARCOS','12','BOSQUES DEL ACUEDUCTO',
+            '76020','QUERÉTARO', $countryMx);
+        Office::query()->create(['name' => 'ARCOS', 'address_id' => $address->id, 'state_id' => $qroState]);
+
+        $address = $this->createAddress('BOULEVARD BERNARDO QUINTANA','149','LOMA DORADA',
+            '76060','QUERÉTARO', $countryMx);
+        Office::query()->create(['name' => 'BQ2', 'address_id' => $address->id, 'state_id' => $qroState]);
+
+        $address = $this->createAddress('PRIVADA AV. DE LAS TORRES','145','GALINDAS',
+            '76117','QUERÉTARO', $countryMx);
+        Office::query()->create(['name' => 'GALINDAS', 'address_id' => $address->id, 'state_id' => $qroState]);
+
+        $address = $this->createAddress('NA','NA','EL MARQUES',
+            '00000','QUERÉTARO', $countryMx);
+        Office::query()->create(['name' => 'AMAZCALA', 'address_id' => $address->id, 'state_id' => $qroState]);
+
+        $address = $this->createAddress('NA','NA','CONSTITUYENTES',
+            '00000','QUERÉTARO', $countryMx);
+        Office::query()->create(['name' => 'CONSTITUYENTES', 'address_id' => $address->id, 'state_id' => $qroState]);
+
+        $address = $this->createAddress('5 DE MAYO','NA','NA',
+            '00000','QUERÉTARO', $countryMx);
+        Office::query()->create(['name' => 'QRO-VILLA', 'address_id' => $address->id, 'state_id' => $qroState]);
+
+        $address = $this->createAddress('CARR. 57 MEX-QRO. PARQUE INDUSTRIAL EUROBUSINESS PARK',
+            'KM 201.5','SAN ISIDRO','76240','EL MARQUÉS, QUERÉTARO', $countryMx, '100');
+        Office::query()->create(['name' => 'OFICINA CONSTRUCCION 100', 'address_id' => $address->id, 'state_id' => $qroState]);
+
+        $address = $this->createAddress('CARR. 57 MEX-QRO. PARQUE INDUSTRIAL EUROBUSINESS PARK',
+            'NA','NA','00000','APASEO EL GRANDE, GUANUAJUATO', $countryMx);
+        Office::query()->create(['name' => 'PETUNIAS', 'address_id' => $address->id, 'state_id' => $qroState]);
+
+        $address = $this->createAddress('CARRETERA ESTATAL',
+            '210-KM 1','LA PIEDAD','76245','QUERÉTARO', $countryMx);
+        Office::query()->create(['name' => 'SENDAS', 'address_id' => $address->id, 'state_id' => $qroState]);
 
 
-        Office::query()->create([
-            'name' => 'TORRE BLANCA',
-            'address' => 'BLVD. LÓPEZ MATEOS #101 PB, ESQ. VASCO DE QUIROGA, LEÓN, GTO.',
-            'state_id' => $leonState]);
-        Office::query()->create([
-            'name' => 'INSURGENTES',
-            'address' => 'PASEO DE LOS INSURGENTES # 1906, COL. PANORAMA',
-            'state_id' => $leonState]);
+        $address = $this->createAddress('BLVD. LÓPEZ MATEOS',
+            '101','NA','00000','LEÓN, GUANAJUATO', $countryMx, 'PB');
+        Office::query()->create(['name' => 'TORRE BLANCA', 'address_id' => $address->id, 'state_id' => $leonState]);
 
-        Office::query()->create([
-            'name' => 'CARRANZA SLP',
-            'address' => 'AV. VENUSTIANO CARRANZA 2425, COL. LOS FILTROS, SAN LUIS POTOSÍ.',
-            'state_id' => $slpState]);
+        $address = $this->createAddress('PASEO DE LOS INSURGENTES',
+            '1906','PANORAMA','00000','LEÓN, GUANAJUATO', $countryMx);
+        Office::query()->create(['name' => 'INSURGENTES', 'address_id' => $address->id, 'state_id' => $leonState]);
 
-        Office::query()->create([
-            'name' => 'POLANCO',
-            'address' => 'AV. HOMERO 906, POLANCO II SECCIóN, MIGUEL HIDALGO, C.P. 11550, CDMX',
-            'state_id' => $cdmxState]);
+        $address = $this->createAddress('AV. VENUSTIANO CARRANZA', '2425',
+            'LOS FILTROS','00000','SAN LUIS POTOSÍ', $countryMx);
+        Office::query()->create(['name' => 'CARRANZA SLP', 'address_id' => $address->id, 'state_id' => $slpState]);
 
-        Office::query()->create([
-            'name' => 'VILLA AURORA',
-            'address' => 'CASA VILLA AURORA - CALLE 72 NO. 342 ENTRE 33 Y 33-A, COL. CENTRO, C.P. 97000, MÉRIDA, YUCATÁN.',
-            'state_id' => $meridaState]);
+        $address = $this->createAddress('AV. HOMERO', '906',
+            'POLANCO II SECCIÓN, MIGUEL HIDALGO','11550','CDMX', $countryMx);
+        Office::query()->create(['name' => 'POLANCO', 'address_id' => $address->id, 'state_id' => $cdmxState]);
 
-        Office::query()->create([
-            'name' => 'AMERICAS',
-            'address' => 'CANCUN',
-            'state_id' => $cancunState]);
+        $address = $this->createAddress('CASA VILLA AURORA - CALLE 72', '342',
+            'CENTRO','97000','MÉRIDA, YUCATÁN', $countryMx, 'ENTRE 33 Y 33-A');
+        Office::query()->create(['name' => 'VILLA AURORA', 'address_id' => $address->id, 'state_id' => $meridaState]);
 
-        Office::query()->create([
-            'name' => 'MIDTOWN',
-            'address' => 'PLAZA MIDTOWN JALISCO, LOCAL 53-A PLANTA ALTA, ITALIA PROVIDENCIA',
-            'state_id' => $gdlState]);
+        $address = $this->createAddress('NA', 'NA',
+            'NA','00000','CANCÚN, YUCATÁN', $countryMx);
+        Office::query()->create(['name' => 'AMERICAS', 'address_id' => $address->id, 'state_id' => $cancunState]);
 
-        Office::query()->create([
-            'name' => 'PLAZA SALINAS',
-            'address' => 'MISIÓN DE SAN JAVIER 10643 ZONA URBANA RIO TIJUANA, 22010 TIJUANA, B.C',
-            'state_id' => $tijuanaState]);
+        $address = $this->createAddress('PLAZA MIDTOWN JALISCO', 'LOCAL 53-A PLANTA ALTA',
+            'ITALIA PROVIDENCIA','00000','GUADALAJARA', $countryMx);
+        Office::query()->create(['name' => 'MIDTOWN', 'address_id' => $address->id, 'state_id' => $gdlState]);
 
-        Office::query()->create([
-            'name' => 'SMA',
-            'address' => 'GUANAJUATO',
-            'state_id' => $smaState]);
+        $address = $this->createAddress('MISIÓN DE SAN JAVIER', '10643',
+            'ZONA URBANA RIO TIJUANA','22010','TIJUANA, B.C', $countryMx);
+        Office::query()->create(['name' => 'PLAZA SALINAS', 'address_id' => $address->id, 'state_id' => $tijuanaState]);
+
+        $address = $this->createAddress('NA', 'NA',
+            'NA','00000','GUANAJUATO', $countryMx);
+        Office::query()->create(['name' => 'SMA', 'address_id' => $address->id, 'state_id' => $smaState]);
+    }
+
+    private function createAddress(string $street, string $numExt, string $suburb, string $postalCode, string $state,
+                                   int $countryId, string $numInt = null): Address
+    {
+        return Address::create([
+            'street' => $street,
+            'num_ext' => $numExt,
+            'num_int' => $numInt,
+            'suburb' => $suburb,
+            'postal_code' => $postalCode,
+            'state' => $state,
+            'country_id' => $countryId
+        ]);
     }
 }
