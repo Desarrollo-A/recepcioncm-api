@@ -38,6 +38,7 @@ class RequestDriverSeeder extends Seeder
             ->id;
 
         $roleApplicant = Role::query()->where('name', NameRole::APPLICANT)->first()->id;
+        $roleDriver = Role::query()->where('name', NameRole::DRIVER)->first()->id;
 
         $countries = Lookup::query()
             ->where('type', TypeLookup::COUNTRY_ADDRESS)
@@ -48,11 +49,12 @@ class RequestDriverSeeder extends Seeder
         User::query()
             ->where('role_id', $roleApplicant)
             ->get('id')
-            ->each(function ($user) use ($statusNew, $typeDriver, $countries, $date) {
+            ->each(function ($user) use ($statusNew, $typeDriver, $countries, $date, $roleDriver) {
                 $officesIds = Office::query()
-                    ->whereIn('id', function($query) {
+                    ->whereIn('id', function(\Illuminate\Database\Query\Builder $query) use ($roleDriver) {
                         return $query->selectRaw('DISTINCT(office_id)')
-                            ->from('drivers');
+                            ->from('users')
+                            ->where('role_id', $roleDriver);
                     })
                     ->whereIn('id', function($query) {
                         return $query->selectRaw('DISTINCT(office_id)')

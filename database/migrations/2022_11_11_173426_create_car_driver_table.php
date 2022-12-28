@@ -17,7 +17,7 @@ class CreateCarDriverTable extends Migration
             $table->unsignedBigInteger('driver_id');
             $table->foreign('driver_id')
                 ->references('id')
-                ->on('drivers');
+                ->on('users');
             $table->unsignedBigInteger('car_id');
             $table->foreign('car_id')
                 ->references('id')

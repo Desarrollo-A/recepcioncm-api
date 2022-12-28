@@ -24,9 +24,9 @@ class CarDriverSeeder extends Seeder
                 Car::query()
                     ->where('office_id', $user->office_id)
                     ->each(function (Car $car) use ($user) {
-                        $driver = Driver::query()
-                            ->leftJoin('car_driver', 'car_driver.driver_id', '=', 'drivers.id')
-                            ->where('drivers.office_id', $user->office_id)
+                        $driver = User::query()
+                            ->leftJoin('car_driver', 'car_driver.driver_id', '=', 'users.id')
+                            ->where('users.office_id', $user->office_id)
                             ->whereNull('car_driver.car_id')
                             ->inRandomOrder()
                             ->firstOrFail();

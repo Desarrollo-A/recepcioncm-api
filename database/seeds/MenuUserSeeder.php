@@ -7,6 +7,7 @@ use App\Models\Submenu;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Enums\NameRole;
+use Illuminate\Support\Collection;
 
 class MenuUserSeeder extends Seeder
 {
@@ -17,49 +18,16 @@ class MenuUserSeeder extends Seeder
      */
     public function run()
     {
-        $menuAdmin = collect(ViewsDefault::VIEWS_DEFAULT_ADMIN)
-            ->map(function ($menu) {
-                return Menu::query()->where('path_route', $menu['path'])->first()->id;
-            })
-            ->values();
+        $menuAdmin = $this->getMenu(ViewsDefault::VIEWS_DEFAULT_ADMIN);
 
-        $menuRecepcionist = collect(ViewsDefault::VIEWS_DEFAULT_RECEPCIONIST)
-            ->map(function ($menu) {
-                return Menu::query()->where('path_route', $menu['path'])->first()->id;
-            })
-            ->values();
-        $submenuRecepcionist = collect(ViewsDefault::VIEWS_DEFAULT_RECEPCIONIST)
-            ->flatMap(function ($menu) {
-                $menuId = Menu::query()->where('path_route', $menu['path'])->first()->id;
-                return collect($menu['submenus'])
-                    ->map(function ($submenu) use ($menuId) {
-                        return Submenu::query()
-                            ->where('path_route', $submenu['path'])
-                            ->where('menu_id', $menuId)
-                            ->first()
-                            ->id;
-                    });
-            })
-            ->values();
+        $menuRecepcionist = $this->getMenu(ViewsDefault::VIEWS_DEFAULT_RECEPCIONIST);
+        $submenuRecepcionist = $this->getSubmenu(ViewsDefault::VIEWS_DEFAULT_RECEPCIONIST);
 
-        $menuApplicant = collect(ViewsDefault::VIEWS_DEFAULT_APPLICANT)
-            ->map(function ($menu) {
-                return Menu::query()->where('path_route', $menu['path'])->first()->id;
-            })
-            ->values();
-        $submenuApplicant = collect(ViewsDefault::VIEWS_DEFAULT_APPLICANT)
-            ->flatMap(function ($menu) {
-                $menuId = Menu::query()->where('path_route', $menu['path'])->first()->id;
-                return collect($menu['submenus'])
-                    ->map(function ($submenu) use ($menuId) {
-                        return Submenu::query()
-                            ->where('path_route', $submenu['path'])
-                            ->where('menu_id', $menuId)
-                            ->first()
-                            ->id;
-                    });
-            })
-            ->values();
+        $menuApplicant = $this->getMenu(ViewsDefault::VIEWS_DEFAULT_APPLICANT);
+        $submenuApplicant = $this->getSubmenu(ViewsDefault::VIEWS_DEFAULT_APPLICANT);
+
+        $menuDriver = $this->getMenu(ViewsDefault::VIEWS_DEFAULT_DRIVER);
+        $submenuDriver = $this->getSubmenu(ViewsDefault::VIEWS_DEFAULT_DRIVER);
 
         User::query()
             ->with('menus')
@@ -95,5 +63,43 @@ class MenuUserSeeder extends Seeder
                 $user->submenus()->attach($submenuApplicant);
                 return $user;
             });
+
+        User::query()
+            ->with('menus')
+            ->whereHas('role', function (Builder $query) {
+                $query->where('name', NameRole::DRIVER);
+            })
+            ->get()
+            ->map(function (User $user) use ($menuDriver, $submenuDriver) {
+                $user->menus()->attach($menuDriver);
+                $user->submenus()->attach($submenuDriver);
+                return $user;
+            });
+    }
+
+    private function getMenu(array $defaultMenu): Collection
+    {
+        return collect($defaultMenu)
+            ->map(function ($menu) {
+                return Menu::query()->where('path_route', $menu['path'])->first()->id;
+            })
+            ->values();
+    }
+
+    private function getSubmenu(array $defaultSubmenu): Collection
+    {
+        return collect($defaultSubmenu)
+            ->flatMap(function ($menu) {
+                $menuId = Menu::query()->where('path_route', $menu['path'])->first()->id;
+                return collect($menu['submenus'])
+                    ->map(function ($submenu) use ($menuId) {
+                        return Submenu::query()
+                            ->where('path_route', $submenu['path'])
+                            ->where('menu_id', $menuId)
+                            ->first()
+                            ->id;
+                    });
+            })
+            ->values();
     }
 }

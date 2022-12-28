@@ -101,4 +101,10 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Submenu::class)->withTimestamps();
     }
+
+    public function cars(): BelongsToMany
+    {
+        return $this->belongsToMany(Car::class, 'car_driver', 'driver_id')
+            ->withTimestamps();
+    }
 }

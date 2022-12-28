@@ -12,6 +12,7 @@ use App\Models\Enums\Lookups\StatusUserLookup;
 class UserSeeder extends Seeder
 {
     const TOTAL_USERS_APPLICANT = 3;
+    const TOTAL_USERS_DRIVER = 7;
 
     /**
      * Run the database seeds.
@@ -22,6 +23,7 @@ class UserSeeder extends Seeder
     {
         $reception = Role::query()->where('name', NameRole::RECEPCIONIST)->first()->id;
         $solicitante = Role::query()->where('name', NameRole::APPLICANT)->first()->id;
+        $conductor = Role::query()->where('name', NameRole::DRIVER)->first()->id;
         $officeId = Office::all(['id']);
         $activeStatus = Lookup::query()
             ->where('type', TypeLookup::STATUS_USER)
@@ -42,6 +44,17 @@ class UserSeeder extends Seeder
             'status_id' => $activeStatus,
             'office_id' => $officeId->random()
         ]);
+
+        User::query()
+            ->where('role_id', $reception)
+            ->get()
+            ->each(function (User $user) use ($conductor, $activeStatus) {
+                factory(User::class, self::TOTAL_USERS_DRIVER)->create([
+                    'role_id' => $conductor,
+                    'status_id' => $activeStatus,
+                    'office_id' => $user->office_id
+                ]);
+            });
 
         /*User::query()->create([
             'no_employee' => 'CIB02142',
