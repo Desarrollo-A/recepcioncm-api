@@ -76,6 +76,12 @@ class ViewsDefault
             'submenus' => [
                 ['path' => '/paqueteria']
             ]
-        ]
+        ],
+        [
+            'path' => '/dashboard/reporte',
+            'submenus' => [
+                ['path' => '/paqueteria']
+            ]
+        ],
     ];
 }

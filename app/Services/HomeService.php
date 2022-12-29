@@ -41,7 +41,7 @@ class HomeService implements HomeServiceInterface
 
     public function getTotalLast7Days(User $user): array
     {
-        if ($user->role->name === NameRole::APPLICANT) {
+        if (in_array($user->role->name, [NameRole::APPLICANT, NameRole::DRIVER])) {
             return [];
         }
         return $this->requestRepository->getTotalLast7Days($user);
@@ -49,7 +49,7 @@ class HomeService implements HomeServiceInterface
 
     public function getTotalRequetsOfMonth(User $user): int
     {
-        if ($user->role->name === NameRole::APPLICANT) {
+        if (in_array($user->role->name, [NameRole::APPLICANT, NameRole::DRIVER])) {
             return 0;
         }
         return $this->requestRepository->getTotalRequetsOfMonth($user->office_id);
@@ -57,7 +57,7 @@ class HomeService implements HomeServiceInterface
 
     public function getRequestPercentage(User $user): int
     {
-        if ($user->role->name === NameRole::APPLICANT) {
+        if (in_array($user->role->name, [NameRole::APPLICANT, NameRole::DRIVER])) {
             return 0;
         }
 

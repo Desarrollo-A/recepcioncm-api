@@ -14,7 +14,7 @@ class HomeController extends BaseApiController
 
     public function __construct(HomeServiceInterface $homeService)
     {
-        $this->middleware('role.permission:'.NameRole::RECEPCIONIST.','.NameRole::APPLICANT);
+        $this->middleware('role.permission:'.NameRole::RECEPCIONIST.','.NameRole::APPLICANT.','.NameRole::DRIVER);
         $this->homeService = $homeService;
     }
 
