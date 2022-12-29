@@ -27,6 +27,10 @@ Route::prefix('v1')->group(function () {
 
             Route::post('/insert-score', 'RequestPackageController@insertScore')
                 ->name('insert.score');
+
+            // TODO: mover endpoint dentro del middleware de auth:api, por pruebas solo se deja aquí
+            Route::put('/upload-signature', 'RequestPackageController@uploadSignature')
+                ->name('upload-signature');
     });
 
     Route::apiResource('users', 'UserController')->only(['store']);

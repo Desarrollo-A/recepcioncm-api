@@ -129,6 +129,11 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $this->packageRepository->update($id, $dto->toArray(['authorization_filename']));
     }
 
+    public function uploadSignature(PackageDTO $dto): void
+    {
+        File::uploadFile($dto->signature_file, Path::PACKAGE_SIGNATURES);
+    }
+
     /**
      * @throws CustomErrorException
      */

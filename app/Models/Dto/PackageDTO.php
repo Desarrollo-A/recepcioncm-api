@@ -46,6 +46,11 @@ class PackageDTO
     public $authorization_file;
 
     /**
+     * @var UploadedFile
+     */
+    public $signature_file;
+
+    /**
      * @var string
      */
     public $name_receive;

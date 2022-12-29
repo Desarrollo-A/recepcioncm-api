@@ -20,6 +20,8 @@ interface RequestPackageServiceInterface extends BaseServiceInterface
 
     public function uploadAuthorizationFile(int $id, PackageDTO $dto): void;
 
+    public function uploadSignature(PackageDTO $dto): void;
+
     public function findAllPackagesPaginated(HttpRequest $request, User $user, array $columns = ['*']): LengthAwarePaginator;
 
     public function insertScore(ScoreDTO $score): Request;

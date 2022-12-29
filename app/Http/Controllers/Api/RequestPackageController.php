@@ -14,6 +14,7 @@ use App\Http\Requests\RequestPackage\ApprovedPackageRequest;
 use App\Http\Requests\RequestPackage\StoreRequestPackageRequest;
 use App\Http\Requests\RequestPackage\TransferPackageRequest;
 use App\Http\Requests\RequestPackage\UploadFileRequestPackageRequest;
+use App\Http\Requests\RequestPackage\UploadSignatureRequest;
 use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\Package\PackageExposedResource;
 use App\Http\Resources\Package\PackageResource;
@@ -62,6 +63,16 @@ class RequestPackageController extends BaseApiController
     {
         $dto = $request->toDTO();
         $this->requestPackageService->uploadAuthorizationFile($requestId, $dto);
+        return $this->noContentResponse();
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function uploadSignature(UploadSignatureRequest $request): JsonResponse
+    {
+        // TODO: Agregar validación de middleware para el rol de conductor
+        $this->requestPackageService->uploadSignature($request->toDTO());
         return $this->noContentResponse();
     }
 
