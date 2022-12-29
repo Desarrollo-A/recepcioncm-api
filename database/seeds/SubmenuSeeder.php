@@ -20,123 +20,38 @@ class SubmenuSeeder extends Seeder
         $reportMenu = Menu::query()->where('path_route', '/dashboard/reporte')->first()->id;
         $requestAssignsMenu = Menu::query()->where('path_route', '/dashboard/solicitudes-asignadas')->first()->id;
 
-        Submenu::query()->create([
-            'path_route' => '/sala',
-            'label' => 'Salas de Junta',
-            'order' => 1,
-            'menu_id' => $requestMenu
-        ]);
+        $this->createSubmenu('/sala', 'Salas de Junta',1, $requestMenu);
+        $this->createSubmenu('/paqueteria', 'Paquetería', 2, $requestMenu);
+        $this->createSubmenu('/conductor', 'Chofer', 3, $requestMenu);
+        $this->createSubmenu('/automovil', 'Automóvil', 4, $requestMenu);
 
-        Submenu::query()->create([
-            'path_route' => '/paqueteria',
-            'label' => 'Paquetería',
-            'order' => 2,
-            'menu_id' => $requestMenu
-        ]);
+        $this->createSubmenu('/sala','Salas de Junta',1, $historyMenu);
+        $this->createSubmenu('/paqueteria','Paquetería',2, $historyMenu);
+        $this->createSubmenu('/conductor','Chofer',3, $historyMenu);
+        $this->createSubmenu('/automovil', 'Automóvil', 4, $historyMenu);
 
-        Submenu::query()->create([
-            'path_route' => '/conductor',
-            'label' => 'Chofer',
-            'order' => 3,
-            'menu_id' => $requestMenu
-        ]);
+        $this->createSubmenu('/sala','Salas de Junta',1, $historyRecepcionistMenu);
+        $this->createSubmenu('/paqueteria','Paquetería',2, $historyRecepcionistMenu);
+        $this->createSubmenu('/conductor','Chofer',3, $historyRecepcionistMenu);
+        $this->createSubmenu('/automovil','Automóvil',4, $historyRecepcionistMenu);
 
-        Submenu::query()->create([
-            'path_route' => '/automovil',
-            'label' => 'Automóvil',
-            'order' => 4,
-            'menu_id' => $requestMenu
-        ]);
+        $this->createSubmenu('/sala','Salas de Junta',1, $mantoMenu);
+        $this->createSubmenu('/auto','Automóvil',2, $mantoMenu);
+        $this->createSubmenu('/conductor','Chofer',3, $mantoMenu);
 
-        Submenu::query()->create([
-            'path_route' => '/sala',
-            'label' => 'Salas de Junta',
-            'order' => 1,
-            'menu_id' => $historyMenu
-        ]);
+        $this->createSubmenu('/entrada-salida','Entradas/Salidas Inventario',1, $reportMenu);
+        $this->createSubmenu('/paqueteria','Paquetería',2, $reportMenu);
 
-        Submenu::query()->create([
-            'path_route' => '/paqueteria',
-            'label' => 'Paquetería',
-            'order'=> 2,
-            'menu_id' => $historyMenu
-        ]);
+        $this->createSubmenu('/paqueteria','Paquetería',1, $requestAssignsMenu);
+    }
 
+    private function createSubmenu(string $pathRoute, string $label, int $order, int $menuId): void
+    {
         Submenu::query()->create([
-            'path_route' => '/conductor',
-            'label' => 'Chofer',
-            'order'=> 3,
-            'menu_id' => $historyMenu
-        ]);
-
-        Submenu::query()->create([
-            'path_route' => '/automovil',
-            'label' => 'Automóvil',
-            'order'=> 4,
-            'menu_id' => $historyMenu
-        ]);
-
-        Submenu::query()->create([
-            'path_route' => '/sala',
-            'label' => 'Salas de Junta',
-            'order' => 1,
-            'menu_id' => $historyRecepcionistMenu
-        ]);
-
-        Submenu::query()->create([
-            'path_route' => '/paqueteria',
-            'label' => 'Paquetería',
-            'order' => 2,
-            'menu_id' => $historyRecepcionistMenu
-        ]);
-
-        Submenu::query()->create([
-            'path_route' => '/conductor',
-            'label' => 'Chofer',
-            'order' => 3,
-            'menu_id' => $historyRecepcionistMenu
-        ]);
-
-        Submenu::query()->create([
-            'path_route' => '/automovil',
-            'label' => 'Automóvil',
-            'order' => 4,
-            'menu_id' => $historyRecepcionistMenu
-        ]);
-
-        Submenu::query()->create([
-            'path_route' => '/sala',
-            'label' => 'Salas de Junta',
-            'order' => 1,
-            'menu_id' => $mantoMenu
-        ]);
-
-        Submenu::query()->create([
-            'path_route' => '/auto',
-            'label' => 'Automóvil',
-            'order' => 2,
-            'menu_id' => $mantoMenu
-        ]);
-
-        Submenu::query()->create([
-            'path_route' => '/conductor',
-            'label' => 'Chofer',
-            'order' => 3,
-            'menu_id' => $mantoMenu
-        ]);
-
-        Submenu::query()->create([
-            'path_route' => '/entrada-salida',
-            'label' => 'Entradas/Salidas Inventario',
-            'order' => 1,
-            'menu_id' => $reportMenu
-        ]);
-
-        Submenu::query()->create([
-            'path_route' => '/paqueteria',
-            'label' => 'Paquetería',
-            'order' => 1,
-            'menu_id' => $requestAssignsMenu
+            'path_route' => $pathRoute,
+            'label' => $label,
+            'order' => $order,
+            'menu_id' => $menuId
         ]);
     }
 }
