@@ -2,35 +2,79 @@
 
 namespace App\Services;
 
+use App\Contracts\Repositories\DriverPackageScheduleRepositoryInterface;
 use App\Contracts\Repositories\InventoryRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
-use App\Contracts\Repositories\RequestRoomViewRepositoryInterface;
 use App\Contracts\Services\HomeServiceInterface;
+use App\Models\Enums\Lookups\StatusCarRequestLookup;
+use App\Models\Enums\Lookups\StatusDriverRequestLookup;
+use App\Models\Enums\Lookups\StatusPackageRequestLookup;
+use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\Enums\NameRole;
 use App\Models\User;
 use Illuminate\Support\Collection;
 
 class HomeService implements HomeServiceInterface
 {
-    protected $requestRoomViewRepository;
     protected $inventoryRepository;
     protected $requestRepository;
 
-    public function __construct(RequestRoomViewRepositoryInterface $requestRoomViewRepository,
-                                InventoryRepositoryInterface $inventoryRepository,
-                                RequestRepositoryInterface $requestRepository)
+    protected $driverPackageScheduleRepository;
+
+    public function __construct(InventoryRepositoryInterface $inventoryRepository,
+                                RequestRepositoryInterface $requestRepository,
+                                DriverPackageScheduleRepositoryInterface $driverPackageScheduleRepository)
     {
-        $this->requestRoomViewRepository = $requestRoomViewRepository;
         $this->inventoryRepository = $inventoryRepository;
         $this->requestRepository = $requestRepository;
+        $this->driverPackageScheduleRepository = $driverPackageScheduleRepository;
     }
 
     public function infoCardRequests(User $user): Collection
     {
-        $totalNews = $this->requestRoomViewRepository->countNewRequests($user);
-        $totalApproved = $this->requestRoomViewRepository->countApprovedRequests($user);
-        $totalCancelled = $this->requestRoomViewRepository->countCancelledRequests($user);
-        $totalRequests = $this->requestRoomViewRepository->countTotalRequests($user);
+        $totalNews = 0;
+        $totalApproved = 0;
+        $totalCancelled = 0;
+        $totalRequests = 0;
+        $roleName = $user->role->name;
+        $statusNews = [
+            StatusRoomRequestLookup::code(StatusRoomRequestLookup::NEW),
+            StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW),
+            StatusDriverRequestLookup::code(StatusDriverRequestLookup::NEW),
+            StatusCarRequestLookup::code(StatusCarRequestLookup::NEW)
+        ];
+        $statusApproved = [
+            StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED),
+            StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED),
+            StatusDriverRequestLookup::code(StatusDriverRequestLookup::APPROVED),
+            StatusCarRequestLookup::code(StatusCarRequestLookup::APPROVED)
+        ];
+        $statusCancelled = [
+            StatusRoomRequestLookup::code(StatusRoomRequestLookup::CANCELLED),
+            StatusPackageRequestLookup::code(StatusPackageRequestLookup::CANCELLED),
+            StatusDriverRequestLookup::code(StatusDriverRequestLookup::CANCELLED),
+            StatusCarRequestLookup::code(StatusCarRequestLookup::CANCELLED)
+        ];
+
+        if ($roleName === NameRole::RECEPCIONIST) {
+            $totalNews = $this->requestRepository->getTotalRecepcionistByStatus($user->office_id, $statusNews);
+            $totalApproved = $this->requestRepository->getTotalRecepcionistByStatus($user->office_id, $statusApproved);
+            $totalCancelled = $this->requestRepository->getTotalRecepcionistByStatus($user->office_id, $statusCancelled);
+            $totalRequests = $this->requestRepository->getTotalRecepcionistByStatus($user->office_id);
+        }
+        if ($roleName === NameRole::APPLICANT) {
+            $totalNews = $this->requestRepository->getTotalApplicantByStatus($user->id, $statusNews);
+            $totalApproved = $this->requestRepository->getTotalApplicantByStatus($user->id, $statusApproved);
+            $totalCancelled = $this->requestRepository->getTotalApplicantByStatus($user->id, $statusCancelled);
+            $totalRequests = $this->requestRepository->getTotalApplicantByStatus($user->id);
+        }
+        if ($roleName === NameRole::DRIVER) {
+            $totalApproved = $this->driverPackageScheduleRepository->getTotalByStatus($user->id, [
+                StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED)
+            ]);
+            $totalRequests = $this->driverPackageScheduleRepository->getTotalByStatus($user->id);
+        }
+
         return collect([
             'news' => $totalNews,
             'approved' => $totalApproved,
@@ -44,7 +88,7 @@ class HomeService implements HomeServiceInterface
         if (in_array($user->role->name, [NameRole::APPLICANT, NameRole::DRIVER])) {
             return [];
         }
-        return $this->requestRepository->getTotalLast7Days($user);
+        return $this->requestRepository->getTotalLast7Days($user->office_id);
     }
 
     public function getTotalRequetsOfMonth(User $user): int
