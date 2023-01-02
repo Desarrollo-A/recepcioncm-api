@@ -115,4 +115,22 @@ class Request extends Model
 
         return $query;
     }
+
+    public function scopeJoinAllRecepcionist(Builder $query, int $officeId): Builder
+    {
+        return $query
+            ->join('lookups AS s', 's.id', '=', 'requests.status_id')
+            ->join('lookups AS t', 't.id', '=', 'requests.type_id')
+            ->leftJoin('request_room AS rr', 'rr.request_id', '=', 'requests.id')
+            ->leftJoin('rooms', 'rooms.id', '=', 'rr.room_id')
+            ->leftJoin('packages AS p', 'p.request_id', '=', 'requests.id')
+            ->leftJoin('request_drivers AS rd', 'rd.request_id', '=', 'requests.id')
+            ->leftJoin('request_cars AS rc', 'rc.request_id', '=', 'requests.id')
+            ->where(function (Builder $query) use ($officeId) {
+                $query->where('rooms.office_id', $officeId)
+                    ->orWhere('p.office_id', $officeId)
+                    ->orWhere('rd.office_id', $officeId)
+                    ->orWhere('rc.office_id', $officeId);
+            });
+    }
 }

@@ -40,4 +40,19 @@ class DriverPackageScheduleRepository extends BaseRepository implements DriverPa
             ->where('package_id', $packageId)
             ->delete();
     }
+
+    public function getTotalByStatus(int $driverId, array $statusCodes = []): int
+    {
+        return $this->entity
+            ->from('driver_package_schedules AS dps')
+            ->join('driver_schedules AS ds', 'dps.driver_schedule_id', '=', 'ds.id')
+            ->join('packages AS p','dps.package_id','=','p.id')
+            ->join('requests AS r','p.request_id', '=', 'r.id')
+            ->join('lookups AS s', 'r.status_id', '=', 's.id')
+            ->where('ds.driver_id', $driverId)
+            ->when(!empty($statusCodes), function (Builder $query) use ($statusCodes) {
+                return $query->whereIn('s.code', $statusCodes);
+            })
+            ->count();
+    }
 }

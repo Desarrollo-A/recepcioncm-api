@@ -30,7 +30,7 @@ interface RequestRepositoryInterface extends BaseRepositoryInterface
 
     public function getApprovedRequestsTomorrow(): Collection;
 
-    public function getTotalLast7Days(User $user): array;
+    public function getTotalLast7Days(int $officeId): array;
 
     public function getTotalRequetsOfMonth(int $officeId): int;
 
@@ -39,4 +39,8 @@ interface RequestRepositoryInterface extends BaseRepositoryInterface
     public function getTotalRequestRoomOfWeekday(int $userId, int $weekday): int;
 
     public function getRequestRoomAfterNowInWeekday(int $userId, int $weekday): Collection;
+
+    public function getTotalApplicantByStatus(int $userId, array $statusCodes = []): int;
+
+    public function getTotalRecepcionistByStatus(int $officeId, array $statusCodes = []): int;
 }

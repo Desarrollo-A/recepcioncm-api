@@ -11,6 +11,7 @@ use App\Models\Request;
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
+use Google\Service\CloudBuild\Build;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -96,19 +97,19 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
             ->whereDate('start_date', now()->addDay())
             ->where('status.code', StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED))
             ->whereIn('type.code', [TypeRequestLookup::code(TypeRequestLookup::ROOM),
-                TypeRequestLookup::code(TypeRequestLookup::TRAVEL)])
+                TypeRequestLookup::code(TypeRequestLookup::DRIVER), TypeRequestLookup::code(TypeRequestLookup::CAR)])
             ->get();
     }
 
-    public function getTotalLast7Days(User $user): array
+    public function getTotalLast7Days(int $officeId): array
     {
         $results = $this->entity
             ->selectRaw('COUNT(*) AS total, CAST(requests.created_at AS DATE) AS created_at')
-            ->join('request_room_view', 'request_room_view.id', '=', 'requests.id')
-            ->filterOfficeOrUser($user)
+            ->joinAllRecepcionist($officeId)
             ->whereDate('requests.created_at', '>=', now()->subDays(7))
-            ->groupBy(DB::raw('CAST(requests.created_at AS DATE)'))
+            ->groupBy([DB::raw('CAST(requests.created_at AS DATE)')])
             ->get();
+
 
         $period = new \DatePeriod(now()->subDays(7), CarbonInterval::day(), now()->addDay());
         return array_map(function ($datePeriod) use ($results) {
@@ -123,20 +124,18 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
     public function getTotalRequetsOfMonth(int $officeId): int
     {
         return $this->entity
-            ->join('request_room_view', 'request_room_view.id', '=', 'requests.id')
+            ->joinAllRecepcionist($officeId)
             ->where('requests.created_at', '>=', now()->startOfMonth())
             ->where('requests.created_at', '<=', now()->endOfMonth())
-            ->where('request_room_view.office_id', $officeId)
             ->count();
     }
 
     public function getTotalRequetsOfLastMonth(int $officeId): int
     {
         return $this->entity
-            ->join('request_room_view', 'request_room_view.id', '=', 'requests.id')
+            ->joinAllRecepcionist($officeId)
             ->where('requests.created_at', '>=', now()->subMonth()->startOfMonth())
             ->where('requests.created_at', '<=', now()->subMonth()->endOfMonth())
-            ->where('request_room_view.office_id', $officeId)
             ->count();
     }
 
@@ -170,4 +169,33 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
             ->get(['requests.*']);
     }
 
+    public function getTotalApplicantByStatus(int $userId, array $statusCodes = []): int
+    {
+        return $this->entity
+            ->join('lookups AS s', 's.id', '=', 'requests.status_id')
+            ->join('lookups AS t', 't.id', '=', 'requests.type_id')
+            ->where('user_id', $userId)
+            ->whereIn('t.code', [TypeRequestLookup::code(TypeRequestLookup::ROOM),
+                TypeRequestLookup::code(TypeRequestLookup::PARCEL),
+                TypeRequestLookup::code(TypeRequestLookup::DRIVER),
+                TypeRequestLookup::code(TypeRequestLookup::CAR)])
+            ->when(!empty($statusCodes), function (Builder $query) use ($statusCodes) {
+                return $query->whereIn('s.code', $statusCodes);
+            })
+            ->count();
+    }
+
+    public function getTotalRecepcionistByStatus(int $officeId, array $statusCodes = []): int
+    {
+        return $this->entity
+            ->joinAllRecepcionist($officeId)
+            ->whereIn('t.code', [TypeRequestLookup::code(TypeRequestLookup::ROOM),
+                TypeRequestLookup::code(TypeRequestLookup::PARCEL),
+                TypeRequestLookup::code(TypeRequestLookup::DRIVER),
+                TypeRequestLookup::code(TypeRequestLookup::CAR)])
+            ->when(!empty($statusCodes), function (Builder $query) use ($statusCodes) {
+                return $query->whereIn('s.code', $statusCodes);
+            })
+            ->count();
+    }
 }

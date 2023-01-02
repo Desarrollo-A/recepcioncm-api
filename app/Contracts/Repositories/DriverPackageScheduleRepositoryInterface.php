@@ -14,4 +14,6 @@ interface DriverPackageScheduleRepositoryInterface extends BaseRepositoryInterfa
     public function getScheduleDriverPackage(int $officeId): Collection;
 
     public function deleteByPackageId(int $packageId): void;
+
+    public function getTotalByStatus(int $driverId, array $statusCodes = []): int;
 }
