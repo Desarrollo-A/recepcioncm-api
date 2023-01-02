@@ -6,6 +6,7 @@ use App\Contracts\Repositories\OfficeRepositoryInterface;
 use App\Core\BaseRepository;
 use App\Models\Enums\Lookups\StatusCarLookup;
 use App\Models\Enums\Lookups\StatusDriverLookup;
+use App\Models\Enums\NameRole;
 use App\Models\Office;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -35,9 +36,11 @@ class OfficeRepository extends BaseRepository implements OfficeRepositoryInterfa
             ->where('state_id', $stateId)
             ->whereIn('id', function($query){
                 return $query->selectRaw('DISTINCT(office_id)')
-                    ->from('drivers')
-                    ->join('lookups', 'lookups.id', '=', 'drivers.status_id')
-                    ->where('lookups.code', StatusDriverLookup::code(StatusDriverLookup::ACTIVE));
+                    ->from('users')
+                    ->join('lookups', 'lookups.id', '=', 'users.status_id')
+                    ->join('roles', 'roles.id', '=', 'users.role_id')
+                    ->where('lookups.code', StatusDriverLookup::code(StatusDriverLookup::ACTIVE))
+                    ->where('roles.name', NameRole::DRIVER);
             })
             ->orderBy('name', 'ASC')
             ->get();
@@ -49,9 +52,11 @@ class OfficeRepository extends BaseRepository implements OfficeRepositoryInterfa
             ->where('state_id', $office->state_id)
             ->whereIn('id', function($query) {
                 return $query->selectRaw('DISTINCT(office_id)')
-                    ->from('drivers')
-                    ->join('lookups', 'lookups.id', '=', 'drivers.status_id')
-                    ->where('lookups.code', StatusDriverLookup::code(StatusDriverLookup::ACTIVE));
+                    ->from('users')
+                    ->join('lookups', 'lookups.id', '=', 'users.status_id')
+                    ->join('roles', 'roles.id', '=', 'users.role_id')
+                    ->where('lookups.code', StatusDriverLookup::code(StatusDriverLookup::ACTIVE))
+                    ->where('roles.name', NameRole::DRIVER);
             })
             ->where('id', '!=', $office->id)
             ->orderBy('name', 'ASC')
@@ -64,9 +69,12 @@ class OfficeRepository extends BaseRepository implements OfficeRepositoryInterfa
             ->where('state_id', $stateId)
             ->whereIn('id', function($query) {
                 return $query->selectRaw('DISTINCT(office_id)')
-                    ->from('drivers')
-                    ->join('lookups', 'lookups.id', '=', 'drivers.status_id')
-                    ->where('lookups.code', StatusDriverLookup::code(StatusDriverLookup::ACTIVE));
+                    ->from('users')
+                    ->join('lookups', 'lookups.id', '=', 'users.status_id')
+                    ->join('roles', 'roles.id', '=', 'users.role_id')
+                    ->where('lookups.code', StatusDriverLookup::code(StatusDriverLookup::ACTIVE))
+                    ->where('roles.name', NameRole::DRIVER);
+
             })
             ->whereIn('id', function($query) use ($noPeople) {
                 return $query->selectRaw('DISTINCT(office_id)')
@@ -100,9 +108,11 @@ class OfficeRepository extends BaseRepository implements OfficeRepositoryInterfa
             ->where('state_id', $office->state_id)
             ->whereIn('id', function($query) {
                 return $query->selectRaw('DISTINCT(office_id)')
-                    ->from('drivers')
-                    ->join('lookups', 'lookups.id', '=', 'drivers.status_id')
-                    ->where('lookups.code', StatusDriverLookup::code(StatusDriverLookup::ACTIVE));
+                    ->from('users')
+                    ->join('lookups', 'lookups.id', '=', 'users.status_id')
+                    ->join('roles', 'roles.id', '=', 'users.role_id')
+                    ->where('lookups.code', StatusDriverLookup::code(StatusDriverLookup::ACTIVE))
+                    ->where('roles.name', NameRole::DRIVER);
             })
             ->whereIn('id', function($query) use ($noPeople) {
                 return $query->selectRaw('DISTINCT(office_id)')
