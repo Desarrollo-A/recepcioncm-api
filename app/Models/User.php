@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Enums\NameRole;
 use App\Models\Traits\Sortable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -73,6 +74,15 @@ class User extends Authenticatable
     public function scopeWithoutUser(Builder $query, int $userId): Builder
     {
         $query->where('id', '!=', $userId);
+
+        return $query;
+    }
+
+    public function scopeDriverUser(Builder $query)
+    {
+        $query->whereHas('role', function (Builder $query){
+            $query->where('name', NameRole::DRIVER);
+        });
 
         return $query;
     }
