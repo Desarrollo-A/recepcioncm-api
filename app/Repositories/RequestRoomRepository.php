@@ -64,27 +64,4 @@ class RequestRoomRepository extends BaseRepository implements RequestRoomReposit
                 ];
             });
     }
-
-    public function getSummaryOfDay(User $user)
-    {
-        return $this->entity
-            ->with(['request', 'request.type', 'room'])
-            ->join('rooms', 'rooms.id', '=', 'request_room.room_id')
-            ->join('requests', 'requests.id', '=', 'request_room.request_id')
-            ->join('lookups AS st', 'st.id', '=', 'requests.status_id')
-            ->where('st.code', StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED))
-            ->whereDate('requests.start_date', now())
-            ->filterOfficeOrUser($user)
-            ->orderBy('requests.start_date', 'ASC')
-            ->get()
-            ->map(function ($requestRoom) {
-                $startDate = new Carbon($requestRoom->request->start_date);
-                $endDate = new Carbon($requestRoom->request->end_date);
-                return (object)[
-                    'title' => $requestRoom->request->title,
-                    'subtitle' => "{$startDate->format('g:i A')} - {$endDate->format('g:i A')}, Sala {$requestRoom->room->name}",
-                    'request' => $requestRoom->request
-                ];
-            });
-    }
 }

@@ -6,10 +6,8 @@ use App\Contracts\Repositories\DriverPackageScheduleRepositoryInterface;
 use App\Contracts\Repositories\InventoryRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Contracts\Services\HomeServiceInterface;
-use App\Models\Enums\Lookups\StatusCarRequestLookup;
-use App\Models\Enums\Lookups\StatusDriverRequestLookup;
+use App\Helpers\Utils;
 use App\Models\Enums\Lookups\StatusPackageRequestLookup;
-use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\Enums\NameRole;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -37,35 +35,17 @@ class HomeService implements HomeServiceInterface
         $totalCancelled = 0;
         $totalRequests = 0;
         $roleName = $user->role->name;
-        $statusNews = [
-            StatusRoomRequestLookup::code(StatusRoomRequestLookup::NEW),
-            StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW),
-            StatusDriverRequestLookup::code(StatusDriverRequestLookup::NEW),
-            StatusCarRequestLookup::code(StatusCarRequestLookup::NEW)
-        ];
-        $statusApproved = [
-            StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED),
-            StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED),
-            StatusDriverRequestLookup::code(StatusDriverRequestLookup::APPROVED),
-            StatusCarRequestLookup::code(StatusCarRequestLookup::APPROVED)
-        ];
-        $statusCancelled = [
-            StatusRoomRequestLookup::code(StatusRoomRequestLookup::CANCELLED),
-            StatusPackageRequestLookup::code(StatusPackageRequestLookup::CANCELLED),
-            StatusDriverRequestLookup::code(StatusDriverRequestLookup::CANCELLED),
-            StatusCarRequestLookup::code(StatusCarRequestLookup::CANCELLED)
-        ];
 
         if ($roleName === NameRole::RECEPCIONIST) {
-            $totalNews = $this->requestRepository->getTotalRecepcionistByStatus($user->office_id, $statusNews);
-            $totalApproved = $this->requestRepository->getTotalRecepcionistByStatus($user->office_id, $statusApproved);
-            $totalCancelled = $this->requestRepository->getTotalRecepcionistByStatus($user->office_id, $statusCancelled);
+            $totalNews = $this->requestRepository->getTotalRecepcionistByStatus($user->office_id, Utils::getStatusNewsRequest());
+            $totalApproved = $this->requestRepository->getTotalRecepcionistByStatus($user->office_id, Utils::getStatusApprovedRequest());
+            $totalCancelled = $this->requestRepository->getTotalRecepcionistByStatus($user->office_id, Utils::getStatusCancelledRequests());
             $totalRequests = $this->requestRepository->getTotalRecepcionistByStatus($user->office_id);
         }
         if ($roleName === NameRole::APPLICANT) {
-            $totalNews = $this->requestRepository->getTotalApplicantByStatus($user->id, $statusNews);
-            $totalApproved = $this->requestRepository->getTotalApplicantByStatus($user->id, $statusApproved);
-            $totalCancelled = $this->requestRepository->getTotalApplicantByStatus($user->id, $statusCancelled);
+            $totalNews = $this->requestRepository->getTotalApplicantByStatus($user->id, Utils::getStatusNewsRequest());
+            $totalApproved = $this->requestRepository->getTotalApplicantByStatus($user->id, Utils::getStatusApprovedRequest());
+            $totalCancelled = $this->requestRepository->getTotalApplicantByStatus($user->id, Utils::getStatusCancelledRequests());
             $totalRequests = $this->requestRepository->getTotalApplicantByStatus($user->id);
         }
         if ($roleName === NameRole::DRIVER) {

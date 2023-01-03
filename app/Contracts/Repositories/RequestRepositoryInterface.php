@@ -4,7 +4,6 @@ namespace App\Contracts\Repositories;
 
 use App\Core\Contracts\BaseRepositoryInterface;
 use App\Models\Request;
-use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -43,4 +42,8 @@ interface RequestRepositoryInterface extends BaseRepositoryInterface
     public function getTotalApplicantByStatus(int $userId, array $statusCodes = []): int;
 
     public function getTotalRecepcionistByStatus(int $officeId, array $statusCodes = []): int;
+
+    public function getRecepcionistSummaryOfDay(int $officeId): Collection;
+
+    public function getApplicantSummaryOfDay(int $userId): Collection;
 }

@@ -4,14 +4,12 @@ namespace App\Repositories;
 
 use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Core\BaseRepository;
-use App\Models\Enums\Lookups\StatusPackageRequestLookup;
+use App\Helpers\Utils;
 use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Request;
-use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
-use Google\Service\CloudBuild\Build;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -175,10 +173,7 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
             ->join('lookups AS s', 's.id', '=', 'requests.status_id')
             ->join('lookups AS t', 't.id', '=', 'requests.type_id')
             ->where('user_id', $userId)
-            ->whereIn('t.code', [TypeRequestLookup::code(TypeRequestLookup::ROOM),
-                TypeRequestLookup::code(TypeRequestLookup::PARCEL),
-                TypeRequestLookup::code(TypeRequestLookup::DRIVER),
-                TypeRequestLookup::code(TypeRequestLookup::CAR)])
+            ->whereIn('t.code', Utils::getAllTypesRequest())
             ->when(!empty($statusCodes), function (Builder $query) use ($statusCodes) {
                 return $query->whereIn('s.code', $statusCodes);
             })
@@ -189,13 +184,62 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
     {
         return $this->entity
             ->joinAllRecepcionist($officeId)
-            ->whereIn('t.code', [TypeRequestLookup::code(TypeRequestLookup::ROOM),
-                TypeRequestLookup::code(TypeRequestLookup::PARCEL),
-                TypeRequestLookup::code(TypeRequestLookup::DRIVER),
-                TypeRequestLookup::code(TypeRequestLookup::CAR)])
+            ->whereIn('t.code', Utils::getAllTypesRequest())
             ->when(!empty($statusCodes), function (Builder $query) use ($statusCodes) {
                 return $query->whereIn('s.code', $statusCodes);
             })
             ->count();
+    }
+
+    public function getRecepcionistSummaryOfDay(int $officeId): Collection
+    {
+        return $this->entity
+            ->with(['type',
+
+                'requestRoom', 'requestRoom.room', 'requestRoom.room.office',
+
+                'package', 'package.driverPackageSchedule', 'package.driverPackageSchedule.carSchedule',
+                'package.driverPackageSchedule.driverSchedule', 'package.driverPackageSchedule.carSchedule.car',
+                'package.driverPackageSchedule.driverSchedule.driver',
+
+                'requestDriver', 'requestDriver.driverRequestSchedule', 'requestDriver.driverRequestSchedule.carSchedule',
+                'requestDriver.driverRequestSchedule.driverSchedule', 'requestDriver.driverRequestSchedule.carSchedule.car',
+                'requestDriver.driverRequestSchedule.driverSchedule.driver',
+
+                'requestCar', 'requestCar.carRequestSchedule', 'requestCar.carRequestSchedule.carSchedule',
+                'requestCar.carRequestSchedule.carSchedule.car'])
+            ->joinAllRecepcionist($officeId)
+            ->whereIn('t.code', Utils::getAllTypesRequest())
+            ->whereIn('s.code', Utils::getStatusApprovedRequest())
+            ->whereDate('requests.start_date', now())
+            ->orderBy('requests.start_date', 'ASC')
+            ->get(['requests.*']);
+    }
+
+    public function getApplicantSummaryOfDay(int $userId): Collection
+    {
+        return $this->entity
+            ->with(['type',
+
+                'requestRoom', 'requestRoom.room', 'requestRoom.room.office',
+
+                'package', 'package.driverPackageSchedule', 'package.driverPackageSchedule.carSchedule',
+                'package.driverPackageSchedule.driverSchedule', 'package.driverPackageSchedule.carSchedule.car',
+                'package.driverPackageSchedule.driverSchedule.driver',
+
+                'requestDriver', 'requestDriver.driverRequestSchedule', 'requestDriver.driverRequestSchedule.carSchedule',
+                'requestDriver.driverRequestSchedule.driverSchedule', 'requestDriver.driverRequestSchedule.carSchedule.car',
+                'requestDriver.driverRequestSchedule.driverSchedule.driver',
+
+                'requestCar', 'requestCar.office', 'requestCar.carRequestSchedule',
+                'requestCar.carRequestSchedule.carSchedule', 'requestCar.carRequestSchedule.carSchedule.car'])
+            ->join('lookups AS s', 's.id', '=', 'requests.status_id')
+            ->join('lookups AS t', 't.id', '=', 'requests.type_id')
+            ->where('user_id', $userId)
+            ->whereIn('t.code', Utils::getAllTypesRequest())
+            ->whereIn('s.code', Utils::getStatusApprovedRequest())
+            ->whereDate('requests.start_date', now())
+            ->orderBy('requests.start_date', 'ASC')
+            ->get(['requests.*']);
     }
 }

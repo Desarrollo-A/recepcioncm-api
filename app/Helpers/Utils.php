@@ -4,7 +4,13 @@ namespace App\Helpers;
 
 use App\Events\AlertNotification;
 use App\Http\Resources\Notification\NotificationResource;
+use App\Models\Enums\Lookups\StatusCarRequestLookup;
+use App\Models\Enums\Lookups\StatusDriverRequestLookup;
+use App\Models\Enums\Lookups\StatusPackageRequestLookup;
+use App\Models\Enums\Lookups\StatusRoomRequestLookup;
+use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Notification;
+use App\Models\Request;
 use Carbon\Carbon;
 
 class Utils
@@ -96,5 +102,50 @@ class Utils
             return '';
 
         }
+    }
+
+    public static function getStatusApprovedRequest(): array
+    {
+        return [
+            StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED),
+            StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED),
+            StatusDriverRequestLookup::code(StatusDriverRequestLookup::APPROVED),
+            StatusCarRequestLookup::code(StatusCarRequestLookup::APPROVED)
+        ];
+    }
+
+    public static function getStatusNewsRequest(): array
+    {
+        return [
+            StatusRoomRequestLookup::code(StatusRoomRequestLookup::NEW),
+            StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW),
+            StatusDriverRequestLookup::code(StatusDriverRequestLookup::NEW),
+            StatusCarRequestLookup::code(StatusCarRequestLookup::NEW)
+        ];
+    }
+
+    public static function getStatusCancelledRequests(): array
+    {
+        return [
+            StatusRoomRequestLookup::code(StatusRoomRequestLookup::CANCELLED),
+            StatusPackageRequestLookup::code(StatusPackageRequestLookup::CANCELLED),
+            StatusDriverRequestLookup::code(StatusDriverRequestLookup::CANCELLED),
+            StatusCarRequestLookup::code(StatusCarRequestLookup::CANCELLED)
+        ];
+    }
+
+    public static function getAllTypesRequest(): array
+    {
+        return [
+            TypeRequestLookup::code(TypeRequestLookup::ROOM),
+            TypeRequestLookup::code(TypeRequestLookup::PARCEL),
+            TypeRequestLookup::code(TypeRequestLookup::DRIVER),
+            TypeRequestLookup::code(TypeRequestLookup::CAR)
+        ];
+    }
+
+    public static function createSummaryOfDayObject(string $title, string $subtitle, Request $request): object
+    {
+        return (object)['title' => $title, 'subtitle' => $subtitle, 'request' => $request];
     }
 }
