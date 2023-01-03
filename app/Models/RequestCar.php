@@ -24,6 +24,11 @@ class RequestCar extends Model
         return $this->belongsTo(Request::class);
     }
 
+    public function office(): BelongsTo
+    {
+        return $this->belongsTo(Office::class);
+    }
+
     public function carRequestSchedule(): HasOne
     {
         return $this->hasOne(CarRequestSchedule::class);
