@@ -16,9 +16,8 @@ class TypeLookup
     const NOTIFICATION_COLOR = 10; // Color de la notificación
     const NOTIFICATION_ICON = 11; // Ícono de la notificación
     const ACTION_REQUEST_NOTIFICATION = 12; // Acciones de notificaciones
-    const STATUS_DRIVER = 13; // Estatus del chofer
-    const STATUS_PACKAGE_REQUEST = 14; //Estatus de solicitudes de paquetería
-    const COUNTRY_ADDRESS = 15; // Listado de Países para las direcciones,
-    const STATUS_DRIVER_REQUEST = 16; // Estatus de solicitudes de chofer
-    const STATUS_CAR_REQUEST = 17; // Estatus de solicitudes de automóvil
+    const STATUS_PACKAGE_REQUEST = 13; //Estatus de solicitudes de paquetería
+    const COUNTRY_ADDRESS = 14; // Listado de Países para las direcciones,
+    const STATUS_DRIVER_REQUEST = 15; // Estatus de solicitudes de chofer
+    const STATUS_CAR_REQUEST = 16; // Estatus de solicitudes de automóvil
 }

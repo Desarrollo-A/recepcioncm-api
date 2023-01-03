@@ -8,7 +8,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 interface DriverRepositoryInterface extends BaseRepositoryInterface
 {
-    public function findAllPaginatedOffice(int $OfficeId, array $filters, int $limit, string $sort = null, array $columns = ['*']):
+    public function findAllPaginatedOffice(int $officeId, array $filters, int $limit, string $sort = null, array $columns = ['*']):
         LengthAwarePaginator;
 
     public function findAllByOfficeId(int $officeId): Collection;

@@ -5,7 +5,7 @@ namespace App\Repositories;
 use App\Contracts\Repositories\OfficeRepositoryInterface;
 use App\Core\BaseRepository;
 use App\Models\Enums\Lookups\StatusCarLookup;
-use App\Models\Enums\Lookups\StatusDriverLookup;
+use App\Models\Enums\Lookups\StatusUserLookup;
 use App\Models\Enums\NameRole;
 use App\Models\Office;
 use Illuminate\Database\Eloquent\Builder;
@@ -39,7 +39,7 @@ class OfficeRepository extends BaseRepository implements OfficeRepositoryInterfa
                     ->from('users')
                     ->join('lookups', 'lookups.id', '=', 'users.status_id')
                     ->join('roles', 'roles.id', '=', 'users.role_id')
-                    ->where('lookups.code', StatusDriverLookup::code(StatusDriverLookup::ACTIVE))
+                    ->where('lookups.code', StatusUserLookup::code(StatusUserLookup::ACTIVE))
                     ->where('roles.name', NameRole::DRIVER);
             })
             ->orderBy('name', 'ASC')
@@ -55,7 +55,7 @@ class OfficeRepository extends BaseRepository implements OfficeRepositoryInterfa
                     ->from('users')
                     ->join('lookups', 'lookups.id', '=', 'users.status_id')
                     ->join('roles', 'roles.id', '=', 'users.role_id')
-                    ->where('lookups.code', StatusDriverLookup::code(StatusDriverLookup::ACTIVE))
+                    ->where('lookups.code', StatusUserLookup::code(StatusUserLookup::ACTIVE))
                     ->where('roles.name', NameRole::DRIVER);
             })
             ->where('id', '!=', $office->id)
@@ -72,7 +72,7 @@ class OfficeRepository extends BaseRepository implements OfficeRepositoryInterfa
                     ->from('users')
                     ->join('lookups', 'lookups.id', '=', 'users.status_id')
                     ->join('roles', 'roles.id', '=', 'users.role_id')
-                    ->where('lookups.code', StatusDriverLookup::code(StatusDriverLookup::ACTIVE))
+                    ->where('lookups.code', StatusUserLookup::code(StatusUserLookup::ACTIVE))
                     ->where('roles.name', NameRole::DRIVER);
 
             })
@@ -111,7 +111,7 @@ class OfficeRepository extends BaseRepository implements OfficeRepositoryInterfa
                     ->from('users')
                     ->join('lookups', 'lookups.id', '=', 'users.status_id')
                     ->join('roles', 'roles.id', '=', 'users.role_id')
-                    ->where('lookups.code', StatusDriverLookup::code(StatusDriverLookup::ACTIVE))
+                    ->where('lookups.code', StatusUserLookup::code(StatusUserLookup::ACTIVE))
                     ->where('roles.name', NameRole::DRIVER);
             })
             ->whereIn('id', function($query) use ($noPeople) {

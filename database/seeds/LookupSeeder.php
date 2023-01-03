@@ -15,7 +15,6 @@ use App\Models\Enums\Lookups\TypeNotificationsLookup;
 use App\Models\Enums\Lookups\NotificationColorLookup;
 use App\Models\Enums\Lookups\NotificationIconLookup;
 use App\Models\Enums\Lookups\ActionRequestNotificationLookup;
-use App\Models\Enums\Lookups\StatusDriverLookup;
 use App\Models\Enums\Lookups\StatusPackageRequestLookup;
 use App\Models\Enums\Lookups\CountryAddressLookup;
 use App\Models\Enums\Lookups\StatusDriverRequestLookup;
@@ -31,139 +30,76 @@ class LookupSeeder extends Seeder
     public function run()
     {
         StatusUserLookup::getAll()->each(function ($lookup) {
-           Lookup::query()->create([
-               'type' => TypeLookup::STATUS_USER,
-               'code' => StatusUserLookup::code($lookup),
-               'name' => $lookup
-           ]);
+           $this->createLookup(TypeLookup::STATUS_USER, StatusUserLookup::code($lookup), $lookup);
         });
 
         TypeRequestLookup::getAll()->each(function ($lookup) {
-            Lookup::query()->create([
-                'type' => TypeLookup::TYPE_REQUEST,
-                'code' => TypeRequestLookup::code($lookup),
-                'name' => $lookup
-            ]);
+            $this->createLookup(TypeLookup::TYPE_REQUEST, TypeRequestLookup::code($lookup), $lookup);
         });
 
         StatusRoomRequestLookup::getAll()->each(function ($lookup) {
-            Lookup::query()->create([
-                'type' => TypeLookup::STATUS_ROOM_REQUEST,
-                'code' => StatusRoomRequestLookup::code($lookup),
-                'name' => $lookup
-            ]);
+            $this->createLookup(TypeLookup::STATUS_ROOM_REQUEST, StatusRoomRequestLookup::code($lookup), $lookup);
         });
 
         LevelMeetingLookup::getAll()->each(function ($lookup) {
-            Lookup::query()->create([
-                'type' => TypeLookup::LEVEL_MEETING,
-                'code' => LevelMeetingLookup::code($lookup),
-                'name' => $lookup
-            ]);
+            $this->createLookup(TypeLookup::LEVEL_MEETING, LevelMeetingLookup::code($lookup), $lookup);
         });
 
         InventoryTypeLookup::getAll()->each(function ($lookup) {
-            Lookup::query()->create([
-                'type' => TypeLookup::INVENTORY_TYPE,
-                'code' => InventoryTypeLookup::code($lookup),
-                'name' => $lookup
-            ]);
+            $this->createLookup(TypeLookup::INVENTORY_TYPE, InventoryTypeLookup::code($lookup), $lookup);
         });
 
         UnitTypeLookup::getAll()->each(function ($lookup) {
-            Lookup::query()->create([
-                'type' => TypeLookup::UNIT_TYPE,
-                'code' => UnitTypeLookup::code($lookup),
-                'name' => $lookup
-            ]);
+            $this->createLookup(TypeLookup::UNIT_TYPE, UnitTypeLookup::code($lookup), $lookup);
         });
 
         StatusRoomLookup::getAll()->each(function ($lookup) {
-            Lookup::query()->create([
-                'type' => TypeLookup::STATUS_ROOM,
-                'code' => StatusRoomLookup::code($lookup),
-                'name' => $lookup
-            ]);
+            $this->createLookup(TypeLookup::STATUS_ROOM, StatusRoomLookup::code($lookup), $lookup);
         });
 
         TypeNotificationsLookup::getAll()->each(function ($lookup) {
-            Lookup::query()->create([
-                'type' => TypeLookup::REQUEST_TYPE_NOTIFICATIONS,
-                'code' => TypeNotificationsLookup::code($lookup),
-                'name' => $lookup
-            ]);
+            $this->createLookup(TypeLookup::REQUEST_TYPE_NOTIFICATIONS, TypeNotificationsLookup::code($lookup), $lookup);
         });
 
         StatusCarLookup::getAll()->each(function ($lookup) {
-            Lookup::query()->create([
-                'type' => TypeLookup::STATUS_CAR,
-                'code' => StatusCarLookup::code($lookup),
-                'name' => $lookup
-            ]);
+            $this->createLookup(TypeLookup::STATUS_CAR, StatusCarLookup::code($lookup), $lookup);
         });
 
         NotificationColorLookup::getAll()->each(function ($lookup) {
-            Lookup::query()->create([
-                'type' => TypeLookup::NOTIFICATION_COLOR,
-                'code' => NotificationColorLookup::code($lookup),
-                'name' => $lookup
-            ]);
+            $this->createLookup(TypeLookup::NOTIFICATION_COLOR, NotificationColorLookup::code($lookup), $lookup);
         });
 
         NotificationIconLookup::getAll()->each(function ($lookup) {
-           Lookup::query()->create([
-               'type' => TypeLookup::NOTIFICATION_ICON,
-               'code' => NotificationIconLookup::code($lookup),
-               'name' => $lookup
-           ]);
+           $this->createLookup(TypeLookup::NOTIFICATION_ICON, NotificationIconLookup::code($lookup), $lookup);
         });
 
         ActionRequestNotificationLookup::getAll()->each(function ($lookup) {
-            Lookup::query()->create([
-                'type' => TypeLookup::ACTION_REQUEST_NOTIFICATION,
-                'code' => ActionRequestNotificationLookup::code($lookup),
-                'name' => $lookup
-            ]);
-        });
-
-        StatusDriverLookup::getAll()->each(function ($lookup) {
-            Lookup::query()->create([
-                'type' => TypeLookup::STATUS_DRIVER,
-                'code' => StatusDriverLookup::code($lookup),
-                'name' => $lookup
-            ]);
+            $this->createLookup(TypeLookup::ACTION_REQUEST_NOTIFICATION, ActionRequestNotificationLookup::code($lookup), $lookup);
         });
         
         StatusPackageRequestLookup::getAll()->each(function($lookup){
-            Lookup::query()->create([
-                'type'  =>  TypeLookup::STATUS_PACKAGE_REQUEST,
-                'code'  =>  StatusPackageRequestLookup::code($lookup),
-                'name'  =>  $lookup
-            ]);
+            $this->createLookup(TypeLookup::STATUS_PACKAGE_REQUEST, StatusPackageRequestLookup::code($lookup), $lookup);
         });
 
         CountryAddressLookup::getAll()->each(function (string $lookup) {
-            Lookup::query()->create([
-                'type' => TypeLookup::COUNTRY_ADDRESS,
-                'code' => CountryAddressLookup::code($lookup),
-                'name' => $lookup
-            ]);
+            $this->createLookup(TypeLookup::COUNTRY_ADDRESS, CountryAddressLookup::code($lookup), $lookup);
         });
 
         StatusDriverRequestLookup::getAll()->each(function (string $lookup) {
-            Lookup::query()->create([
-                'type' => TypeLookup::STATUS_DRIVER_REQUEST,
-                'code' => StatusDriverRequestLookup::code($lookup),
-                'name' => $lookup
-            ]);
+            $this->createLookup(TypeLookup::STATUS_DRIVER_REQUEST, StatusDriverRequestLookup::code($lookup), $lookup);
         });
 
         StatusCarRequestLookup::getAll()->each(function (string $lookup) {
-            Lookup::query()->create([
-                'type' => TypeLookup::STATUS_CAR_REQUEST,
-                'code' => StatusCarRequestLookup::code($lookup),
-                'name' => $lookup
-            ]);
+            $this->createLookup(TypeLookup::STATUS_CAR_REQUEST, StatusCarRequestLookup::code($lookup), $lookup);
         });
+    }
+
+    private function createLookup(int $type, string $code, string $name): void
+    {
+        Lookup::query()->create([
+            'type' => $type,
+            'code' => $code,
+            'name' => $name
+        ]);
     }
 }
