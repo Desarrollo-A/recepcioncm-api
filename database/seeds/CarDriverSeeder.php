@@ -4,7 +4,6 @@ use Illuminate\Database\Seeder;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Car;
-use App\Models\Driver;
 use App\Models\Enums\NameRole;
 
 class CarDriverSeeder extends Seeder

@@ -78,7 +78,7 @@ class User extends Authenticatable
         return $query;
     }
 
-    public function scopeDriverUser(Builder $query)
+    public function scopeDriverUser(Builder $query): Builder
     {
         $query->whereHas('role', function (Builder $query){
             $query->where('name', NameRole::DRIVER);

@@ -27,7 +27,7 @@ class DriverPackageScheduleRepository extends BaseRepository implements DriverPa
         return $this->entity
             ->from('driver_package_schedules dps')
             ->join('driver_schedules ds','dps.driver_schedule_id','=','ds.id')
-            ->join('drivers d','ds.driver_id','=','d.id')
+            ->join('users d','ds.driver_id','=','d.id')
             ->join('car_schedules cs','cs.car_id','=','dps.car_schedule_id')
             ->join('cars c','c.id','=','cs.car_id')
             ->where('d.office_id', $officeId)
