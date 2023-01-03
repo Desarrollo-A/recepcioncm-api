@@ -3,7 +3,6 @@
 namespace App\Http\Resources\Driver;
 
 use App\Http\Resources\Car\CarCollection;
-use App\Http\Resources\Car\CarResource;
 use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\Office\OfficeResource;
 use Illuminate\Http\Resources\Json\Resource;
