@@ -43,7 +43,7 @@ interface RequestRepositoryInterface extends BaseRepositoryInterface
 
     public function getTotalRecepcionistByStatus(int $officeId, array $statusCodes = []): int;
 
-    public function getRecepcionistSummaryOfDay(int $officeId): Collection;
+    public function getAllApprovedRecepcionistWithStartDateCondition(int $officeId, string $startDateOperator = '='): Collection;
 
-    public function getApplicantSummaryOfDay(int $userId): Collection;
+    public function getAllApprovedApplicantWithStartDateCondition(int $userId, string $startDateOperator = '='): Collection;
 }

@@ -10,7 +10,10 @@ use Spatie\GoogleCalendar\Event;
 
 interface CalendarServiceInterface
 {
-    public function getDataCalendar(User $user);
+    /**
+     * @param User|Authenticatable $user
+     */
+    public function getDataCalendar(User $user): Collection;
 
     /**
      * @param User|Authenticatable $user

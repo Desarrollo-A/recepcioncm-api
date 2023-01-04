@@ -30,7 +30,7 @@ class ApprovedCarRequest extends FormRequest implements ReturnDtoInterface
     {
         return [
             'requestId' => 'ID Solicitud',
-            'requestCarId' => 'ID Solicitud de automóvil',
+            'requestCarId' => 'ID Solicitud de vehiculo',
             'carId' => 'ID Vehículo',
         ];
     }

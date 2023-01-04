@@ -18,7 +18,7 @@ class ViewsDefault
                 ['path' => '/sala'],
                 ['path' => '/paqueteria'],
                 ['path' => '/conductor'],
-                ['path' => '/automovil']
+                ['path' => '/vehiculo']
             ]
         ],
         [
@@ -52,7 +52,7 @@ class ViewsDefault
                 ['path' => '/sala'],
                 ['path' => '/paqueteria'],
                 ['path' => '/conductor'],
-                ['path' => '/automovil']
+                ['path' => '/vehiculo']
             ]
         ],
         [
@@ -61,7 +61,7 @@ class ViewsDefault
                 ['path' => '/sala'],
                 ['path' => '/paqueteria'],
                 ['path' => '/conductor'],
-                ['path' => '/automovil']
+                ['path' => '/vehiculo']
             ]
         ],
         [

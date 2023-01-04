@@ -148,4 +148,9 @@ class Utils
     {
         return (object)['title' => $title, 'subtitle' => $subtitle, 'request' => $request];
     }
+
+    public static function createEventCalendarObject(string $title, Request $request): object
+    {
+        return (object)['title' => $title, 'request' => $request];
+    }
 }
