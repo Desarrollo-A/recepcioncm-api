@@ -7,14 +7,11 @@ use App\Contracts\Services\InventoryServiceInterface;
 use App\Contracts\Services\LookupServiceInterface;
 use App\Contracts\Services\NotificationServiceInterface;
 use App\Contracts\Services\RequestEmailServiceInterface;
-use App\Contracts\Services\RequestNotificationServiceInterface;
 use App\Contracts\Services\RequestRoomServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
-use App\Helpers\Utils;
 use App\Http\Requests\CancelRequest\CancelRequest;
 use App\Http\Requests\RequestRoom\AssignSnackRequest;
-use App\Http\Requests\RequestRoom\AvailableScheduleRequestRoomRequest;
 use App\Http\Requests\RequestRoom\ProposalRequestRoomRequest;
 use App\Http\Requests\RequestRoom\StoreRequestRoomRequest;
 use App\Http\Resources\Lookup\LookupResource;
@@ -26,7 +23,6 @@ use App\Models\Enums\TypeLookup;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class RequestRoomController extends BaseApiController
 {
@@ -48,7 +44,7 @@ class RequestRoomController extends BaseApiController
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
             ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
-            ->only('isAvailableSchedule', 'assignSnack', 'getAvailableScheduleByDay', 'withoutAttendingRequest');
+            ->only('assignSnack', 'getAvailableScheduleByDay', 'withoutAttendingRequest');
 
         $this->requestRoomService = $requestRoomService;
         $this->lookupService = $lookupService;
@@ -86,16 +82,6 @@ class RequestRoomController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function isAvailableSchedule(AvailableScheduleRequestRoomRequest $request): JsonResponse
-    {
-        $requestDTO = $request->toDTO();
-        $isAvailable = $this->requestRoomService->isAvailableSchedule($requestDTO->start_date, $requestDTO->end_date);
-        return $this->successResponse(['isAvailable' => $isAvailable], Response::HTTP_OK);
-    }
-
-    /**
-     * @throws CustomErrorException
-     */
     public function assignSnack(AssignSnackRequest $request): JsonResponse
     {
         $dto = $request->toDTO();
@@ -106,10 +92,10 @@ class RequestRoomController extends BaseApiController
         return $this->noContentResponse();
     }
 
-    public function getStatusByStatusCurrent(string $code): JsonResponse
+    public function getStatusByStatusCurrent(string $code, Request $request): JsonResponse
     {
         $roleName = auth()->user()->role->name;
-        $status = $this->requestRoomService->getStatusByStatusCurrent($code, $roleName);
+        $status = $this->requestRoomService->getStatusByStatusCurrent($code, $roleName, $request->get('request_id'));
         return $this->showAll(LookupResource::collection($status));
     }
 

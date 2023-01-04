@@ -138,9 +138,6 @@ Route::prefix('v1')->group(function () {
                 Route::post('/assign-snack', 'RequestRoomController@assignSnack')
                     ->name('assign-snack');
 
-                Route::post('/available-room', 'RequestRoomController@isAvailableSchedule')
-                    ->name('available-room');
-
                 Route::patch('/cancel/{requestId}', 'RequestRoomController@cancelRequest')
                     ->name('cancel-request-room')
                     ->where('requestId', Validation::INTEGER_ID);
