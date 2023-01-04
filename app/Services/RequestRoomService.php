@@ -136,11 +136,6 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
             ->fresh(['request', 'room', 'level']);
     }
 
-    public function isAvailableSchedule(Carbon $startDate, Carbon $endDate): bool
-    {
-        return $this->requestRepository->isAvailableSchedule($startDate, $endDate);
-    }
-
     /**
      * @throws CustomErrorException
      */
@@ -199,19 +194,23 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
     /**
      * @throws CustomErrorException
      */
-    public function getStatusByStatusCurrent(string $code, string $roleName): Collection
+    public function getStatusByStatusCurrent(string $code, string $roleName, int $requestId = null): Collection
     {
         if (!in_array($code, StatusRoomRequestLookup::getAllCodes()->all())) {
             throw new CustomErrorException('No existe el estatus', Response::HTTP_NOT_FOUND);
         }
 
-        $status = Collection::make([]);
+        $status = Collection::make();
         if ($roleName === NameRole::RECEPCIONIST) {
             switch ($code) {
                 case StatusRoomRequestLookup::code(StatusRoomRequestLookup::NEW):
-                    $status = $this->lookupRepository->findByCodeWhereInAndType([StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED),
-                        StatusRoomRequestLookup::code(StatusRoomRequestLookup::PROPOSAL)],
-                        TypeLookup::STATUS_ROOM_REQUEST);
+                    $statusArray = [StatusRoomRequestLookup::code(StatusRoomRequestLookup::PROPOSAL)];
+                    $request = $this->requestRepository->findById($requestId);
+                    if ($this->isAvailableSchedule($request->start_date, $request->end_date)) {
+                        $statusArray[] = StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED);
+                    }
+
+                    $status = $this->lookupRepository->findByCodeWhereInAndType($statusArray, TypeLookup::STATUS_ROOM_REQUEST);
                     break;
                 case StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED):
                     $status = $this->lookupRepository->findByCodeWhereInAndType([StatusRoomRequestLookup::code(StatusRoomRequestLookup::CANCELLED),
@@ -462,5 +461,10 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         $endTime = new Carbon($request->end_date);
         return (($time['start_time'] >= $startTime && $time['start_time'] < $endTime) ||
             ($time['end_time'] > $startTime && $time['end_time'] <= $endTime));
+    }
+
+    private function isAvailableSchedule(Carbon $startDate, Carbon $endDate): bool
+    {
+        return $this->requestRepository->isAvailableSchedule($startDate, $endDate);
     }
 }

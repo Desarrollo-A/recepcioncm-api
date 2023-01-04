@@ -20,11 +20,9 @@ interface RequestRoomServiceInterface extends BaseServiceInterface
 
     public function findAllRoomsPaginated(HttpRequest $request, User $user, array $columns = ['*']): LengthAwarePaginator;
 
-    public function isAvailableSchedule(Carbon $startDate, Carbon $endDate): bool;
-
     public function assignSnack(RequestRoomDTO $dto, int $officeId): \App\Models\Request;
 
-    public function getStatusByStatusCurrent(string $code, string $roleName): Collection;
+    public function getStatusByStatusCurrent(string $code, string $roleName, int $requestId = null): Collection;
 
     public function findByRequestId(int $requestId, User $user): RequestRoom;
 
