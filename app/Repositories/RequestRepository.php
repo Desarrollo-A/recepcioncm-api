@@ -191,7 +191,7 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
             ->count();
     }
 
-    public function getRecepcionistSummaryOfDay(int $officeId): Collection
+    public function getAllApprovedRecepcionistWithStartDateCondition(int $officeId, string $startDateOperator = '='): Collection
     {
         return $this->entity
             ->with(['type',
@@ -211,12 +211,12 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
             ->joinAllRecepcionist($officeId)
             ->whereIn('t.code', Utils::getAllTypesRequest())
             ->whereIn('s.code', Utils::getStatusApprovedRequest())
-            ->whereDate('requests.start_date', now())
+            ->whereDate('requests.start_date', $startDateOperator, now())
             ->orderBy('requests.start_date', 'ASC')
             ->get(['requests.*']);
     }
 
-    public function getApplicantSummaryOfDay(int $userId): Collection
+    public function getAllApprovedApplicantWithStartDateCondition(int $userId, string $startDateOperator = '='): Collection
     {
         return $this->entity
             ->with(['type',
@@ -238,7 +238,7 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
             ->where('user_id', $userId)
             ->whereIn('t.code', Utils::getAllTypesRequest())
             ->whereIn('s.code', Utils::getStatusApprovedRequest())
-            ->whereDate('requests.start_date', now())
+            ->whereDate('requests.start_date', $startDateOperator, now())
             ->orderBy('requests.start_date', 'ASC')
             ->get(['requests.*']);
     }

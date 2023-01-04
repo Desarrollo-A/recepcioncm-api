@@ -23,20 +23,20 @@ class SubmenuSeeder extends Seeder
         $this->createSubmenu('/sala', 'Salas de Junta',1, $requestMenu);
         $this->createSubmenu('/paqueteria', 'Paquetería', 2, $requestMenu);
         $this->createSubmenu('/conductor', 'Chofer', 3, $requestMenu);
-        $this->createSubmenu('/automovil', 'Automóvil', 4, $requestMenu);
+        $this->createSubmenu('/vehiculo', 'Vehículo', 4, $requestMenu);
 
         $this->createSubmenu('/sala','Salas de Junta',1, $historyMenu);
         $this->createSubmenu('/paqueteria','Paquetería',2, $historyMenu);
         $this->createSubmenu('/conductor','Chofer',3, $historyMenu);
-        $this->createSubmenu('/automovil', 'Automóvil', 4, $historyMenu);
+        $this->createSubmenu('/vehiculo', 'Vehículo', 4, $historyMenu);
 
         $this->createSubmenu('/sala','Salas de Junta',1, $historyRecepcionistMenu);
         $this->createSubmenu('/paqueteria','Paquetería',2, $historyRecepcionistMenu);
         $this->createSubmenu('/conductor','Chofer',3, $historyRecepcionistMenu);
-        $this->createSubmenu('/automovil','Automóvil',4, $historyRecepcionistMenu);
+        $this->createSubmenu('/vehiculo','Vehículo',4, $historyRecepcionistMenu);
 
         $this->createSubmenu('/sala','Salas de Junta',1, $mantoMenu);
-        $this->createSubmenu('/auto','Automóvil',2, $mantoMenu);
+        $this->createSubmenu('/auto','Vehículo',2, $mantoMenu);
         $this->createSubmenu('/conductor','Chofer',3, $mantoMenu);
 
         $this->createSubmenu('/entrada-salida','Entradas/Salidas Inventario',1, $reportMenu);

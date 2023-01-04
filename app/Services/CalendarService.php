@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Contracts\Repositories\RequestRepositoryInterface;
-use App\Contracts\Repositories\RequestRoomRepositoryInterface;
 use App\Contracts\Services\CalendarServiceInterface;
 use App\Helpers\Utils;
 use App\Models\Enums\Lookups\TypeRequestLookup;
@@ -16,39 +15,114 @@ use Spatie\GoogleCalendar\Event;
 
 class CalendarService implements CalendarServiceInterface
 {
-    private $requestRoomRepository;
     protected $requestRepository;
 
-    public function __construct(RequestRoomRepositoryInterface $requestRoomRepository, 
-                                RequestRepositoryInterface $requestRepository)
+    public function __construct(RequestRepositoryInterface $requestRepository)
     {
-        $this->requestRoomRepository = $requestRoomRepository;
         $this->requestRepository = $requestRepository;
     }
 
-    public function getDataCalendar(User $user)
+    public function getDataCalendar(User $user): Collection
     {
-        return $this->requestRoomRepository->getDataCalendar($user);
+        $roleName = $user->role->name;
+        if ($roleName === NameRole::RECEPCIONIST) {
+            return $this->requestRepository->getAllApprovedRecepcionistWithStartDateCondition($user->office_id, '>=')
+                ->map(function (Request $request) {
+                    $typeCodeRequest = $request->type->code;
+
+                    if ($typeCodeRequest === TypeRequestLookup::code(TypeRequestLookup::ROOM)) {
+                        return Utils::createEventCalendarObject(
+                            "Solicitud $request->code de sala. Sala {$request->requestRoom->room->name} - ".
+                            "Tipo {$request->type->name}",
+                            $request);
+                    } else if ($typeCodeRequest === TypeRequestLookup::code(TypeRequestLookup::PARCEL)) {
+                        $driverName = $request->package->driverPackageSchedule->driverSchedule->driver->full_name;
+                        $car = $request->package->driverPackageSchedule->carSchedule->car;
+
+                        return Utils::createEventCalendarObject(
+                            "Solicitud $request->code de paquetería. Chofer $driverName, Vehículo $car->trademark ".
+                            "$car->model Placa $car->license_plate",
+                            $request);
+                    } else if ($typeCodeRequest === TypeRequestLookup::code(TypeRequestLookup::DRIVER)) {
+                        $driverName = $request->requestDriver->driverRequestSchedule->driverSchedule->driver->full_name;
+                        $car = $request->requestDriver->driverRequestSchedule->carSchedule->car;
+
+                        return Utils::createEventCalendarObject(
+                            "Solicitud $request->code de chofer. Chofer $driverName, Vehículo $car->trademark ".
+                            "$car->model Placa $car->license_plate",
+                            $request);
+                    } else if ($typeCodeRequest === TypeRequestLookup::code(TypeRequestLookup::CAR)) {
+                        $car = $request->requestCar->carRequestSchedule->carSchedule->car;
+
+                        return Utils::createEventCalendarObject(
+                            "Solicitud $request->code de vehículo. Vehículo $car->trademark $car->model Placa $car->license_plate",
+                            $request);
+                    }
+
+                    return Utils::createEventCalendarObject("", $request);
+                });
+        }
+        if ($roleName === NameRole::APPLICANT) {
+            return $this->requestRepository->getAllApprovedApplicantWithStartDateCondition($user->id, '>=')
+                ->map(function (Request $request) {
+                    $typeCodeRequest = $request->type->code;
+
+                    if ($typeCodeRequest === TypeRequestLookup::code(TypeRequestLookup::ROOM)) {
+                        $roomName = $request->requestRoom->room->name;
+                        $officeName = $request->requestRoom->room->office->name;
+
+                        return Utils::createEventCalendarObject(
+                            "Solicitud $request->code de sala. Oficina $officeName, Sala $roomName - Tipo {$request->type->name}",
+                            $request);
+                    } else if ($typeCodeRequest === TypeRequestLookup::code(TypeRequestLookup::PARCEL)) {
+                        $driverName = $request->package->driverPackageSchedule->driverSchedule->driver->full_name;
+                        $car = $request->package->driverPackageSchedule->carSchedule->car;
+
+                        return Utils::createEventCalendarObject(
+                            "Solicitud $request->code de paquetería. Chofer $driverName, Vehículo $car->trademark ".
+                            "$car->model Placa $car->license_plate",
+                            $request);
+                    } else if ($typeCodeRequest === TypeRequestLookup::code(TypeRequestLookup::DRIVER)) {
+                        $driverName = $request->requestDriver->driverRequestSchedule->driverSchedule->driver->full_name;
+                        $car = $request->requestDriver->driverRequestSchedule->carSchedule->car;
+
+                        return Utils::createEventCalendarObject(
+                            "Solicitud $request->code de chofer. Chofer $driverName, Vehículo $car->trademark ".
+                            "$car->model Placa $car->license_plate",
+                            $request);
+                    } else if ($typeCodeRequest === TypeRequestLookup::code(TypeRequestLookup::CAR)) {
+                        $car = $request->requestCar->carRequestSchedule->carSchedule->car;
+
+                        return Utils::createEventCalendarObject(
+                            "Solicitud $request->code de vehículo. Vehículo $car->trademark $car->model Placa $car->license_plate",
+                            $request);
+                    }
+
+                    return Utils::createEventCalendarObject("", $request);
+                });
+        }
+
+        return collect();
     }
 
     public function getSummaryOfDay(User $user): Collection
     {
         $roleName = $user->role->name;
         if ($roleName === NameRole::RECEPCIONIST) {
-            return $this->requestRepository->getRecepcionistSummaryOfDay($user->office_id)
-                ->map(function (Request $request) use ($user) {
+            return $this->requestRepository->getAllApprovedRecepcionistWithStartDateCondition($user->office_id)
+                ->map(function (Request $request) {
                     $startDate = new Carbon($request->start_date);
                     $endDate = new Carbon($request->end_date);
-                    $typeRequestCode = $request->type->code;
+                    $typeCodeRequest = $request->type->code;
 
-                    if ($typeRequestCode === TypeRequestLookup::code(TypeRequestLookup::ROOM)) {
+                    if ($typeCodeRequest === TypeRequestLookup::code(TypeRequestLookup::ROOM)) {
                         $roomName = $request->requestRoom->room->name;
                         return Utils::createSummaryOfDayObject(
                             "Solicitud $request->code de sala",
                             "{$startDate->format('g:i A')} - {$endDate->format('g:i A')}, Sala $roomName",
                             $request
                         );
-                    } else if ($typeRequestCode === TypeRequestLookup::code(TypeRequestLookup::PARCEL)) {
+                    } else if ($typeCodeRequest === TypeRequestLookup::code(TypeRequestLookup::PARCEL)) {
                         $driverName = $request->package->driverPackageSchedule->driverSchedule->driver->full_name;
                         $car = $request->package->driverPackageSchedule->carSchedule->car;
 
@@ -57,7 +131,7 @@ class CalendarService implements CalendarServiceInterface
                             "Chofer $driverName, Vehículo $car->trademark $car->model Placa $car->license_plate",
                             $request
                         );
-                    } else if ($typeRequestCode === TypeRequestLookup::code(TypeRequestLookup::DRIVER)) {
+                    } else if ($typeCodeRequest === TypeRequestLookup::code(TypeRequestLookup::DRIVER)) {
                         $driverName = $request->requestDriver->driverRequestSchedule->driverSchedule->driver->full_name;
                         $car = $request->requestDriver->driverRequestSchedule->carSchedule->car;
 
@@ -67,7 +141,7 @@ class CalendarService implements CalendarServiceInterface
                             "Recoger a las {$startDate->format('g:i A')}",
                             $request
                         );
-                    } else if ($typeRequestCode === TypeRequestLookup::code(TypeRequestLookup::CAR)) {
+                    } else if ($typeCodeRequest === TypeRequestLookup::code(TypeRequestLookup::CAR)) {
                         $car = $request->requestCar->carRequestSchedule->carSchedule->car;
 
                         return Utils::createSummaryOfDayObject(
@@ -80,14 +154,15 @@ class CalendarService implements CalendarServiceInterface
 
                     return Utils::createSummaryOfDayObject('','', new Request());
                 });
-        } else if ($roleName === NameRole::APPLICANT) {
-            return $this->requestRepository->getApplicantSummaryOfDay($user->id)
-                ->map(function (Request $request) use ($user) {
+        }
+        if ($roleName === NameRole::APPLICANT) {
+            return $this->requestRepository->getAllApprovedApplicantWithStartDateCondition($user->id)
+                ->map(function (Request $request) {
                     $startDate = new Carbon($request->start_date);
                     $endDate = new Carbon($request->end_date);
-                    $typeRequestCode = $request->type->code;
+                    $typeCodeRequest = $request->type->code;
 
-                    if ($typeRequestCode === TypeRequestLookup::code(TypeRequestLookup::ROOM)) {
+                    if ($typeCodeRequest === TypeRequestLookup::code(TypeRequestLookup::ROOM)) {
                         $room = $request->requestRoom->room;
 
                         return Utils::createSummaryOfDayObject(
@@ -96,13 +171,13 @@ class CalendarService implements CalendarServiceInterface
                             "Oficina {$room->office->name} en Sala $room->name",
                             $request
                         );
-                    } else if ($typeRequestCode === TypeRequestLookup::code(TypeRequestLookup::PARCEL)) {
+                    } else if ($typeCodeRequest === TypeRequestLookup::code(TypeRequestLookup::PARCEL)) {
                         return Utils::createSummaryOfDayObject(
                             "Solicitud $request->code de paquetería",
                             "Hoy se entrega el paquete",
                             $request
                         );
-                    } else if ($typeRequestCode === TypeRequestLookup::code(TypeRequestLookup::DRIVER)) {
+                    } else if ($typeCodeRequest === TypeRequestLookup::code(TypeRequestLookup::DRIVER)) {
                         $driverName = $request->requestDriver->driverRequestSchedule->driverSchedule->driver->full_name;
                         $car = $request->requestDriver->driverRequestSchedule->carSchedule->car;
 
@@ -112,7 +187,7 @@ class CalendarService implements CalendarServiceInterface
                             "Hora a recoger {$startDate->format('g:i A')}",
                             $request
                         );
-                    } else if ($typeRequestCode === TypeRequestLookup::code(TypeRequestLookup::CAR)) {
+                    } else if ($typeCodeRequest === TypeRequestLookup::code(TypeRequestLookup::CAR)) {
                         $car = $request->requestCar->carRequestSchedule->carSchedule->car;
 
                         return Utils::createSummaryOfDayObject(
@@ -123,11 +198,11 @@ class CalendarService implements CalendarServiceInterface
                         );
                     }
 
-                    return Utils::createSummaryOfDayObject('','', new Request());
+                    return Utils::createSummaryOfDayObject('','', $request);
                 });
-        } else {
-            return collect();
         }
+
+        return collect();
     }
 
     /**
