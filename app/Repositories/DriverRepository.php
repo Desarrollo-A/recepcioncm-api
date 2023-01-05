@@ -28,7 +28,7 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
         LengthAwarePaginator
     {
         return $this->entity
-            ->with('status', 'office')
+            ->with('status', 'office', 'cars')
             ->driverUser()
             ->filter($filters)
             ->where('office_id', $officeId)
