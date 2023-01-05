@@ -20,6 +20,7 @@ class DriverResource extends Resource
             'officePhone'   =>  $this->office_phone,
             'officeId'      =>  $this->office_id,
             'statusId'      =>  $this->status_id,
+            'area'          =>  $this->area,
             'status'        =>  LookupResource::make($this->whenLoaded('status')),
             'office'        =>  OfficeResource::make($this->whenLoaded('office')),
             'cars'          =>  CarCollection::make($this->whenLoaded('cars'))
