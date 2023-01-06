@@ -8,6 +8,7 @@ use App\Models\Traits\Sortable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Car extends Model implements ScopeFilterInterface
 {
@@ -79,5 +80,11 @@ class Car extends Model implements ScopeFilterInterface
     public function status(): BelongsTo
     {
         return $this->belongsTo(Lookup::class, 'status_id', 'id');
+    }
+
+    public function drivers(): BelongsToMany
+    {
+        return $this->belongsToMany(Car::class, 'car_driver', 'car_id')
+            ->withTimestamps();
     }
 }

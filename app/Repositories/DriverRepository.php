@@ -46,9 +46,11 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
     public function findAllByOfficeId(int $officeId): Collection
     {
         return $this->entity
+            ->join('lookups', 'lookups.id', '=', 'users.status_id')
             ->driverUser()
             ->where('office_id', $officeId)
-            ->get();
+            ->where('lookups.code', StatusUserLookup::code(StatusUserLookup::ACTIVE))
+            ->get(['users.*']);
     }
 
     public function getAvailableDriversPackage(int $officeId, Carbon $date): Collection

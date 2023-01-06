@@ -4,6 +4,7 @@ namespace App\Contracts\Repositories;
 
 use App\Core\Contracts\BaseRepositoryInterface;
 use App\Models\DriverPackageSchedule;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
@@ -16,4 +17,6 @@ interface DriverPackageScheduleRepositoryInterface extends BaseRepositoryInterfa
     public function deleteByPackageId(int $packageId): void;
 
     public function getTotalByStatus(int $driverId, array $statusCodes = []): int;
+
+    public function getTotalAssignmentsByDriverId(int $driverId, Carbon $date): int;
 }
