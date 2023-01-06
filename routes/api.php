@@ -116,6 +116,10 @@ Route::prefix('v1')->group(function () {
                     ->name('available-car-request')
                     ->where('officeId', Validation::INTEGER_ID);
 
+                Route::get('/available-package-request/{driverId}', 'CarController@getAvailableCarsInRequestPackage')
+                    ->name('available-package-request')
+                    ->where('driverId', Validation::INTEGER_ID);
+
                 Route::patch('/change-status/{id}', 'CarController@changeStatus')
                     ->name('change-status')
                     ->where('id', Validation::INTEGER_ID);

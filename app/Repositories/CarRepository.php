@@ -68,7 +68,7 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
             ->join('lookups', 'lookups.id', '=', 'cars.status_id')
             ->join('car_driver', 'car_driver.car_id', '=', 'cars.id')
             ->where('lookups.code', StatusCarLookup::code(StatusCarLookup::ACTIVE))
-            ->where('car_driver.car_id', $driverId)
+            ->where('car_driver.driver_id', $driverId)
             ->whereNotIn('cars.id', function (QueryBuilder $query) use ($startDate, $endDate) {
                 return $query
                     ->select(['car_id'])
@@ -95,6 +95,47 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
                     ->orWhereDate('end_date', $startDate)
                     ->whereDate('start_date', $endDate)
                     ->orWhereDate('end_date', $endDate);
+            })
+            ->get(['cars.*']);
+    }
+
+    public function getAvailableCarsInRequestPackage(User $user, Carbon $startDate, int $totalAssignments): Collection
+    {
+        return $this->entity
+            ->with('drivers')
+            ->join('lookups', 'lookups.id', '=', 'cars.status_id')
+            ->where('lookups.code', StatusCarLookup::code(StatusCarLookup::ACTIVE))
+            ->where('office_id', $user->office_id)
+            ->whereNotIn('cars.id', function (QueryBuilder $query) use ($startDate) {
+                return $query
+                    ->select(['car_id'])
+                    ->from('driver_request_schedules AS drs')
+                    ->join('car_schedules AS cs','drs.car_schedule_id', '=', 'cs.id')
+                    ->whereDate('cs.start_date', $startDate)
+                    ->orWhereDate('cs.end_date', $startDate);
+            })
+            ->when($totalAssignments === 0, function (Builder $query) use ($user) {
+                return $query->whereNotIn('cars.id', function (QueryBuilder $query) use ($user) {
+                    return $query
+                        ->select(['car_driver.car_id'])
+                        ->from('users')
+                        ->join('car_driver', 'car_driver.driver_id', '=', 'users.id')
+                        ->where('users.office_id', $user->office_id)
+                        ->where('users.id', '<>', $user->id);
+                });
+            })
+            ->when($totalAssignments > 0, function (Builder $query) use ($user, $startDate) {
+                return $query->whereIn('cars.id', function (QueryBuilder $query) use ($user, $startDate) {
+                    return $query
+                        ->selectRaw('DISTINCT(cs.car_id)')
+                        ->from('driver_package_schedules AS dps')
+                        ->join('driver_schedules AS ds', 'dps.driver_schedule_id', '=', 'ds.id')
+                        ->join('car_schedules AS cs', 'dps.car_schedule_id', '=', 'cs.id')
+                        ->join('packages AS p','dps.package_id','=','p.id')
+                        ->join('requests AS r','p.request_id', '=', 'r.id')
+                        ->where('ds.driver_id', $user->id)
+                        ->whereDate('r.start_date', $startDate);
+                });
             })
             ->get(['cars.*']);
     }

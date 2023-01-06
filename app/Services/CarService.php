@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Contracts\Repositories\CarRepositoryInterface;
+use App\Contracts\Repositories\DriverPackageScheduleRepositoryInterface;
+use App\Contracts\Repositories\DriverRepositoryInterface;
 use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Services\CarServiceInterface;
 use App\Core\BaseService;
@@ -23,12 +25,18 @@ class CarService extends BaseService implements CarServiceInterface
 {
     protected $entityRepository;
     protected $lookupRepository;
+    protected $driverRepository;
+    protected $driverPackageScheduleRepository;
 
     public function __construct(CarRepositoryInterface $carRepository,
-                                LookupRepositoryInterface $lookupRepository)
+                                LookupRepositoryInterface $lookupRepository,
+                                DriverRepositoryInterface $driverRepository,
+                                DriverPackageScheduleRepositoryInterface $driverPackageScheduleRepository)
     {
         $this->entityRepository = $carRepository;
         $this->lookupRepository = $lookupRepository;
+        $this->driverRepository = $driverRepository;
+        $this->driverPackageScheduleRepository = $driverPackageScheduleRepository;
     }
 
     /**
@@ -88,5 +96,13 @@ class CarService extends BaseService implements CarServiceInterface
     public function getAvailableCarsInRequestCar(int $officeId, Carbon $startDate, Carbon $endDate): Collection
     {
         return $this->entityRepository->getAvailableCarsInRequestCar($officeId, $startDate, $endDate);
+    }
+
+    public function getAvailableCarsInRequestPackage(int $driverId, Carbon $startDate): Collection
+    {
+        $driver = $this->driverRepository->findById($driverId);
+        $totalRequestsAssignments = $this->driverPackageScheduleRepository
+            ->getTotalAssignmentsByDriverId($driverId, $startDate);
+        return $this->entityRepository->getAvailableCarsInRequestPackage($driver, $startDate, $totalRequestsAssignments);
     }
 }

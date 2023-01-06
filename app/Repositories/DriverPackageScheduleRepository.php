@@ -5,6 +5,8 @@ namespace App\Repositories;
 use App\Contracts\Repositories\DriverPackageScheduleRepositoryInterface;
 use App\Core\BaseRepository;
 use App\Models\DriverPackageSchedule;
+use App\Models\Enums\Lookups\StatusPackageRequestLookup;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -53,6 +55,20 @@ class DriverPackageScheduleRepository extends BaseRepository implements DriverPa
             ->when(!empty($statusCodes), function (Builder $query) use ($statusCodes) {
                 return $query->whereIn('s.code', $statusCodes);
             })
+            ->count();
+    }
+
+    public function getTotalAssignmentsByDriverId(int $driverId, Carbon $date): int
+    {
+        return $this->entity
+            ->from('driver_package_schedules AS dps')
+            ->join('driver_schedules AS ds', 'dps.driver_schedule_id', '=', 'ds.id')
+            ->join('packages AS p','dps.package_id','=','p.id')
+            ->join('requests AS r','p.request_id', '=', 'r.id')
+            ->join('lookups AS s', 'r.status_id', '=', 's.id')
+            ->where('s.code', StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED))
+            ->where('ds.driver_id', $driverId)
+            ->where('r.start_date', $date)
             ->count();
     }
 }
