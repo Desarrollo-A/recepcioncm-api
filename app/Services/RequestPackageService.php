@@ -116,7 +116,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $dto->request_id = $request->id;
 
         $package = $this->packageRepository->create($dto->toArray(['pickup_address_id', 'arrival_address_id',
-            'name_receive', 'email_receive', 'comment_receive', 'request_id', 'office_id']));
+            'name_receive', 'email_receive', 'comment_receive', 'request_id', 'office_id', 'is_urgent']));
         return $package->fresh(['request', 'pickupAddress', 'arrivalAddress']);
     }
 

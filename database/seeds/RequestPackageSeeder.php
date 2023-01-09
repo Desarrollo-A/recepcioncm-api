@@ -80,7 +80,8 @@ class RequestPackageSeeder extends Seeder
                             'pickup_address_id' => $pickupAddress->id,
                             'arrival_address_id' => $arrivalAddress->id,
                             'request_id' => $request->id,
-                            'office_id' => $officesIds->shuffle()->first()->id
+                            'office_id' => $officesIds->shuffle()->first()->id,
+                            'is_urgent' => false
                         ]);
                 }
             });

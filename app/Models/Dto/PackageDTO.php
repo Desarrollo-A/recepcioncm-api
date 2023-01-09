@@ -96,6 +96,10 @@ class PackageDTO
     public $auth_code;
 
     /**
+     * @var boolean
+     */
+    public $is_urgent;
+    /**
      * @throws CustomErrorException
      */
     public function __construct(array $data = [])

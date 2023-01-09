@@ -43,6 +43,8 @@ class CreatePackagesTable extends Migration
                 ->nullable();
             $table->string('auth_code', 50)
                 ->nullable();
+            $table->boolean('is_urgent')
+                ->nullable();
             $table->timestamps();
         });
     }
