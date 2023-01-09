@@ -55,13 +55,24 @@ class PackageRepository extends BaseRepository implements PackageRepositoryInter
             ->get(['packages.*']);
     }
 
-    /**
-     * @return Package|null 
-     */
-    public function findByAuthCode(string $authCodePackage)
+    public function findByAuthCode(string $authCodePackage): ?Package
     {
         return $this->entity
             ->where('auth_code', $authCodePackage)
             ->first();
+    }
+
+    public function findAllByDateAndOffice(int $officeId, Carbon $date): Collection
+    {
+        return $this->entity
+            ->with(['pickupAddress', 'pickupAddress.country', 'arrivalAddress', 'arrivalAddress.country', 'request',
+                'driverPackageSchedule', 'driverPackageSchedule.driverSchedule',
+                'driverPackageSchedule.driverSchedule.driver'])
+            ->join('driver_package_schedules AS dps','dps.package_id','=','packages.id')
+            ->join('driver_schedules AS ds','dps.driver_schedule_id','=','ds.id')
+            ->join('users', 'ds.driver_id', '=', 'users.id')
+            ->whereDate('ds.start_date', $date)
+            ->where('users.office_id', $officeId)
+            ->get(['packages.*']);
     }
 }

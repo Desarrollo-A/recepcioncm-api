@@ -5,6 +5,7 @@ namespace App\Contracts\Services;
 use App\Core\Contracts\BaseServiceInterface;
 use App\Models\Dto\CancelRequestDTO;
 use App\Models\Dto\PackageDTO;
+use App\Models\Dto\ProposalRequestDTO;
 use App\Models\Dto\ScoreDTO;
 use App\Models\Package;
 use App\Models\Request;
@@ -45,4 +46,8 @@ interface RequestPackageServiceInterface extends BaseServiceInterface
     public function onRoadPackage(int $requestId): Request;
 
     public function findByPackageRequestId(int $requestId, User $user): Package;
+
+    public function findAllByDateAndOffice(int $officeId, Carbon $date): Collection;
+
+    public function proposalRequest(ProposalRequestDTO $dto): Request;
 }

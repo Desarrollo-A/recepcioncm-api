@@ -11,6 +11,7 @@ use App\Helpers\Utils;
 use App\Http\Requests\CancelRequest\CancelRequest;
 use App\Http\Requests\Request\StarRatingRequest;
 use App\Http\Requests\RequestPackage\ApprovedPackageRequest;
+use App\Http\Requests\RequestPackage\ProposalPackageRequest;
 use App\Http\Requests\RequestPackage\StoreRequestPackageRequest;
 use App\Http\Requests\RequestPackage\TransferPackageRequest;
 use App\Http\Requests\RequestPackage\UploadFileRequestPackageRequest;
@@ -39,7 +40,8 @@ class RequestPackageController extends BaseApiController
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
             ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
-            ->only('transferRequest', 'getDriverSchedule', 'getPackagesByDriverId', 'onReadRequest');
+            ->only('transferRequest', 'getDriverSchedule', 'getPackagesByDriverId', 'onReadRequest',
+                'findAllByDateAndOffice', 'proposalRequest');
         
         $this->requestPackageService = $requestPackageService;
         $this->notificationServiceInterface = $notificationServiceInterface;
@@ -162,6 +164,18 @@ class RequestPackageController extends BaseApiController
     {
         $requestPackageOnRoad = $this->requestPackageService->onRoadPackage($requestId);
         $this->notificationServiceInterface->onRoadPackageRequestNotification($requestPackageOnRoad);
+        return $this->noContentResponse();
+    }
+
+    public function findAllByDateAndOffice(int $office, string $date): JsonResponse
+    {
+        $packages = $this->requestPackageService->findAllByDateAndOffice($office, new Carbon($date));
+        return $this->showAll(PackageResource::collection($packages));
+    }
+
+    public function proposalRequest(ProposalPackageRequest $request): JsonResponse
+    {
+        $this->requestPackageService->proposalRequest($request->toDTO());
         return $this->noContentResponse();
     }
 }

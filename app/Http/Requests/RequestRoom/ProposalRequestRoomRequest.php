@@ -4,7 +4,7 @@ namespace App\Http\Requests\RequestRoom;
 
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\Contracts\ReturnDtoInterface;
-use App\Models\Dto\ProposalRequestRoomDTO;
+use App\Models\Dto\ProposalRequestDTO;
 use App\Models\Dto\RequestDTO;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
@@ -42,11 +42,11 @@ class ProposalRequestRoomRequest extends FormRequest implements ReturnDtoInterfa
     public function toDTO(): RequestDTO
     {
         $proposalRequest = [];
-        $proposalRequest[] = new ProposalRequestRoomDTO([
+        $proposalRequest[] = new ProposalRequestDTO([
             'start_date' => new Carbon($this->startDate1),
             'end_date' => new Carbon($this->endDate1)
         ]);
-        $proposalRequest[] = new ProposalRequestRoomDTO([
+        $proposalRequest[] = new ProposalRequestDTO([
             'start_date' => new Carbon($this->startDate2),
             'end_date' => new Carbon($this->endDate2)
         ]);

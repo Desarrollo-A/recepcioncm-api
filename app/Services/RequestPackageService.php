@@ -9,6 +9,7 @@ use App\Contracts\Repositories\DriverPackageScheduleRepositoryInterface;
 use App\Contracts\Repositories\DriverScheduleRepositoryInterface;
 use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\PackageRepositoryInterface;
+use App\Contracts\Repositories\ProposalRequestRepositoryInterface;
 use App\Contracts\Repositories\RequestPackageViewRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Contracts\Repositories\ScoreRepositoryInterface;
@@ -16,7 +17,6 @@ use App\Contracts\Services\CalendarServiceInterface;
 use App\Contracts\Services\RequestPackageServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
-use App\Helpers\Enum\Message;
 use App\Helpers\Enum\Path;
 use App\Helpers\Enum\QueryParam;
 use App\Helpers\File;
@@ -24,6 +24,7 @@ use App\Helpers\Validation;
 use App\Mail\Package\ApprovedPackageMail;
 use App\Models\Dto\CancelRequestDTO;
 use App\Models\Dto\PackageDTO;
+use App\Models\Dto\ProposalRequestDTO;
 use App\Models\Dto\RequestDTO;
 use App\Models\Dto\ScoreDTO;
 use App\Models\Enums\Lookups\StatusPackageRequestLookup;
@@ -41,9 +42,9 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Mail;
-use Symfony\Component\HttpFoundation\Response as HttpCodes;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Response as HttpCodes;
 
 class RequestPackageService extends BaseService implements RequestPackageServiceInterface
 {
@@ -60,6 +61,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
     protected $driverScheduleRepository;
     protected $carScheduleRepository;
     protected $driverPackageScheduleRepository;
+    protected $proposalRequestRepository;
 
     protected $calendarService;
 
@@ -73,7 +75,8 @@ class RequestPackageService extends BaseService implements RequestPackageService
                                 CalendarServiceInterface $calendarService,
                                 DriverScheduleRepositoryInterface $driverScheduleRepository,
                                 CarScheduleRepositoryInterface $carScheduleRepository,
-                                DriverPackageScheduleRepositoryInterface $driverPackageScheduleRepository)
+                                DriverPackageScheduleRepositoryInterface $driverPackageScheduleRepository,
+                                ProposalRequestRepositoryInterface $proposalRequestRepository)
     {
         $this->requestRepository = $requestRepository;
         $this->packageRepository = $packageRepository;
@@ -86,6 +89,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $this->driverScheduleRepository = $driverScheduleRepository;
         $this->carScheduleRepository = $carScheduleRepository;
         $this->driverPackageScheduleRepository = $driverPackageScheduleRepository;
+        $this->proposalRequestRepository = $proposalRequestRepository;
     }
 
     /**
@@ -355,6 +359,9 @@ class RequestPackageService extends BaseService implements RequestPackageService
         return $updateRequestDelivered;
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function isPackageCompleted(int $requestPackageId): bool
     {
         $typePackageRequestId = $this->lookupRepository
@@ -419,5 +426,38 @@ class RequestPackageService extends BaseService implements RequestPackageService
 
         $requestDTO = new RequestDTO(['status_id' => $onReadId]);
         return $this->requestRepository->update($requestId, $requestDTO->toArray(['status_id']));
+    }
+
+    public function findAllByDateAndOffice(int $officeId, Carbon $date): Collection
+    {
+        return $this->packageRepository->findAllByDateAndOffice($officeId, $date);
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function proposalRequest(ProposalRequestDTO $dto): Request
+    {
+        $statusNewId = $this->lookupRepository->findByCodeAndType(
+            StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW),
+            TypeLookup::STATUS_PACKAGE_REQUEST)->id;
+
+        $request = $this->requestRepository->findById($dto->request_id);
+
+        if ($request->status_id !== $statusNewId) {
+            throw new CustomErrorException('La solicitud debe estar en estatus '.StatusPackageRequestLookup::NEW,
+                Response::HTTP_BAD_REQUEST);
+        }
+
+        $statusProposalId = $this->lookupRepository->findByCodeAndType(
+            StatusPackageRequestLookup::code(StatusPackageRequestLookup::PROPOSAL),
+            TypeLookup::STATUS_PACKAGE_REQUEST)->id;
+        $requestDTO = new RequestDTO(['status_id' => $statusProposalId]);
+
+        $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id']));
+
+        $this->proposalRequestRepository->create($dto->toArray(['request_id', 'start_date']));
+
+        return $request;
     }
 }
