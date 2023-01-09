@@ -134,14 +134,14 @@ class NotificationService extends BaseService implements NotificationServiceInte
         $colorId = null;
         if ($request->status->code === StatusRoomRequestLookup::code(StatusRoomRequestLookup::REJECTED)) {
             $message = "Propuesta de la solicitud de sala $request->code fue rechazada";
-            $colorId = $this->getColorId(NotificationColorLookup::RED);
+            $color = NotificationColorLookup::RED;
         } else if ($request->status->code === StatusRoomRequestLookup::code(StatusRoomRequestLookup::IN_REVIEW)) {
             $message = "Propuesta de la solicitud de sala $request->code fue aceptada";
-            $colorId = $this->getColorId(NotificationColorLookup::GREEN);
+            $color = NotificationColorLookup::GREEN;
         }
 
         $notification = $this->createRow($message, $request->requestRoom->room->recepcionist_id, TypeNotificationsLookup::ROOM,
-            $colorId, NotificationIconLookup::ROOM);
+            $color, NotificationIconLookup::ROOM);
         $this->requestNotificationService->create($request->id, $notification->id);
         Utils::eventAlertNotification($notification);
     }

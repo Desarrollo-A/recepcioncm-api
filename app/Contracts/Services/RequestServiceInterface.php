@@ -13,8 +13,6 @@ interface RequestServiceInterface extends BaseServiceInterface
 {
     public function deleteRequestRoom(int $requestId, int $userId): Request;
 
-    public function responseRejectRequest(int $id, RequestDTO $dto): Request;
-
     /**
      * @return void
      */

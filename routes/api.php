@@ -153,6 +153,10 @@ Route::prefix('v1')->group(function () {
                 Route::patch('/without-attending/{requestId}', 'RequestRoomController@withoutAttendingRequest')
                     ->name('without-attending-request-room')
                     ->where('requestId', Validation::INTEGER_ID);
+
+                Route::patch('/response-reject/{id}', 'RequestRoomController@responseRejectRequest')
+                    ->name('response-reject')
+                    ->where('id', Validation::INTEGER_ID);
             });
 
         Route::prefix('inventory-request')
@@ -211,10 +215,6 @@ Route::prefix('v1')->group(function () {
                     
                 Route::post('/rating', 'RequestController@starRatingRequest')
                     ->name('rating');
-
-                Route::patch('/response-reject/{id}', 'RequestController@responseRejectRequest')
-                    ->name('response-reject')
-                    ->where('id', Validation::INTEGER_ID);
 
                 Route::delete('/room/{id}', 'RequestController@deleteRequestRoom')
                     ->name('delete-request-room')

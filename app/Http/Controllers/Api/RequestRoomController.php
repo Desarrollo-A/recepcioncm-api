@@ -11,6 +11,7 @@ use App\Contracts\Services\RequestRoomServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\CancelRequest\CancelRequest;
+use App\Http\Requests\Request\ResponseRejectRequestRequest;
 use App\Http\Requests\RequestRoom\AssignSnackRequest;
 use App\Http\Requests\RequestRoom\ProposalRequestRoomRequest;
 use App\Http\Requests\RequestRoom\StoreRequestRoomRequest;
@@ -40,7 +41,8 @@ class RequestRoomController extends BaseApiController
                                 NotificationServiceInterface $notificationService,
                                 RequestEmailServiceInterface $requestEmailService)
     {
-        $this->middleware('role.permission:'.NameRole::APPLICANT)->only('store');
+        $this->middleware('role.permission:'.NameRole::APPLICANT)
+            ->only('store', 'responseRejectRequest');
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
             ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
@@ -137,6 +139,17 @@ class RequestRoomController extends BaseApiController
         $request = $this->requestRoomService->withoutAttendingRequest($requestId);
         $snacks = $this->inventoryRequestService->deleteSnacks($requestId);
         $this->inventoryService->restoreStockAfterInventoriesRequestDeleted($snacks);
+        return $this->noContentResponse();
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function responseRejectRequest(int $id, ResponseRejectRequestRequest $request): JsonResponse
+    {
+        $dto = $request->toDTO();
+        $requestModel = $this->requestRoomService->responseRejectRequest($id, $dto);
+        $this->notificationService->proposalToRejectedOrResponseRequestRoomNotification($requestModel);
         return $this->noContentResponse();
     }
 }

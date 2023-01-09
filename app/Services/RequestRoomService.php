@@ -412,6 +412,37 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
     }
 
     /**
+     * @throws CustomErrorException
+     */
+    public function responseRejectRequest(int $id, RequestDTO $dto): Request
+    {
+        $proposalStatusId = $this->lookupRepository->findByCodeAndType(StatusRoomRequestLookup::code(StatusRoomRequestLookup::PROPOSAL),
+            TypeLookup::STATUS_ROOM_REQUEST)->id;
+        $request = $this->requestRepository->findById($id);
+
+        if ($request->status_id !== $proposalStatusId) {
+            throw new CustomErrorException('La solicitud debe de estar en estatus '.StatusRoomRequestLookup::PROPOSAL,
+                Response::HTTP_BAD_REQUEST);
+        }
+
+        $dto->status_id = $this->lookupRepository->findByCodeAndType($dto->status->code, TypeLookup::STATUS_ROOM_REQUEST)->id;
+
+        if (!is_null($dto->proposal_id)) {
+            $proposalData = $this->proposalRequestRepository->findById($dto->proposal_id);
+            $dto->start_date = $proposalData->start_date;
+            $dto->end_date = $proposalData->end_date;
+            $data = $dto->toArray(['status_id', 'start_date', 'end_date']);
+        } else {
+            $data = $dto->toArray(['status_id']);
+        }
+
+        $this->proposalRequestRepository->deleteByRequestId($id);
+
+        return $this->requestRepository->update($id, $data)
+            ->fresh(['requestRoom', 'requestRoom.room', 'status']);
+    }
+
+    /**
      * @return void
      * @throws CustomErrorException
      */
