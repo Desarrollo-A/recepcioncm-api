@@ -27,6 +27,7 @@ class PackageResource extends JsonResource
             'officeId' => $this->office_id,
             'trackingCode' => $this->tracking_code,
             'urlTracking' => $this->url_tracking,
+            'isUrgent' => $this->is_urgent,
             'pickupAddress' => AddressResource::make($this->whenLoaded('pickupAddress')),
             'arrivalAddress' => AddressResource::make($this->whenLoaded('arrivalAddress')),
             'request' => RequestResource::make($this->whenLoaded('request')),

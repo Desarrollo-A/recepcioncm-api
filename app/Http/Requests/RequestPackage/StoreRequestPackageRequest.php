@@ -37,13 +37,14 @@ class StoreRequestPackageRequest extends FormRequest implements ReturnDtoInterfa
 
             'title' => ['required', 'string', 'min:3', 'max: 100'],
             'startDate' => ['required', 'date', 'date_format:Y-m-d', 'after:now'],
-            'comment' => ['nullable', 'string'],
+            'comment' => ['required', 'string'],
             'addGoogleCalendar' => ['required', 'boolean'],
 
             'package.nameReceive' => ['required', 'min:3', 'max:150'],
             'package.emailReceive' => ['required', 'min:3', 'max:150'],
             'package.commentReceive' => ['min:3', 'max:2500'],
-            'package.officeId' => ['required', 'integer']
+            'package.officeId' => ['required', 'integer'],
+            'package.isUrgent' =>  ['boolean'],
         ];
     }
 
@@ -70,6 +71,7 @@ class StoreRequestPackageRequest extends FormRequest implements ReturnDtoInterfa
             'startDate' => 'Fecha de recoger el paquete',
             'comment' => 'Comentarios',
             'addGoogleCalendar' => 'Añadir a Google Calendar',
+            'package.isUrgent' => 'Urgente',
 
             'package.nameReceive' => 'Nombre de quien recibe',
             'package.emailReceive' => 'Correo electrónico de quien recibe',
@@ -116,7 +118,8 @@ class StoreRequestPackageRequest extends FormRequest implements ReturnDtoInterfa
             'request' => $requestDTO,
             'pickupAddress' => $pickupAddressDTO,
             'arrivalAddress' => $arrivalAddressDTO,
-            'office_id' => $this->package['officeId']
+            'office_id' => $this->package['officeId'],
+            'is_urgent' => $this->package['isUrgent']
         ]);
     }
 }
