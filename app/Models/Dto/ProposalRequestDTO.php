@@ -6,7 +6,7 @@ use App\Exceptions\CustomErrorException;
 use App\Models\Contracts\DataTransferObject;
 use Carbon\Carbon;
 
-class ProposalRequestRoomDTO
+class ProposalRequestDTO
 {
     use DataTransferObject;
 

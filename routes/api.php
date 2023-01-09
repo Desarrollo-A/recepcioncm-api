@@ -349,6 +349,11 @@ Route::prefix('v1')->group(function () {
                     ->where('driverId', Validation::INTEGER_ID)
                     ->where('date', Validation::DATE_REGEX);
 
+                Route::get('/date/{officeId}/{date}', 'RequestPackageController@findAllByDateAndOffice')
+                    ->name('date')
+                    ->where('officeId', Validation::INTEGER_ID)
+                    ->where('date', Validation::DATE_REGEX);
+
                 Route::post('/approved', 'RequestPackageController@approvedRequestPackage')
                     ->name('approved');
 
@@ -367,6 +372,9 @@ Route::prefix('v1')->group(function () {
                 Route::patch('/road/{requestId}', 'RequestPackageController@onRoadPackage')
                     ->name('road')
                     ->where('requestId', Validation::INTEGER_ID);
+
+                Route::patch('/proposal', 'RequestPackageController@proposalRequest')
+                    ->name('proposal');
             });
 
         Route::prefix('request-drivers')

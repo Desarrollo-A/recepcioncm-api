@@ -81,7 +81,7 @@ class RequestDTO
     public $status;
 
     /**
-     * @var ProposalRequestRoomDTO[]
+     * @var ProposalRequestDTO[]
      */
     public $proposalRequest;
 

@@ -16,8 +16,7 @@ interface PackageRepositoryInterface extends BaseRepositoryInterface
 
     public function getPackagesByDriverId(int $driverId, Carbon $date): Collection;
 
-    /**
-     * @return Package|null 
-     */
-    public function findByAuthCode(string $authCodePackage);
+    public function findByAuthCode(string $authCodePackage): ?Package;
+
+    public function findAllByDateAndOffice(int $officeId, Carbon $date): Collection;
 }
