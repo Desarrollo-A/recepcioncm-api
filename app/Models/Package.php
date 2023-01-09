@@ -9,14 +9,15 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Package extends Model
 {
     protected $fillable = ['pickup_address_id', 'arrival_address_id', 'authorization_filename', 'name_receive',
-        'email_receive', 'request_id', 'office_id', 'tracking_code', 'url_tracking', 'auth_code'];
+        'email_receive', 'request_id', 'office_id', 'tracking_code', 'url_tracking', 'auth_code', 'is_urgent'];
 
     protected $casts = [
         'id' => 'integer',
         'pickup_address_id' => 'integer',
         'arrival_address_id' => 'integer',
         'request_id' => 'integer',
-        'office_id' => 'integer'
+        'office_id' => 'integer',
+        'is_urgent' => 'boolean',
     ];
 
     public function request(): BelongsTo
