@@ -27,7 +27,7 @@ class RoomController extends BaseApiController
                                 LookupServiceInterface $lookupService)
     {
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
-            ->only('store', 'update');
+            ->only('store', 'update', 'index', 'destroy');
         $this->middleware('role.permission:'.NameRole::ADMIN.','.NameRole::RECEPCIONIST)
             ->only('show', 'changeStatus');
         $this->middleware('role.permission:'.NameRole::APPLICANT)

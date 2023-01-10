@@ -38,4 +38,6 @@ interface RequestRoomServiceInterface extends BaseServiceInterface
      * @return void
      */
     public function checkRequestsByDay(Request $request, int $recepcionistId);
+
+    public function responseRejectRequest(int $id, RequestDTO $dto): Request;
 }

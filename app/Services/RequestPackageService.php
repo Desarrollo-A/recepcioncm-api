@@ -43,7 +43,6 @@ use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Response as HttpCodes;
 
 class RequestPackageService extends BaseService implements RequestPackageServiceInterface
@@ -144,6 +143,9 @@ class RequestPackageService extends BaseService implements RequestPackageService
         return $this->requestPackageViewRepository->findAllPackagesPaginated($filters, $perPage, $user, $sort);
     }
 
+    /**
+     * @throws AuthorizationException
+     */
     public function findByPackageRequestId(int $id, User $user): Package
     {
         $package = $this->packageRepository->findByRequestId($id);
@@ -185,6 +187,10 @@ class RequestPackageService extends BaseService implements RequestPackageService
                         StatusPackageRequestLookup::code(StatusPackageRequestLookup::CANCELLED)
                     ], TypeLookup::STATUS_PACKAGE_REQUEST);
                     break;
+                case StatusPackageRequestLookup::code(StatusPackageRequestLookup::IN_REVIEW):
+                    $status = $this->lookupRepository->findByCodeWhereInAndType([
+                        StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED)
+                    ], TypeLookup::STATUS_PACKAGE_REQUEST);
             }
         } else if ($roleName === NameRole::APPLICANT) {
             switch ($code) {
@@ -281,7 +287,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
     /**
      * @throws CustomErrorException
      */
-    public function approvedRequestPackage(PackageDTO $dto): Package
+    public function approvedRequest(PackageDTO $dto): Package
     {
         $dto->request->status_id = $this->lookupRepository
             ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED),
@@ -407,7 +413,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
     /**
      * @throws CustomErrorException
      */
-    public function onRoadPackage(int $requestId): Request
+    public function onRoad(int $requestId): Request
     {
         $statusApprovedId = $this->lookupRepository
             ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED),
@@ -446,7 +452,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
 
         if ($request->status_id !== $statusNewId) {
             throw new CustomErrorException('La solicitud debe estar en estatus '.StatusPackageRequestLookup::NEW,
-                Response::HTTP_BAD_REQUEST);
+                HttpCodes::HTTP_BAD_REQUEST);
         }
 
         $statusProposalId = $this->lookupRepository->findByCodeAndType(
@@ -459,5 +465,35 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $this->proposalRequestRepository->create($dto->toArray(['request_id', 'start_date']));
 
         return $request;
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function responseRejectRequest(int $requestId, RequestDTO $dto): Request
+    {
+        $proposalStatusId = $this->lookupRepository->findByCodeAndType(StatusPackageRequestLookup::code(
+            StatusPackageRequestLookup::PROPOSAL), TypeLookup::STATUS_PACKAGE_REQUEST)->id;
+        $request = $this->requestRepository->findById($requestId);
+
+        if ($request->status_id !== $proposalStatusId) {
+            throw new CustomErrorException('La solicitud debe de estar en estatus '.StatusPackageRequestLookup::PROPOSAL,
+                HttpCodes::HTTP_BAD_REQUEST);
+        }
+
+        $dto->status_id = $this->lookupRepository
+            ->findByCodeAndType($dto->status->code, TypeLookup::STATUS_PACKAGE_REQUEST)->id;
+
+        if (!is_null($dto->proposal_id)) {
+            $proposalData = $this->proposalRequestRepository->findById($dto->proposal_id);
+            $dto->start_date = $proposalData->start_date;
+            $data = $dto->toArray(['status_id', 'start_date']);
+        } else {
+            $data = $dto->toArray(['status_id']);
+        }
+
+        $this->proposalRequestRepository->deleteByRequestId($requestId);
+
+        return $this->requestRepository->update($requestId, $data);
     }
 }

@@ -7,7 +7,6 @@ use App\Contracts\Services\RequestServiceInterface;
 use App\Contracts\Services\ScoreServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
-use App\Http\Requests\Request\ResponseRejectRequestRequest;
 use App\Http\Requests\Request\StarRatingRequest;
 use App\Http\Resources\Request\RequestResource;
 use App\Models\Enums\NameRole;
@@ -24,7 +23,7 @@ class RequestController extends BaseApiController
                                 ScoreServiceInterface $scoreService)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
-            ->only('responseRejectRequest', 'deleteRequestRoom', 'starRatingRequest', 'deleteRequestPackage');
+            ->only('deleteRequestRoom', 'starRatingRequest', 'deleteRequestPackage', 'deleteRequestDriver');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST.','.NameRole::APPLICANT)
             ->only('show');
         $this->middleware('role.permission:'.NameRole::ADMIN)
@@ -59,17 +58,6 @@ class RequestController extends BaseApiController
     {
         $requestDriver = $this->requestService->deleteRequestDriver($id, auth()->user()->id);
         $this->notificationService->deleteRequestDriverNotification($requestDriver);
-        return $this->noContentResponse();
-    }
-
-    /**
-     * @throws CustomErrorException
-     */
-    public function responseRejectRequest(int $id, ResponseRejectRequestRequest $request): JsonResponse
-    {
-        $dto = $request->toDTO();
-        $requestModel = $this->requestService->responseRejectRequest($id, $dto);
-        $this->notificationService->proposalToRejectedOrResponseRequestRoomNotification($requestModel);
         return $this->noContentResponse();
     }
 

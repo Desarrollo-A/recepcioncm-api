@@ -76,32 +76,6 @@ class RequestService extends BaseService implements RequestServiceInterface
     }
 
     /**
-     * @throws CustomErrorException
-     */
-    public function responseRejectRequest(int $id, RequestDTO $dto): Request
-    {
-        $proposalStatusId = $this->lookupRepository->findByCodeAndType(StatusRoomRequestLookup::code(StatusRoomRequestLookup::PROPOSAL),
-            TypeLookup::STATUS_ROOM_REQUEST)->id;
-        $request = $this->entityRepository->findById($id);
-
-        if ($request->status_id !== $proposalStatusId) {
-            throw new CustomErrorException('La solicitud debe de estar en estatus '.StatusRoomRequestLookup::PROPOSAL,
-                Response::HTTP_BAD_REQUEST);
-        }
-
-        $dto->status_id = $this->lookupRepository->findByCodeAndType($dto->status->code, TypeLookup::STATUS_ROOM_REQUEST)->id;
-
-        $this->proposalRequestRepository->deleteByRequestId($id);
-
-        $data = ($dto->status->code === StatusRoomRequestLookup::code(StatusRoomRequestLookup::IN_REVIEW))
-            ? $dto->toArray(['status_id', 'start_date', 'end_date'])
-            : $dto->toArray(['status_id']);
-
-        return $this->entityRepository->update($id, $data)
-            ->fresh(['requestRoom', 'requestRoom.room', 'status']);
-    }
-
-    /**
      * @return void
      * @throws CustomErrorException
      */
