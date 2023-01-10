@@ -27,7 +27,7 @@ class PackageRepository extends BaseRepository implements PackageRepositoryInter
     {
         return $this->entity
             ->with(['pickupAddress', 'pickupAddress.country', 'arrivalAddress', 'arrivalAddress.country', 'request',
-                'request.user', 'request.status', 'request.cancelRequest', 'request.cancelRequest.user',
+                'request.user', 'request.status', 'request.cancelRequest', 'request.cancelRequest.user', 'request.proposalRequest',
                 'driverPackageSchedule', 'driverPackageSchedule.carSchedule', 'driverPackageSchedule.driverSchedule',
                 'driverPackageSchedule.carSchedule.car', 'driverPackageSchedule.driverSchedule.driver'])
             ->where('request_id', $requestId)
@@ -38,7 +38,7 @@ class PackageRepository extends BaseRepository implements PackageRepositoryInter
     {
         return $this->entity
             ->with(['pickupAddress', 'pickupAddress.country', 'arrivalAddress', 'arrivalAddress.country', 'request',
-                'request.user', 'request.status', 'request.cancelRequest', 'request.cancelRequest.user',
+                'request.user', 'request.status', 'request.cancelRequest', 'request.cancelRequest.user', 'request.proposalRequest',
                 'driverPackageSchedule', 'driverPackageSchedule.carSchedule', 'driverPackageSchedule.driverSchedule',
                 'driverPackageSchedule.carSchedule.car', 'driverPackageSchedule.driverSchedule.driver'])
             ->findOrFail($id, $columns);

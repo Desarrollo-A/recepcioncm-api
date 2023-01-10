@@ -9,7 +9,7 @@ use App\Models\Dto\RequestDTO;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
-class ResponseRejectRequestRequest extends FormRequest implements ReturnDtoInterface
+class ResponseRejectRequest extends FormRequest implements ReturnDtoInterface
 {
     public function authorize(): bool
     {

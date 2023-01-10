@@ -11,7 +11,7 @@ use App\Contracts\Services\RequestRoomServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\CancelRequest\CancelRequest;
-use App\Http\Requests\Request\ResponseRejectRequestRequest;
+use App\Http\Requests\Request\ResponseRejectRequest;
 use App\Http\Requests\RequestRoom\AssignSnackRequest;
 use App\Http\Requests\RequestRoom\ProposalRequestRoomRequest;
 use App\Http\Requests\RequestRoom\StoreRequestRoomRequest;
@@ -46,7 +46,7 @@ class RequestRoomController extends BaseApiController
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
             ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
-            ->only('assignSnack', 'getAvailableScheduleByDay', 'withoutAttendingRequest');
+            ->only('assignSnack', 'getAvailableScheduleByDay', 'withoutAttendingRequest', 'proposalRequest');
 
         $this->requestRoomService = $requestRoomService;
         $this->lookupService = $lookupService;
@@ -145,7 +145,7 @@ class RequestRoomController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function responseRejectRequest(int $id, ResponseRejectRequestRequest $request): JsonResponse
+    public function responseRejectRequest(int $id, ResponseRejectRequest $request): JsonResponse
     {
         $dto = $request->toDTO();
         $requestModel = $this->requestRoomService->responseRejectRequest($id, $dto);

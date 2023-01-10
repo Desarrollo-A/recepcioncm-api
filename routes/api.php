@@ -21,7 +21,7 @@ Route::prefix('v1')->group(function () {
             Route::get('auth-code/{authCodePackage}', 'RequestPackageController@isAuthPackage')
                 ->name('auth.code');
 
-            Route::get('/show/{packageId}', 'RequestPackageController@showPackage')
+            Route::get('/show/{packageId}', 'RequestPackageController@showExposedPackage')
                 ->name('show-package')
                 ->where('packageId', Validation::INTEGER_ID);
 
@@ -354,7 +354,7 @@ Route::prefix('v1')->group(function () {
                     ->where('officeId', Validation::INTEGER_ID)
                     ->where('date', Validation::DATE_REGEX);
 
-                Route::post('/approved', 'RequestPackageController@approvedRequestPackage')
+                Route::post('/approved', 'RequestPackageController@approvedRequest')
                     ->name('approved');
 
                 Route::put('/upload-file/{requestId}', 'RequestPackageController@uploadAuthorizationFile')
@@ -369,12 +369,16 @@ Route::prefix('v1')->group(function () {
                     ->name('transfer')
                     ->where('packageId', Validation::INTEGER_ID);
 
-                Route::patch('/road/{requestId}', 'RequestPackageController@onRoadPackage')
+                Route::patch('/road/{requestId}', 'RequestPackageController@onRoad')
                     ->name('road')
                     ->where('requestId', Validation::INTEGER_ID);
 
                 Route::patch('/proposal', 'RequestPackageController@proposalRequest')
                     ->name('proposal');
+
+                Route::patch('/response-reject/{requestId}', 'RequestPackageController@responseRejectRequest')
+                    ->name('response-reject')
+                    ->where('id', Validation::INTEGER_ID);
             });
 
         Route::prefix('request-drivers')

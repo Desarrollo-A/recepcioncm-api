@@ -14,18 +14,20 @@ class StatusPackageRequestLookup
     const EXPIRED = 'Expirada';
     const PROPOSAL = 'Propuesta';
     const TRANSFER = 'Transferir';
+    const IN_REVIEW = 'En revisión';
 
     public static function getAll(): Collection
     {
         return collect([self::NEW, self::APPROVED, self::CANCELLED, self::REJECTED, self::DELIVERED, self::ROAD,
-            self::EXPIRED, self::PROPOSAL, self::TRANSFER]);
+            self::EXPIRED, self::PROPOSAL, self::TRANSFER, self::IN_REVIEW]);
     }
 
     public static function getAllCodes(): Collection
     {
         return collect([self::code(self::NEW), self::code(self::APPROVED), self::code(self::CANCELLED),
             self::code(self::REJECTED), self::code(self::DELIVERED), self::code(self::ROAD),
-            self::code(self::EXPIRED), self::code(self::PROPOSAL), self::code(self::TRANSFER)]);
+            self::code(self::EXPIRED), self::code(self::PROPOSAL), self::code(self::TRANSFER),
+            self::code(self::IN_REVIEW)]);
     }
 
     public static function code($const)
