@@ -9,7 +9,7 @@ use App\Models\Dto\RequestDTO;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
-class ResponseRejectRequestRequest extends FormRequest implements ReturnDtoInterface
+class ResponseRejectRequest extends FormRequest implements ReturnDtoInterface
 {
     public function authorize(): bool
     {
@@ -20,8 +20,7 @@ class ResponseRejectRequestRequest extends FormRequest implements ReturnDtoInter
     {
         return [
             'status.code' => ['required', 'string'],
-            'startDate' => ['date', 'date_format:Y-m-d H:i:s', 'after:now'],
-            'endDate' => ['date', 'date_format:Y-m-d H:i:s', 'after:startDate'],
+            'proposalId' => ['nullable', 'integer']
         ];
     }
 
@@ -29,8 +28,7 @@ class ResponseRejectRequestRequest extends FormRequest implements ReturnDtoInter
     {
         return [
             'status.code' => 'Clave del estatus',
-            'startDate' => 'Fecha inicio',
-            'endDate' => 'Fecha fin'
+            'proposalId' => 'ID de la propuesta'
         ];
     }
 
@@ -40,10 +38,10 @@ class ResponseRejectRequestRequest extends FormRequest implements ReturnDtoInter
     public function toDTO(): RequestDTO
     {
         $status = new LookupDTO(['code' => $this->status['code']]);
+
         return new RequestDTO([
             'status' => $status,
-            'start_date' => (!is_null($this->startDate)) ? new Carbon($this->startDate) : null,
-            'end_date' => (!is_null($this->endDate)) ? new Carbon($this->endDate) : null
+            'proposal_id' => $this->proposalId
         ]);
     }
 }

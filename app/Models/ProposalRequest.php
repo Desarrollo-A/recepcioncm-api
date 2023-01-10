@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProposalRequest extends Model
 {
-    protected $primaryKey = 'request_id';
-
     protected $fillable = ['request_id', 'start_date', 'end_date'];
 
     public $timestamps = false;

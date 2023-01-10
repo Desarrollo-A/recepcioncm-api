@@ -86,6 +86,11 @@ class RequestDTO
     public $proposalRequest;
 
     /**
+     * @var int
+     */
+    public $proposal_id;
+
+    /**
      * @var RequestPhoneNumberDTO[]
      */
     public $requestPhoneNumber;

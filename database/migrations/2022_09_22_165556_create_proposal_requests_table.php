@@ -14,6 +14,7 @@ class CreateProposalRequestsTable extends Migration
     public function up()
     {
         Schema::create('proposal_requests', function (Blueprint $table) {
+            $table->bigIncrements('id');
             $table->unsignedBigInteger('request_id');
             $table->foreign('request_id')
                 ->references('id')

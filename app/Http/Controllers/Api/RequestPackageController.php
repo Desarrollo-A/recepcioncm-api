@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Contracts\Services\NotificationServiceInterface;
-use App\Contracts\Services\RequestNotificationServiceInterface;
 use App\Contracts\Services\RequestPackageServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
-use App\Helpers\Utils;
 use App\Http\Requests\CancelRequest\CancelRequest;
+use App\Http\Requests\Request\ResponseRejectRequest;
 use App\Http\Requests\Request\StarRatingRequest;
 use App\Http\Requests\RequestPackage\ApprovedPackageRequest;
 use App\Http\Requests\RequestPackage\ProposalPackageRequest;
@@ -26,7 +25,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response as HttpCodes;
 
-
 class RequestPackageController extends BaseApiController
 {
     private $requestPackageService;
@@ -36,12 +34,12 @@ class RequestPackageController extends BaseApiController
                                 NotificationServiceInterface $notificationServiceInterface)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
-            ->only('store', 'uploadAuthorizationFile');
+            ->only('store', 'uploadAuthorizationFile', 'responseRejectRequest');
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
-            ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest');
+            ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest', 'showExposedPackage');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
             ->only('transferRequest', 'getDriverSchedule', 'getPackagesByDriverId', 'onReadRequest',
-                'findAllByDateAndOffice', 'proposalRequest');
+                'findAllByDateAndOffice', 'proposalRequest', 'approvedRequest', 'onRoad');
         
         $this->requestPackageService = $requestPackageService;
         $this->notificationServiceInterface = $notificationServiceInterface;
@@ -123,10 +121,10 @@ class RequestPackageController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function approvedRequestPackage(ApprovedPackageRequest $request): JsonResponse
+    public function approvedRequest(ApprovedPackageRequest $request): JsonResponse
     {
         $dto = $request->toDTO();
-        $packageApproved = $this->requestPackageService->approvedRequestPackage($dto);
+        $packageApproved = $this->requestPackageService->approvedRequest($dto);
         $this->notificationServiceInterface->approvedPackageRequestNotification($packageApproved);
         return $this->noContentResponse();
     }
@@ -154,15 +152,15 @@ class RequestPackageController extends BaseApiController
         return $this->successResponse(['authCodePackage' => $requestPackageAuthCode], HttpCodes::HTTP_OK);
     }
 
-    public function showPackage(int $requestId): JsonResponse
+    public function showExposedPackage(int $requestId): JsonResponse
     {
         $package = $this->requestPackageService->findByRequestId($requestId);
         return $this->showOne(new PackageExposedResource($package));
     }
 
-    public function onRoadPackage(int $requestId): JsonResponse
+    public function onRoad(int $requestId): JsonResponse
     {
-        $requestPackageOnRoad = $this->requestPackageService->onRoadPackage($requestId);
+        $requestPackageOnRoad = $this->requestPackageService->onRoad($requestId);
         $this->notificationServiceInterface->onRoadPackageRequestNotification($requestPackageOnRoad);
         return $this->noContentResponse();
     }
@@ -176,6 +174,16 @@ class RequestPackageController extends BaseApiController
     public function proposalRequest(ProposalPackageRequest $request): JsonResponse
     {
         $this->requestPackageService->proposalRequest($request->toDTO());
+        return $this->noContentResponse();
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function responseRejectRequest(int $requestId, ResponseRejectRequest $request): JsonResponse
+    {
+        $dto = $request->toDTO();
+        $this->requestPackageService->responseRejectRequest($requestId, $dto);
         return $this->noContentResponse();
     }
 }

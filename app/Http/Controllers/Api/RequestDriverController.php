@@ -31,7 +31,7 @@ class RequestDriverController extends BaseApiController
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
             ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
-            ->only('transferRequest');
+            ->only('transferRequest', 'approvedRequest');
 
         $this->requestDriverService = $requestDriverService;
         $this->notificationService = $notificationService;
