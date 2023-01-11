@@ -90,7 +90,8 @@ class CarService extends BaseService implements CarServiceInterface
 
     public function getAvailableCarsInRequestDriver(int $driverId, Carbon $startDate, Carbon $endDate): Collection
     {
-        return $this->entityRepository->getAvailableCarsInRequestDriver($driverId, $startDate, $endDate);
+        $driver = $this->driverRepository->findById($driverId);
+        return $this->entityRepository->getAvailableCarsInRequestDriver($driver, $startDate, $endDate);
     }
 
     public function getAvailableCarsInRequestCar(int $officeId, Carbon $startDate, Carbon $endDate): Collection
