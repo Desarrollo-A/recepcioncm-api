@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Office;
 
+use App\Http\Resources\Address\AddressResource;
 use App\Http\Resources\State\StateResource;
 use Illuminate\Http\Resources\Json\Resource;
 
@@ -12,7 +13,8 @@ class OfficeResource extends Resource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'address' => $this->address,
+            'addressId' => $this->address_id,
+            'address' => AddressResource::make($this->whenLoaded('address')),
             'state' => StateResource::make($this->whenLoaded('state'))
         ];
     }

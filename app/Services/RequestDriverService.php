@@ -80,13 +80,16 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
      */
     public function create(RequestDriverDTO $dto): RequestDriver
     {
-        $pickupAddress = $this->addressRepository->create($dto->pickupAddress->toArray(['street', 'num_ext', 'num_int',
-            'suburb', 'postal_code', 'state', 'country_id']));
-        $dto->pickup_address_id = $pickupAddress->id;
-
-        $arrivalAddress = $this->addressRepository->create($dto->arrivalAddress->toArray(['street', 'num_ext', 'num_int',
-            'suburb', 'postal_code', 'state', 'country_id']));
-        $dto->arrival_address_id = $arrivalAddress->id;
+        if(is_null($dto->pickup_address_id) || !isset($dto->pickup_address_id)){
+            $pickupAddress = $this->addressRepository->create($dto->pickupAddress->toArray(['street', 'num_ext', 'num_int',
+                'suburb', 'postal_code', 'state', 'country_id']));
+            $dto->pickup_address_id = $pickupAddress->id;
+        }
+        if(is_null($dto->arrival_address_id) || !isset($dto->arrival_address_id)){
+            $arrivalAddress = $this->addressRepository->create($dto->arrivalAddress->toArray(['street', 'num_ext', 'num_int',
+                'suburb', 'postal_code', 'state', 'country_id']));
+            $dto->arrival_address_id = $arrivalAddress->id;
+        }
 
         $dto->request->status_id = $this->lookupRepository
             ->findByCodeAndType(StatusDriverRequestLookup::code(StatusDriverRequestLookup::NEW),

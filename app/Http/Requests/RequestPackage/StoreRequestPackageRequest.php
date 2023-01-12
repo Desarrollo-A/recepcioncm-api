@@ -18,22 +18,10 @@ class StoreRequestPackageRequest extends FormRequest implements ReturnDtoInterfa
 
     public function rules(): array
     {
-        return [
-            'package.pickupAddress.street' => ['required', 'min:5', 'max:150'],
-            'package.pickupAddress.numExt' => ['required', 'min:1', 'max:50'],
-            'package.pickupAddress.numInt' => ['nullable', 'min:1', 'max:50'],
-            'package.pickupAddress.suburb' => ['required', 'min:5', 'max:120'],
-            'package.pickupAddress.postalCode' => ['required', 'min:3', 'max:25'],
-            'package.pickupAddress.state' => ['min:3', 'max:100'],
-            'package.pickupAddress.countryId' => ['required', 'integer'],
+        $rulesArray = [
+            'package.pickupAddress.isExternal' => ['required', 'boolean', 'bail'],
 
-            'package.arrivalAddress.street' => ['required', 'min:5', 'max:150'],
-            'package.arrivalAddress.numExt' => ['required', 'min:1', 'max:50'],
-            'package.arrivalAddress.numInt' => ['nullable', 'min:1', 'max:50'],
-            'package.arrivalAddress.suburb' => ['min:5', 'max:120'],
-            'package.arrivalAddress.postalCode' => ['min:3', 'max:25'],
-            'package.arrivalAddress.state' => ['min:3', 'max:100'],
-            'package.arrivalAddress.countryId' => ['required', 'integer'],
+            'package.arrivalAddress.isExternal' => ['required', 'boolean', 'bail'],
 
             'title' => ['required', 'string', 'min:3', 'max: 100'],
             'startDate' => ['required', 'date', 'date_format:Y-m-d', 'after:now'],
@@ -46,6 +34,40 @@ class StoreRequestPackageRequest extends FormRequest implements ReturnDtoInterfa
             'package.officeId' => ['required', 'integer'],
             'package.isUrgent' =>  ['boolean'],
         ];
+
+        if ($this->package['pickupAddress']['isExternal']) {
+            $rulesArray = array_merge($rulesArray, [
+                'package.pickupAddress.street' => ['required', 'min:5', 'max:150'],
+                'package.pickupAddress.numExt' => ['required', 'min:1', 'max:50'],
+                'package.pickupAddress.numInt' => ['nullable', 'min:1', 'max:50'],
+                'package.pickupAddress.suburb' => ['required', 'min:5', 'max:120'],
+                'package.pickupAddress.postalCode' => ['required', 'min:3', 'max:25'],
+                'package.pickupAddress.state' => ['min:3', 'max:100'],
+                'package.pickupAddress.countryId' => ['required', 'integer']
+            ]);
+        }else {
+            $rulesArray = array_merge($rulesArray, [
+                'package.pickupAddressId' => ['required', 'integer']
+            ]);
+        }
+
+        if ($this->package['arrivalAddress']['isExternal']) {
+            $rulesArray = array_merge($rulesArray, [
+                'package.arrivalAddress.street' => ['required', 'min:5', 'max:150'],
+                'package.arrivalAddress.numExt' => ['required', 'min:1', 'max:50'],
+                'package.arrivalAddress.numInt' => ['nullable', 'min:1', 'max:50'],
+                'package.arrivalAddress.suburb' => ['min:5', 'max:120'],
+                'package.arrivalAddress.postalCode' => ['min:3', 'max:25'],
+                'package.arrivalAddress.state' => ['min:3', 'max:100'],
+                'package.arrivalAddress.countryId' => ['required', 'integer'],
+            ]);
+        }else {
+            $rulesArray = array_merge($rulesArray, [
+                'package.arrivalAddressId' => ['required', 'integer']
+            ]);
+        }
+
+        return $rulesArray;
     }
 
     public function attributes(): array
@@ -58,6 +80,7 @@ class StoreRequestPackageRequest extends FormRequest implements ReturnDtoInterfa
             'package.pickupAddress.postalCode' => 'Código postal origen',
             'package.pickupAddress.state' => 'Estado origen',
             'package.pickupAddress.countryId' => 'País origen',
+            'package.pickupAddress.isExternal' => 'Dirección de salida externa',
 
             'package.arrivalAddress.street' => 'Calle destino',
             'package.arrivalAddress.numExt' => 'Número exterior destino',
@@ -66,6 +89,7 @@ class StoreRequestPackageRequest extends FormRequest implements ReturnDtoInterfa
             'package.arrivalAddress.postalCode' => 'Código postal destino',
             'package.arrivalAddress.state' => 'Estado destino',
             'package.arrivalAddress.countryId' => 'País destino',
+            'package.arrivalAddress.isExternal' => 'Dirección de llegada externa',
 
             'title' => 'Título',
             'startDate' => 'Fecha de recoger el paquete',
@@ -75,7 +99,11 @@ class StoreRequestPackageRequest extends FormRequest implements ReturnDtoInterfa
 
             'package.nameReceive' => 'Nombre de quien recibe',
             'package.emailReceive' => 'Correo electrónico de quien recibe',
-            'package.officeId' => 'Oficina'
+            'package.officeId' => 'Oficina',
+            
+            'package.pickupAddressId' =>  'ID dirección de salida',
+            'package.arrivalAddressId' =>  'ID dirección llegada',
+            
         ];
     }
 
@@ -119,7 +147,9 @@ class StoreRequestPackageRequest extends FormRequest implements ReturnDtoInterfa
             'pickupAddress' => $pickupAddressDTO,
             'arrivalAddress' => $arrivalAddressDTO,
             'office_id' => $this->package['officeId'],
-            'is_urgent' => $this->package['isUrgent']
+            'is_urgent' => $this->package['isUrgent'],
+            'pickup_address_id' => $this->package['pickupAddressId'],
+            'arrival_address_id' => $this->package['arrivalAddressId']
         ]);
     }
 }
