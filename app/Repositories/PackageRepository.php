@@ -29,7 +29,8 @@ class PackageRepository extends BaseRepository implements PackageRepositoryInter
             ->with(['pickupAddress', 'pickupAddress.country', 'arrivalAddress', 'arrivalAddress.country', 'request',
                 'request.user', 'request.status', 'request.cancelRequest', 'request.cancelRequest.user',
                 'driverPackageSchedule', 'driverPackageSchedule.carSchedule', 'driverPackageSchedule.driverSchedule',
-                'driverPackageSchedule.carSchedule.car', 'driverPackageSchedule.driverSchedule.driver'])
+                'driverPackageSchedule.carSchedule.car', 'driverPackageSchedule.driverSchedule.driver', 
+                'pickupAddress.office', 'arrivalAddress.office'])
             ->where('request_id', $requestId)
             ->firstOrFail();
     }

@@ -305,6 +305,9 @@ Route::prefix('v1')->group(function () {
                     ->name('state-car-without-office')
                     ->where('officeId', Validation::INTEGER_ID)
                     ->where('noPeople', Validation::INTEGER_ID);
+                
+                Route::get('/all', 'OfficeController@getAll')
+                    ->name('all');
             });
 
         Route::prefix('drivers')

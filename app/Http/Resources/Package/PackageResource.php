@@ -31,7 +31,7 @@ class PackageResource extends JsonResource
             'pickupAddress' => AddressResource::make($this->whenLoaded('pickupAddress')),
             'arrivalAddress' => AddressResource::make($this->whenLoaded('arrivalAddress')),
             'request' => RequestResource::make($this->whenLoaded('request')),
-            'driverPackageSchedule' => DriverPackageScheduleResource::make($this->whenLoaded('driverPackageSchedule'))
+            'driverPackageSchedule' => DriverPackageScheduleResource::make($this->whenLoaded('driverPackageSchedule')),
         ];
     }
 }

@@ -19,22 +19,10 @@ class StoreRequestDriverRequest extends FormRequest implements ReturnDtoInterfac
 
     public function rules(): array
     {
-        return [
-            'requestDriver.pickupAddress.street' => ['required', 'min:5', 'max:150'],
-            'requestDriver.pickupAddress.numExt' => ['required', 'min:1', 'max:50'],
-            'requestDriver.pickupAddress.numInt' => ['nullable', 'min:1', 'max:50'],
-            'requestDriver.pickupAddress.suburb' => ['required', 'min:5', 'max:120'],
-            'requestDriver.pickupAddress.postalCode' => ['required', 'min:3', 'max:25'],
-            'requestDriver.pickupAddress.state' => ['min:3', 'max:100'],
-            'requestDriver.pickupAddress.countryId' => ['required', 'integer'],
+        $rulesArray = [
+            'requestDriver.pickupAddress.isExternal' => ['required', 'boolean', 'bail'],
 
-            'requestDriver.arrivalAddress.street' => ['required', 'min:5', 'max:150'],
-            'requestDriver.arrivalAddress.numExt' => ['required', 'min:1', 'max:50'],
-            'requestDriver.arrivalAddress.numInt' => ['nullable', 'min:1', 'max:50'],
-            'requestDriver.arrivalAddress.suburb' => ['min:5', 'max:120'],
-            'requestDriver.arrivalAddress.postalCode' => ['min:3', 'max:25'],
-            'requestDriver.arrivalAddress.state' => ['min:3', 'max:100'],
-            'requestDriver.arrivalAddress.countryId' => ['required', 'integer'],
+            'requestDriver.arrivalAddress.isExternal' => ['required', 'boolean', 'bail'],
 
             'title' => ['required', 'string', 'min:3', 'max: 100'],
             'startDate' => ['required', 'date', 'date_format:Y-m-d H:i', 'after:now'],
@@ -45,6 +33,41 @@ class StoreRequestDriverRequest extends FormRequest implements ReturnDtoInterfac
 
             'requestDriver.officeId' => ['required', 'integer']
         ];
+
+        if ($this->requestDriver['pickupAddress']['isExternal']) {
+            $rulesArray = array_merge($rulesArray, [
+                'requestDriver.pickupAddress.street' => ['required', 'min:5', 'max:150'],
+                'requestDriver.pickupAddress.numExt' => ['required', 'min:1', 'max:50'],
+                'requestDriver.pickupAddress.numInt' => ['nullable', 'min:1', 'max:50'],
+                'requestDriver.pickupAddress.suburb' => ['required', 'min:5', 'max:120'],
+                'requestDriver.pickupAddress.postalCode' => ['required', 'min:3', 'max:25'],
+                'requestDriver.pickupAddress.state' => ['min:3', 'max:100'],
+                'requestDriver.pickupAddress.countryId' => ['required', 'integer'],
+            ]);
+        }else {
+            $rulesArray = array_merge($rulesArray, [
+                'requestDriver.pickupAddressId' => ['required', 'integer']
+            ]);
+        }
+
+        if ($this->requestDriver['arrivalAddress']['isExternal']) {
+            $rulesArray = array_merge($rulesArray, [
+                
+                'requestDriver.arrivalAddress.street' => ['required', 'min:5', 'max:150'],
+                'requestDriver.arrivalAddress.numExt' => ['required', 'min:1', 'max:50'],
+                'requestDriver.arrivalAddress.numInt' => ['nullable', 'min:1', 'max:50'],
+                'requestDriver.arrivalAddress.suburb' => ['min:5', 'max:120'],
+                'requestDriver.arrivalAddress.postalCode' => ['min:3', 'max:25'],
+                'requestDriver.arrivalAddress.state' => ['min:3', 'max:100'],
+                'requestDriver.arrivalAddress.countryId' => ['required', 'integer'],
+            ]);
+        }else {
+            $rulesArray = array_merge($rulesArray, [
+                'requestDriver.arrivalAddressId' => ['required', 'integer']
+            ]);
+        }
+
+        return $rulesArray;
     }
     
     public function attributes(): array
@@ -57,6 +80,7 @@ class StoreRequestDriverRequest extends FormRequest implements ReturnDtoInterfac
             'requestDriver.pickupAddress.postalCode' => 'Código postal origen',
             'requestDriver.pickupAddress.state' => 'Estado origen',
             'requestDriver.pickupAddress.countryId' => 'País origen',
+            'requestDriver.pickupAddress.isExternal' => 'Dirección de salida externa',
 
             'requestDriver.arrivalAddress.street' => 'Calle destino',
             'requestDriver.arrivalAddress.numExt' => 'Número exterior destino',
@@ -65,6 +89,7 @@ class StoreRequestDriverRequest extends FormRequest implements ReturnDtoInterfac
             'requestDriver.arrivalAddress.postalCode' => 'Código postal destino',
             'requestDriver.arrivalAddress.state' => 'Estado destino',
             'requestDriver.arrivalAddress.countryId' => 'País destino',
+            'requestDriver.arrivalAddress.isExternal' => 'Dirección de llegada externa',
 
             'title' => 'Título',
             'startDate' => 'Fecha de salida',
@@ -73,7 +98,10 @@ class StoreRequestDriverRequest extends FormRequest implements ReturnDtoInterfac
             'comment' => 'Comentarios',
             'addGoogleCalendar' => 'Añadir a Google Calendar',
 
-            'requestDriver.officeId' => 'Oficina'
+            'requestDriver.officeId' => 'Oficina',
+
+            'requestDriver.pickupAddressId' =>  'ID dirección de salida',
+            'requestDriver.arrivalAddressId' =>  'ID dirección llegada',
         ];
     }
 
@@ -116,7 +144,9 @@ class StoreRequestDriverRequest extends FormRequest implements ReturnDtoInterfac
             'request' => $requestDTO,
             'pickupAddress' => $pickupAddressDTO,
             'arrivalAddress' => $arrivalAddressDTO,
-            'office_id' => $this->requestDriver['officeId']
+            'office_id' => $this->requestDriver['officeId'],
+            'pickup_address_id' => $this->requestDriver['pickupAddressId'],
+            'arrival_address_id' => $this->requestDriver['arrivalAddressId']
         ]);
     }
 }
