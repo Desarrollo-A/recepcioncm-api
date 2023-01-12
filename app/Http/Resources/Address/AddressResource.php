@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Address;
 
 use App\Http\Resources\Lookup\LookupResource;
+use App\Http\Resources\Office\OfficeResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class AddressResource extends JsonResource
@@ -18,7 +19,8 @@ class AddressResource extends JsonResource
             'postalCode' => $this->postal_code,
             'state' => $this->state,
             'countryId' => $this->country_id,
-            'country' => LookupResource::make($this->whenLoaded('country'))
+            'country' => LookupResource::make($this->whenLoaded('country')),
+            'office' => OfficeResource::make($this->whenLoaded('office')),
         ];
     }
 }

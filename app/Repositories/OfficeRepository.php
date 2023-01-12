@@ -141,4 +141,11 @@ class OfficeRepository extends BaseRepository implements OfficeRepositoryInterfa
             ->orderBy('name', 'ASC')
             ->get();
     }
+
+    public function getAll(): Collection
+    {
+        return $this->entity
+            ->with('state')
+            ->get();
+    }
 }
