@@ -175,7 +175,8 @@ class RequestPackageController extends BaseApiController
 
     public function proposalRequest(ProposalPackageRequest $request): JsonResponse
     {
-        $this->requestPackageService->proposalRequest($request->toDTO());
+        $requestPackageProposal = $this->requestPackageService->proposalRequest($request->toDTO());
+        $this->notificationServiceInterface->proposalPackageRequestNotification($requestPackageProposal);
         return $this->noContentResponse();
     }
 
@@ -185,7 +186,8 @@ class RequestPackageController extends BaseApiController
     public function responseRejectRequest(int $requestId, ResponseRejectRequest $request): JsonResponse
     {
         $dto = $request->toDTO();
-        $this->requestPackageService->responseRejectRequest($requestId, $dto);
+        $request = $this->requestPackageService->responseRejectRequest($requestId, $dto);
+        $this->notificationServiceInterface->responseRejectRequestNotification($request);
         return $this->noContentResponse();
     }
 
