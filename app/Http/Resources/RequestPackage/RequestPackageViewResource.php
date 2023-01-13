@@ -18,7 +18,8 @@ class RequestPackageViewResource extends JsonResource
             'statusCode' => $this->status_code,
             'fullName' => $this->full_name,
             'statePickup' => $this->state_pickup,
-            'stateArrival' => $this->state_arrival
+            'stateArrival' => $this->state_arrival,
+            'driverId' => $this->driver_id
         ];
     }
 }

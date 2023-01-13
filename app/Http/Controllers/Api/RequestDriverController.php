@@ -32,6 +32,8 @@ class RequestDriverController extends BaseApiController
             ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
             ->only('transferRequest', 'approvedRequest');
+        $this->middleware('role.permission:'.NameRole::DRIVER)
+            ->only('findAllByDriverIdPaginated');
 
         $this->requestDriverService = $requestDriverService;
         $this->notificationService = $notificationService;
@@ -107,5 +109,11 @@ class RequestDriverController extends BaseApiController
         $request = $this->requestDriverService->approvedRequest($dto);
         $this->notificationService->approvedRequestDriverNotification($request);
         return $this->noContentResponse();
+    }
+
+    public function findAllByDriverIdPaginated(Request $request): JsonResponse
+    {
+        $requestDrivers = $this->requestDriverService->findAllByDriverIdPaginated($request, auth()->user());
+        return $this->showAll(new RequestDriverViewCollection($requestDrivers , true));
     }
 }
