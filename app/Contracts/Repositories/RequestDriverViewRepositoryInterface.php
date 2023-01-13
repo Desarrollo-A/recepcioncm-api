@@ -10,4 +10,7 @@ interface RequestDriverViewRepositoryInterface extends BaseRepositoryInterface
 {
     public function findAllDriversPaginated(array $filters, int $limit, User $user, string $sort = null,
                                              array $columns = ['*']): LengthAwarePaginator;
+
+    public function findAllByDriverIdPaginated(array $filters, int $limit, User $user, string $sort = null,
+                                            array $columns = ['*']): LengthAwarePaginator;
 }

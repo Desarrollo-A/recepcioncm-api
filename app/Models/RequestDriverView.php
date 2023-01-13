@@ -22,7 +22,8 @@ class RequestDriverView extends Model implements ScopeFilterInterface
         'start_date' => 'datetime',
         'end_date' => 'datetime',
         'office_id' => 'integer',
-        'request_driver_id' => 'integer'
+        'request_driver_id' => 'integer',
+        'driver_id' => 'integer'
     ];
 
     public function scopeFilter(Builder $query, array $params = []): Builder

@@ -277,4 +277,15 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
 
         return $request;
     }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function findAllByDriverIdPaginated(HttpRequest $request, User $user, array $columns = ['*']): LengthAwarePaginator
+    {
+        $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
+        $perPage = Validation::getPerPage($request->get(QueryParam::PAGINATION_KEY));
+        $sort = $request->get(QueryParam::ORDER_BY_KEY);
+        return $this->requestDriverViewRepository->findAllByDriverIdPaginated($filters, $perPage, $user, $sort);
+    }
 }

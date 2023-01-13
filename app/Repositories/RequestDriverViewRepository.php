@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Contracts\Repositories\RequestDriverViewRepositoryInterface;
 use App\Core\BaseRepository;
+use App\Models\Enums\Lookups\StatusDriverRequestLookup;
 use App\Models\RequestDriverView;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -28,6 +29,17 @@ class RequestDriverViewRepository extends BaseRepository implements RequestDrive
         return $this->entity
             ->filter($filters)
             ->filterOfficeOrUser($user)
+            ->applySort($sort)
+            ->paginate($limit, $columns);
+    }
+
+    public function findAllByDriverIdPaginated(array $filters, int $limit, User $user, string $sort = null,
+                                                      array $columns = ['*']): LengthAwarePaginator
+    {
+        return $this->entity
+            ->where('driver_id', $user->id)
+            ->where('status_code', StatusDriverRequestLookup::code(StatusDriverRequestLookup::APPROVED))
+            ->filter($filters)
             ->applySort($sort)
             ->paginate($limit, $columns);
     }
