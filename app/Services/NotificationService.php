@@ -19,6 +19,7 @@ use App\Models\Dto\RequestNotificationDTO;
 use App\Models\Enums\Lookups\ActionRequestNotificationLookup;
 use App\Models\Enums\Lookups\NotificationColorLookup;
 use App\Models\Enums\Lookups\NotificationIconLookup;
+use App\Models\Enums\Lookups\StatusPackageRequestLookup;
 use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\Enums\Lookups\TypeNotificationsLookup;
 use App\Models\Enums\NameRole;
@@ -285,6 +286,33 @@ class NotificationService extends BaseService implements NotificationServiceInte
         Utils::eventAlertNotification($notification);
     }
 
+    public function proposalPackageRequestNotification(Request $requestPackageProposal): void
+    {
+        $notification = $this->createRow("Propuesta de la solicitud de paquetería $requestPackageProposal->code",
+            $requestPackageProposal->user_id, TypeNotificationsLookup::PARCEL, NotificationColorLookup::ORANGE,
+            NotificationIconLookup::BOX);
+        $this->requestNotificationService->create($requestPackageProposal->id, $notification->id);
+        Utils::eventAlertNotification($notification);
+    }
+
+    public function responseRejectRequestNotification(Request $requestResponseReject): void
+    {
+        $messageNotification = '';
+        $colorNotification = '';
+        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($requestResponseReject->package->office_id)->id;
+        if($requestResponseReject->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::IN_REVIEW)){
+            $messageNotification = "Propuesta de la solicitud de paquetería $requestResponseReject->code fue aceptada";
+            $colorNotification = NotificationColorLookup::GREEN;
+        }else if($requestResponseReject->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::REJECTED)) {
+            $messageNotification = "Propuesta de la solicitud de paquetería $requestResponseReject->code fue rechazada";
+            $colorNotification = NotificationColorLookup::RED;
+        }
+        $notification = $this->createRow($messageNotification, $userId, TypeNotificationsLookup::PARCEL,
+            $colorNotification, NotificationIconLookup::BOX);
+        $this->requestNotificationService->create($requestResponseReject->id, $notification->id);
+        Utils::eventAlertNotification($notification);
+    }
+
     /**
      * @throws CustomErrorException
      */
@@ -404,6 +432,7 @@ class NotificationService extends BaseService implements NotificationServiceInte
         $this->requestNotificationService->create($request->id, $notification->id);
         Utils::eventAlertNotification($notification);
     }
+
 
     /**
      * @throws CustomErrorException

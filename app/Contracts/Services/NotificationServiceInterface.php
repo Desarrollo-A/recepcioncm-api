@@ -3,6 +3,7 @@
 namespace App\Contracts\Services;
 
 use App\Core\Contracts\BaseServiceInterface;
+use App\Models\Dto\RequestDTO;
 use App\Models\Inventory;
 use App\Models\Package;
 use App\Models\Request;
@@ -59,10 +60,14 @@ interface NotificationServiceInterface extends BaseServiceInterface
 
     public function deliveredPackageRequestNotification(Request $request): void;
 
+    public function proposalPackageRequestNotification(Request $requestPackageProposal): void;
+
+    public function responseRejectRequestNotification(Request $request): void;
+
     public function createRequestDriverNotification(RequestDriver $requestDriver): void;
 
     public function deleteRequestDriverNotification(RequestDriver $requestDriver): void;
-
+    
     /**
      * @param User|Authenticatable $user
      */
