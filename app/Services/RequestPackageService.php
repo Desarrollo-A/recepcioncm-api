@@ -37,6 +37,7 @@ use App\Models\Request;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request as HttpRequest;
@@ -498,5 +499,17 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $this->proposalRequestRepository->deleteByRequestId($requestId);
 
         return $this->requestRepository->update($requestId, $data);
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function findAllByDriverIdPaginated(HttpRequest $request, User $user, array $columns = ['*']):
+        LengthAwarePaginator
+    {
+        $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
+        $perPage = Validation::getPerPage($request->get(QueryParam::PAGINATION_KEY));
+        $sort = $request->get(QueryParam::ORDER_BY_KEY);
+        return $this->requestPackageViewRepository->findAllByDriverIdPaginated($filters, $perPage, $user, $sort);
     }
 }

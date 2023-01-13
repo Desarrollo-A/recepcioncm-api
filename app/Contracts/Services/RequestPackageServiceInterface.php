@@ -60,4 +60,10 @@ interface RequestPackageServiceInterface extends BaseServiceInterface
     public function proposalRequest(ProposalRequestDTO $dto): Request;
 
     public function responseRejectRequest(int $requestId, RequestDTO $dto): Request;
+
+    /**
+     * @param User|Authenticatable $user
+     */
+    public function findAllByDriverIdPaginated(HttpRequest $request, User $user,
+                                                       array $columns = ['*']): LengthAwarePaginator;
 }

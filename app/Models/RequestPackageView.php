@@ -20,7 +20,8 @@ class RequestPackageView extends Model implements ScopeFilterInterface
         'request_id' => 'integer',
         'start_date' => 'datetime',
         'office_id' => 'integer',
-        'package_id' => 'integer'
+        'package_id' => 'integer',
+        'driver_id' => 'integer'
     ];
 
     public function scopeFilter(Builder $query, array $params = []): Builder

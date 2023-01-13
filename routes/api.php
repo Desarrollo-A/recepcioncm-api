@@ -357,6 +357,9 @@ Route::prefix('v1')->group(function () {
                     ->where('officeId', Validation::INTEGER_ID)
                     ->where('date', Validation::DATE_REGEX);
 
+                Route::get('/driver', 'RequestPackageController@findAllByDriverIdPaginated')
+                    ->name('driver-paginated');
+
                 Route::post('/approved', 'RequestPackageController@approvedRequest')
                     ->name('approved');
 
@@ -393,6 +396,9 @@ Route::prefix('v1')->group(function () {
 
                 Route::get('/status/{code}', 'RequestDriverController@getStatusByStatusCurrent')
                     ->name('status-by-status-current');
+
+                Route::get('/driver', 'RequestDriverController@findAllByDriverIdPaginated')
+                    ->name('driver-paginated');
 
                 Route::post('/approved', 'RequestDriverController@approvedRequest')
                     ->name('approved');

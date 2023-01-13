@@ -40,6 +40,8 @@ class RequestPackageController extends BaseApiController
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
             ->only('transferRequest', 'getDriverSchedule', 'getPackagesByDriverId', 'onReadRequest',
                 'findAllByDateAndOffice', 'proposalRequest', 'approvedRequest', 'onRoad');
+        $this->middleware('role.permission:'.NameRole::DRIVER)
+            ->only('findAllByDriverIdPaginated');
         
         $this->requestPackageService = $requestPackageService;
         $this->notificationServiceInterface = $notificationServiceInterface;
@@ -185,5 +187,11 @@ class RequestPackageController extends BaseApiController
         $dto = $request->toDTO();
         $this->requestPackageService->responseRejectRequest($requestId, $dto);
         return $this->noContentResponse();
+    }
+
+    public function findAllByDriverIdPaginated(Request $request): JsonResponse
+    {
+        $requestPackages = $this->requestPackageService->findAllByDriverIdPaginated($request, auth()->user());
+        return $this->showAll(new RequestPackageViewCollection($requestPackages, true));
     }
 }
