@@ -38,12 +38,12 @@ class RequestPackageViewRepository extends BaseRepository implements RequestPack
                                                        array $columns = ['*']): LengthAwarePaginator
     {
         return $this->entity
+            ->filter($filters)
             ->where('driver_id', $user->id)
             ->whereIn('status_code', [
                 StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED),
                 StatusPackageRequestLookup::code(StatusPackageRequestLookup::ROAD),
             ])
-            ->filter($filters)
             ->applySort($sort)
             ->paginate($limit, $columns);
     }
