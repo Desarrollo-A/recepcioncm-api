@@ -74,7 +74,8 @@ class ViewsDefault
         [
             'path' => '/dashboard/solicitudes-asignadas',
             'submenus' => [
-                ['path' => '/paqueteria']
+                ['path' => '/paqueteria'],
+                ['path' =>  '/conductor']
             ]
         ],
         [
