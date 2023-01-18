@@ -37,9 +37,9 @@ class RequestDriverViewRepository extends BaseRepository implements RequestDrive
                                                       array $columns = ['*']): LengthAwarePaginator
     {
         return $this->entity
+            ->filter($filters)
             ->where('driver_id', $user->id)
             ->where('status_code', StatusDriverRequestLookup::code(StatusDriverRequestLookup::APPROVED))
-            ->filter($filters)
             ->applySort($sort)
             ->paginate($limit, $columns);
     }
