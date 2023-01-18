@@ -43,6 +43,7 @@ class SubmenuSeeder extends Seeder
         $this->createSubmenu('/paqueteria','Paquetería',2, $reportMenu);
 
         $this->createSubmenu('/paqueteria','Paquetería',1, $requestAssignsMenu);
+        $this->createSubmenu('/conductor', 'Chofer', 2, $requestAssignsMenu);
     }
 
     private function createSubmenu(string $pathRoute, string $label, int $order, int $menuId): void
