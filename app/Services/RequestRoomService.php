@@ -305,10 +305,10 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         $requestsProposalInDay = $this->proposalRequestRepository->roomsSetAsideByDay($date);
         $duration = $this->entityRepository->findById($requestId)->duration / 60;
         if ($requestsInDay->count() === 0 && $requestsProposalInDay->count() === 0) {
-            return collect(Utils::getAvailableSchedule($date->format('Y-m-d'), $duration));
+            return collect(Utils::getAvailableRoomSchedule($date->format('Y-m-d'), $duration));
         }
 
-        $schedule = Utils::getAvailableSchedule($date->format('Y-m-d'), $duration);
+        $schedule = Utils::getAvailableRoomSchedule($date->format('Y-m-d'), $duration);
         foreach($schedule as $index => $time) {
             foreach ($requestsInDay as $request) {
                 if ($this->isScheduleBusy($time, $request)) {

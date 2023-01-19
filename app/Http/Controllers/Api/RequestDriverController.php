@@ -8,6 +8,7 @@ use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\CancelRequest\CancelRequest;
 use App\Http\Requests\RequestDriver\ApprovedDriverRequest;
+use App\Http\Requests\RequestDriver\ProposalDriverRequest;
 use App\Http\Requests\RequestDriver\StoreRequestDriverRequest;
 use App\Http\Requests\RequestDriver\TransferDriverRequest;
 use App\Http\Requests\RequestDriver\UploadFileDriverRequest;
@@ -31,7 +32,7 @@ class RequestDriverController extends BaseApiController
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
             ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
-            ->only('transferRequest', 'approvedRequest');
+            ->only('transferRequest', 'approvedRequest', 'getBusyDaysForProposalCalendar');
 
         $this->requestDriverService = $requestDriverService;
         $this->notificationService = $notificationService;
@@ -106,6 +107,22 @@ class RequestDriverController extends BaseApiController
         $dto = $request->toDTO();
         $request = $this->requestDriverService->approvedRequest($dto);
         $this->notificationService->approvedRequestDriverNotification($request);
+        return $this->noContentResponse();
+    }
+
+    public function getBusyDaysForProposalCalendar(): JsonResponse
+    {
+        $data = $this->requestDriverService->getBusyDaysForProposalCalendar();
+        return $this->showAll($data);
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function proposalRequest(ProposalDriverRequest $request): JsonResponse
+    {
+        $dto = $request->toDTO();
+        $this->requestDriverService->proposalRequest($dto);
         return $this->noContentResponse();
     }
 }

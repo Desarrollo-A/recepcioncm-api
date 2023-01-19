@@ -326,6 +326,9 @@ Route::prefix('v1')->group(function () {
                     ->name('available-request')
                     ->where('officeId', Validation::INTEGER_ID);
 
+                Route::get('/proposal-request/{requestId}', 'DriverController@getAvailableDriversProposalRequest')
+                    ->name('proposal');
+
                 Route::post('/car', 'DriverController@insertDriverCar')
                     ->name('car');
         });
@@ -391,6 +394,9 @@ Route::prefix('v1')->group(function () {
                 Route::get('/status/{code}', 'RequestDriverController@getStatusByStatusCurrent')
                     ->name('status-by-status-current');
 
+                Route::get('/busy-days', 'RequestDriverController@getBusyDaysForProposalCalendar')
+                    ->name('busy-days');
+
                 Route::post('/approved', 'RequestDriverController@approvedRequest')
                     ->name('approved');
 
@@ -405,6 +411,9 @@ Route::prefix('v1')->group(function () {
                 Route::patch('/transfer/{requestDriverId}', 'RequestDriverController@transferRequest')
                     ->name('transfer')
                     ->where('requestDriverId', Validation::INTEGER_ID);
+
+                Route::patch('/proposal', 'RequestDriverController@proposalRequest')
+                    ->name('proposal');
             });
 
         Route::prefix('request-cars')

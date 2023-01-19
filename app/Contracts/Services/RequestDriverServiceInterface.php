@@ -29,4 +29,8 @@ interface RequestDriverServiceInterface extends BaseServiceInterface
     public function findByDriverRequestId(int $requestId, User $user): RequestDriver;
 
     public function approvedRequest(RequestDriverDTO $dto): Request;
+
+    public function getBusyDaysForProposalCalendar(): array;
+
+    public function proposalRequest(RequestDriverDTO $dto): void;
 }

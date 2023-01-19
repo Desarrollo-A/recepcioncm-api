@@ -6,6 +6,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\Resource;
+use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -53,8 +54,11 @@ trait ApiResponse
 
     /**
      * Función que retorna un JSON con un listado de registros
+     * @param ResourceCollection|Collection|array $collection
+     * @param int $code
+     * @return JsonResponse
      */
-    protected function showAll(ResourceCollection $collection, int $code = 200): JsonResponse
+    protected function showAll($collection, int $code = 200): JsonResponse
     {
         return $this->successResponse($collection, $code);
     }

@@ -23,7 +23,7 @@ class Utils
      * @param int|float $duration
      * @return array
      */
-    public static function getAvailableSchedule(string $date, $duration): array
+    public static function getAvailableRoomSchedule(string $date, $duration): array
     {
         $schedule = [];
         $condition = true;
@@ -61,6 +61,61 @@ class Utils
                 ];
 
                 if (intval($endDate->format('H')) === self::FINISH_WORKING_HOUR) {
+                    $condition = false;
+                } else {
+                    $datetimeReference->addMinutes(30);
+                }
+            }
+        }
+
+        return $schedule;
+    }
+
+    /**
+     * @param Carbon $startDate
+     * @param Carbon $endDate
+     * @param int|float $duration
+     * @return array
+     */
+    public static function getAvailableProposalDriverCarSchedule(Carbon $startDate, Carbon $endDate, $duration): array
+    {
+        $schedule = [];
+        $condition = true;
+        $datetimeReference = new Carbon($startDate->toDateString());
+        $endDatetimeReference = new Carbon("{$endDate->toDateString()} 23:30:00");
+
+        if (is_int($duration)) {
+            while($condition) {
+                $dateRef = new Carbon($datetimeReference);
+                $startDate = new Carbon($datetimeReference);
+                $endDate = new Carbon($dateRef->addHours($duration));
+
+                $schedule[] = [
+                    'start_time' => $startDate,
+                    'end_time' => $endDate
+                ];
+
+                if ($endDate->eq($endDatetimeReference)) {
+                    $condition = false;
+                } else {
+                    $datetimeReference->addMinutes(30);
+                }
+            }
+        }
+
+        if (is_float($duration)) {
+            $hours = $duration - .5;
+            while($condition) {
+                $dateRef = new Carbon($datetimeReference);
+                $startDate = new Carbon($datetimeReference);
+                $endDate = new Carbon($dateRef->addHours($hours)->addMinutes(30));
+
+                $schedule[] = [
+                    'start_time' => $startDate,
+                    'end_time' => $endDate
+                ];
+
+                if ($endDate->eq($endDatetimeReference)) {
                     $condition = false;
                 } else {
                     $datetimeReference->addMinutes(30);
