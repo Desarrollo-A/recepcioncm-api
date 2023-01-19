@@ -9,6 +9,7 @@ use App\Helpers\Validation;
 use App\Http\Requests\DriverCar\DriverCarRequest;
 use App\Http\Resources\Driver\DriverCollection;
 use App\Http\Resources\Driver\DriverResource;
+use App\Http\Resources\Driver\ProposalRequestDriverResource;
 use App\Models\Enums\NameRole;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -65,5 +66,15 @@ class DriverController extends BaseApiController
         $endDate = new Carbon(Validation::validateDate($request->get('end_date')));
         $drivers = $this->driverService->getAvailableDriversRequest($officeId, $startDate, $endDate);
         return $this->showAll(DriverResource::collection($drivers));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function getAvailableDriversProposalRequest(int $requestId, Request $request): JsonResponse
+    {
+        $date = new Carbon(Validation::validateDate($request->get('date')));
+        $drivers = $this->driverService->getAvailableDriversProposalRequest($requestId, $date);
+        return $this->showAll(ProposalRequestDriverResource::collection($drivers));
     }
 }
