@@ -257,7 +257,7 @@ Route::prefix('v1')->group(function () {
             ->name('home.')
             ->group(function () {
                 Route::get('/', 'HomeController@getAllDataHome')
-                    ->name('index');
+                    ->name('all-data');
             });
 
         Route::prefix('reports')
