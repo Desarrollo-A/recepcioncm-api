@@ -16,4 +16,6 @@ interface DriverRepositoryInterface extends BaseRepositoryInterface
     public function getAvailableDriversPackage(int $officeId, Carbon $date): Collection;
 
     public function getAvailableDriversRequest(int $officeId, Carbon $startDate, Carbon $endDate): Collection;
+
+    public function getAvailableDriverProposal(int $officeId, Carbon $startDate, Carbon $endDate): Collection;
 }

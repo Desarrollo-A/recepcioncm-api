@@ -39,4 +39,8 @@ interface RequestDriverServiceInterface extends BaseServiceInterface
      */
     public function findAllByDriverIdPaginated(HttpRequest $request, User $user, array $columns = ['*']):
         LengthAwarePaginator;
+
+    public function getBusyDaysForProposalCalendar(): array;
+
+    public function proposalRequest(RequestDriverDTO $dto): void;
 }

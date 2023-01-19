@@ -305,7 +305,7 @@ Route::prefix('v1')->group(function () {
                     ->name('state-car-without-office')
                     ->where('officeId', Validation::INTEGER_ID)
                     ->where('noPeople', Validation::INTEGER_ID);
-                
+
                 Route::get('/all', 'OfficeController@getAll')
                     ->name('all');
             });
@@ -328,6 +328,9 @@ Route::prefix('v1')->group(function () {
                 Route::get('/available-request/{officeId}', 'DriverController@getAvailableDriversRequest')
                     ->name('available-request')
                     ->where('officeId', Validation::INTEGER_ID);
+
+                Route::get('/proposal-request/{requestId}', 'DriverController@getAvailableDriversProposalRequest')
+                    ->name('proposal');
 
                 Route::post('/car', 'DriverController@insertDriverCar')
                     ->name('car');
@@ -400,6 +403,9 @@ Route::prefix('v1')->group(function () {
                 Route::get('/driver', 'RequestDriverController@findAllByDriverIdPaginated')
                     ->name('driver-paginated');
 
+                Route::get('/busy-days', 'RequestDriverController@getBusyDaysForProposalCalendar')
+                    ->name('busy-days');
+
                 Route::post('/approved', 'RequestDriverController@approvedRequest')
                     ->name('approved');
 
@@ -414,6 +420,9 @@ Route::prefix('v1')->group(function () {
                 Route::patch('/transfer/{requestDriverId}', 'RequestDriverController@transferRequest')
                     ->name('transfer')
                     ->where('requestDriverId', Validation::INTEGER_ID);
+
+                Route::patch('/proposal', 'RequestDriverController@proposalRequest')
+                    ->name('proposal');
             });
 
         Route::prefix('request-cars')
