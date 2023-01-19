@@ -32,7 +32,7 @@ class RequestDriverController extends BaseApiController
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
             ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
-            ->only('transferRequest', 'approvedRequest', 'getBusyDaysForProposalCalendar');
+            ->only('transferRequest', 'approvedRequest', 'getBusyDaysForProposalCalendar', 'proposalRequest');
         $this->middleware('role.permission:'.NameRole::DRIVER)
             ->only('findAllByDriverIdPaginated');
 
