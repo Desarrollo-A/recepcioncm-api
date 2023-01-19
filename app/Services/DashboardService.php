@@ -5,14 +5,14 @@ namespace App\Services;
 use App\Contracts\Repositories\DriverPackageScheduleRepositoryInterface;
 use App\Contracts\Repositories\InventoryRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
-use App\Contracts\Services\HomeServiceInterface;
+use App\Contracts\Services\DashboardServiceInterface;
 use App\Helpers\Utils;
 use App\Models\Enums\Lookups\StatusPackageRequestLookup;
 use App\Models\Enums\NameRole;
 use App\Models\User;
 use Illuminate\Support\Collection;
 
-class HomeService implements HomeServiceInterface
+class DashboardService implements DashboardServiceInterface
 {
     protected $inventoryRepository;
     protected $requestRepository;

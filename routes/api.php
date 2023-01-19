@@ -253,10 +253,10 @@ Route::prefix('v1')->group(function () {
                     ->name('summary-day');
             });
 
-        Route::prefix('home')
-            ->name('home.')
+        Route::prefix('dashboard')
+            ->name('dashboard.')
             ->group(function () {
-                Route::get('/', 'HomeController@getAllDataHome')
+                Route::get('/', 'DashboardController@getAllDataHome')
                     ->name('all-data');
             });
 
