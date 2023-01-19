@@ -57,6 +57,7 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
     {
         return $this->entity
             ->with('cars')
+            ->driverUser()
             ->join('car_driver', 'car_driver.driver_id', '=', 'users.id')
             ->join('lookups', 'lookups.id', '=', 'users.status_id')
             ->where('lookups.code', StatusUserLookup::code(StatusUserLookup::ACTIVE))
@@ -95,5 +96,40 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
                     });
             })
             ->get(['users.*']);
+    }
+
+    public function getAvailableDriverProposal(int $officeId, Carbon $startDate, Carbon $endDate): Collection
+    {
+        $subQuery = $this->entity
+            ->selectRaw("drs.request_driver_id, ds.driver_id, ds.start_date, ds.end_date")
+            ->from('driver_request_schedules AS drs')
+            ->join('driver_schedules AS ds', 'drs.driver_schedule_id', '=','DS.id')
+            ->where(function (Builder $query) use ($startDate, $endDate){
+                $query->whereDate('ds.start_date', '>=', $startDate)
+                    ->whereDate('ds.start_date', '<=', $endDate);
+            })
+            ->orWhereDate('ds.end_date', $startDate);
+
+        return $this->entity
+            ->driverUser()
+            ->select(['users.*','dd.start_date', 'dd.end_date'])
+            ->leftJoinSub($subQuery, 'dd', function ($join) {
+                $join->on('users.id', '=', 'dd.driver_id');
+            })
+            ->where('users.office_id', $officeId)
+            ->whereNotIn('users.id', function (QueryBuilder $query) use ($startDate, $endDate) {
+                return $query
+                    ->select('ds.driver_id')
+                    ->from('driver_package_schedules AS dps')
+                    ->join('driver_schedules AS ds','dps.driver_schedule_id','=','ds.id')
+                    ->where(function (QueryBuilder $query) use ($startDate, $endDate){
+                        $query->whereDate('ds.start_date', '>=', $startDate)
+                            ->whereDate('ds.start_date', '<=', $endDate);
+                    })
+                    ->orWhereDate('ds.end_date', $startDate);
+            })
+            ->orderBy('dd.start_date', 'ASC')
+            ->orderBy('users.id', 'ASC')
+            ->get();
     }
 }

@@ -288,4 +288,44 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
         $sort = $request->get(QueryParam::ORDER_BY_KEY);
         return $this->requestDriverViewRepository->findAllByDriverIdPaginated($filters, $perPage, $user, $sort);
     }
+
+    public function getBusyDaysForProposalCalendar(): array
+    {
+        $data = $this->driverRequestScheduleRepository->getBusyDaysForProposalCalendar()
+            ->map(function ($values) {
+                return ['start_date' => $values->start_date, 'end_date' => $values->end_date];
+            })
+            ->flatten()
+            ->map(function ($date) {
+                return "$date 00:00:00";
+            })
+            ->toArray();
+
+        return array_values(array_unique($data));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function proposalRequest(RequestDriverDTO $dto): void
+    {
+        $dto->request->status_id = $this->lookupRepository
+            ->findByCodeAndType(StatusDriverRequestLookup::code(StatusDriverRequestLookup::PROPOSAL),
+                TypeLookup::STATUS_DRIVER_REQUEST)
+            ->id;
+
+        $dto->driverRequestSchedule->request_driver_id = $this->entityRepository->findByRequestId($dto->request_id)->id;
+        $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id']));
+
+        $carSchedule = $this->carScheduleRepository
+            ->create($dto->driverRequestSchedule->carSchedule->toArray(['car_id', 'start_date', 'end_date']));
+
+        $driverSchedule = $this->driverScheduleRepository
+            ->create($dto->driverRequestSchedule->driverSchedule->toArray(['driver_id', 'start_date', 'end_date']));
+
+        $dto->driverRequestSchedule->driver_schedule_id = $driverSchedule->id;
+        $dto->driverRequestSchedule->car_schedule_id = $carSchedule->id;
+        $this->driverRequestScheduleRepository
+            ->create($dto->driverRequestSchedule->toArray(['request_driver_id', 'driver_schedule_id', 'car_schedule_id']));
+    }
 }
