@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Collection;
 
-interface HomeServiceInterface
+interface DashboardServiceInterface
 {
     /**
      * @param User|Authenticatable $user

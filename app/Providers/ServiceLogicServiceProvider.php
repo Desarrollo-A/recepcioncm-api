@@ -30,7 +30,7 @@ class ServiceLogicServiceProvider extends ServiceProvider
         'RequestPhoneNumberServiceInterface' => 'RequestPhoneNumberService',
         'ActionRequestNotificationServiceInterface' => 'ActionRequestNotificationService',
         'RequestNotificationServiceInterface' => 'RequestNotificationService',
-        'HomeServiceInterface' => 'HomeService',
+        'DashboardServiceInterface' => 'DashboardService',
         'InputOutputInventoryViewServiceInterface' => 'InputOutputInventoryViewService',
         'RequestEmailServiceInterface' => 'RequestEmailService',
         'ScoreServiceInterface' => 'ScoreService',

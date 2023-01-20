@@ -253,11 +253,11 @@ Route::prefix('v1')->group(function () {
                     ->name('summary-day');
             });
 
-        Route::prefix('home')
-            ->name('home.')
+        Route::prefix('dashboard')
+            ->name('dashboard.')
             ->group(function () {
-                Route::get('/', 'HomeController@getAllDataHome')
-                    ->name('index');
+                Route::get('/', 'DashboardController@getAllDataHome')
+                    ->name('all-data');
             });
 
         Route::prefix('reports')
@@ -423,6 +423,10 @@ Route::prefix('v1')->group(function () {
 
                 Route::patch('/proposal', 'RequestDriverController@proposalRequest')
                     ->name('proposal');
+
+                Route::patch('/response-reject/{requestId}', 'RequestDriverController@responseRejectRequest')
+                    ->name('response-reject')
+                    ->where('id', Validation::INTEGER_ID);
             });
 
         Route::prefix('request-cars')
