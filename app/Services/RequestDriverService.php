@@ -15,7 +15,6 @@ use App\Contracts\Services\CalendarServiceInterface;
 use App\Contracts\Services\RequestDriverServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
-use App\Helpers\Enum\Message;
 use App\Helpers\Enum\Path;
 use App\Helpers\Enum\QueryParam;
 use App\Helpers\File;
@@ -36,7 +35,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Symfony\Component\HttpFoundation\Response as HttpCodes;
-use Symfony\Component\HttpFoundation\Response;
 
 class RequestDriverService extends BaseService implements RequestDriverServiceInterface
 {
@@ -162,25 +160,26 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
                         StatusDriverRequestLookup::code(StatusDriverRequestLookup::APPROVED),
                         StatusDriverRequestLookup::code(StatusDriverRequestLookup::TRANSFER),
                         StatusDriverRequestLookup::code(StatusDriverRequestLookup::CANCELLED)
-                    ], TypeLookup::STATUS_PACKAGE_REQUEST);
+                    ], TypeLookup::STATUS_DRIVER_REQUEST);
                     break;
                 case StatusDriverRequestLookup::code(StatusDriverRequestLookup::APPROVED):
                     $status = $this->lookupRepository->findByCodeWhereInAndType([
                         StatusDriverRequestLookup::code(StatusDriverRequestLookup::CANCELLED)
-                    ], TypeLookup::STATUS_PACKAGE_REQUEST);
+                    ], TypeLookup::STATUS_DRIVER_REQUEST);
                     break;
             }
         } else if ($roleName === NameRole::APPLICANT) {
             switch ($code) {
                 case StatusDriverRequestLookup::code(StatusDriverRequestLookup::PROPOSAL):
                     $status = $this->lookupRepository->findByCodeWhereInAndType([
-                        StatusDriverRequestLookup::code(StatusDriverRequestLookup::REJECTED)
-                    ], TypeLookup::STATUS_PACKAGE_REQUEST);
+                        StatusDriverRequestLookup::code(StatusDriverRequestLookup::REJECTED),
+                        StatusDriverRequestLookup::code(StatusDriverRequestLookup::ACCEPTED)
+                    ], TypeLookup::STATUS_DRIVER_REQUEST);
                     break;
                 case StatusDriverRequestLookup::code(StatusDriverRequestLookup::APPROVED):
                     $status = $this->lookupRepository->findByCodeWhereInAndType([
                         StatusDriverRequestLookup::code(StatusDriverRequestLookup::CANCELLED)
-                    ], TypeLookup::STATUS_PACKAGE_REQUEST);
+                    ], TypeLookup::STATUS_DRIVER_REQUEST);
                     break;
             }
         }
@@ -327,5 +326,35 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
         $dto->driverRequestSchedule->car_schedule_id = $carSchedule->id;
         $this->driverRequestScheduleRepository
             ->create($dto->driverRequestSchedule->toArray(['request_driver_id', 'driver_schedule_id', 'car_schedule_id']));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function responseRejectRequest(int $requestId, RequestDTO $dto): Request
+    {
+        $proposalStatusId = $this->lookupRepository->findByCodeAndType(StatusDriverRequestLookup::code(
+            StatusDriverRequestLookup::PROPOSAL), TypeLookup::STATUS_DRIVER_REQUEST)->id;
+        $request = $this->requestRepository->findById($requestId);
+
+        if ($request->status_id !== $proposalStatusId) {
+            throw new CustomErrorException('La solicitud debe de estar en estatus '.StatusDriverRequestLookup::PROPOSAL,
+                HttpCodes::HTTP_BAD_REQUEST);
+        }
+
+        $statusCode = ($dto->status->code === StatusDriverRequestLookup::code(StatusDriverRequestLookup::ACCEPTED))
+            ? StatusDriverRequestLookup::code(StatusDriverRequestLookup::APPROVED)
+            : $dto->status->code;
+        $dto->status = $this->lookupRepository->findByCodeAndType($statusCode, TypeLookup::STATUS_DRIVER_REQUEST);
+        $dto->status_id = $dto->status->id;
+
+        if ($dto->status->code === StatusDriverRequestLookup::code(StatusDriverRequestLookup::REJECTED)) {
+            $requestDriver = $this->entityRepository->findByRequestId($requestId);
+            $this->driverRequestScheduleRepository->deleteByRequestDriverId($requestDriver->id);
+            $this->carScheduleRepository->delete($requestDriver->driverRequestSchedule->carSchedule->id);
+            $this->driverScheduleRepository->delete($requestDriver->driverRequestSchedule->driverSchedule->id);
+        }
+
+        return $this->requestRepository->update($requestId, $dto->toArray(['status_id']))->fresh(['status']);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Contracts\Services;
 use App\Core\Contracts\BaseServiceInterface;
 use App\Models\Dto\CancelRequestDTO;
 use App\Models\Dto\RequestDriverDTO;
+use App\Models\Dto\RequestDTO;
 use App\Models\Request;
 use App\Models\RequestDriver;
 use App\Models\User;
@@ -43,4 +44,6 @@ interface RequestDriverServiceInterface extends BaseServiceInterface
     public function getBusyDaysForProposalCalendar(): array;
 
     public function proposalRequest(RequestDriverDTO $dto): void;
+
+    public function responseRejectRequest(int $requestId, RequestDTO $dto): Request;
 }

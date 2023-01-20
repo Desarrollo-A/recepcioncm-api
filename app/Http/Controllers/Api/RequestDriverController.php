@@ -7,6 +7,7 @@ use App\Contracts\Services\RequestDriverServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\CancelRequest\CancelRequest;
+use App\Http\Requests\Request\ResponseRejectRequest;
 use App\Http\Requests\RequestDriver\ApprovedDriverRequest;
 use App\Http\Requests\RequestDriver\ProposalDriverRequest;
 use App\Http\Requests\RequestDriver\StoreRequestDriverRequest;
@@ -28,7 +29,7 @@ class RequestDriverController extends BaseApiController
                                 NotificationServiceInterface $notificationService)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
-            ->only('store', 'uploadAuthorizationFile');
+            ->only('store', 'uploadAuthorizationFile', 'responseRejectRequest');
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
             ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
@@ -131,6 +132,16 @@ class RequestDriverController extends BaseApiController
     {
         $dto = $request->toDTO();
         $this->requestDriverService->proposalRequest($dto);
+        return $this->noContentResponse();
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function responseRejectRequest(int $requestId, ResponseRejectRequest $request): JsonResponse
+    {
+        $dto = $request->toDTO();
+        $this->requestDriverService->responseRejectRequest($requestId, $dto);
         return $this->noContentResponse();
     }
 }

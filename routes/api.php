@@ -423,6 +423,10 @@ Route::prefix('v1')->group(function () {
 
                 Route::patch('/proposal', 'RequestDriverController@proposalRequest')
                     ->name('proposal');
+
+                Route::patch('/response-reject/{requestId}', 'RequestDriverController@responseRejectRequest')
+                    ->name('response-reject')
+                    ->where('id', Validation::INTEGER_ID);
             });
 
         Route::prefix('request-cars')
