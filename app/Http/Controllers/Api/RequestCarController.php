@@ -29,7 +29,7 @@ class RequestCarController extends BaseApiController
                                 NotificationServiceInterface $notificationService)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
-            ->only('store', 'uploadAuthorizationFile', 'deleteRequestCar');
+            ->only('store', 'uploadAuthorizationFile', 'deleteRequestCar', 'responseRejectRequest');
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
             ->only('index', 'store', 'uploadAuthorizationFile', 'show', 'cancelRequest', 'getStatusByStatusCurrent');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
