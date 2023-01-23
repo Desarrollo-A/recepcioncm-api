@@ -4,6 +4,7 @@ namespace App\Contracts\Repositories;
 
 use App\Core\Contracts\BaseRepositoryInterface;
 use App\Models\CarRequestSchedule;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * @method CarRequestSchedule create(array $data)
@@ -11,4 +12,6 @@ use App\Models\CarRequestSchedule;
 interface CarRequestScheduleRepositoryInterface extends BaseRepositoryInterface
 {
     public function deleteByRequestCarId(int $requestCarId): void;
+
+    public function getBusyDaysForProposalCalendar(): Collection;
 }

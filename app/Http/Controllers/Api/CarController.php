@@ -13,6 +13,7 @@ use App\Http\Requests\Car\StoreCarRequest;
 use App\Http\Requests\Car\UpdateCarRequest;
 use App\Http\Resources\Car\CarCollection;
 use App\Http\Resources\Car\CarResource;
+use App\Http\Resources\Car\ProposalRequestCarResource;
 use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
 use Carbon\Carbon;
@@ -123,5 +124,15 @@ class CarController extends BaseApiController
         $startDate = new Carbon(Validation::validateDate($request->get('start_date')));
         $cars = $this->carService->getAvailableCarsInRequestPackage($driverId, $startDate);
         return $this->showAll(CarResource::collection($cars));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function getAvailableCarsProposalRequest(int $requestId, Request $request): JsonResponse
+    {
+        $date = new Carbon(Validation::validateDate($request->get('date')));
+        $cars = $this->carService->getAvailableCarsProposalRequest($requestId, $date);
+        return $this->showAll(ProposalRequestCarResource::collection($cars));
     }
 }

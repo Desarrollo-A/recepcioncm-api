@@ -8,6 +8,7 @@ use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\CancelRequest\CancelRequest;
 use App\Http\Requests\RequestCar\ApprovedCarRequest;
+use App\Http\Requests\RequestCar\ProposalCarRequest;
 use App\Http\Requests\RequestCar\StoreRequestCarRequest;
 use App\Http\Requests\RequestCar\TransferCarRequest;
 use App\Http\Requests\RequestCar\UploadFileRequestCarRequest;
@@ -31,7 +32,7 @@ class RequestCarController extends BaseApiController
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
             ->only('index', 'store', 'uploadAuthorizationFile', 'show', 'cancelRequest', 'getStatusByStatusCurrent');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
-            ->only('transferRequest', 'approvedRequest');
+            ->only('transferRequest', 'approvedRequest', 'getBusyDaysForProposalCalendar', 'proposalRequest');
         $this->requestCarService = $requestCarService;
         $this->notificationService = $notificationService;
     }
@@ -110,6 +111,22 @@ class RequestCarController extends BaseApiController
         $dto = $request->toDTO();
         $requestCar= $this->requestCarService->approvedRequest($dto);
         $this->notificationService->approvedRequestCarNotification($requestCar);
+        return $this->noContentResponse();
+    }
+
+    public function getBusyDaysForProposalCalendar(): JsonResponse
+    {
+        $data = $this->requestCarService->getBusyDaysForProposalCalendar();
+        return $this->showAll($data);
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function proposalRequest(ProposalCarRequest $request): JsonResponse
+    {
+        $dto = $request->toDTO();
+        $this->requestCarService->proposalRequest($dto);
         return $this->noContentResponse();
     }
 }

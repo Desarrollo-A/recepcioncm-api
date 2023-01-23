@@ -31,20 +31,11 @@ class DriverRequestScheduleRepository extends BaseRepository implements DriverRe
 
     public function getBusyDaysForProposalCalendar(): Collection
     {
-        $q = $this->entity
-            ->selectRaw('DISTINCT CAST(ds.start_date AS DATE) AS start_date, CAST(ds.end_date AS DATE) AS end_date')
-            ->from('driver_request_schedules AS drs')
-            ->join('driver_schedules AS ds', 'drs.driver_schedule_id', '=', 'ds.id')
-            ->whereDate('ds.start_date', '>=', now())
-            ->whereDate('ds.end_date', '>=', now());
-
         return $this->entity
             ->selectRaw('DISTINCT CAST(ds.start_date AS DATE) AS start_date, CAST(ds.end_date AS DATE) AS end_date')
-            ->from('driver_package_schedules AS dps')
-            ->join('driver_schedules AS ds', 'dps.driver_schedule_id', '=', 'ds.id')
+            ->from('driver_schedules AS ds')
             ->whereDate('ds.start_date', '>=', now())
             ->whereDate('ds.end_date', '>=', now())
-            ->union($q)
             ->get();
     }
 }
