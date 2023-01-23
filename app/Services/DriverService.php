@@ -102,7 +102,7 @@ class DriverService extends BaseService implements DriverServiceInterface
             $endDateSelected = $dateSelected->addDays($diffInDaysStartDate);
         }
 
-        $availableSchedules = Utils::getAvailableProposalDriverCarSchedule($dateSelected, $endDateSelected, $diffInMinutes);
+        $availableSchedulesReference = Utils::getAvailableProposalDriverCarSchedule($dateSelected, $endDateSelected, $diffInMinutes);
 
         $drivers = $this->entityRepository
             ->getAvailableDriverProposal($requestDriver->office_id, $dateSelected, $endDateSelected)->toArray();
@@ -110,6 +110,7 @@ class DriverService extends BaseService implements DriverServiceInterface
 
         foreach ($drivers as $i => $driver) {
             $driverBusy[] = $driver;
+            $availableSchedules = $availableSchedulesReference;
             if ($i+1 < count($drivers) && $drivers[$i+1]['id'] === $driver['id']) {
                 continue;
             }

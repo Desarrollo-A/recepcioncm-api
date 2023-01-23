@@ -120,6 +120,9 @@ Route::prefix('v1')->group(function () {
                     ->name('available-package-request')
                     ->where('driverId', Validation::INTEGER_ID);
 
+                Route::get('/proposal-request/{requestId}', 'CarController@getAvailableCarsProposalRequest')
+                    ->name('proposal');
+
                 Route::patch('/change-status/{id}', 'CarController@changeStatus')
                     ->name('change-status')
                     ->where('id', Validation::INTEGER_ID);
@@ -439,6 +442,9 @@ Route::prefix('v1')->group(function () {
                 Route::get('/status/{code}', 'RequestCarController@getStatusByStatusCurrent')
                     ->name('status-by-status-current');
 
+                Route::get('/busy-days', 'RequestCarController@getBusyDaysForProposalCalendar')
+                    ->name('busy-days');
+
                 Route::post('/approved', 'RequestCarController@approvedRequest')
                     ->name('approved');
 
@@ -453,6 +459,9 @@ Route::prefix('v1')->group(function () {
                 Route::patch('/cancel/{requestId}', 'RequestCarController@cancelRequest')
                     ->name('cancel-request-package')
                     ->where('requestId', Validation::INTEGER_ID);
+
+                Route::patch('/proposal', 'RequestCarController@proposalRequest')
+                    ->name('proposal');
 
                 Route::delete('/{requestId}', 'RequestCarController@deleteRequestCar')
                     ->name('delete')

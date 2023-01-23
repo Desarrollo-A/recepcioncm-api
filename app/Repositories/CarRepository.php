@@ -218,4 +218,34 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
             })
             ->get();
     }
+
+    public function getAvailableRequestCarProposalByOfficeId(int $officeId, Carbon $startDate, Carbon $endDate): Collection
+    {
+        $subQuery = $this->entity
+            ->selectRaw("cs.id AS car_sche_id, cs.car_id, cs.start_date, cs.end_date")
+            ->from('car_schedules AS cs')
+            ->leftJoin('car_request_schedules AS crs', 'cs.id', '=', 'crs.car_schedule_id')
+            ->leftJoin('driver_request_schedules AS drs','cs.id', '=', 'drs.car_schedule_id')
+            ->where(function (Builder $query) use ($startDate, $endDate){
+                $query->whereDate('cs.start_date', '>=', $startDate)
+                    ->whereDate('cs.start_date', '<=', $endDate);
+            })
+            ->orWhereDate('cs.end_date', $startDate);
+
+        return $this->entity
+            ->select(['cars.*', 'cd.driver_id', 'dc.start_date', 'dc.end_date'])
+            ->leftJoin('car_driver AS cd', 'cars.id', '=', 'cd.car_id')
+            ->leftJoinSub($subQuery, 'dc', function ($join) {
+                $join->on('cars.id', '=', 'dc.car_id');
+            })
+            ->where('cars.office_id', $officeId)
+            ->where(function (Builder $query) use ($officeId) {
+                $query->whereNotIn('dc.car_sche_id', function (QueryBuilder $query) {
+                    return $query
+                        ->select('car_schedule_id')
+                        ->from('driver_package_schedules');
+                })->orWhereNull('dc.car_sche_id');
+            })
+            ->get();
+    }
 }
