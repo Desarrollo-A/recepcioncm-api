@@ -18,7 +18,7 @@ class NotificationController extends BaseApiController
                                 ActionRequestNotificationServiceInterface $actionRequestNotificationService)
     {
         $this->middleware('role.permission:' . NameRole::ADMIN . ','
-            . NameRole::APPLICANT . ',' . NameRole::RECEPCIONIST)
+            . NameRole::APPLICANT . ',' . NameRole::RECEPCIONIST.','.NameRole::DRIVER)
             ->only('getAllNotificationUnread', 'readNotification', 'readAllNotification',
                 'existUnreadNotifications', 'show');
         $this->middleware('role.permission:' . NameRole::APPLICANT)

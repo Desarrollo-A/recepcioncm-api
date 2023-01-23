@@ -36,7 +36,9 @@ class RequestPackageController extends BaseApiController
         $this->middleware('role.permission:'.NameRole::APPLICANT)
             ->only('store', 'uploadAuthorizationFile', 'responseRejectRequest');
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
-            ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest', 'showExposedPackage');
+            ->only('index', 'cancelRequest', 'showExposedPackage');
+        $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST.','.NameRole::DRIVER)
+            ->only('show', 'getStatusByStatusCurrent');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
             ->only('transferRequest', 'getDriverSchedule', 'getPackagesByDriverId', 'onReadRequest',
                 'findAllByDateAndOffice', 'proposalRequest', 'approvedRequest', 'onRoad');
@@ -127,7 +129,7 @@ class RequestPackageController extends BaseApiController
     {
         $dto = $request->toDTO();
         $packageApproved = $this->requestPackageService->approvedRequest($dto);
-        $this->notificationServiceInterface->approvedPackageRequestNotification($packageApproved);
+        $this->notificationServiceInterface->approvedPackageRequestNotification($packageApproved, $dto->driverPackageSchedule->driverSchedule->driver_id);
         return $this->noContentResponse();
     }
 
