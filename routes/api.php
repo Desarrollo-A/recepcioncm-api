@@ -466,6 +466,10 @@ Route::prefix('v1')->group(function () {
                 Route::delete('/{requestId}', 'RequestCarController@deleteRequestCar')
                     ->name('delete')
                     ->where('requestId', validation::INTEGER_ID);
+
+                Route::patch('/response-reject/{requestId}', 'RequestCarController@responseRejectRequest')
+                    ->name('response-reject')
+                    ->where('id', Validation::INTEGER_ID);
             });
 
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');
