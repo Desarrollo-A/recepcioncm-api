@@ -28,4 +28,6 @@ interface CarRepositoryInterface extends BaseRepositoryInterface
     public function getAvailableCarsInRequestPackage(User $driver, Carbon $startDate, int $totalAssignments): Collection;
 
     public function getAvailableRequestDriverProposalByDriverId(int $driverId, int $officeId, Carbon $startDate, Carbon $endDate): Collection;
+
+    public function getAvailableRequestCarProposalByOfficeId(int $officeId, Carbon $startDate, Carbon $endDate): Collection;
 }
