@@ -254,13 +254,20 @@ class NotificationService extends BaseService implements NotificationServiceInte
     /**
      * @throws CustomErrorException
      */
-    public function approvedPackageRequestNotification(Package $package): void
+    public function approvedPackageRequestNotification(Package $package, int $driverId = null): void
     {
         $notification = $this->createRow("La solicitud de paquetería {$package->request->code} fue aprobada",
             $package->request->user_id, TypeNotificationsLookup::PARCEL, NotificationColorLookup::GREEN,
             NotificationIconLookup::TRUCK);
         $this->requestNotificationService->create($package->request->id, $notification->id);
         Utils::eventAlertNotification($notification);
+
+        if (!is_null($driverId)) {
+            $notification = $this->createRow("La solicitud de paquetería {$package->request->code} fue aprobada",
+                $driverId, TypeNotificationsLookup::PARCEL, NotificationColorLookup::GREEN, NotificationIconLookup::TRUCK);
+            $this->requestNotificationService->create($package->request->id, $notification->id);
+            Utils::eventAlertNotification($notification);
+        }
     }
 
     /**
@@ -365,12 +372,19 @@ class NotificationService extends BaseService implements NotificationServiceInte
     /**
      * @throws CustomErrorException
      */
-    public function approvedRequestDriverNotification(Request $request): void
+    public function approvedRequestDriverNotification(Request $request, int $driverId = null): void
     {
         $notification = $this->createRow("La solicitud de chofer $request->code fue aprobada", $request->user_id,
             TypeNotificationsLookup::DRIVER, NotificationColorLookup::GREEN, NotificationIconLookup::DRIVER);
         $this->requestNotificationService->create($request->id, $notification->id);
         Utils::eventAlertNotification($notification);
+
+        if (!is_null($driverId)) {
+            $notification = $this->createRow("La solicitud de chofer $request->code fue aprobada", $driverId,
+                TypeNotificationsLookup::DRIVER, NotificationColorLookup::GREEN, NotificationIconLookup::DRIVER);
+            $this->requestNotificationService->create($request->id, $notification->id);
+            Utils::eventAlertNotification($notification);
+        }
     }
 
     /**

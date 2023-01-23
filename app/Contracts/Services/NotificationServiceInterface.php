@@ -54,7 +54,7 @@ interface NotificationServiceInterface extends BaseServiceInterface
 
     public function transferPackageRequestNotification(Package $package): void;
 
-    public function approvedPackageRequestNotification(Package $package): void;
+    public function approvedPackageRequestNotification(Package $package, int $driverId = null): void;
 
     public function onRoadPackageRequestNotification(Request $request): void;
 
@@ -75,7 +75,7 @@ interface NotificationServiceInterface extends BaseServiceInterface
 
     public function transferRequestDriverNotification(RequestDriver $requestDriver): void;
 
-    public function approvedRequestDriverNotification(Request $request): void;
+    public function approvedRequestDriverNotification(Request $request, int $driverId = null): void;
 
     public function createRequestCarNotification(RequestCar $requestCar): void;
 

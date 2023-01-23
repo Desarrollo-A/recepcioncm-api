@@ -32,6 +32,8 @@ class RequestDriverController extends BaseApiController
             ->only('store', 'uploadAuthorizationFile', 'responseRejectRequest');
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
             ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest');
+        $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST.','.NameRole::DRIVER)
+            ->only( 'show');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
             ->only('transferRequest', 'approvedRequest', 'getBusyDaysForProposalCalendar', 'proposalRequest');
         $this->middleware('role.permission:'.NameRole::DRIVER)
@@ -109,7 +111,7 @@ class RequestDriverController extends BaseApiController
     {
         $dto = $request->toDTO();
         $request = $this->requestDriverService->approvedRequest($dto);
-        $this->notificationService->approvedRequestDriverNotification($request);
+        $this->notificationService->approvedRequestDriverNotification($request, $dto->driverRequestSchedule->driverSchedule->driver_id);
         return $this->noContentResponse();
     }
 
