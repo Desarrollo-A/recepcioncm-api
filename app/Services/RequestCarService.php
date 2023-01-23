@@ -268,4 +268,40 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
 
         return $request;
     }
+
+    public function getBusyDaysForProposalCalendar(): array
+    {
+        $data = $this->carRequestScheduleRepository->getBusyDaysForProposalCalendar()
+            ->map(function ($values) {
+                return ['start_date' => $values->start_date, 'end_date' => $values->end_date];
+            })
+            ->flatten()
+            ->map(function ($date) {
+                return "$date 00:00:00";
+            })
+            ->toArray();
+
+        return array_values(array_unique($data));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function proposalRequest(RequestCarDTO $dto): void
+    {
+        $dto->request->status_id = $this->lookupRepository
+            ->findByCodeAndType(StatusCarRequestLookup::code(StatusCarRequestLookup::PROPOSAL),
+                TypeLookup::STATUS_CAR_REQUEST)
+            ->id;
+
+        $dto->carRequestSchedule->request_car_id = $this->entityRepository->findByRequestId($dto->request_id)->id;
+        $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id']));
+
+        $carSchedule = $this->carScheduleRepository
+            ->create($dto->carRequestSchedule->carSchedule->toArray(['car_id', 'start_date', 'end_date']));
+
+        $dto->carRequestSchedule->car_schedule_id = $carSchedule->id;
+        $this->carRequestScheduleRepository
+            ->create($dto->carRequestSchedule->toArray(['request_car_id', 'car_schedule_id']));
+    }
 }

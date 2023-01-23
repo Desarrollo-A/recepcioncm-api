@@ -41,4 +41,8 @@ interface RequestCarServiceInterface extends BaseServiceInterface
     public function cancelRequest(CancelRequestDTO $dto): Request;
 
     public function approvedRequest(RequestCarDTO $dto): Request;
+
+    public function getBusyDaysForProposalCalendar(): array;
+
+    public function proposalRequest(RequestCarDTO $dto): void;
 }
