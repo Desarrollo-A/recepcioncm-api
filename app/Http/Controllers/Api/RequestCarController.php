@@ -7,6 +7,7 @@ use App\Contracts\Services\RequestCarServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\CancelRequest\CancelRequest;
+use App\Http\Requests\Request\ResponseRejectRequest;
 use App\Http\Requests\RequestCar\ApprovedCarRequest;
 use App\Http\Requests\RequestCar\ProposalCarRequest;
 use App\Http\Requests\RequestCar\StoreRequestCarRequest;
@@ -28,7 +29,7 @@ class RequestCarController extends BaseApiController
                                 NotificationServiceInterface $notificationService)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
-            ->only('store', 'uploadAuthorizationFile', 'deleteRequestCar');
+            ->only('store', 'uploadAuthorizationFile', 'deleteRequestCar', 'responseRejectRequest');
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
             ->only('index', 'store', 'uploadAuthorizationFile', 'show', 'cancelRequest', 'getStatusByStatusCurrent');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
@@ -127,6 +128,16 @@ class RequestCarController extends BaseApiController
     {
         $dto = $request->toDTO();
         $this->requestCarService->proposalRequest($dto);
+        return $this->noContentResponse();
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function responseRejectRequest(int $requestId, ResponseRejectRequest $request): JsonResponse
+    {
+        $dto = $request->toDTO();
+        $this->requestCarService->responseRejectRequest($requestId, $dto);
         return $this->noContentResponse();
     }
 }

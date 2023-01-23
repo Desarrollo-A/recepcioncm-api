@@ -175,7 +175,8 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
             switch ($code) {
                 case StatusCarRequestLookup::code(StatusCarRequestLookup::PROPOSAL):
                     $status = $this->lookupRepository->findByCodeWhereInAndType([
-                        StatusCarRequestLookup::code(StatusCarRequestLookup::REJECTED)
+                        StatusCarRequestLookup::code(StatusCarRequestLookup::REJECTED),
+                        StatusCarRequestLookup::code(StatusCarRequestLookup::ACCEPTED)
                     ], TypeLookup::STATUS_CAR_REQUEST);
                     break;
                 case StatusCarRequestLookup::code(StatusCarRequestLookup::APPROVED):
@@ -303,5 +304,34 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         $dto->carRequestSchedule->car_schedule_id = $carSchedule->id;
         $this->carRequestScheduleRepository
             ->create($dto->carRequestSchedule->toArray(['request_car_id', 'car_schedule_id']));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function responseRejectRequest(int $requestId, RequestDTO $dto): Request
+    {
+        $proposalStatusId = $this->lookupRepository->findByCodeAndType(StatusCarRequestLookup::code(
+            StatusCarRequestLookup::PROPOSAL), TypeLookup::STATUS_CAR_REQUEST)->id;
+        $request = $this->requestRepository->findById($requestId);
+
+        if ($request->status_id !== $proposalStatusId) {
+            throw new CustomErrorException('La solicitud debe de estar en estatus '.StatusCarRequestLookup::PROPOSAL,
+                HttpCodes::HTTP_BAD_REQUEST);
+        }
+
+        $statusCode = ($dto->status->code === StatusCarRequestLookup::code(StatusCarRequestLookup::ACCEPTED))
+            ? StatusCarRequestLookup::code(StatusCarRequestLookup::APPROVED)
+            : $dto->status->code;
+        $dto->status = $this->lookupRepository->findByCodeAndType($statusCode, TypeLookup::STATUS_CAR_REQUEST);
+        $dto->status_id = $dto->status->id;
+
+        if ($dto->status->code === StatusCarRequestLookup::code(StatusCarRequestLookup::REJECTED)) {
+            $requestCar = $this->entityRepository->findByRequestId($requestId);
+            $this->carRequestScheduleRepository->deleteByRequestCarId($requestCar->id);
+            $this->carScheduleRepository->delete($requestCar->carRequestSchedule->carSchedule->id);
+        }
+
+        return $this->requestRepository->update($requestId, $dto->toArray(['status_id']))->fresh(['status']);
     }
 }

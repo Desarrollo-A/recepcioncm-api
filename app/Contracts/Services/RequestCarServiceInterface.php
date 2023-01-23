@@ -5,6 +5,7 @@ namespace App\Contracts\Services;
 use App\Core\Contracts\BaseServiceInterface;
 use App\Models\Dto\CancelRequestDTO;
 use App\Models\Dto\RequestCarDTO;
+use App\Models\Dto\RequestDTO;
 use App\Models\Request;
 use App\Models\RequestCar;
 use App\Models\User;
@@ -45,4 +46,6 @@ interface RequestCarServiceInterface extends BaseServiceInterface
     public function getBusyDaysForProposalCalendar(): array;
 
     public function proposalRequest(RequestCarDTO $dto): void;
+
+    public function responseRejectRequest(int $requestId, RequestDTO $dto): Request;
 }
