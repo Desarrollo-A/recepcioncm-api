@@ -27,6 +27,7 @@ class ProposalRequestDriverResource extends JsonResource
                 'model' => $car['model'],
                 'color' => $car['color'],
                 'licensePlate' => $car['license_plate'],
+                'people' => $car['people'],
                 'availableSchedules' => $this->availableSchedules($car['available_schedules']),
             ];
         }

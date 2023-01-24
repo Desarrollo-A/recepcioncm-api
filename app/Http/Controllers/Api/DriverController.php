@@ -74,7 +74,8 @@ class DriverController extends BaseApiController
     public function getAvailableDriversProposalRequest(int $requestId, Request $request): JsonResponse
     {
         $date = new Carbon(Validation::validateDate($request->get('date')));
-        $drivers = $this->driverService->getAvailableDriversProposalRequest($requestId, $date);
+        $people = intval($request->get('people'));
+        $drivers = $this->driverService->getAvailableDriversProposalRequest($requestId, $date, $people);
         return $this->showAll(ProposalRequestDriverResource::collection($drivers));
     }
 }

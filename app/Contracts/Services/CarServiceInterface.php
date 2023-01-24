@@ -26,7 +26,7 @@ interface CarServiceInterface extends BaseServiceInterface
 
     public function findAllAvailableByDriverId(int $driverId, int $officeId): Collection;
 
-    public function getAvailableCarsInRequestDriver(int $driverId, Carbon $startDate, Carbon $endDate): Collection;
+    public function getAvailableCarsInRequestDriver(int $driverId, Carbon $startDate, Carbon $endDate, int $people): Collection;
 
     public function getAvailableCarsInRequestCar(int $officeId, Carbon $startDate, Carbon $endDate): Collection;
 

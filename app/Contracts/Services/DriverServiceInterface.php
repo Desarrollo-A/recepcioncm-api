@@ -24,5 +24,5 @@ interface DriverServiceInterface extends BaseServiceInterface
 
     public function getAvailableDriversRequest(int $officeId, Carbon $startDate, Carbon $endDate): Collection;
 
-    public function getAvailableDriversProposalRequest(int $requestId, Carbon $dateSelected): \Illuminate\Support\Collection;
+    public function getAvailableDriversProposalRequest(int $requestId, Carbon $dateSelected, int $people): \Illuminate\Support\Collection;
 }
