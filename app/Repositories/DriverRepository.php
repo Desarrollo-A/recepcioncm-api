@@ -58,7 +58,6 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
         return $this->entity
             ->with('cars')
             ->driverUser()
-            ->join('car_driver', 'car_driver.driver_id', '=', 'users.id')
             ->join('lookups', 'lookups.id', '=', 'users.status_id')
             ->where('lookups.code', StatusUserLookup::code(StatusUserLookup::ACTIVE))
             ->where('users.office_id', $officeId)
