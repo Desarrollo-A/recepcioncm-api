@@ -19,6 +19,7 @@ use App\Models\Dto\RequestNotificationDTO;
 use App\Models\Enums\Lookups\ActionRequestNotificationLookup;
 use App\Models\Enums\Lookups\NotificationColorLookup;
 use App\Models\Enums\Lookups\NotificationIconLookup;
+use App\Models\Enums\Lookups\StatusCarRequestLookup;
 use App\Models\Enums\Lookups\StatusPackageRequestLookup;
 use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\Enums\Lookups\TypeNotificationsLookup;
@@ -447,6 +448,37 @@ class NotificationService extends BaseService implements NotificationServiceInte
         Utils::eventAlertNotification($notification);
     }
 
+    /**
+    * @throws CustomErrorException
+    */
+    public function proposalCarRequestNotification(Request $request): void
+    {
+        $notification = $this->createRow("Propuesta de la solicitud de vehículo $request->code", $request->user_id,
+            TypeNotificationsLookup::CAR, NotificationColorLookup::ORANGE, NotificationIconLookup::CAR);
+        $this->requestNotificationService->create($request->id, $notification->id);
+        Utils::eventAlertNotification($notification);
+    }
+
+    /**
+    * @throws CustomErrorException
+    */
+    public function responseRejectCarRequestNotification(Request $request): void
+    {
+        $messageNotification = '';
+        $colorNotification = '';
+        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($request->requestCar->office_id)->id;
+        if($request->status->code === StatusCarRequestLookup::code(StatusCarRequestLookup::APPROVED)){
+            $messageNotification = "Propuesta de la solicitud de vehículo $request->code fue aceptada";
+            $colorNotification = NotificationColorLookup::GREEN;
+        }else if($request->status->code === StatusCarRequestLookup::code(StatusCarRequestLookup::REJECTED)) {
+            $messageNotification = "Propuesta de la solicitud de vehículo $request->code fue rechazada";
+            $colorNotification = NotificationColorLookup::RED;
+        }
+        $notification = $this->createRow($messageNotification, $userId, TypeNotificationsLookup::CAR,
+            $colorNotification, NotificationIconLookup::CAR);
+        $this->requestNotificationService->create($request->id, $notification->id);
+        Utils::eventAlertNotification($notification);
+    }
 
     /**
      * @throws CustomErrorException
