@@ -62,7 +62,7 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
             ->get('cars.*');
     }
 
-    public function getAvailableCarsInRequestDriver(User $driver, Carbon $startDate, Carbon $endDate): Collection
+    public function getAvailableCarsInRequestDriver(User $driver, Carbon $startDate, Carbon $endDate, int $people): Collection
     {
         $startDateFormat = $startDate->toDateTimeString();
         $endDateFormat = $endDate->toDateTimeString();
@@ -71,6 +71,7 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
             ->join('lookups', 'lookups.id', '=', 'cars.status_id')
             ->where('lookups.code', StatusCarLookup::code(StatusCarLookup::ACTIVE))
             ->where('office_id', $driver->office_id)
+            ->where('people', '>=', $people + 1) // Se aumenta 1 por el chofer
             ->whereNotIn('cars.id', function (QueryBuilder $query) use ($driver) {
                 return $query
                     ->selectRaw('DISTINCT(car_driver.car_id)')
@@ -84,8 +85,14 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
                     ->select(['car_id'])
                     ->from('driver_package_schedules AS dps')
                     ->join('car_schedules AS cs', 'dps.car_schedule_id', '=', 'cs.id')
-                    ->whereDate('cs.start_date', $startDate)
-                    ->orWhereDate('cs.start_date', $endDate);
+                    ->where(function (QueryBuilder $query) use ($startDate, $endDate) {
+                        $query->whereDate('start_date', $startDate)
+                            ->orWhereDate('start_date', $endDate);
+                    })
+                    ->orWhere(function (QueryBuilder $query) use ($startDate, $endDate) {
+                        $query->whereDate('end_date', $startDate)
+                            ->orWhereDate('end_date', $endDate);
+                    });
             })
             ->whereNotIn('cars.id', function (QueryBuilder $query) use ($startDateFormat, $endDateFormat) {
                 return $query
@@ -185,7 +192,8 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
             ->get(['cars.*']);
     }
 
-    public function getAvailableRequestDriverProposalByDriverId(int $driverId, int $officeId, Carbon $startDate, Carbon $endDate): Collection
+    public function getAvailableRequestDriverProposalByDriverId(int $driverId, int $officeId, int $people,
+                                                                Carbon $startDate, Carbon $endDate): Collection
     {
         $subQuery = $this->entity
             ->selectRaw("cs.id AS car_sche_id, cs.car_id, cs.start_date, cs.end_date")
@@ -209,6 +217,7 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
                     ->orWhere('cd.driver_id', $driverId);
             })
             ->where('cars.office_id', $officeId)
+            ->where('people', '>=', $people + 1) // Se aumenta 1 por el chofer
             ->where(function (Builder $query) use ($officeId) {
                 $query->whereNotIn('dc.car_sche_id', function (QueryBuilder $query) {
                     return $query
