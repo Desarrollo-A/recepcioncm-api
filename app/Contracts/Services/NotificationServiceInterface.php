@@ -77,6 +77,10 @@ interface NotificationServiceInterface extends BaseServiceInterface
 
     public function approvedRequestDriverNotification(Request $request, int $driverId = null): void;
 
+    public function proposalDriverRequestNotification(Request $proposalDriverRequest): void;
+
+    public function responseRejectRequestDriverNotification(Request $requestDriverResponseReject):void;
+
     public function createRequestCarNotification(RequestCar $requestCar): void;
 
     public function deleteRequestCarNotification(RequestCar $requestCar): void;

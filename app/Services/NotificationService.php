@@ -20,6 +20,7 @@ use App\Models\Enums\Lookups\ActionRequestNotificationLookup;
 use App\Models\Enums\Lookups\NotificationColorLookup;
 use App\Models\Enums\Lookups\NotificationIconLookup;
 use App\Models\Enums\Lookups\StatusCarRequestLookup;
+use App\Models\Enums\Lookups\StatusDriverRequestLookup;
 use App\Models\Enums\Lookups\StatusPackageRequestLookup;
 use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\Enums\Lookups\TypeNotificationsLookup;
@@ -386,6 +387,33 @@ class NotificationService extends BaseService implements NotificationServiceInte
             $this->requestNotificationService->create($request->id, $notification->id);
             Utils::eventAlertNotification($notification);
         }
+    }
+
+    public function proposalDriverRequestNotification(Request $proposalDriverRequest): void
+    {
+        $notification = $this->createRow("Propuesta de solicitud de chofer $proposalDriverRequest->code",
+            $proposalDriverRequest->user_id, TypeNotificationsLookup::DRIVER, NotificationColorLookup::ORANGE,
+            NotificationIconLookup::DRIVER);
+        $this->requestNotificationService->create($proposalDriverRequest->id, $notification->id);
+        Utils::eventAlertNotification($notification);
+    }
+
+    public function responseRejectRequestDriverNotification(Request $requestDriverResponseReject):void
+    {
+        $messageNotification = '';
+        $colorNotification = '';
+        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($requestDriverResponseReject->requestDriver->office_id)->id;
+        if($requestDriverResponseReject->status->code === StatusDriverRequestLookup::code(StatusDriverRequestLookup::APPROVED)){
+            $messageNotification = "Propuesta de solicitud de chofer $requestDriverResponseReject->code fue aceptada";
+            $colorNotification = NotificationColorLookup::GREEN;
+        }else if($requestDriverResponseReject->status->code === StatusDriverRequestLookup::code(StatusDriverRequestLookup::REJECTED)) {
+            $messageNotification = "Propuesta de solicitud de chofer $requestDriverResponseReject->code fue rechazada";
+            $colorNotification = NotificationColorLookup::RED;
+        }
+        $notification = $this->createRow($messageNotification, $userId, TypeNotificationsLookup::DRIVER,
+            $colorNotification, NotificationIconLookup::DRIVER);
+        $this->requestNotificationService->create($requestDriverResponseReject->id, $notification->id);
+        Utils::eventAlertNotification($notification);
     }
 
     /**

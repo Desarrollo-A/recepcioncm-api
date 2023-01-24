@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Seeder;
+use App\Models\Enums\NameRole;
 use App\Models\Role;
-use \App\Models\Enums\NameRole;
+use Illuminate\Database\Seeder;
 
 class RoleSeeder extends Seeder
 {
