@@ -93,4 +93,8 @@ interface NotificationServiceInterface extends BaseServiceInterface
     public function cancelRequestCarNotification(Request $request, User $user): void;
 
     public function approvedRequestCarNotification(Request $request): void;
+
+    public function proposalCarRequestNotification(Request $request): void;
+
+    public function responseRejectCarRequestNotification(Request $request): void;
 }
