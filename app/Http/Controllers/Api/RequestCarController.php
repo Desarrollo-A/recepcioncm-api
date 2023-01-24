@@ -127,7 +127,8 @@ class RequestCarController extends BaseApiController
     public function proposalRequest(ProposalCarRequest $request): JsonResponse
     {
         $dto = $request->toDTO();
-        $this->requestCarService->proposalRequest($dto);
+        $request = $this->requestCarService->proposalRequest($dto);
+        $this->notificationService->proposalCarRequestNotification($request);
         return $this->noContentResponse();
     }
 
@@ -137,7 +138,8 @@ class RequestCarController extends BaseApiController
     public function responseRejectRequest(int $requestId, ResponseRejectRequest $request): JsonResponse
     {
         $dto = $request->toDTO();
-        $this->requestCarService->responseRejectRequest($requestId, $dto);
+        $request = $this->requestCarService->responseRejectRequest($requestId, $dto);
+        $this->notificationService->responseRejectCarRequestNotification($request);
         return $this->noContentResponse();
     }
 }

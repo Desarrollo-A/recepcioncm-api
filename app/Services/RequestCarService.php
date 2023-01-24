@@ -288,7 +288,7 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
     /**
      * @throws CustomErrorException
      */
-    public function proposalRequest(RequestCarDTO $dto): void
+    public function proposalRequest(RequestCarDTO $dto): Request
     {
         $dto->request->status_id = $this->lookupRepository
             ->findByCodeAndType(StatusCarRequestLookup::code(StatusCarRequestLookup::PROPOSAL),
@@ -296,7 +296,7 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
             ->id;
 
         $dto->carRequestSchedule->request_car_id = $this->entityRepository->findByRequestId($dto->request_id)->id;
-        $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id']));
+        $request = $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id']));
 
         $carSchedule = $this->carScheduleRepository
             ->create($dto->carRequestSchedule->carSchedule->toArray(['car_id', 'start_date', 'end_date']));
@@ -304,6 +304,8 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         $dto->carRequestSchedule->car_schedule_id = $carSchedule->id;
         $this->carRequestScheduleRepository
             ->create($dto->carRequestSchedule->toArray(['request_car_id', 'car_schedule_id']));
+        
+        return $request;
     }
 
     /**
@@ -319,7 +321,6 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
             throw new CustomErrorException('La solicitud debe de estar en estatus '.StatusCarRequestLookup::PROPOSAL,
                 HttpCodes::HTTP_BAD_REQUEST);
         }
-
         $statusCode = ($dto->status->code === StatusCarRequestLookup::code(StatusCarRequestLookup::ACCEPTED))
             ? StatusCarRequestLookup::code(StatusCarRequestLookup::APPROVED)
             : $dto->status->code;
@@ -332,6 +333,6 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
             $this->carScheduleRepository->delete($requestCar->carRequestSchedule->carSchedule->id);
         }
 
-        return $this->requestRepository->update($requestId, $dto->toArray(['status_id']))->fresh(['status']);
+        return $this->requestRepository->update($requestId, $dto->toArray(['status_id']))->fresh(['status', 'requestCar']);
     }
 }
