@@ -26,8 +26,6 @@ class RequestController extends BaseApiController
             ->only('deleteRequestRoom', 'starRatingRequest', 'deleteRequestPackage', 'deleteRequestDriver');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST.','.NameRole::APPLICANT)
             ->only('show');
-        $this->middleware('role.permission:'.NameRole::ADMIN)
-            ->only('expiredRequest', 'finishedRequest');
 
         $this->requestService = $requestService;
         $this->notificationService = $notificationService;
@@ -70,20 +68,4 @@ class RequestController extends BaseApiController
         $this->scoreService->create($dto);
         return $this->noContentResponse();
     }
-
-    public function expiredRequest(): JsonResponse
-    {
-        $this->requestService->changeToExpired();
-        return $this->noContentResponse();
-    }
-
-    public function finishedRequest(): JsonResponse
-    {
-        $requests = $this->requestService->changeToFinished();
-        if ($requests->count() > 0) {
-            $this->notificationService->createScoreRequestNotification($requests);
-        }
-        return $this->noContentResponse();
-    }
-    
 }

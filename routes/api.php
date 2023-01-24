@@ -165,12 +165,6 @@ Route::prefix('v1')->group(function () {
         Route::prefix('inventory-request')
             ->name('inventory-request.')
             ->group(function () {
-                Route::get('/update-snack-countable', 'InventoryRequestController@updateSnackCountable')
-                    ->name('update.snack.countable');
-
-                Route::get('/update-snack-uncountable', 'InventoryRequestController@updateSnackUncountable')
-                    ->name('update.snack.uncountable');
-
                 Route::post('/', 'InventoryRequestController@store')
                     ->name('store');
 
@@ -188,9 +182,6 @@ Route::prefix('v1')->group(function () {
         Route::prefix('notifications')
             ->name('notifications.')
             ->group(function (){
-                Route::get('/confirm-request','NotificationController@confirmRequest')
-                    ->name('confirm.request');
-
                 Route::get('/last','NotificationController@getAllNotificationLast5Days')
                     ->name('last');
 
@@ -210,12 +201,6 @@ Route::prefix('v1')->group(function () {
         Route::prefix('requests')
             ->name('requests.')
             ->group(function () {
-                Route::get('/expired', 'RequestController@expiredRequest')
-                    ->name('expired');
-
-                Route::get('/finished', 'RequestController@finishedRequest')
-                    ->name('finished');
-                    
                 Route::post('/rating', 'RequestController@starRatingRequest')
                     ->name('rating');
 
@@ -470,6 +455,25 @@ Route::prefix('v1')->group(function () {
                 Route::patch('/response-reject/{requestId}', 'RequestCarController@responseRejectRequest')
                     ->name('response-reject')
                     ->where('id', Validation::INTEGER_ID);
+            });
+
+        Route::prefix('jobs')
+            ->name('jobs.')
+            ->group(function () {
+                Route::get('/update-snack-countable', 'CronJobController@updateSnackCountable')
+                    ->name('update.snack.countable');
+
+                Route::get('/update-snack-uncountable', 'CronJobController@updateSnackUncountable')
+                    ->name('update.snack.uncountable');
+
+                Route::get('/confirm-request','CronJobController@confirmRequest')
+                    ->name('confirm.request');
+
+                Route::get('/expired', 'RequestController@expiredRequest')
+                    ->name('expired');
+
+                Route::get('/finished', 'RequestController@finishedRequest')
+                    ->name('finished');
             });
 
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');
