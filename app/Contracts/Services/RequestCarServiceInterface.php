@@ -45,7 +45,7 @@ interface RequestCarServiceInterface extends BaseServiceInterface
 
     public function getBusyDaysForProposalCalendar(): array;
 
-    public function proposalRequest(RequestCarDTO $dto): void;
+    public function proposalRequest(RequestCarDTO $dto): Request;
 
     public function responseRejectRequest(int $requestId, RequestDTO $dto): Request;
 }
