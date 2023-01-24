@@ -131,10 +131,10 @@ class Utils
      */
     public static function eventAlertNotification(Notification $notification)
     {
-        $newNotification = $notification->fresh(['type', 'color', 'icon', 'requestNotification',
+        /*$newNotification = $notification->fresh(['type', 'color', 'icon', 'requestNotification',
             'requestNotification.request', 'requestNotification.actionRequestNotification',
             'requestNotification.actionRequestNotification.type']);
-        broadcast(new AlertNotification($notification->user_id, new NotificationResource($newNotification)));
+        broadcast(new AlertNotification($notification->user_id, new NotificationResource($newNotification)));*/
     }
 
     public static function getDayName(int $day): string

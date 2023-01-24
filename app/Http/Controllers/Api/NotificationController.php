@@ -23,8 +23,6 @@ class NotificationController extends BaseApiController
                 'existUnreadNotifications', 'show');
         $this->middleware('role.permission:' . NameRole::APPLICANT)
             ->only('wasAnswered');
-        $this->middleware('role.permission:'.NameRole::ADMIN)
-            ->only('confirmRequest');
 
         $this->notificationService = $notificationService;
         $this->actionRequestNotificationService = $actionRequestNotificationService;
@@ -58,12 +56,6 @@ class NotificationController extends BaseApiController
     public function wasAnswered(int $notificationId): JsonResponse
     {
         $this->actionRequestNotificationService->wasAnswered($notificationId);
-        return $this->noContentResponse();
-    }
-
-    public function confirmRequest(): JsonResponse
-    {
-        $this->notificationService->createConfirmNotification();
         return $this->noContentResponse();
     }
 }
