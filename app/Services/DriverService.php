@@ -87,7 +87,7 @@ class DriverService extends BaseService implements DriverServiceInterface
         return $this->entityRepository->getAvailableDriversRequest($officeId, $startDate, $endDate);
     }
 
-    public function getAvailableDriversProposalRequest(int $requestId, Carbon $dateSelected): \Illuminate\Support\Collection
+    public function getAvailableDriversProposalRequest(int $requestId, Carbon $dateSelected, int $people): \Illuminate\Support\Collection
     {
         $availableDrivers = [];
         $endDateSelected = $dateSelected;
@@ -132,7 +132,7 @@ class DriverService extends BaseService implements DriverServiceInterface
             }
 
             $cars = $this->carRepository->getAvailableRequestDriverProposalByDriverId($driver['id'], $driver['office_id'],
-                $dateSelected, $endDateSelected)->toArray();
+                $people, $dateSelected, $endDateSelected)->toArray();
             if (count($cars) === 0) {
                 $driverBusy = [];
                 continue;

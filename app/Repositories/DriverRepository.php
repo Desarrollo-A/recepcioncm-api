@@ -58,7 +58,6 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
         return $this->entity
             ->with('cars')
             ->driverUser()
-            ->join('car_driver', 'car_driver.driver_id', '=', 'users.id')
             ->join('lookups', 'lookups.id', '=', 'users.status_id')
             ->where('lookups.code', StatusUserLookup::code(StatusUserLookup::ACTIVE))
             ->where('users.office_id', $officeId)
@@ -77,7 +76,6 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
     {
         return $this->entity
             ->driverUser()
-            ->join('car_driver', 'car_driver.driver_id', '=', 'users.id')
             ->join('lookups', 'lookups.id', '=', 'users.status_id')
             ->where('lookups.code', StatusUserLookup::code(StatusUserLookup::ACTIVE))
             ->where('users.office_id', $officeId)
@@ -93,6 +91,20 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
                     ->orWhere(function (QueryBuilder $query) use ($startDate, $endDate) {
                         $query->where('end_date', '>', $startDate->toDateTimeString())
                             ->where('end_date', '<=', $endDate->toDateTimeString());
+                    });
+            })
+            ->whereNotIn('users.id', function (QueryBuilder $query) use ($startDate, $endDate) {
+                return $query
+                    ->select(['driver_id'])
+                    ->from('driver_package_schedules AS dps')
+                    ->join('driver_schedules AS ds', 'dps.driver_schedule_id', '=', 'ds.id')
+                    ->where(function (QueryBuilder $query) use ($startDate, $endDate) {
+                        $query->whereDate('start_date', $startDate)
+                            ->orWhereDate('start_date', $endDate);
+                    })
+                    ->orWhere(function (QueryBuilder $query) use ($startDate, $endDate) {
+                        $query->whereDate('end_date', $startDate)
+                            ->orWhereDate('end_date', $endDate);
                     });
             })
             ->get(['users.*']);
