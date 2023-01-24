@@ -43,7 +43,7 @@ interface RequestDriverServiceInterface extends BaseServiceInterface
 
     public function getBusyDaysForProposalCalendar(): array;
 
-    public function proposalRequest(RequestDriverDTO $dto): void;
+    public function proposalRequest(RequestDriverDTO $dto): Request;
 
     public function responseRejectRequest(int $requestId, RequestDTO $dto): Request;
 }

@@ -133,7 +133,8 @@ class RequestDriverController extends BaseApiController
     public function proposalRequest(ProposalDriverRequest $request): JsonResponse
     {
         $dto = $request->toDTO();
-        $this->requestDriverService->proposalRequest($dto);
+        $proposalDriverRequest = $this->requestDriverService->proposalRequest($dto);
+        $this->notificationService->proposalDriverRequestNotification($proposalDriverRequest);
         return $this->noContentResponse();
     }
 
@@ -143,7 +144,8 @@ class RequestDriverController extends BaseApiController
     public function responseRejectRequest(int $requestId, ResponseRejectRequest $request): JsonResponse
     {
         $dto = $request->toDTO();
-        $this->requestDriverService->responseRejectRequest($requestId, $dto);
+        $requestDriverResponseReject = $this->requestDriverService->responseRejectRequest($requestId, $dto);
+        $this->notificationService->responseRejectRequestDriverNotification($requestDriverResponseReject);
         return $this->noContentResponse();
     }
 }
