@@ -101,7 +101,8 @@ class CarController extends BaseApiController
     {
         $startDate = new Carbon(Validation::validateDate($request->get('start_date')));
         $endDate = new Carbon(Validation::validateDate($request->get('end_date')));
-        $cars = $this->carService->getAvailableCarsInRequestDriver($driverId, $startDate, $endDate);
+        $people = intval($request->get('people'));
+        $cars = $this->carService->getAvailableCarsInRequestDriver($driverId, $startDate, $endDate, $people);
         return $this->showAll(CarResource::collection($cars));
     }
 

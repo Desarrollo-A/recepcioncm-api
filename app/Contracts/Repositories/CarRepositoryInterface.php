@@ -21,13 +21,14 @@ interface CarRepositoryInterface extends BaseRepositoryInterface
                                            
     public function findAllAvailableByDriverId(int $driverId, int $officeId): Collection;
 
-    public function getAvailableCarsInRequestDriver(User $driver, Carbon $startDate, Carbon $endDate): Collection;
+    public function getAvailableCarsInRequestDriver(User $driver, Carbon $startDate, Carbon $endDate, int $people): Collection;
 
     public function getAvailableCarsInRequestCar(int $officeId, Carbon $startDate, Carbon $endDate): Collection;
 
     public function getAvailableCarsInRequestPackage(User $driver, Carbon $startDate, int $totalAssignments): Collection;
 
-    public function getAvailableRequestDriverProposalByDriverId(int $driverId, int $officeId, Carbon $startDate, Carbon $endDate): Collection;
+    public function getAvailableRequestDriverProposalByDriverId(int $driverId, int $officeId, int $people,
+                                                                Carbon $startDate, Carbon $endDate): Collection;
 
     public function getAvailableRequestCarProposalByOfficeId(int $officeId, Carbon $startDate, Carbon $endDate): Collection;
 }
