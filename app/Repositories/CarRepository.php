@@ -127,6 +127,9 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
 
     public function getAvailableCarsInRequestCar(int $officeId, Carbon $startDate, Carbon $endDate): Collection
     {
+        $startDateFormat = $startDate->toDateTimeString();
+        $endDateFormat = $endDate->toDateTimeString();
+
         return $this->entity
             ->join('lookups', 'lookups.id', '=', 'cars.status_id')
             ->where('lookups.code', StatusCarLookup::code(StatusCarLookup::ACTIVE))
@@ -134,11 +137,44 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
             ->whereNotIn('cars.id', function (QueryBuilder $query) use ($startDate, $endDate) {
                 return $query
                     ->select(['car_id'])
-                    ->from('car_schedules')
-                    ->whereDate('start_date', $startDate)
-                    ->orWhereDate('end_date', $startDate)
-                    ->whereDate('start_date', $endDate)
-                    ->orWhereDate('end_date', $endDate);
+                    ->from('driver_package_schedules AS dps')
+                    ->join('car_schedules AS cs', 'dps.car_schedule_id', '=', 'cs.id')
+                    ->where(function (QueryBuilder $query) use ($startDate, $endDate) {
+                        $query->whereDate('start_date', $startDate)
+                            ->orWhereDate('start_date', $endDate);
+                    })
+                    ->orWhere(function (QueryBuilder $query) use ($startDate, $endDate) {
+                        $query->whereDate('end_date', $startDate)
+                            ->orWhereDate('end_date', $endDate);
+                    });
+            })
+            ->whereNotIn('cars.id', function (QueryBuilder $query) use ($startDateFormat, $endDateFormat) {
+                return $query
+                    ->select(['car_id'])
+                    ->from('driver_request_schedules AS drs')
+                    ->join('car_schedules AS cs', 'drs.car_schedule_id', '=', 'cs.id')
+                    ->where(function (QueryBuilder $query) use ($startDateFormat, $endDateFormat) {
+                        $query->where('start_date', '>=', $startDateFormat)
+                            ->where('start_date', '<', $endDateFormat);
+                    })
+                    ->orWhere(function (QueryBuilder $query) use ($startDateFormat, $endDateFormat) {
+                        $query->where('end_date', '>', $startDateFormat)
+                            ->where('end_date', '<=', $endDateFormat);
+                    });
+            })
+            ->whereNotIn('cars.id', function (QueryBuilder $query) use ($startDateFormat, $endDateFormat) {
+                return $query
+                    ->select(['car_id'])
+                    ->from('car_request_schedules AS crs')
+                    ->join('car_schedules AS cs', 'crs.car_schedule_id', '=', 'cs.id')
+                    ->where(function (QueryBuilder $query) use ($startDateFormat, $endDateFormat) {
+                        $query->where('start_date', '>=', $startDateFormat)
+                            ->where('start_date', '<', $endDateFormat);
+                    })
+                    ->orWhere(function (QueryBuilder $query) use ($startDateFormat, $endDateFormat) {
+                        $query->where('end_date', '>', $startDateFormat)
+                            ->where('end_date', '<=', $endDateFormat);
+                    });
             })
             ->get(['cars.*']);
     }
