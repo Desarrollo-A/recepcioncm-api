@@ -8,6 +8,7 @@ use App\Contracts\Repositories\CarScheduleRepositoryInterface;
 use App\Contracts\Repositories\DriverRequestScheduleRepositoryInterface;
 use App\Contracts\Repositories\DriverScheduleRepositoryInterface;
 use App\Contracts\Repositories\LookupRepositoryInterface;
+use App\Contracts\Repositories\ProposalRequestRepositoryInterface;
 use App\Contracts\Repositories\RequestDriverRepositoryInterface;
 use App\Contracts\Repositories\RequestDriverViewRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
@@ -20,6 +21,7 @@ use App\Helpers\Enum\QueryParam;
 use App\Helpers\File;
 use App\Helpers\Validation;
 use App\Models\Dto\CancelRequestDTO;
+use App\Models\Dto\ProposalRequestDTO;
 use App\Models\Dto\RequestDriverDTO;
 use App\Models\Dto\RequestDTO;
 use App\Models\Enums\Lookups\StatusDriverRequestLookup;
@@ -47,6 +49,7 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
     protected $driverScheduleRepository;
     protected $carScheduleRepository;
     protected $driverRequestScheduleRepository;
+    protected $proposalRequestRepository;
 
     protected $calendarService;
 
@@ -59,7 +62,8 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
                                 DriverScheduleRepositoryInterface $driverScheduleRepository,
                                 CarScheduleRepositoryInterface $carScheduleRepository,
                                 DriverRequestScheduleRepositoryInterface $driverRequestScheduleRepository,
-                                CalendarServiceInterface $calendarService)
+                                CalendarServiceInterface $calendarService,
+                                ProposalRequestRepositoryInterface $proposalRequestRepository)
     {
         $this->entityRepository = $requestDriverRepository;
         $this->requestRepository = $requestRepository;
@@ -71,6 +75,7 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
         $this->carScheduleRepository = $carScheduleRepository;
         $this->driverRequestScheduleRepository = $driverRequestScheduleRepository;
         $this->calendarService = $calendarService;
+        $this->proposalRequestRepository = $proposalRequestRepository;
     }
 
     /**
@@ -327,6 +332,14 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
         $this->driverRequestScheduleRepository
             ->create($dto->driverRequestSchedule->toArray(['request_driver_id', 'driver_schedule_id', 'car_schedule_id']));
 
+        $proposalDTO = new ProposalRequestDTO([
+            'request_id' => $dto->request_id,
+            'start_date' => $dto->request->start_date,
+            'end_date' => $dto->request->end_date
+        ]);
+
+        $this->proposalRequestRepository->create($proposalDTO->toArray(['request_id', 'start_date', 'end_date']));
+
         return $request;
     }
 
@@ -337,22 +350,39 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
     {
         $proposalStatusId = $this->lookupRepository->findByCodeAndType(StatusDriverRequestLookup::code(
             StatusDriverRequestLookup::PROPOSAL), TypeLookup::STATUS_DRIVER_REQUEST)->id;
+
         $request = $this->requestRepository->findById($requestId);
+
         if ($request->status_id !== $proposalStatusId) {
             throw new CustomErrorException('La solicitud debe de estar en estatus '.StatusDriverRequestLookup::PROPOSAL,
                 HttpCodes::HTTP_BAD_REQUEST);
         }
+
         $statusCode = ($dto->status->code === StatusDriverRequestLookup::code(StatusDriverRequestLookup::ACCEPTED))
             ? StatusDriverRequestLookup::code(StatusDriverRequestLookup::APPROVED)
             : $dto->status->code;
         $dto->status = $this->lookupRepository->findByCodeAndType($statusCode, TypeLookup::STATUS_DRIVER_REQUEST);
         $dto->status_id = $dto->status->id;
+
         if ($dto->status->code === StatusDriverRequestLookup::code(StatusDriverRequestLookup::REJECTED)) {
             $requestDriver = $this->entityRepository->findByRequestId($requestId);
             $this->driverRequestScheduleRepository->deleteByRequestDriverId($requestDriver->id);
             $this->carScheduleRepository->delete($requestDriver->driverRequestSchedule->carSchedule->id);
             $this->driverScheduleRepository->delete($requestDriver->driverRequestSchedule->driverSchedule->id);
+
+            $request = $this->requestRepository->update($requestId, $dto->toArray(['status_id']))
+                ->fresh(['status', 'requestDriver']);
+        } else {
+            $proposalRequest = $this->proposalRequestRepository->findOneByRequestId($requestId);
+            $dto->start_date = $proposalRequest->start_date;
+            $dto->end_date = $proposalRequest->end_date;
+
+            $request = $this->requestRepository->update($requestId, $dto->toArray(['status_id', 'start_date', 'end_date']))
+                ->fresh(['status', 'requestDriver']);
         }
-        return $this->requestRepository->update($requestId, $dto->toArray(['status_id']))->fresh(['status', 'requestDriver']);
+
+        $this->proposalRequestRepository->deleteByRequestId($requestId);
+
+        return $request;
     }
 }

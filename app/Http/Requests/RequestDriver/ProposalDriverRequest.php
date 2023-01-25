@@ -66,10 +66,15 @@ class ProposalDriverRequest extends FormRequest implements ReturnDtoInterface
             'driverSchedule' => $driverScheduleDTO
         ]);
 
+        $requestDTO = new RequestDTO([
+            'start_date' => $startDate,
+            'end_date' => $endDate
+        ]);
+
         return new RequestDriverDTO([
             'request_id' => $this->requestId,
             'driverRequestSchedule' => $driverRequestScheduleDTO,
-            'request' => new RequestDTO()
+            'request' => $requestDTO
         ]);
     }
 }
