@@ -6,6 +6,7 @@ use App\Contracts\Repositories\CancelRequestRepositoryInterface;
 use App\Contracts\Repositories\CarRequestScheduleRepositoryInterface;
 use App\Contracts\Repositories\CarScheduleRepositoryInterface;
 use App\Contracts\Repositories\LookupRepositoryInterface;
+use App\Contracts\Repositories\ProposalRequestRepositoryInterface;
 use App\Contracts\Repositories\RequestCarRepositoryInterface;
 use App\Contracts\Repositories\RequestCarViewRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
@@ -18,6 +19,7 @@ use App\Helpers\Enum\QueryParam;
 use App\Helpers\File;
 use App\Helpers\Validation;
 use App\Models\Dto\CancelRequestDTO;
+use App\Models\Dto\ProposalRequestDTO;
 use App\Models\Dto\RequestCarDTO;
 use App\Models\Dto\RequestDTO;
 use App\Models\Enums\Lookups\StatusCarRequestLookup;
@@ -43,6 +45,7 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
     protected $cancelRequestRepository;
     protected $carScheduleRepository;
     protected $carRequestScheduleRepository;
+    protected $proposalRequestRepository;
 
     protected $calendarService;
 
@@ -53,6 +56,7 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
                                 CancelRequestRepositoryInterface $cancelRequestRepository,
                                 CarScheduleRepositoryInterface $carScheduleRepository,
                                 CarRequestScheduleRepositoryInterface $carRequestScheduleRepository,
+                                ProposalRequestRepositoryInterface $proposalRequestRepository,
                                 CalendarServiceInterface $calendarService)
     {
         $this->entityRepository = $requestCarRepository;
@@ -62,6 +66,7 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         $this->cancelRequestRepository = $cancelRequestRepository;
         $this->carScheduleRepository = $carScheduleRepository;
         $this->carRequestScheduleRepository = $carRequestScheduleRepository;
+        $this->proposalRequestRepository = $proposalRequestRepository;
         $this->calendarService = $calendarService;
     }
 
@@ -304,6 +309,14 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         $dto->carRequestSchedule->car_schedule_id = $carSchedule->id;
         $this->carRequestScheduleRepository
             ->create($dto->carRequestSchedule->toArray(['request_car_id', 'car_schedule_id']));
+
+        $proposalDTO = new ProposalRequestDTO([
+            'request_id' => $dto->request_id,
+            'start_date' => $dto->request->start_date,
+            'end_date' => $dto->request->end_date
+        ]);
+
+        $this->proposalRequestRepository->create($proposalDTO->toArray(['request_id', 'start_date', 'end_date']));
         
         return $request;
     }
@@ -321,6 +334,7 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
             throw new CustomErrorException('La solicitud debe de estar en estatus '.StatusCarRequestLookup::PROPOSAL,
                 HttpCodes::HTTP_BAD_REQUEST);
         }
+
         $statusCode = ($dto->status->code === StatusCarRequestLookup::code(StatusCarRequestLookup::ACCEPTED))
             ? StatusCarRequestLookup::code(StatusCarRequestLookup::APPROVED)
             : $dto->status->code;
@@ -331,8 +345,20 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
             $requestCar = $this->entityRepository->findByRequestId($requestId);
             $this->carRequestScheduleRepository->deleteByRequestCarId($requestCar->id);
             $this->carScheduleRepository->delete($requestCar->carRequestSchedule->carSchedule->id);
+
+            $request = $this->requestRepository->update($requestId, $dto->toArray(['status_id']))
+                ->fresh(['status', 'requestCar']);
+        } else {
+            $proposalRequest = $this->proposalRequestRepository->findOneByRequestId($requestId);
+            $dto->start_date = $proposalRequest->start_date;
+            $dto->end_date = $proposalRequest->end_date;
+
+            $request = $this->requestRepository->update($requestId, $dto->toArray(['status_id', 'start_date', 'end_date']))
+                ->fresh(['status', 'requestDriver']);
         }
 
-        return $this->requestRepository->update($requestId, $dto->toArray(['status_id']))->fresh(['status', 'requestCar']);
+        $this->proposalRequestRepository->deleteByRequestId($requestId);
+
+        return $request;
     }
 }

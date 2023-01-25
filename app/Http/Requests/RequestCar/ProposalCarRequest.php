@@ -56,10 +56,15 @@ class ProposalCarRequest extends FormRequest implements ReturnDtoInterface
             'carSchedule' => $carScheduleDTO
         ]);
 
+        $requestDTO = new RequestDTO([
+            'start_date' => $startDate,
+            'end_date' => $endDate
+        ]);
+
         return new RequestCarDTO([
             'request_id' => $this->requestId,
             'carRequestSchedule' => $carRequestScheduleDTO,
-            'request' => new RequestDTO()
+            'request' => $requestDTO
         ]);
     }
 }

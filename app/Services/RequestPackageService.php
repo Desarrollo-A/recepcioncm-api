@@ -478,13 +478,17 @@ class RequestPackageService extends BaseService implements RequestPackageService
     {
         $proposalStatusId = $this->lookupRepository->findByCodeAndType(StatusPackageRequestLookup::code(
             StatusPackageRequestLookup::PROPOSAL), TypeLookup::STATUS_PACKAGE_REQUEST)->id;
+
         $request = $this->requestRepository->findById($requestId);
+
         if ($request->status_id !== $proposalStatusId) {
             throw new CustomErrorException('La solicitud debe de estar en estatus '.StatusPackageRequestLookup::PROPOSAL,
                 HttpCodes::HTTP_BAD_REQUEST);
         }
+
         $dto->status_id = $this->lookupRepository
             ->findByCodeAndType($dto->status->code, TypeLookup::STATUS_PACKAGE_REQUEST)->id;
+
         if (!is_null($dto->proposal_id)) {
             $proposalData = $this->proposalRequestRepository->findById($dto->proposal_id);
             $dto->start_date = $proposalData->start_date;
@@ -492,6 +496,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
         } else {
             $data = $dto->toArray(['status_id']);
         }
+
         $this->proposalRequestRepository->deleteByRequestId($requestId);
 
         return $this->requestRepository->update($requestId, $data)->fresh(['status']);
