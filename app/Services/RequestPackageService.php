@@ -187,7 +187,6 @@ class RequestPackageService extends BaseService implements RequestPackageService
                     break;
                 case StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED):
                     $status = $this->lookupRepository->findByCodeWhereInAndType([
-                        StatusPackageRequestLookup::code(StatusPackageRequestLookup::ROAD),
                         StatusPackageRequestLookup::code(StatusPackageRequestLookup::CANCELLED)
                     ], TypeLookup::STATUS_PACKAGE_REQUEST);
                     break;
@@ -307,8 +306,8 @@ class RequestPackageService extends BaseService implements RequestPackageService
             $dto->request->end_date = $endDate;
             $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id', 'end_date']));
 
-            $codePackage = Str::random(40);
-            $packageUpdate = $this->packageRepository->update($dto->id, ['auth_code' => $codePackage]);
+            // $codePackage = Str::random(40);
+            // $packageUpdate = $this->packageRepository->update($dto->id, ['auth_code' => $codePackage]);
 
             $dto->driverPackageSchedule->carSchedule->start_date = $startDate;
             $dto->driverPackageSchedule->carSchedule->end_date = $endDate;
@@ -325,10 +324,13 @@ class RequestPackageService extends BaseService implements RequestPackageService
             $this->driverPackageScheduleRepository
                 ->create($dto->driverPackageSchedule->toArray(['package_id', 'driver_schedule_id', 'car_schedule_id']));
 
-            Mail::to($packageUpdate->email_receive)->send(new ApprovedPackageMail($packageUpdate, $request->code));
+            // Mail::to($packageUpdate->email_receive)->send(new ApprovedPackageMail($packageUpdate, $request->code));
+            $packageUpdate = $this->packageRepository->findById($dto->id);
         } else {
             $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id', 'end_date']));
-            $packageUpdate = $this->packageRepository->update($dto->id, $dto->toArray(['tracking_code', 'url_tracking']));
+            $packageUpdate = $this->packageRepository
+                ->update($dto->id, $dto->toArray(['tracking_code', 'url_tracking']))
+                ->fresh('request');
         }
         return $packageUpdate;
     }
