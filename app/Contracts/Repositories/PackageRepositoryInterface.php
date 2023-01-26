@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Collection;
 
 /**
  * @method Package create(array $data)
+ * @method Package findById(int $id, array $columns = ['*'])
+ * @method Package update(int $id, array $data)
  */
 interface PackageRepositoryInterface extends BaseRepositoryInterface
 {
