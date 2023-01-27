@@ -5,6 +5,8 @@ namespace App\Repositories;
 use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Core\BaseRepository;
 use App\Helpers\Utils;
+use App\Models\Enums\Lookups\StatusCarRequestLookup;
+use App\Models\Enums\Lookups\StatusDriverRequestLookup;
 use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Request;
@@ -62,8 +64,26 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
     {
         return $this->entity
             ->join('lookups', 'lookups.id', '=', 'requests.status_id')
-            ->whereDate('end_date', '<', now())
+            ->whereDate('requests.end_date', '<', now())
             ->where('lookups.code', $code)
+            ->get($columns);
+    }
+
+    public function getAllApprovedCarDriverRoom(array $columns = ['*']): Collection
+    {
+        return $this->entity
+            ->join('lookups as s', 's.id', '=', 'requests.status_id')
+            ->join('lookups as t', 't.id', '=', 'requests.type_id')
+            ->whereDate('requests.end_date', '<', now())
+            ->whereIn('s.code', [
+                StatusCarRequestLookup::code(StatusCarRequestLookup::APPROVED),
+                StatusDriverRequestLookup::code(StatusDriverRequestLookup::APPROVED),
+                StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED)
+            ])
+            ->whereIn('t.code', [
+                TypeRequestLookup::code(TypeRequestLookup::CAR), TypeRequestLookup::code(TypeRequestLookup::DRIVER),
+                TypeRequestLookup::code(TypeRequestLookup::ROOM)
+            ])
             ->get($columns);
     }
 

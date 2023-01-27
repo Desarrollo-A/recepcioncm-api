@@ -16,7 +16,10 @@ use App\Helpers\Enum\Message;
 use App\Helpers\Enum\Path;
 use App\Helpers\File;
 use App\Models\Dto\RequestDTO;
+use App\Models\Enums\Lookups\StatusCarRequestLookup;
+use App\Models\Enums\Lookups\StatusDriverRequestLookup;
 use App\Models\Enums\Lookups\StatusRoomRequestLookup;
+use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Enums\TypeLookup;
 use App\Models\Package;
 use App\Models\Request;
@@ -88,15 +91,40 @@ class RequestService extends BaseService implements RequestServiceInterface
     public function changeToFinished(): Collection
     {
         $requests = $this->entityRepository
-            ->getPreviouslyByCode(StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED), ['requests.id',
-                'requests.user_id', 'requests.code']);
-        if ($requests->count() > 0) {
+            ->getAllApprovedCarDriverRoom(['requests.id','t.code AS type_code']);
+                                            
+        $filteredRoomRequests = $requests->filter(function($value){
+            return $value->type_code === TypeRequestLookup::code(TypeRequestLookup::ROOM);
+        });
+
+        $filteredDriverRequests = $requests->filter(function($value){
+            return $value->type_code === TypeRequestLookup::code(TypeRequestLookup::DRIVER);
+        });
+
+        $filteredCarRequests = $requests->filter(function($value){
+            return $value->type_code === TypeRequestLookup::code(TypeRequestLookup::CAR);
+        });
+
+        if ($filteredRoomRequests->count() > 0) {
             $statusId = $this->lookupRepository
                 ->findByCodeAndType(StatusRoomRequestLookup::code(StatusRoomRequestLookup::FINISHED),
                     TypeLookup::STATUS_ROOM_REQUEST)->id;
-            $this->entityRepository->bulkStatusUpdate(array_values($requests->pluck('id')->toArray()), $statusId);
+            $this->entityRepository->bulkStatusUpdate($filteredRoomRequests->pluck('id')->values()->toArray(), $statusId);
         }
 
+        if ($filteredDriverRequests->count() > 0) {
+            $statusId = $this->lookupRepository
+                ->findByCodeAndType(StatusDriverRequestLookup::code(StatusDriverRequestLookup::FINISHED),
+                    TypeLookup::STATUS_DRIVER_REQUEST)->id;
+            $this->entityRepository->bulkStatusUpdate($filteredDriverRequests->pluck('id')->values()->toArray(), $statusId);
+        }
+        
+        if ($filteredCarRequests->count() > 0) {
+            $statusId = $this->lookupRepository
+                ->findByCodeAndType(StatusCarRequestLookup::code(StatusCarRequestLookup::FINISHED),
+                    TypeLookup::STATUS_CAR_REQUEST)->id;
+            $this->entityRepository->bulkStatusUpdate($filteredCarRequests->pluck('id')->values()->toArray(), $statusId);
+        }
         return $requests;
     }
 
