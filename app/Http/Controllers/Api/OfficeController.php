@@ -15,10 +15,10 @@ class OfficeController extends BaseApiController
     public function __construct(OfficeServiceInterface $officeService)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
-            ->only('getOfficeByStateWithDriver', 'getOfficeByStateWithDriverAndCar');
+            ->only('getOfficeByStateWithDriver', 'getOfficeByStateWithDriverAndCar', 'getOfficeByStateWithCar');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
             ->only('getByStateWithDriverWithoutOffice', 'getOfficeByStateWithDriverAndCarWithoutOffice',
-                'getOfficeByStateWithCarWithoutOffice', 'getOfficeByStateWithCar');
+                'getOfficeByStateWithCarWithoutOffice');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST. ','. NameRole::APPLICANT)
             ->only('getAll');
         

@@ -47,9 +47,9 @@ class CronJobController extends BaseApiController
     public function finishedRequest(): JsonResponse
     {
         $requests = $this->requestService->changeToFinished();
-        if ($requests->count() > 0) {
-            $this->notificationService->createScoreRequestNotification($requests);
-        }
+        // if ($requests->count() > 0) {
+        //     $this->notificationService->createScoreRequestNotification($requests);
+        // }
 
         return $this->noContentResponse();
     }
