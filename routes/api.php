@@ -469,10 +469,10 @@ Route::prefix('v1')->group(function () {
                 Route::get('/confirm-request','CronJobController@confirmRequest')
                     ->name('confirm.request');
 
-                Route::get('/expired', 'RequestController@expiredRequest')
+                Route::get('/expired', 'CronJobController@expiredRequest')
                     ->name('expired');
 
-                Route::get('/finished', 'RequestController@finishedRequest')
+                Route::get('/finished', 'CronJobController@finishedRequest')
                     ->name('finished');
             });
 
