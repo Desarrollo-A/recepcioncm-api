@@ -20,6 +20,8 @@ interface RequestRepositoryInterface extends BaseRepositoryInterface
 
     public function getPreviouslyByCode(string $code, array $columns = ['*']): Collection;
 
+    public function getAllApprovedCarDriverRoom(array $columns = ['*']): Collection;
+
     public function getExpired(array $columns = ['*']): Collection;
 
     /**
