@@ -25,7 +25,8 @@ class RequestCarRepository extends BaseRepository implements RequestCarRepositor
     {
         return $this->entity
             ->with(['request', 'request.user', 'request.status', 'request.cancelRequest', 'request.cancelRequest.user',
-                'carRequestSchedule', 'carRequestSchedule.carSchedule', 'carRequestSchedule.carSchedule.car'])
+                'carRequestSchedule', 'carRequestSchedule.carSchedule', 'carRequestSchedule.carSchedule.car',
+                'request.requestEmail'])
             ->where('request_id', $requestCarId)
             ->firstOrFail();
     }

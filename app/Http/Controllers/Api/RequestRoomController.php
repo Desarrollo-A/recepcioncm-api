@@ -90,7 +90,7 @@ class RequestRoomController extends BaseApiController
         $requestModel = $this->requestRoomService->assignSnack($dto, auth()->user()->office_id);
         $this->requestRoomService->checkRequestsByDay($requestModel, auth()->id());
         $this->notificationService->newOrResponseToApprovedRequestRoomNotification($requestModel);
-        $this->requestEmailService->sendApprovedRequestMail($requestModel);
+        $this->requestEmailService->sendApprovedRequestRoomMail($requestModel);
         return $this->noContentResponse();
     }
 
@@ -111,7 +111,7 @@ class RequestRoomController extends BaseApiController
         $requestModel = $this->requestRoomService->cancelRequest($dto, auth()->user());
         $snacks = $this->inventoryRequestService->deleteSnacks($requestId);
         $this->inventoryService->restoreStockAfterInventoriesRequestDeleted($snacks);
-        $this->requestEmailService->sendCancelledRequestMail($requestModel);
+        $this->requestEmailService->sendCancelledRequestRoomMail($requestModel);
         $this->notificationService->approvedToCancelledRequestRoomNotification($requestModel, auth()->user());
         return $this->noContentResponse();
     }

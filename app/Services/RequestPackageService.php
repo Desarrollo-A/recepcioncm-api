@@ -21,7 +21,7 @@ use App\Helpers\Enum\Path;
 use App\Helpers\Enum\QueryParam;
 use App\Helpers\File;
 use App\Helpers\Validation;
-use App\Mail\Package\ApprovedPackageMail;
+use App\Mail\RequestPackage\ApprovedPackageMail;
 use App\Models\Dto\CancelRequestDTO;
 use App\Models\Dto\PackageDTO;
 use App\Models\Dto\ProposalRequestDTO;
@@ -266,7 +266,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
                 ->toArray(['tracking_code', 'url_tracking', 'auth_code']));
         }
 
-        return $request->fresh(['package']);
+        return $request->fresh(['package', 'cancelRequest']);
     }
 
     /**
@@ -330,7 +330,9 @@ class RequestPackageService extends BaseService implements RequestPackageService
             $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id', 'end_date']));
             $packageUpdate = $this->packageRepository
                 ->update($dto->id, $dto->toArray(['tracking_code', 'url_tracking']))
-                ->fresh('request');
+                ->fresh(['request', 'request.status', 'driverPackageSchedule', 'driverPackageSchedule.carSchedule',
+                    'driverPackageSchedule.driverSchedule', 'driverPackageSchedule.carSchedule.car',
+                    'driverPackageSchedule.driverSchedule.driver']);
         }
         return $packageUpdate;
     }

@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Mail\Request;
+namespace App\Mail\RequestRoom;
 
 use App\Models\Request;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class CancelledRequestMail extends Mailable
+class ApprovedRequestRoomMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -20,22 +20,21 @@ class CancelledRequestMail extends Mailable
         $this->request = $request;
     }
 
-    public function build(): CancelledRequestMail
+    public function build(): ApprovedRequestRoomMail
     {
         $status = strtoupper($this->request->status->name);
         $code = $this->request->code;
         return $this
             ->to($this->emails)
-            ->subject("Movimiento de solicitud $code a $status")
-            ->markdown('mail.request.cancelled-request', [
+            ->subject("Movimiento solicitud de sala $code a $status")
+            ->markdown('mail.request-room.approved-request-room', [
                 'code' => $code,
                 'status' => $status,
                 'date' => $this->request->start_date->format('d-m-Y'),
                 'startTime' => $this->request->start_date->format('g:i A'),
                 'endTime' => $this->request->end_date->format('g:i A'),
                 'office' => $this->request->requestRoom->room->office->name,
-                'room' => $this->request->requestRoom->room->name,
-                'comment' => $this->request->cancelRequest->cancel_comment
+                'room' => $this->request->requestRoom->room->name
             ]);
     }
 }

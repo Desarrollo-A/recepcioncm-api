@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Mail\Package;
+namespace App\Mail\RequestPackage;
 
 use App\Models\Package;
 use Illuminate\Bus\Queueable;
@@ -25,7 +25,7 @@ class ApprovedPackageMail extends Mailable
         $url = config('app.url_front').'paqueteria/'.$this->packageUpdated->request_id.'?code='.$this->packageUpdated->auth_code;
         return $this
             ->subject('Solicitud de paquetería '.$this->codeRequest)
-            ->markdown('mail.package.approved-package',[
+            ->markdown('mail.request-package.approved-package',[
                 'fullName'          =>  $this->packageUpdated->name_receive,
                 'codeRequest'       =>  $this->codeRequest,
                 'url'               =>  $url

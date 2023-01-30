@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Mail\Request;
+namespace App\Mail\RequestDriver;
 
 use App\Models\Request;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class ApprovedRequestMail extends Mailable
+class CancelledRequestDriverMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -20,21 +20,22 @@ class ApprovedRequestMail extends Mailable
         $this->request = $request;
     }
 
-    public function build(): ApprovedRequestMail
+    public function build(): CancelledRequestDriverMail
     {
         $status = strtoupper($this->request->status->name);
         $code = $this->request->code;
+
         return $this
             ->to($this->emails)
-            ->subject("Movimiento de solicitud $code a $status")
-            ->markdown('mail.request.approved-request', [
+            ->subject("Movimiento solicitud de chofer $code a $status")
+            ->markdown('mail.request-driver.cancelled-request-driver', [
                 'code' => $code,
                 'status' => $status,
-                'date' => $this->request->start_date->format('d-m-Y'),
+                'startDate' => $this->request->start_date->format('d-m-Y'),
+                'endDate' => $this->request->end_date->format('d-m-Y'),
                 'startTime' => $this->request->start_date->format('g:i A'),
                 'endTime' => $this->request->end_date->format('g:i A'),
-                'office' => $this->request->requestRoom->room->office->name,
-                'room' => $this->request->requestRoom->room->name
+                'comment' => $this->request->cancelRequest->cancel_comment
             ]);
     }
 }

@@ -6,6 +6,7 @@ use App\Exceptions\CustomErrorException;
 use App\Http\Requests\Contracts\ReturnDtoInterface;
 use App\Models\Dto\RequestCarDTO;
 use App\Models\Dto\RequestDTO;
+use App\Models\Dto\RequestEmailDTO;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -26,7 +27,11 @@ class StoreRequestCarRequest extends FormRequest implements ReturnDtoInterface
             'comment' => ['nullable', 'string'],
             'addGoogleCalendar' => ['required', 'boolean'],
 
-            'requestCar.officeId' => ['required', 'integer']
+            'requestCar.officeId' => ['required', 'integer'],
+
+            'requestEmail' => ['array'],
+            'requestEmail.*.name' => ['required', 'max:150'],
+            'requestEmail.*.email' => ['required', 'email:dns', 'max:150'],
         ];
     }
 
@@ -40,7 +45,11 @@ class StoreRequestCarRequest extends FormRequest implements ReturnDtoInterface
             'comment' => 'Comentarios',
             'addGoogleCalendar' => 'Añadir a Google Calendar',
 
-            'requestCar.officeId' => 'Oficina'
+            'requestCar.officeId' => 'Oficina',
+
+            'requestEmail' => 'Listado de correos electrónicos',
+            'requestEmail.*.name' => 'Nombre del contacto',
+            'requestEmail.*.email' => 'Correo del contacto',
         ];
     }
 
@@ -49,6 +58,17 @@ class StoreRequestCarRequest extends FormRequest implements ReturnDtoInterface
      */
     public function toDTO(): RequestCarDTO
     {
+        $now = now();
+        $emails = array();
+        foreach ($this->requestEmail as $email) {
+            $emails[] = new RequestEmailDTO([
+                'name' => $email['name'],
+                'email' => $email['email'],
+                'created_at' => $now,
+                'updated_at' => $now
+            ]);
+        }
+
         $requestDTO = new RequestDTO([
             'title' => $this->title,
             'start_date' => new Carbon($this->startDate),
@@ -56,7 +76,8 @@ class StoreRequestCarRequest extends FormRequest implements ReturnDtoInterface
             'people' => $this->people,
             'comment' => $this->comment,
             'add_google_calendar' => $this->addGoogleCalendar,
-            'user_id' => auth()->id()
+            'user_id' => auth()->id(),
+            'requestEmail' => $emails
         ]);
 
         return new RequestCarDTO([

@@ -10,6 +10,7 @@ use App\Models\Request;
 use App\Models\RequestRoom;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -26,6 +27,9 @@ interface RequestRoomServiceInterface extends BaseServiceInterface
 
     public function findByRequestId(int $requestId, User $user): RequestRoom;
 
+    /**
+     * @param User|Authenticatable $user
+     */
     public function cancelRequest(CancelRequestDTO $dto, User $user): \App\Models\Request;
 
     public function getAvailableScheduleByDay(int $requestId, Carbon $date): \Illuminate\Support\Collection;

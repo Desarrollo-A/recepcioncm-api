@@ -6,8 +6,12 @@ use App\Contracts\Repositories\RequestEmailRepositoryInterface;
 use App\Contracts\Services\RequestEmailServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
-use App\Mail\Request\ApprovedRequestMail;
-use App\Mail\Request\CancelledRequestMail;
+use App\Mail\RequestCar\ApprovedRequestCarMail;
+use App\Mail\RequestCar\CancelledRequestCarMail;
+use App\Mail\RequestDriver\ApprovedRequestDriverMail;
+use App\Mail\RequestDriver\CancelledRequestDriverMail;
+use App\Mail\RequestRoom\ApprovedRequestRoomMail;
+use App\Mail\RequestRoom\CancelledRequestRoomMail;
 use App\Models\Dto\RequestEmailDTO;
 use App\Models\Request;
 use App\Models\RequestEmail;
@@ -38,19 +42,51 @@ class RequestEmailService extends BaseService implements RequestEmailServiceInte
         return $this->entityRepository->update($id, $dto->toArray(['name', 'email', 'request_id']));
     }
 
-    public function sendApprovedRequestMail(Request $request)
+    public function sendApprovedRequestRoomMail(Request $request): void
     {
         $emails = $this->entityRepository->findByRequestId($request->id, ['email'])->pluck('email');
         if ($emails->count() > 0) {
-            Mail::send(new ApprovedRequestMail($emails->toArray(), $request));
+            Mail::send(new ApprovedRequestRoomMail($emails->toArray(), $request));
         }
     }
 
-    public function sendCancelledRequestMail(Request $request)
+    public function sendCancelledRequestRoomMail(Request $request): void
     {
         $emails = $this->entityRepository->findByRequestId($request->id, ['email'])->pluck('email');
         if ($emails->count() > 0) {
-            Mail::send(new CancelledRequestMail($emails->toArray(), $request));
+            Mail::send(new CancelledRequestRoomMail($emails->toArray(), $request));
+        }
+    }
+
+    public function sendApprovedRequestDriverMail(Request $request): void
+    {
+        $emails = $this->entityRepository->findByRequestId($request->id, ['email'])->pluck('email');
+        if ($emails->count() > 0) {
+            Mail::send(new ApprovedRequestDriverMail($emails->toArray(), $request));
+        }
+    }
+
+    public function sendCancelledRequestDriverMail(Request $request): void
+    {
+        $emails = $this->entityRepository->findByRequestId($request->id, ['email'])->pluck('email');
+        if ($emails->count() > 0) {
+            Mail::send(new CancelledRequestDriverMail($emails->toArray(), $request));
+        }
+    }
+
+    public function sendApprovedRequestCarMail(Request $request): void
+    {
+        $emails = $this->entityRepository->findByRequestId($request->id, ['email'])->pluck('email');
+        if ($emails->count() > 0) {
+            Mail::send(new ApprovedRequestCarMail($emails->toArray(), $request));
+        }
+    }
+
+    public function sendCancelledRequestCarMail(Request $request): void
+    {
+        $emails = $this->entityRepository->findByRequestId($request->id, ['email'])->pluck('email');
+        if ($emails->count() > 0) {
+            Mail::send(new CancelledRequestCarMail($emails->toArray(), $request));
         }
     }
 }
