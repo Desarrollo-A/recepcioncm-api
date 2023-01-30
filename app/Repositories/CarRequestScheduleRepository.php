@@ -38,4 +38,11 @@ class CarRequestScheduleRepository extends BaseRepository implements CarRequestS
             ->whereDate('cs.end_date', '>=', now())
             ->get();
     }
+
+    public function bulkDeleteByRequestCarId(array $requestCarIds): bool
+    {
+        return $this->entity
+            ->whereIn('request_car_id', $requestCarIds)
+            ->delete();
+    }
 }

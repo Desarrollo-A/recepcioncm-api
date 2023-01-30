@@ -14,4 +14,6 @@ interface CarRequestScheduleRepositoryInterface extends BaseRepositoryInterface
     public function deleteByRequestCarId(int $requestCarId): void;
 
     public function getBusyDaysForProposalCalendar(): Collection;
+
+    public function bulkDeleteByRequestCarId(array $requestCarIds): bool;
 }

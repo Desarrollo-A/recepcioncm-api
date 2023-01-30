@@ -199,6 +199,25 @@ class Utils
         ];
     }
 
+    public static function getAllExpiredStatusRequest(): array
+    {
+        return [
+            StatusRoomRequestLookup::code(StatusRoomRequestLookup::NEW),
+            StatusRoomRequestLookup::code(StatusRoomRequestLookup::PROPOSAL),
+            StatusRoomRequestLookup::code(StatusRoomRequestLookup::IN_REVIEW),
+
+            StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW),
+            StatusPackageRequestLookup::code(StatusPackageRequestLookup::PROPOSAL),
+            StatusPackageRequestLookup::code(StatusPackageRequestLookup::IN_REVIEW),
+
+            StatusDriverRequestLookup::code(StatusDriverRequestLookup::NEW),
+            StatusDriverRequestLookup::code(StatusDriverRequestLookup::PROPOSAL),
+
+            StatusCarRequestLookup::code(StatusCarRequestLookup::NEW),
+            StatusCarRequestLookup::code(StatusCarRequestLookup::PROPOSAL)
+        ];
+    }
+
     public static function createSummaryOfDayObject(string $title, string $subtitle, Request $request): object
     {
         return (object)['title' => $title, 'subtitle' => $subtitle, 'request' => $request];
