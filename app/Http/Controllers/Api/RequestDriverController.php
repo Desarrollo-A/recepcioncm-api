@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Contracts\Services\NotificationServiceInterface;
 use App\Contracts\Services\RequestDriverServiceInterface;
+use App\Contracts\Services\RequestEmailServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\CancelRequest\CancelRequest;
@@ -24,9 +25,11 @@ class RequestDriverController extends BaseApiController
 {
     private $requestDriverService;
     private $notificationService;
+    private $requestEmailService;
     
     public function __construct(RequestDriverServiceInterface $requestDriverService,
-                                NotificationServiceInterface $notificationService)
+                                NotificationServiceInterface $notificationService,
+                                RequestEmailServiceInterface $requestEmailService)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
             ->only('store', 'uploadAuthorizationFile', 'responseRejectRequest');
@@ -41,6 +44,7 @@ class RequestDriverController extends BaseApiController
 
         $this->requestDriverService = $requestDriverService;
         $this->notificationService = $notificationService;
+        $this->requestEmailService = $requestEmailService;
     }
 
     /**
@@ -91,6 +95,7 @@ class RequestDriverController extends BaseApiController
         $dto->request_id = $requestId;
         $requestDriver = $this->requestDriverService->cancelRequest($dto);
         $this->notificationService->cancelRequestDriverNotification($requestDriver->fresh('requestDriver'), auth()->user());
+        $this->requestEmailService->sendCancelledRequestDriverMail($requestDriver);
         return $this->noContentResponse();
     }
 
@@ -112,6 +117,7 @@ class RequestDriverController extends BaseApiController
         $dto = $request->toDTO();
         $request = $this->requestDriverService->approvedRequest($dto);
         $this->notificationService->approvedRequestDriverNotification($request, $dto->driverRequestSchedule->driverSchedule->driver_id);
+        $this->requestEmailService->sendApprovedRequestDriverMail($request);
         return $this->noContentResponse();
     }
 

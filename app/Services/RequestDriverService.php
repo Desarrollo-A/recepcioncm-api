@@ -132,6 +132,9 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
         return $this->requestDriverViewRepository->findAllDriversPaginated($filters, $perPage, $user, $sort);
     }
 
+    /**
+     * @throws AuthorizationException
+     */
     public function findByDriverRequestId(int $id, User $user): RequestDriver
     {
         $driver = $this->entityRepository->findByRequestId($id);
@@ -240,7 +243,7 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
 
         $this->cancelRequestRepository->create($dto->toArray(['request_id', 'cancel_comment', 'user_id']));
 
-        return $request;
+        return $request->fresh(['status', 'cancelRequest']);
     }
 
     /**
@@ -279,7 +282,10 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
         $this->driverRequestScheduleRepository
             ->create($dto->driverRequestSchedule->toArray(['request_driver_id', 'driver_schedule_id', 'car_schedule_id']));
 
-        return $request;
+        return $request->fresh(['requestDriver', 'requestDriver.driverRequestSchedule',
+            'requestDriver.driverRequestSchedule.driverSchedule','requestDriver.driverRequestSchedule.carSchedule',
+            'requestDriver.driverRequestSchedule.driverSchedule.driver',
+            'requestDriver.driverRequestSchedule.carSchedule.car', 'status']);
     }
 
     /**
