@@ -247,7 +247,7 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
 
         $this->cancelRequestRepository->create($dto->toArray(['request_id', 'cancel_comment', 'user_id']));
 
-        return $request;
+        return $request->fresh(['requestCar', 'status', 'cancelRequest']);
     }
 
     /**
@@ -272,7 +272,8 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         $this->carRequestScheduleRepository
             ->create($dto->carRequestSchedule->toArray(['request_car_id', 'car_schedule_id']));
 
-        return $request;
+        return $request->fresh(['requestCar', 'requestCar.carRequestSchedule', 'requestCar.carRequestSchedule.carSchedule',
+            'requestCar.carRequestSchedule.carSchedule.car', 'status']);
     }
 
     public function getBusyDaysForProposalCalendar(): array

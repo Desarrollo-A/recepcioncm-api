@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Contracts\Services\NotificationServiceInterface;
 use App\Contracts\Services\RequestCarServiceInterface;
+use App\Contracts\Services\RequestEmailServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\CancelRequest\CancelRequest;
@@ -24,9 +25,11 @@ class RequestCarController extends BaseApiController
 {
     private $requestCarService;
     private $notificationService;
+    private $requestEmailService;
 
     public function __construct(RequestCarServiceInterface $requestCarService,
-                                NotificationServiceInterface $notificationService)
+                                NotificationServiceInterface $notificationService,
+                                RequestEmailServiceInterface $requestEmailService)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
             ->only('store', 'uploadAuthorizationFile', 'deleteRequestCar', 'responseRejectRequest');
@@ -34,8 +37,10 @@ class RequestCarController extends BaseApiController
             ->only('index', 'store', 'uploadAuthorizationFile', 'show', 'cancelRequest', 'getStatusByStatusCurrent');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
             ->only('transferRequest', 'approvedRequest', 'getBusyDaysForProposalCalendar', 'proposalRequest');
+
         $this->requestCarService = $requestCarService;
         $this->notificationService = $notificationService;
+        $this->requestEmailService = $requestEmailService;
     }
 
     public function index(Request $request): JsonResponse
@@ -99,8 +104,9 @@ class RequestCarController extends BaseApiController
     {
         $dto = $request->toDTO();
         $dto->request_id = $requestId;
-        $requestCar = $this->requestCarService->cancelRequest($dto);
-        $this->notificationService->cancelRequestCarNotification($requestCar->fresh('requestCar'), auth()->user());
+        $request = $this->requestCarService->cancelRequest($dto);
+        $this->notificationService->cancelRequestCarNotification($request, auth()->user());
+        $this->requestEmailService->sendCancelledRequestCarMail($request);
         return $this->noContentResponse();
     }
 
@@ -110,8 +116,9 @@ class RequestCarController extends BaseApiController
     public function approvedRequest(ApprovedCarRequest $request): JsonResponse
     {
         $dto = $request->toDTO();
-        $requestCar= $this->requestCarService->approvedRequest($dto);
-        $this->notificationService->approvedRequestCarNotification($requestCar);
+        $request = $this->requestCarService->approvedRequest($dto);
+        $this->notificationService->approvedRequestCarNotification($request);
+        $this->requestEmailService->sendApprovedRequestCarMail($request);
         return $this->noContentResponse();
     }
 

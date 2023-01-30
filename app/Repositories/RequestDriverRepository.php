@@ -28,7 +28,7 @@ class RequestDriverRepository extends BaseRepository implements RequestDriverRep
                 'request.user', 'request.status', 'request.cancelRequest', 'request.cancelRequest.user', 
                 'driverRequestSchedule', 'driverRequestSchedule.carSchedule', 'driverRequestSchedule.driverSchedule',
                 'driverRequestSchedule.carSchedule.car', 'driverRequestSchedule.driverSchedule.driver', 
-                'pickupAddress.office', 'arrivalAddress.office'])
+                'pickupAddress.office', 'arrivalAddress.office', 'request.requestEmail'])
             ->where('request_id', $requestId)
             ->firstOrFail();
     }

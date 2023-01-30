@@ -7,6 +7,7 @@ use App\Http\Requests\Contracts\ReturnDtoInterface;
 use App\Models\Dto\AddressDTO;
 use App\Models\Dto\RequestDriverDTO;
 use App\Models\Dto\RequestDTO;
+use App\Models\Dto\RequestEmailDTO;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -31,7 +32,11 @@ class StoreRequestDriverRequest extends FormRequest implements ReturnDtoInterfac
             'comment' => ['nullable', 'string'],
             'addGoogleCalendar' => ['required', 'boolean'],
 
-            'requestDriver.officeId' => ['required', 'integer']
+            'requestDriver.officeId' => ['required', 'integer'],
+
+            'requestEmail' => ['array'],
+            'requestEmail.*.name' => ['required', 'max:150'],
+            'requestEmail.*.email' => ['required', 'email:dns', 'max:150'],
         ];
 
         if ($this->requestDriver['pickupAddress']['isExternal']) {
@@ -102,6 +107,10 @@ class StoreRequestDriverRequest extends FormRequest implements ReturnDtoInterfac
 
             'requestDriver.pickupAddressId' =>  'ID dirección de salida',
             'requestDriver.arrivalAddressId' =>  'ID dirección llegada',
+
+            'requestEmail' => 'Listado de correos electrónicos',
+            'requestEmail.*.name' => 'Nombre del contacto',
+            'requestEmail.*.email' => 'Correo del contacto',
         ];
     }
 
@@ -110,6 +119,17 @@ class StoreRequestDriverRequest extends FormRequest implements ReturnDtoInterfac
      */
     public function toDTO(): RequestDriverDTO
     {
+        $now = now();
+        $emails = array();
+        foreach ($this->requestEmail as $email) {
+            $emails[] = new RequestEmailDTO([
+                'name' => $email['name'],
+                'email' => $email['email'],
+                'created_at' => $now,
+                'updated_at' => $now
+            ]);
+        }
+
         $pickupAddressDTO = new AddressDTO([
             'street' => $this->requestDriver['pickupAddress']['street'],
             'num_ext' => $this->requestDriver['pickupAddress']['numExt'],
@@ -137,7 +157,8 @@ class StoreRequestDriverRequest extends FormRequest implements ReturnDtoInterfac
             'people' => $this->people,
             'comment' => $this->comment,
             'add_google_calendar' => $this->addGoogleCalendar,
-            'user_id' => auth()->id()
+            'user_id' => auth()->id(),
+            'requestEmail' => $emails
         ]);
         
         return new RequestDriverDTO([

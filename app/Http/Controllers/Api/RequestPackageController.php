@@ -28,10 +28,10 @@ use Symfony\Component\HttpFoundation\Response as HttpCodes;
 class RequestPackageController extends BaseApiController
 {
     private $requestPackageService;
-    private $notificationServiceInterface;
+    private $notificationService;
 
     public function __construct(RequestPackageServiceInterface $requestPackageService,
-                                NotificationServiceInterface $notificationServiceInterface)
+                                NotificationServiceInterface $notificationService)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
             ->only('store', 'uploadAuthorizationFile', 'responseRejectRequest');
@@ -46,7 +46,7 @@ class RequestPackageController extends BaseApiController
             ->only('findAllByDriverIdPaginated', 'onRoad');
         
         $this->requestPackageService = $requestPackageService;
-        $this->notificationServiceInterface = $notificationServiceInterface;
+        $this->notificationService = $notificationService;
     }
 
     /**
@@ -96,7 +96,7 @@ class RequestPackageController extends BaseApiController
         $dto = $request->toDTO();
         $dto->request_id = $requestId;
         $requestCanceled = $this->requestPackageService->cancelRequest($dto);
-        $this->notificationServiceInterface->cancelRequestPackageNotification($requestCanceled, auth()->user());
+        $this->notificationService->cancelRequestPackageNotification($requestCanceled, auth()->user());
         return $this->noContentResponse();
     }
 
@@ -106,7 +106,7 @@ class RequestPackageController extends BaseApiController
     public function transferRequest(int $packageId, TransferPackageRequest $request): JsonResponse
     {
         $packageTransfer = $this->requestPackageService->transferRequest($packageId, $request->toDTO());
-        $this->notificationServiceInterface->transferPackageRequestNotification($packageTransfer);
+        $this->notificationService->transferPackageRequestNotification($packageTransfer);
         return $this->noContentResponse();
     }
 
@@ -129,7 +129,7 @@ class RequestPackageController extends BaseApiController
     {
         $dto = $request->toDTO();
         $packageApproved = $this->requestPackageService->approvedRequest($dto);
-        $this->notificationServiceInterface->approvedPackageRequestNotification($packageApproved, $dto->driverPackageSchedule->driverSchedule->driver_id);
+        $this->notificationService->approvedPackageRequestNotification($packageApproved, $dto->driverPackageSchedule->driverSchedule->driver_id);
         return $this->noContentResponse();
     }
 
@@ -140,7 +140,7 @@ class RequestPackageController extends BaseApiController
     {
         $scoreDTO = $request->toDTO();
         $packageDelivered = $this->requestPackageService->insertScore($scoreDTO);
-        $this->notificationServiceInterface->deliveredPackageRequestNotification($packageDelivered);
+        $this->notificationService->deliveredPackageRequestNotification($packageDelivered);
         return $this->noContentResponse();
     }
 
@@ -165,7 +165,7 @@ class RequestPackageController extends BaseApiController
     public function onRoad(int $requestId): JsonResponse
     {
         $requestPackageOnRoad = $this->requestPackageService->onRoad($requestId);
-        $this->notificationServiceInterface->onRoadPackageRequestNotification($requestPackageOnRoad);
+        $this->notificationService->onRoadPackageRequestNotification($requestPackageOnRoad);
         return $this->noContentResponse();
     }
 
@@ -178,7 +178,7 @@ class RequestPackageController extends BaseApiController
     public function proposalRequest(ProposalPackageRequest $request): JsonResponse
     {
         $requestPackageProposal = $this->requestPackageService->proposalRequest($request->toDTO());
-        $this->notificationServiceInterface->proposalPackageRequestNotification($requestPackageProposal);
+        $this->notificationService->proposalPackageRequestNotification($requestPackageProposal);
         return $this->noContentResponse();
     }
 
@@ -189,7 +189,7 @@ class RequestPackageController extends BaseApiController
     {
         $dto = $request->toDTO();
         $request = $this->requestPackageService->responseRejectRequest($requestId, $dto);
-        $this->notificationServiceInterface->responseRejectRequestNotification($request);
+        $this->notificationService->responseRejectRequestNotification($request);
         return $this->noContentResponse();
     }
 
