@@ -20,10 +20,7 @@ interface RequestServiceInterface extends BaseServiceInterface
 
     public function changeToFinished(): Collection;
 
-    /**
-     * @return void
-     */
-    public function changeToExpired();
+    public function changeToExpired(): void;
 
     public function deleteRequestPackage(int $requestId, int $userId): Package;
 
