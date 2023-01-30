@@ -60,15 +60,6 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
             ->get();
     }
 
-    public function getPreviouslyByCode(string $code, array $columns = ['*']): Collection
-    {
-        return $this->entity
-            ->join('lookups', 'lookups.id', '=', 'requests.status_id')
-            ->whereDate('requests.end_date', '<', now())
-            ->where('lookups.code', $code)
-            ->get($columns);
-    }
-
     public function getAllApprovedCarDriverRoom(array $columns = ['*']): Collection
     {
         return $this->entity
@@ -87,13 +78,23 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
             ->get($columns);
     }
 
-    public function getExpired(array $columns = ['*']): Collection
+    public function getExpired(): Collection
     {
         return $this->entity
-            ->join('lookups', 'lookups.id', '=', 'requests.status_id')
-            ->whereDate('end_date', '<', now())
-            ->expired()
-            ->get($columns);
+            ->selectRaw("r.id, s.code AS status_code, t.code AS type_code,".
+                "drs.request_driver_id, drs.driver_schedule_id AS drs_driver_schedule_id, drs.car_schedule_id AS drs_car_schedule_id,".
+                "crs.request_car_id, crs.car_schedule_id AS crs_car_schedule_id")
+            ->from('requests AS r')
+            ->join('lookups AS s', 's.id', '=', 'r.status_id')
+            ->join('lookups AS t', 't.id', '=', 'r.type_id')
+            ->leftJoin('request_drivers AS rd', 'rd.request_id', '=', 'r.id')
+            ->leftJoin('driver_request_schedules AS drs', 'drs.request_driver_id', '=', 'rd.id')
+            ->leftJoin('request_cars AS rc', 'rc.request_id', '=', 'r.id')
+            ->leftJoin('car_request_schedules AS crs', 'crs.request_car_id', '=' ,'rc.id')
+            ->whereIn('t.code', Utils::getAllTypesRequest())
+            ->whereIn('s.code', Utils::getAllExpiredStatusRequest())
+            ->whereDate('r.start_date', '<', now())
+            ->get();
     }
 
     /**

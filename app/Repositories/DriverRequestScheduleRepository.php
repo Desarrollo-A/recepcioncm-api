@@ -38,4 +38,11 @@ class DriverRequestScheduleRepository extends BaseRepository implements DriverRe
             ->whereDate('ds.end_date', '>=', now())
             ->get();
     }
+
+    public function bulkDeleteByRequestDriverId(array $requestDriverIds): bool
+    {
+        return $this->entity
+            ->whereIn('request_driver_id', $requestDriverIds)
+            ->delete();
+    }
 }

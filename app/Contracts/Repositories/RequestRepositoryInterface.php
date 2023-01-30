@@ -18,11 +18,9 @@ interface RequestRepositoryInterface extends BaseRepositoryInterface
 
     public function roomsSetAsideByDay(Carbon $date): Collection;
 
-    public function getPreviouslyByCode(string $code, array $columns = ['*']): Collection;
-
     public function getAllApprovedCarDriverRoom(array $columns = ['*']): Collection;
 
-    public function getExpired(array $columns = ['*']): Collection;
+    public function getExpired(): Collection;
 
     /**
      * @return void

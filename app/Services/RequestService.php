@@ -3,6 +3,10 @@
 namespace App\Services;
 
 use App\Contracts\Repositories\AddressRepositoryInterface;
+use App\Contracts\Repositories\CarRequestScheduleRepositoryInterface;
+use App\Contracts\Repositories\CarScheduleRepositoryInterface;
+use App\Contracts\Repositories\DriverRequestScheduleRepositoryInterface;
+use App\Contracts\Repositories\DriverScheduleRepositoryInterface;
 use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\NotificationRepositoryInterface;
 use App\Contracts\Repositories\PackageRepositoryInterface;
@@ -18,6 +22,7 @@ use App\Helpers\File;
 use App\Models\Dto\RequestDTO;
 use App\Models\Enums\Lookups\StatusCarRequestLookup;
 use App\Models\Enums\Lookups\StatusDriverRequestLookup;
+use App\Models\Enums\Lookups\StatusPackageRequestLookup;
 use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Enums\TypeLookup;
@@ -37,6 +42,10 @@ class RequestService extends BaseService implements RequestServiceInterface
     protected $packageRepository;
     protected $addressRepository;
     protected $requestDriverRepository;
+    protected $driverRequestScheduleRepository;
+    protected $carRequestScheduleRepository;
+    protected $driverScheduleRepository;
+    protected $carScheduleRepository;
 
     public function __construct(RequestRepositoryInterface $requestRepository,
                                 LookupRepositoryInterface $lookupRepository,
@@ -44,7 +53,11 @@ class RequestService extends BaseService implements RequestServiceInterface
                                 ProposalRequestRepositoryInterface $proposalRequestRepository,
                                 PackageRepositoryInterface $packageRepository,
                                 AddressRepositoryInterface $addressRepository,
-                                RequestDriverRepositoryInterface $requestDriverRepository)
+                                RequestDriverRepositoryInterface $requestDriverRepository,
+                                DriverRequestScheduleRepositoryInterface $driverRequestScheduleRepository,
+                                CarRequestScheduleRepositoryInterface $carRequestScheduleRepository,
+                                DriverScheduleRepositoryInterface $driverScheduleRepository,
+                                CarScheduleRepositoryInterface $carScheduleRepository)
     {
         $this->entityRepository = $requestRepository;
         $this->lookupRepository = $lookupRepository;
@@ -53,6 +66,10 @@ class RequestService extends BaseService implements RequestServiceInterface
         $this->packageRepository = $packageRepository;
         $this->addressRepository = $addressRepository;
         $this->requestDriverRepository = $requestDriverRepository;
+        $this->driverRequestScheduleRepository = $driverRequestScheduleRepository;
+        $this->carRequestScheduleRepository = $carRequestScheduleRepository;
+        $this->driverScheduleRepository = $driverScheduleRepository;
+        $this->carScheduleRepository = $carScheduleRepository;
     }
 
     /**
@@ -128,21 +145,128 @@ class RequestService extends BaseService implements RequestServiceInterface
         return $requests;
     }
 
-    public function changeToExpired()
+    public function changeToExpired(): void
     {
-        $expired = $this->entityRepository->getExpired(['requests.id']);
-        $statusId = $this->lookupRepository->findByCodeAndType(StatusRoomRequestLookup::code(StatusRoomRequestLookup::EXPIRED),
-            TypeLookup::STATUS_ROOM_REQUEST)->id;
-        if ($expired->count() > 0) {
-            $this->entityRepository->bulkStatusUpdate(array_values($expired->toArray()), $statusId);
+        $proposalIds = [];
+        $carSchedulesIds = [];
+        $expired = $this->entityRepository->getExpired();
+
+        $expiredRequestRoom = $expired->filter(function ($request) {
+            return $request->type_code === TypeRequestLookup::code(TypeRequestLookup::ROOM);
+        });
+
+        if ($expiredRequestRoom->count() > 0) {
+            $statusId = $this->lookupRepository->findByCodeAndType(
+                StatusRoomRequestLookup::code(StatusRoomRequestLookup::EXPIRED),
+                TypeLookup::STATUS_ROOM_REQUEST)
+                ->id;
+            $this->entityRepository->bulkStatusUpdate($expiredRequestRoom->pluck('id')->values()->toArray(), $statusId);
+
+            $proposalRequestRoom = $expiredRequestRoom->filter(function ($request) {
+                return $request->status_code === StatusRoomRequestLookup::code(StatusRoomRequestLookup::PROPOSAL);
+            });
+
+            if ($proposalRequestRoom->count() > 0) {
+                $proposalIds = array_merge($proposalIds, $proposalRequestRoom->pluck('id')->values()->toArray());
+            }
         }
 
-        $proposalRequests = $this->entityRepository
-            ->getPreviouslyByCode(StatusRoomRequestLookup::code(StatusRoomRequestLookup::PROPOSAL), ['requests.id']);
-        if ($proposalRequests->count() > 0) {
-            $this->proposalRequestRepository->deleteInRequestIds(array_values($proposalRequests->toArray()));
-            $this->entityRepository->bulkStatusUpdate(array_values($proposalRequests->toArray()), $statusId);
+        $expiredRequestPackage = $expired->filter(function ($request) {
+            return $request->type_code === TypeRequestLookup::code(TypeRequestLookup::PARCEL);
+        });
+
+        if ($expiredRequestPackage->count() > 0) {
+            $statusId = $this->lookupRepository->findByCodeAndType(
+                StatusPackageRequestLookup::code(StatusPackageRequestLookup::EXPIRED),
+                TypeLookup::STATUS_PACKAGE_REQUEST)
+                ->id;
+            $this->entityRepository->bulkStatusUpdate($expiredRequestPackage->pluck('id')->values()->toArray(), $statusId);
+
+            $proposalRequestPackage = $expiredRequestPackage->filter(function ($request) {
+                return $request->status_code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::PROPOSAL);
+            });
+
+            if ($proposalRequestPackage->count() > 0) {
+                $proposalIds = array_merge($proposalIds, $proposalRequestPackage->pluck('id')->values()->toArray());
+            }
         }
+
+        $expiredRequestDriver = $expired->filter(function ($request) {
+            return $request->type_code === TypeRequestLookup::code(TypeRequestLookup::DRIVER);
+        });
+
+        if ($expiredRequestDriver->count() > 0) {
+            $statusId = $this->lookupRepository->findByCodeAndType(
+                StatusDriverRequestLookup::code(StatusDriverRequestLookup::EXPIRED),
+                TypeLookup::STATUS_DRIVER_REQUEST)
+                ->id;
+            $this->entityRepository->bulkStatusUpdate($expiredRequestDriver->pluck('id')->values()->toArray(), $statusId);
+
+            $proposalRequestDriver = $expiredRequestDriver->filter(function ($request) {
+                return $request->status_code === StatusDriverRequestLookup::code(StatusDriverRequestLookup::PROPOSAL);
+            });
+
+            if ($proposalRequestDriver->count() > 0) {
+                $proposalIds = array_merge($proposalIds, $proposalRequestDriver->pluck('id')->values()->toArray());
+            }
+        }
+
+        $expiredRequestCar = $expired->filter(function ($request) {
+            return $request->type_code === TypeRequestLookup::code(TypeRequestLookup::CAR);
+        });
+
+        if ($expiredRequestCar->count() > 0) {
+            $statusId = $this->lookupRepository->findByCodeAndType(
+                StatusCarRequestLookup::code(StatusCarRequestLookup::EXPIRED),
+                TypeLookup::STATUS_CAR_REQUEST)
+                ->id;
+            $this->entityRepository->bulkStatusUpdate($expiredRequestCar->pluck('id')->values()->toArray(), $statusId);
+
+            $proposalRequestCar = $expiredRequestCar->filter(function ($request) {
+                return $request->status_code === StatusCarRequestLookup::code(StatusCarRequestLookup::PROPOSAL);
+            });
+
+            if ($proposalRequestCar->count() > 0) {
+                $proposalIds = array_merge($proposalIds, $proposalRequestCar->pluck('id')->values()->toArray());
+            }
+        }
+
+        $assignRequestDriver = $expired->filter(function ($request) {
+            return !is_null($request->request_driver_id);
+        });
+
+        if ($assignRequestDriver->count() > 0) {
+            $this->driverRequestScheduleRepository->bulkDeleteByRequestDriverId(
+                $assignRequestDriver->pluck('request_driver_id')->values()->toArray()
+            );
+
+            $this->driverScheduleRepository->bulkDelete(
+                $assignRequestDriver->pluck('drs_driver_schedule_id')->values()->toArray()
+            );
+
+            $carSchedulesIds = array_merge($carSchedulesIds,
+                $assignRequestDriver->pluck('drs_car_schedule_id')->values()->toArray());
+        }
+
+        $assignRequestCar = $expired->filter(function ($request) {
+            return !is_null($request->request_car_id);
+        });
+
+        if ($assignRequestCar->count() > 0) {
+            $this->carRequestScheduleRepository->bulkDeleteByRequestCarId(
+                $assignRequestCar->pluck('request_car_id')->values()->toArray()
+            );
+
+            $carSchedulesIds = array_merge($carSchedulesIds,
+                $assignRequestCar->pluck('crs_car_schedule_id')->values()->toArray()
+            );
+        }
+
+        if (count($carSchedulesIds) > 0) {
+            $this->carScheduleRepository->bulkDelete($carSchedulesIds);
+        }
+
+        $this->proposalRequestRepository->deleteInRequestIds($proposalIds);
     }
 
     public function deleteRequestPackage(int $requestId, int $userId): Package

@@ -14,4 +14,6 @@ interface DriverRequestScheduleRepositoryInterface extends BaseRepositoryInterfa
     public function deleteByRequestDriverId(int $requestDriverId): void;
 
     public function getBusyDaysForProposalCalendar(): Collection;
+
+    public function bulkDeleteByRequestDriverId(array $requestDriverIds): bool;
 }
