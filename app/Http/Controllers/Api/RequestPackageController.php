@@ -95,8 +95,8 @@ class RequestPackageController extends BaseApiController
     {
         $dto = $request->toDTO();
         $dto->request_id = $requestId;
-        $requestCanceled = $this->requestPackageService->cancelRequest($dto);
-        $this->notificationService->cancelRequestPackageNotification($requestCanceled, auth()->user());
+        $data = $this->requestPackageService->cancelRequest($dto);
+        $this->notificationService->cancelRequestPackageNotification($data->request, auth()->user(), $data->driverId);
         return $this->noContentResponse();
     }
 

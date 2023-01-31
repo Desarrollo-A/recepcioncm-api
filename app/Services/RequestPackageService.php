@@ -214,9 +214,11 @@ class RequestPackageService extends BaseService implements RequestPackageService
     }
 
     /**
+     * @param CancelRequestDTO $dto
+     * @return object { request: App\Models\Request, driverId: int|null }
      * @throws CustomErrorException
      */
-    public function cancelRequest(CancelRequestDTO $dto): Request
+    public function cancelRequest(CancelRequestDTO $dto): object
     {
         $status = $this->lookupRepository->findByCodeWhereInAndType([
             StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW),
@@ -254,9 +256,12 @@ class RequestPackageService extends BaseService implements RequestPackageService
         });
 
         // Si la solicitud fue aprobada anteriormente
+        $driverId = null;
         if ($lastStatusId === $statusApproved->id) {
             $package = $this->packageRepository->findByRequestId($dto->request_id);
             if (is_null($package->tracking_code)) {
+                $driverId = $package->driverPackageSchedule->driverSchedule->driver_id;
+
                 $this->driverPackageScheduleRepository->deleteByPackageId($package->id);
                 $this->carScheduleRepository->delete($package->driverPackageSchedule->carSchedule->id);
                 $this->driverScheduleRepository->delete($package->driverPackageSchedule->driverSchedule->id);
@@ -266,7 +271,10 @@ class RequestPackageService extends BaseService implements RequestPackageService
                 ->toArray(['tracking_code', 'url_tracking', 'auth_code']));
         }
 
-        return $request->fresh(['package', 'cancelRequest']);
+        return (object)[
+            'request' => $request->fresh(['package', 'cancelRequest']),
+            'driverId' => $driverId
+        ];
     }
 
     /**

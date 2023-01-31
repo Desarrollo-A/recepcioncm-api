@@ -50,7 +50,7 @@ interface NotificationServiceInterface extends BaseServiceInterface
     /**
      * @param User|Authenticatable $user
      */
-    public function cancelRequestPackageNotification(Request $request, User $user): void;
+    public function cancelRequestPackageNotification(Request $request, User $user, int $driverId = null): void;
 
     public function transferPackageRequestNotification(Package $package): void;
 
@@ -71,7 +71,7 @@ interface NotificationServiceInterface extends BaseServiceInterface
     /**
      * @param User|Authenticatable $user
      */
-    public function cancelRequestDriverNotification(Request $request, User $user): void;
+    public function cancelRequestDriverNotification(Request $request, User $user, int $driverId = null): void;
 
     public function transferRequestDriverNotification(RequestDriver $requestDriver): void;
 
