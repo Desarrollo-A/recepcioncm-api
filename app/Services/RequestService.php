@@ -108,7 +108,7 @@ class RequestService extends BaseService implements RequestServiceInterface
     public function changeToFinished(): Collection
     {
         $requests = $this->entityRepository
-            ->getAllApprovedCarDriverRoom(['requests.id','t.code AS type_code']);
+            ->getAllApprovedCarDriverRoom(['requests.id','t.code AS type_code', 'requests.user_id', 'requests.code']);
                                             
         $filteredRoomRequests = $requests->filter(function($value){
             return $value->type_code === TypeRequestLookup::code(TypeRequestLookup::ROOM);
@@ -142,6 +142,7 @@ class RequestService extends BaseService implements RequestServiceInterface
                     TypeLookup::STATUS_CAR_REQUEST)->id;
             $this->entityRepository->bulkStatusUpdate($filteredCarRequests->pluck('id')->values()->toArray(), $statusId);
         }
+
         return $requests;
     }
 

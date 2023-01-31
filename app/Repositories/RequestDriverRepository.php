@@ -24,11 +24,26 @@ class RequestDriverRepository extends BaseRepository implements RequestDriverRep
     public function findByRequestId(int $requestId): RequestDriver
     {
         return $this->entity
-            ->with(['pickupAddress', 'pickupAddress.country', 'arrivalAddress', 'arrivalAddress.country', 'request',
-                'request.user', 'request.status', 'request.cancelRequest', 'request.cancelRequest.user', 
-                'driverRequestSchedule', 'driverRequestSchedule.carSchedule', 'driverRequestSchedule.driverSchedule',
-                'driverRequestSchedule.carSchedule.car', 'driverRequestSchedule.driverSchedule.driver', 
-                'pickupAddress.office', 'arrivalAddress.office', 'request.requestEmail'])
+            ->with([
+                'pickupAddress',
+                'pickupAddress.country',
+                'arrivalAddress',
+                'arrivalAddress.country',
+                'request',
+                'request.user',
+                'request.status',
+                'request.cancelRequest',
+                'request.cancelRequest.user',
+                'request.score',
+                'driverRequestSchedule',
+                'driverRequestSchedule.carSchedule',
+                'driverRequestSchedule.driverSchedule',
+                'driverRequestSchedule.carSchedule.car',
+                'driverRequestSchedule.driverSchedule.driver',
+                'pickupAddress.office',
+                'arrivalAddress.office',
+                'request.requestEmail'
+            ])
             ->where('request_id', $requestId)
             ->firstOrFail();
     }
