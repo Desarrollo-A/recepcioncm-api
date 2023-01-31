@@ -8,7 +8,7 @@ class TypeRequestLookup
 {
     const ROOM = 'Sala de junta';
     const DRIVER = 'Chofer';
-    const CAR = 'Vehiculo';
+    const CAR = 'Vehículo';
     const PAPER = 'Papelería';
     const PARCEL = 'Paquetería';
 
