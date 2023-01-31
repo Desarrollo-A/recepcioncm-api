@@ -8,7 +8,7 @@ class TypeNotificationsLookup
 {
     const ROOM = 'Sala';
     const DRIVER = 'Chofer';
-    const CAR = 'Vehiculo';
+    const CAR = 'Vehículo';
     const INVENTORY = 'Inventario';
     const PAPER = 'Papelería';
     const PARCEL = 'Paquetería';

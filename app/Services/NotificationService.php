@@ -24,6 +24,7 @@ use App\Models\Enums\Lookups\StatusDriverRequestLookup;
 use App\Models\Enums\Lookups\StatusPackageRequestLookup;
 use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\Enums\Lookups\TypeNotificationsLookup;
+use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
 use App\Models\Inventory;
@@ -187,8 +188,26 @@ class NotificationService extends BaseService implements NotificationServiceInte
     public function createScoreRequestNotification(Collection $requests): void
     {
         $requests->each(function (Request $request) {
-            $notification = $this->createRow("Calificar la solicitud $request->code", $request->user_id,
-                TypeNotificationsLookup::GENERAL, NotificationColorLookup::BLUE, NotificationIconLookup::STAR);
+            switch ($request->type_code) {
+                case TypeRequestLookup::code(TypeRequestLookup::ROOM):
+                    $typeNotification = TypeNotificationsLookup::ROOM;
+                    $typeRequest = TypeRequestLookup::ROOM;
+                    break;
+                case TypeRequestLookup::code(TypeRequestLookup::DRIVER):
+                    $typeNotification = TypeNotificationsLookup::DRIVER;
+                    $typeRequest = TypeRequestLookup::DRIVER;
+                    break;
+                case TypeRequestLookup::code(TypeRequestLookup::CAR):
+                    $typeNotification = TypeNotificationsLookup::CAR;
+                    $typeRequest = TypeRequestLookup::CAR;
+                    break;
+                default:
+                    $typeNotification = TypeNotificationsLookup::GENERAL;
+                    $typeRequest = '';
+            }
+
+            $notification = $this->createRow("Calificar solicitud de $typeRequest $request->code", $request->user_id,
+                $typeNotification, NotificationColorLookup::BLUE, NotificationIconLookup::STAR);
             $this->createActionNotification($notification, $request, ActionRequestNotificationLookup::SCORE);
         });
     }
