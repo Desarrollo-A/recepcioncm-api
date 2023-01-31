@@ -196,9 +196,11 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
     }
 
     /**
+     * @param CancelRequestDTO $dto
+     * @return object {request: App\Models\Request, driverId: number}
      * @throws CustomErrorException
      */
-    public function cancelRequest(CancelRequestDTO $dto): Request
+    public function cancelRequest(CancelRequestDTO $dto): object
     {
         $status = $this->lookupRepository->findByCodeWhereInAndType([
             StatusDriverRequestLookup::code(StatusDriverRequestLookup::NEW),
@@ -232,8 +234,11 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
         });
 
         // Si la solicitud fue aprobada anteriormente
+        $driverId = null;
         if ($lastStatusId === $statusApproved->id) {
             $requestDriver = $this->entityRepository->findByRequestId($dto->request_id);
+            $driverId = $requestDriver->driverRequestSchedule->driverSchedule->driver_id;
+
             $this->driverRequestScheduleRepository->deleteByRequestDriverId($requestDriver->id);
             $this->carScheduleRepository->delete($requestDriver->driverRequestSchedule->carSchedule->id);
             $this->driverScheduleRepository->delete($requestDriver->driverRequestSchedule->driverSchedule->id);
@@ -243,7 +248,10 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
 
         $this->cancelRequestRepository->create($dto->toArray(['request_id', 'cancel_comment', 'user_id']));
 
-        return $request->fresh(['status', 'cancelRequest']);
+        return (object)[
+            'request' => $request->fresh(['status', 'cancelRequest', 'requestDriver']),
+            'driverId' => $driverId
+        ];
     }
 
     /**

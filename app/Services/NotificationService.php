@@ -230,7 +230,7 @@ class NotificationService extends BaseService implements NotificationServiceInte
     /**
      * @throws CustomErrorException
      */
-    public function cancelRequestPackageNotification(Request $request, User $user): void
+    public function cancelRequestPackageNotification(Request $request, User $user, int $driverId = null): void
     {
         $userId = ($user->role->name === NameRole::RECEPCIONIST)
             ? $request->user_id
@@ -239,6 +239,12 @@ class NotificationService extends BaseService implements NotificationServiceInte
             TypeNotificationsLookup::PARCEL, NotificationColorLookup::RED, NotificationIconLookup::TRUCK);
         $this->requestNotificationService->create($request->id, $notification->id);
         Utils::eventAlertNotification($notification);
+
+        if (!is_null($driverId)) {
+            $notification = $this->createRow("La solicitud de paquetería $request->code fue cancelada", $driverId,
+                TypeNotificationsLookup::PARCEL, NotificationColorLookup::RED, NotificationIconLookup::TRUCK);
+            Utils::eventAlertNotification($notification);
+        }
     }
 
     /**
@@ -348,7 +354,7 @@ class NotificationService extends BaseService implements NotificationServiceInte
     /**
      * @throws CustomErrorException
      */
-    public function cancelRequestDriverNotification(Request $request, User $user): void
+    public function cancelRequestDriverNotification(Request $request, User $user, int $driverId = null): void
     {
         $userId = ($user->role->name === NameRole::RECEPCIONIST)
                 ? $request->user_id
@@ -357,6 +363,12 @@ class NotificationService extends BaseService implements NotificationServiceInte
             TypeNotificationsLookup::DRIVER, NotificationColorLookup::RED, NotificationIconLookup::DRIVER);
         $this->requestNotificationService->create($request->id, $notification->id);
         Utils::eventAlertNotification($notification);
+
+        if (!is_null($driverId)) {
+            $notification = $this->createRow("La solicitud de chofer $request->code fue cancelada", $driverId,
+                TypeNotificationsLookup::DRIVER, NotificationColorLookup::RED, NotificationIconLookup::DRIVER);
+            Utils::eventAlertNotification($notification);
+        }
     }
 
     /**
