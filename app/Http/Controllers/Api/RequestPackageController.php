@@ -45,7 +45,7 @@ class RequestPackageController extends BaseApiController
             ->only('transferRequest', 'getDriverSchedule', 'getPackagesByDriverId', 'onReadRequest',
                 'findAllByDateAndOffice', 'proposalRequest', 'approvedRequest');
         $this->middleware('role.permission:'.NameRole::DRIVER)
-            ->only('findAllByDriverIdPaginated', 'onRoad', 'deliveredRequest');
+            ->only('findAllByDriverIdPaginated', 'onRoad', 'deliveredRequest', 'deliveredRequestSignature');
         
         $this->requestPackageService = $requestPackageService;
         $this->notificationServiceInterface = $notificationServiceInterface;
