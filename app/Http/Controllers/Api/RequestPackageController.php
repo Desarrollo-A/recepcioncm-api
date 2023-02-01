@@ -7,6 +7,8 @@ use App\Contracts\Services\RequestPackageServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\CancelRequest\CancelRequest;
+use App\Http\Requests\DeliveredPackage\DeliveredPackageRequest;
+use App\Http\Requests\DeliveredPackage\UploadSignatureRequest;
 use App\Http\Requests\Request\ResponseRejectRequest;
 use App\Http\Requests\Request\StarRatingRequest;
 use App\Http\Requests\RequestPackage\ApprovedPackageRequest;
@@ -43,7 +45,7 @@ class RequestPackageController extends BaseApiController
             ->only('transferRequest', 'getDriverSchedule', 'getPackagesByDriverId', 'onReadRequest',
                 'findAllByDateAndOffice', 'proposalRequest', 'approvedRequest');
         $this->middleware('role.permission:'.NameRole::DRIVER)
-            ->only('findAllByDriverIdPaginated', 'onRoad');
+            ->only('findAllByDriverIdPaginated', 'onRoad', 'deliveredRequest', 'deliveredRequestSignature');
         
         $this->requestPackageService = $requestPackageService;
         $this->notificationService = $notificationService;
@@ -139,8 +141,7 @@ class RequestPackageController extends BaseApiController
     public function insertScore(StarRatingRequest $request): JsonResponse
     {
         $scoreDTO = $request->toDTO();
-        $packageDelivered = $this->requestPackageService->insertScore($scoreDTO);
-        $this->notificationService->deliveredPackageRequestNotification($packageDelivered);
+        $this->requestPackageService->insertScore($scoreDTO);
         return $this->noContentResponse();
     }
 
@@ -197,5 +198,25 @@ class RequestPackageController extends BaseApiController
     {
         $requestPackages = $this->requestPackageService->findAllByDriverIdPaginated($request, auth()->user());
         return $this->showAll(new RequestPackageViewCollection($requestPackages, true));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function deliveredRequest(DeliveredPackageRequest $request): JsonResponse
+    {
+        $dto = $request->toDTO();
+        $packageDelivered = $this->requestPackageService->deliveredPackage($dto);
+        $this->notificationServiceInterface->deliveredPackageRequestNotification($packageDelivered);
+        return $this->noContentResponse();
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function deliveredRequestSignature(int $packageId, UploadSignatureRequest $request): JsonResponse
+    {
+        $this->requestPackageService->deliveredRequestSignature($packageId, $request->toDTO());
+        return $this->noContentResponse();
     }
 }

@@ -3,7 +3,9 @@
 namespace App\Contracts\Services;
 
 use App\Core\Contracts\BaseServiceInterface;
+use App\Models\DeliveredPackage;
 use App\Models\Dto\CancelRequestDTO;
+use App\Models\Dto\DeliveredPackageDTO;
 use App\Models\Dto\PackageDTO;
 use App\Models\Dto\ProposalRequestDTO;
 use App\Models\Dto\RequestDTO;
@@ -28,7 +30,7 @@ interface RequestPackageServiceInterface extends BaseServiceInterface
      */
     public function findAllPackagesPaginated(HttpRequest $request, User $user, array $columns = ['*']): LengthAwarePaginator;
 
-    public function insertScore(ScoreDTO $score): Request;
+    public function insertScore(ScoreDTO $score): void;
 
     public function isPackageCompleted(int $requestPackageId): bool;
 
@@ -65,5 +67,9 @@ interface RequestPackageServiceInterface extends BaseServiceInterface
      * @param User|Authenticatable $user
      */
     public function findAllByDriverIdPaginated(HttpRequest $request, User $user,
-                                                       array $columns = ['*']): LengthAwarePaginator;
+                                               array       $columns = ['*']): LengthAwarePaginator;
+
+    public function deliveredPackage(DeliveredPackageDTO $dto): Request;
+
+    public function deliveredRequestSignature(int $packageId, DeliveredPackageDTO $dto): void;
 }
