@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 class File
 {
     const INVENTORY_HEIGHT_IMAGE = 512;
-    const SIGNATURE_HEIGHT_IMAGE = 300;
+    const SIGNATURE_HEIGHT_IMAGE = 200;
     const IMAGE_NAME_LENGHT = 40;
     const FILE_NAME_LENGHT = 40;
 

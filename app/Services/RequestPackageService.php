@@ -22,7 +22,6 @@ use App\Helpers\Enum\Path;
 use App\Helpers\Enum\QueryParam;
 use App\Helpers\File;
 use App\Helpers\Validation;
-use App\Mail\Package\ApprovedPackageMail;
 use App\Models\Dto\CancelRequestDTO;
 use App\Models\Dto\DeliveredPackageDTO;
 use App\Models\Dto\PackageDTO;
@@ -39,13 +38,10 @@ use App\Models\Request;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response as HttpCodes;
 
 class RequestPackageService extends BaseService implements RequestPackageServiceInterface
@@ -158,13 +154,19 @@ class RequestPackageService extends BaseService implements RequestPackageService
     public function findByPackageRequestId(int $id, User $user): Package
     {
         $package = $this->packageRepository->findByRequestId($id);
-        if ($user->role->name === NameRole::RECEPCIONIST) {
+        $roleName = $user->role->name;
+        if ($roleName === NameRole::RECEPCIONIST) {
             if($user->office_id !== $package->office_id){
                 throw new AuthorizationException();
             }
-        }elseif ($user->role->name === NameRole::APPLICANT) {
+        }elseif ($roleName === NameRole::APPLICANT) {
             if ($user->id !== $package->request->user_id) {
                throw new AuthorizationException();
+            }
+        } else if ($roleName === NameRole::DRIVER) {
+            if ($package->request->status->code !== StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED) &&
+                $package->request->status->code !== StatusPackageRequestLookup::code(StatusPackageRequestLookup::ROAD)) {
+                throw new AuthorizationException();
             }
         }
         return $package;
@@ -525,7 +527,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
             ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::ROAD),
                 TypeLookup::STATUS_PACKAGE_REQUEST)
             ->id;
-        if ($package->status_id !== $statusPackageId) {
+        if ($package->request->status_id !== $statusPackageId) {
             throw new CustomErrorException("El estatus de la solicitud debe estar ".StatusPackageRequestLookup::ROAD,
                 HttpCodes::HTTP_BAD_REQUEST);
         }
@@ -548,6 +550,6 @@ class RequestPackageService extends BaseService implements RequestPackageService
     public function deliveredRequestSignature(int $packageId, DeliveredPackageDTO $dto): void
     {
         $dto->signature = File::uploadImage($dto->signature_file, Path::PACKAGE_SIGNATURES, File::SIGNATURE_HEIGHT_IMAGE);
-        // $this->deliveredPackageRepository->update($packageId, $dto->toArray(['signature']));
+        $this->deliveredPackageRepository->update($packageId, $dto->toArray(['signature']));
     }
 }
