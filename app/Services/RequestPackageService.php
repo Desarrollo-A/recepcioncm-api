@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Contracts\Repositories\AddressRepositoryInterface;
 use App\Contracts\Repositories\CancelRequestRepositoryInterface;
 use App\Contracts\Repositories\CarScheduleRepositoryInterface;
+use App\Contracts\Repositories\DeliveredPackageRepositoryInterface;
 use App\Contracts\Repositories\DriverPackageScheduleRepositoryInterface;
 use App\Contracts\Repositories\DriverScheduleRepositoryInterface;
 use App\Contracts\Repositories\LookupRepositoryInterface;
@@ -23,6 +24,7 @@ use App\Helpers\File;
 use App\Helpers\Validation;
 use App\Mail\RequestPackage\ApprovedPackageMail;
 use App\Models\Dto\CancelRequestDTO;
+use App\Models\Dto\DeliveredPackageDTO;
 use App\Models\Dto\PackageDTO;
 use App\Models\Dto\ProposalRequestDTO;
 use App\Models\Dto\RequestDTO;
@@ -37,13 +39,10 @@ use App\Models\Request;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response as HttpCodes;
 
 class RequestPackageService extends BaseService implements RequestPackageServiceInterface
@@ -62,6 +61,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
     protected $carScheduleRepository;
     protected $driverPackageScheduleRepository;
     protected $proposalRequestRepository;
+    protected $deliveredPackageRepository;
 
     protected $calendarService;
 
@@ -76,7 +76,8 @@ class RequestPackageService extends BaseService implements RequestPackageService
                                 DriverScheduleRepositoryInterface $driverScheduleRepository,
                                 CarScheduleRepositoryInterface $carScheduleRepository,
                                 DriverPackageScheduleRepositoryInterface $driverPackageScheduleRepository,
-                                ProposalRequestRepositoryInterface $proposalRequestRepository)
+                                ProposalRequestRepositoryInterface $proposalRequestRepository,
+                                DeliveredPackageRepositoryInterface $deliveredPackageRepository)
     {
         $this->requestRepository = $requestRepository;
         $this->packageRepository = $packageRepository;
@@ -89,6 +90,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $this->driverScheduleRepository = $driverScheduleRepository;
         $this->carScheduleRepository = $carScheduleRepository;
         $this->driverPackageScheduleRepository = $driverPackageScheduleRepository;
+        $this->deliveredPackageRepository = $deliveredPackageRepository;
         $this->proposalRequestRepository = $proposalRequestRepository;
     }
 
@@ -153,13 +155,19 @@ class RequestPackageService extends BaseService implements RequestPackageService
     public function findByPackageRequestId(int $id, User $user): Package
     {
         $package = $this->packageRepository->findByRequestId($id);
-        if ($user->role->name === NameRole::RECEPCIONIST) {
+        $roleName = $user->role->name;
+        if ($roleName === NameRole::RECEPCIONIST) {
             if($user->office_id !== $package->office_id){
                 throw new AuthorizationException();
             }
-        }elseif ($user->role->name === NameRole::APPLICANT) {
+        }elseif ($roleName === NameRole::APPLICANT) {
             if ($user->id !== $package->request->user_id) {
                throw new AuthorizationException();
+            }
+        } else if ($roleName === NameRole::DRIVER) {
+            if ($package->request->status->code !== StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED) &&
+                $package->request->status->code !== StatusPackageRequestLookup::code(StatusPackageRequestLookup::ROAD)) {
+                throw new AuthorizationException();
             }
         }
         return $package;
@@ -348,7 +356,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
     /**
      * @throws CustomErrorException
      */
-    public function insertScore(ScoreDTO $score): Request
+    public function insertScore(ScoreDTO $score): void
     {
         $typeRequestId = $this->requestRepository->findById($score->request_id);
         $typeStatusId = $this->lookupRepository
@@ -369,16 +377,9 @@ class RequestPackageService extends BaseService implements RequestPackageService
                 HttpCodes::HTTP_BAD_REQUEST);
         }
 
-        $statusId = $this->lookupRepository
-            ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::DELIVERED),
-                TypeLookup::STATUS_PACKAGE_REQUEST)
-            ->id;
-        $request = new RequestDTO(['status_id' => $statusId]);
-        $updateRequestDelivered = $this->requestRepository->update($score->request_id, $request->toArray(['status_id']));
         $packageId = $this->packageRepository->findByRequestId($typeRequestId->id)->id;
         $this->packageRepository->update($packageId, ['auth_code' => null]);
         $this->scoreRepository->create($score->toArray(['request_id', 'score', 'comment']));
-        return $updateRequestDelivered;
     }
 
     /**
@@ -524,5 +525,42 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $perPage = Validation::getPerPage($request->get(QueryParam::PAGINATION_KEY));
         $sort = $request->get(QueryParam::ORDER_BY_KEY);
         return $this->requestPackageViewRepository->findAllByDriverIdPaginated($filters, $perPage, $user, $sort);
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function deliveredPackage(DeliveredPackageDTO $dto): Request
+    {
+        $package = $this->packageRepository->findById($dto->package_id);
+
+        $statusPackageId = $this->lookupRepository
+            ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::ROAD),
+                TypeLookup::STATUS_PACKAGE_REQUEST)
+            ->id;
+        if ($package->request->status_id !== $statusPackageId) {
+            throw new CustomErrorException("El estatus de la solicitud debe estar ".StatusPackageRequestLookup::ROAD,
+                HttpCodes::HTTP_BAD_REQUEST);
+        }
+
+        $statusId = $this->lookupRepository
+            ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::DELIVERED),
+                TypeLookup::STATUS_PACKAGE_REQUEST)
+            ->id;
+        $requestDTO = new RequestDTO(['status_id' => $statusId]);
+        $request = $this->requestRepository->update($package->request_id, $requestDTO->toArray(['status_id']));
+
+        $this->deliveredPackageRepository->create($dto->toArray(['package_id', 'name_receive']));
+
+        return $request;
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function deliveredRequestSignature(int $packageId, DeliveredPackageDTO $dto): void
+    {
+        $dto->signature = File::uploadImage($dto->signature_file, Path::PACKAGE_SIGNATURES, File::SIGNATURE_HEIGHT_IMAGE);
+        $this->deliveredPackageRepository->update($packageId, $dto->toArray(['signature']));
     }
 }

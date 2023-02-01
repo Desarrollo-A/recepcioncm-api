@@ -39,4 +39,9 @@ class Package extends Model
     {
         return $this->hasOne(DriverPackageSchedule::class);
     }
+
+    public function deliveredPackage(): HasOne
+    {
+        return $this->hasOne(DeliveredPackage::class);
+    }
 }
