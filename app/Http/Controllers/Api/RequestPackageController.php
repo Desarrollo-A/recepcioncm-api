@@ -207,7 +207,7 @@ class RequestPackageController extends BaseApiController
     {
         $dto = $request->toDTO();
         $packageDelivered = $this->requestPackageService->deliveredPackage($dto);
-        $this->notificationServiceInterface->deliveredPackageRequestNotification($packageDelivered);
+        $this->notificationService->deliveredPackageRequestNotification($packageDelivered);
         return $this->noContentResponse();
     }
 
