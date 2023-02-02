@@ -26,6 +26,8 @@ interface CalendarServiceInterface
      */
     public function createEvent(string $title, Carbon $startDateTime, Carbon $endDateTime, array $attendees): Event;
 
+    public function createEventAllDay(string $title, Carbon $date, array $attendees): Event;
+
     /**
      * @return void
      */

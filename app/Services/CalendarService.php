@@ -221,6 +221,17 @@ class CalendarService implements CalendarServiceInterface
         return $event->save();
     }
 
+    public function createEventAllDay(string $title, Carbon $date, array $attendees): Event
+    {
+        $event = new Event();
+        $event->name = $title;
+        $event->startDate = $date;
+        $event->endDate = $date;
+        foreach ($attendees as $email) {
+            $event->addAttendee(['email' => $email]);
+        }
+        return $event->save();
+    }
     /**
      * @return void
      */
