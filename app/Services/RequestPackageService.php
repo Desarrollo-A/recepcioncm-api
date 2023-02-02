@@ -240,7 +240,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
         ], TypeLookup::STATUS_PACKAGE_REQUEST);
 
         $request = $this->requestRepository->findById($dto->request_id);
-        
+
         if (!in_array($request->status_id, $status->pluck('id')->toArray())) {
             throw new CustomErrorException('La solicitud debe estar en estatus '
                 .StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW).' o '
@@ -273,7 +273,6 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $driverId = null;
         if ($lastStatusId === $statusApproved->id) {
             $package = $this->packageRepository->findByRequestId($dto->request_id);
-            
             if (is_null($package->tracking_code)) {
                 $driverId = $package->driverPackageSchedule->driverSchedule->driver_id;
 
@@ -364,7 +363,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
                 $emails[] = $request->user->email;
             }
             $emails[] = $this->userRepository->findByOfficeIdAndRoleRecepcionist($request->package->office_id)->email;
-           
+
             $event = $this->calendarService->createEventAllDay($request->title, Carbon::make($dateGoogleCalendar), $emails);
 
             $dto = new RequestDTO([
