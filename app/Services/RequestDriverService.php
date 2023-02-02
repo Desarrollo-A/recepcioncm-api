@@ -12,6 +12,7 @@ use App\Contracts\Repositories\ProposalRequestRepositoryInterface;
 use App\Contracts\Repositories\RequestDriverRepositoryInterface;
 use App\Contracts\Repositories\RequestDriverViewRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
+use App\Contracts\Repositories\UserRepositoryInterface;
 use App\Contracts\Services\CalendarServiceInterface;
 use App\Contracts\Services\RequestDriverServiceInterface;
 use App\Core\BaseService;
@@ -50,6 +51,7 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
     protected $carScheduleRepository;
     protected $driverRequestScheduleRepository;
     protected $proposalRequestRepository;
+    protected $userRepository;
 
     protected $calendarService;
 
@@ -63,7 +65,8 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
                                 CarScheduleRepositoryInterface $carScheduleRepository,
                                 DriverRequestScheduleRepositoryInterface $driverRequestScheduleRepository,
                                 CalendarServiceInterface $calendarService,
-                                ProposalRequestRepositoryInterface $proposalRequestRepository)
+                                ProposalRequestRepositoryInterface $proposalRequestRepository,
+                                UserRepositoryInterface $userRepository)
     {
         $this->entityRepository = $requestDriverRepository;
         $this->requestRepository = $requestRepository;
@@ -76,6 +79,7 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
         $this->driverRequestScheduleRepository = $driverRequestScheduleRepository;
         $this->calendarService = $calendarService;
         $this->proposalRequestRepository = $proposalRequestRepository;
+        $this->userRepository = $userRepository;
     }
 
     /**
@@ -272,7 +276,11 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
                 TypeLookup::STATUS_DRIVER_REQUEST)
             ->id;
 
-        $request = $this->requestRepository->findById($dto->request_id);
+        $request = $this->requestRepository->findById($dto->request_id)
+            ->fresh(['requestDriver', 'requestDriver.driverRequestSchedule',
+                'requestDriver.driverRequestSchedule.driverSchedule','requestDriver.driverRequestSchedule.carSchedule',
+                'requestDriver.driverRequestSchedule.driverSchedule.driver',
+                'requestDriver.driverRequestSchedule.carSchedule.car', 'status', 'user']);
         $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id']));
 
         $dto->driverRequestSchedule->carSchedule->start_date = $request->start_date;
@@ -290,10 +298,21 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
         $this->driverRequestScheduleRepository
             ->create($dto->driverRequestSchedule->toArray(['request_driver_id', 'driver_schedule_id', 'car_schedule_id']));
 
-        return $request->fresh(['requestDriver', 'requestDriver.driverRequestSchedule',
-            'requestDriver.driverRequestSchedule.driverSchedule','requestDriver.driverRequestSchedule.carSchedule',
-            'requestDriver.driverRequestSchedule.driverSchedule.driver',
-            'requestDriver.driverRequestSchedule.carSchedule.car', 'status']);
+        if (config('app.enable_google_calendar', false)) {
+            $emails = array();
+            $emails[] = $this->userRepository->findByOfficeIdAndRoleRecepcionist($request->requestDriver->office_id)->email;
+            $emails[] = $this->userRepository->findById($dto->driverRequestSchedule->driverSchedule->driver_id)->email;
+            if ($request->add_google_calendar) {
+                $emails[] = $request->user->email;
+            }
+            $event = $this->calendarService->createEvent($request->title, $request->start_date, $request->end_date, $emails);
+
+            $dto = new RequestDTO([
+                'event_google_calendar_id' => $event->id
+            ]);
+            $this->requestRepository->update($request->id, $dto->toArray(['event_google_calendar_id']));
+        }
+        return $request;
     }
 
     /**
