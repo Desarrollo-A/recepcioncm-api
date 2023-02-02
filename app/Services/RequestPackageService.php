@@ -14,6 +14,7 @@ use App\Contracts\Repositories\ProposalRequestRepositoryInterface;
 use App\Contracts\Repositories\RequestPackageViewRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Contracts\Repositories\ScoreRepositoryInterface;
+use App\Contracts\Repositories\UserRepositoryInterface;
 use App\Contracts\Services\CalendarServiceInterface;
 use App\Contracts\Services\RequestPackageServiceInterface;
 use App\Core\BaseService;
@@ -66,6 +67,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
     protected $deliveredPackageRepository;
 
     protected $calendarService;
+    protected $userRepository;
 
     public function __construct(RequestRepositoryInterface $requestRepository,
                                 PackageRepositoryInterface $packageRepository,
@@ -79,7 +81,8 @@ class RequestPackageService extends BaseService implements RequestPackageService
                                 CarScheduleRepositoryInterface $carScheduleRepository,
                                 DriverPackageScheduleRepositoryInterface $driverPackageScheduleRepository,
                                 ProposalRequestRepositoryInterface $proposalRequestRepository,
-                                DeliveredPackageRepositoryInterface $deliveredPackageRepository)
+                                DeliveredPackageRepositoryInterface $deliveredPackageRepository,
+                                UserRepositoryInterface $userRepository)
     {
         $this->requestRepository = $requestRepository;
         $this->packageRepository = $packageRepository;
@@ -94,6 +97,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $this->driverPackageScheduleRepository = $driverPackageScheduleRepository;
         $this->deliveredPackageRepository = $deliveredPackageRepository;
         $this->proposalRequestRepository = $proposalRequestRepository;
+        $this->userRepository = $userRepository;
     }
 
     /**
@@ -340,14 +344,34 @@ class RequestPackageService extends BaseService implements RequestPackageService
                 ->create($dto->driverPackageSchedule->toArray(['package_id', 'driver_schedule_id', 'car_schedule_id']));
 
             $packageUpdate = $this->packageRepository->findById($dto->id);
+
+            $dateGoogleCalendar = $startDate;
+
         } else {
-            $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id', 'end_date']));
+            $request = $this->requestRepository->update($dto->request_id, $dto->request
+                ->toArray(['status_id', 'end_date']))->fresh(['package', 'user']);
             $packageUpdate = $this->packageRepository
                 ->update($dto->id, $dto->toArray(['tracking_code', 'url_tracking']))
                 ->fresh(['request', 'request.status', 'driverPackageSchedule', 'driverPackageSchedule.carSchedule',
                     'driverPackageSchedule.driverSchedule', 'driverPackageSchedule.carSchedule.car',
                     'driverPackageSchedule.driverSchedule.driver']);
+            $dateGoogleCalendar = $request->end_date;
         }
+
+        if (config('app.enable_google_calendar', false)) {
+            if($request->add_google_calendar){
+                $emails[] = $request->user->email;
+            }
+            $emails[] = $this->userRepository->findByOfficeIdAndRoleRecepcionist($request->package->office_id)->email;
+
+            $event = $this->calendarService->createEventAllDay($request->title, Carbon::make($dateGoogleCalendar), $emails);
+
+            $dto = new RequestDTO([
+                'event_google_calendar_id' => $event->id
+            ]);
+            $this->requestRepository->update($request->id, $dto->toArray(['event_google_calendar_id']));
+        }
+
         return $packageUpdate;
     }
 
