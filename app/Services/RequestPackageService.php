@@ -43,6 +43,8 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response as HttpCodes;
 
 class RequestPackageService extends BaseService implements RequestPackageServiceInterface
@@ -322,9 +324,6 @@ class RequestPackageService extends BaseService implements RequestPackageService
             $dto->request->end_date = $endDate;
             $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id', 'end_date']));
 
-            // $codePackage = Str::random(40);
-            // $packageUpdate = $this->packageRepository->update($dto->id, ['auth_code' => $codePackage]);
-
             $dto->driverPackageSchedule->carSchedule->start_date = $startDate;
             $dto->driverPackageSchedule->carSchedule->end_date = $endDate;
             $carSchedule = $this->carScheduleRepository
@@ -340,7 +339,6 @@ class RequestPackageService extends BaseService implements RequestPackageService
             $this->driverPackageScheduleRepository
                 ->create($dto->driverPackageSchedule->toArray(['package_id', 'driver_schedule_id', 'car_schedule_id']));
 
-            // Mail::to($packageUpdate->email_receive)->send(new ApprovedPackageMail($packageUpdate, $request->code));
             $packageUpdate = $this->packageRepository->findById($dto->id);
         } else {
             $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id', 'end_date']));
@@ -358,27 +356,30 @@ class RequestPackageService extends BaseService implements RequestPackageService
      */
     public function insertScore(ScoreDTO $score): void
     {
-        $typeRequestId = $this->requestRepository->findById($score->request_id);
+        $package = $this->packageRepository->findByRequestId($score->request_id);
         $typeStatusId = $this->lookupRepository
             ->findByCodeAndType(TypeRequestLookup::code(TypeRequestLookup::PARCEL),
                 TypeLookup::TYPE_REQUEST)
             ->id;
 
-        if ($typeRequestId->type_id !== $typeStatusId) {
+        if ($package->request->type_id !== $typeStatusId) {
             throw new CustomErrorException("El tipo de solicitud debe ser de paquetería", HttpCodes::HTTP_BAD_REQUEST);
         }
 
         $statusPackageId = $this->lookupRepository
-            ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::ROAD),
+            ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::DELIVERED),
                 TypeLookup::STATUS_PACKAGE_REQUEST)
             ->id;
-        if ($typeRequestId->status_id !== $statusPackageId) {
-            throw new CustomErrorException("El estatus de la solicitud debe estar ".StatusPackageRequestLookup::ROAD,
+        if ($package->request->status_id !== $statusPackageId) {
+            throw new CustomErrorException("El estatus de la solicitud debe estar ".StatusPackageRequestLookup::DELIVERED,
                 HttpCodes::HTTP_BAD_REQUEST);
         }
 
-        $packageId = $this->packageRepository->findByRequestId($typeRequestId->id)->id;
-        $this->packageRepository->update($packageId, ['auth_code' => null]);
+        if (is_null($package->auth_code)) {
+            throw new CustomErrorException('La solicitud ya se calificó',HttpCodes::HTTP_BAD_REQUEST);
+        }
+
+        $this->packageRepository->update($package->id, ['auth_code' => null]);
         $this->scoreRepository->create($score->toArray(['request_id', 'score', 'comment']));
     }
 
@@ -388,8 +389,8 @@ class RequestPackageService extends BaseService implements RequestPackageService
     public function isPackageCompleted(int $requestPackageId): bool
     {
         $typePackageRequestId = $this->lookupRepository
-            ->findByCodeAndType(TypeRequestLookup::code(TypeRequestLookup::PARCEL),
-                TypeLookup::TYPE_REQUEST)->id;
+            ->findByCodeAndType(TypeRequestLookup::code(TypeRequestLookup::PARCEL),TypeLookup::TYPE_REQUEST)
+            ->id;
 
         $packageRequestData = $this->requestRepository->findById($requestPackageId);
 
@@ -397,23 +398,15 @@ class RequestPackageService extends BaseService implements RequestPackageService
             throw new ModelNotFoundException();
         }
 
-        $statusPackageCancelledId = $this->lookupRepository
-            ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::CANCELLED),
+        $statusPackageDeliveredId = $this->lookupRepository
+            ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::DELIVERED),
                 TypeLookup::STATUS_PACKAGE_REQUEST)->id;
 
-        if ($packageRequestData->status_id === $statusPackageCancelledId) {
-            throw new CustomErrorException('La solicitud está cancelada.', HttpCodes::HTTP_NOT_FOUND);
-        }
-
-        $statusPackageRoadId = $this->lookupRepository
-            ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::ROAD),
-                TypeLookup::STATUS_PACKAGE_REQUEST)->id;
-
-        if ($packageRequestData->status_id !== $statusPackageRoadId) {
+        if ($packageRequestData->status_id !== $statusPackageDeliveredId) {
             throw new CustomErrorException('La solicitud no se encuentra habilitada.', HttpCodes::HTTP_NOT_FOUND);
         }
 
-        return $statusPackageRoadId === $packageRequestData->status_id;
+        return $statusPackageDeliveredId === $packageRequestData->status_id;
     }
 
     public function isAuthPackage(string $authCodePackage): bool
@@ -551,6 +544,10 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $request = $this->requestRepository->update($package->request_id, $requestDTO->toArray(['status_id']));
 
         $this->deliveredPackageRepository->create($dto->toArray(['package_id', 'name_receive']));
+
+        $codePackage = Str::random(40);
+        $packageUpdate = $this->packageRepository->update($dto->package_id, ['auth_code' => $codePackage]);
+        Mail::to($packageUpdate->email_receive)->send(new ApprovedPackageMail($packageUpdate, $request->code));
 
         return $request;
     }
