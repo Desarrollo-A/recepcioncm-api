@@ -26,11 +26,26 @@ class PackageRepository extends BaseRepository implements PackageRepositoryInter
     public function findByRequestId(int $requestId): Package
     {
         return $this->entity
-            ->with(['pickupAddress', 'pickupAddress.country', 'arrivalAddress', 'arrivalAddress.country', 'request',
-                'request.user', 'request.status', 'request.cancelRequest', 'request.cancelRequest.user', 'request.proposalRequest',
-                'driverPackageSchedule', 'driverPackageSchedule.carSchedule', 'driverPackageSchedule.driverSchedule',
-                'driverPackageSchedule.carSchedule.car', 'driverPackageSchedule.driverSchedule.driver', 
-                'pickupAddress.office', 'arrivalAddress.office'])
+            ->with([
+                'pickupAddress',
+                'pickupAddress.country',
+                'arrivalAddress',
+                'arrivalAddress.country',
+                'request',
+                'request.user',
+                'request.status',
+                'request.cancelRequest',
+                'request.cancelRequest.user',
+                'request.proposalRequest',
+                'request.score',
+                'driverPackageSchedule',
+                'driverPackageSchedule.carSchedule',
+                'driverPackageSchedule.driverSchedule',
+                'driverPackageSchedule.carSchedule.car',
+                'driverPackageSchedule.driverSchedule.driver',
+                'pickupAddress.office',
+                'arrivalAddress.office'
+            ])
             ->where('request_id', $requestId)
             ->firstOrFail();
     }
@@ -38,10 +53,24 @@ class PackageRepository extends BaseRepository implements PackageRepositoryInter
     public function findById(int $id, array $columns = ['*']): Package
     {
         return $this->entity
-            ->with(['pickupAddress', 'pickupAddress.country', 'arrivalAddress', 'arrivalAddress.country', 'request',
-                'request.user', 'request.status', 'request.cancelRequest', 'request.cancelRequest.user', 'request.proposalRequest',
-                'driverPackageSchedule', 'driverPackageSchedule.carSchedule', 'driverPackageSchedule.driverSchedule',
-                'driverPackageSchedule.carSchedule.car', 'driverPackageSchedule.driverSchedule.driver'])
+            ->with([
+                'pickupAddress',
+                'pickupAddress.country',
+                'arrivalAddress',
+                'arrivalAddress.country',
+                'request',
+                'request.user',
+                'request.status',
+                'request.cancelRequest',
+                'request.cancelRequest.user',
+                'request.proposalRequest',
+                'request.score',
+                'driverPackageSchedule',
+                'driverPackageSchedule.carSchedule',
+                'driverPackageSchedule.driverSchedule',
+                'driverPackageSchedule.carSchedule.car',
+                'driverPackageSchedule.driverSchedule.driver'
+            ])
             ->findOrFail($id, $columns);
     }
 
