@@ -1,7 +1,7 @@
 @component('mail::message')
 Hola {{ $fullName }}
 
-Para terminar el proceso, visita el siguiente enlace una vez ya recibido el paquete.
+Califica el envío de tu paquete en el siguiente enlace.
 
 @component('mail::button', ['url' => $url])
     CLIC AQUÍ
