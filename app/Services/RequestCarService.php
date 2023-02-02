@@ -10,6 +10,7 @@ use App\Contracts\Repositories\ProposalRequestRepositoryInterface;
 use App\Contracts\Repositories\RequestCarRepositoryInterface;
 use App\Contracts\Repositories\RequestCarViewRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
+use App\Contracts\Repositories\UserRepositoryInterface;
 use App\Contracts\Services\CalendarServiceInterface;
 use App\Contracts\Services\RequestCarServiceInterface;
 use App\Core\BaseService;
@@ -46,7 +47,7 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
     protected $carScheduleRepository;
     protected $carRequestScheduleRepository;
     protected $proposalRequestRepository;
-
+    protected $userRepository;
     protected $calendarService;
 
     public function __construct(RequestCarRepositoryInterface $requestCarRepository,
@@ -57,7 +58,8 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
                                 CarScheduleRepositoryInterface $carScheduleRepository,
                                 CarRequestScheduleRepositoryInterface $carRequestScheduleRepository,
                                 ProposalRequestRepositoryInterface $proposalRequestRepository,
-                                CalendarServiceInterface $calendarService)
+                                CalendarServiceInterface $calendarService,
+                                UserRepositoryInterface $userRepository)
     {
         $this->entityRepository = $requestCarRepository;
         $this->requestRepository = $requestRepository;
@@ -68,6 +70,7 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         $this->carRequestScheduleRepository = $carRequestScheduleRepository;
         $this->proposalRequestRepository = $proposalRequestRepository;
         $this->calendarService = $calendarService;
+        $this->userRepository = $userRepository;
     }
 
     /**
@@ -260,7 +263,10 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
                 TypeLookup::STATUS_CAR_REQUEST)
             ->id;
 
-        $request = $this->requestRepository->findById($dto->request_id);
+        $request = $this->requestRepository->findById($dto->request_id)
+            ->fresh(['requestCar', 'requestCar.carRequestSchedule',
+                'requestCar.carRequestSchedule.carSchedule',
+                'requestCar.carRequestSchedule.carSchedule.car', 'status', 'user']);
         $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id']));
 
         $dto->carRequestSchedule->carSchedule->start_date = $request->start_date;
@@ -272,8 +278,21 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         $this->carRequestScheduleRepository
             ->create($dto->carRequestSchedule->toArray(['request_car_id', 'car_schedule_id']));
 
-        return $request->fresh(['requestCar', 'requestCar.carRequestSchedule', 'requestCar.carRequestSchedule.carSchedule',
-            'requestCar.carRequestSchedule.carSchedule.car', 'status']);
+        if (config('app.enable_google_calendar', false)) {
+            if($request->add_google_calendar){
+                $emails[] = $request->user->email;
+            }
+            $emails[] = $this->userRepository->findByOfficeIdAndRoleRecepcionist($request->requestCar->office_id)->email;
+            
+            $event = $this->calendarService->createEvent($request->title, $request->start_date, $request->end_date, $emails);
+
+            $dto = new RequestDTO([
+                'event_google_calendar_id' => $event->id
+            ]);
+            $this->requestRepository->update($request->id, $dto->toArray(['event_google_calendar_id']));
+        }
+    
+        return $request;
     }
 
     public function getBusyDaysForProposalCalendar(): array

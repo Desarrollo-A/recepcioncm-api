@@ -13,6 +13,7 @@ use App\Contracts\Repositories\ProposalRequestRepositoryInterface;
 use App\Contracts\Repositories\RequestPackageViewRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Contracts\Repositories\ScoreRepositoryInterface;
+use App\Contracts\Repositories\UserRepositoryInterface;
 use App\Contracts\Services\CalendarServiceInterface;
 use App\Contracts\Services\RequestPackageServiceInterface;
 use App\Core\BaseService;
@@ -62,8 +63,8 @@ class RequestPackageService extends BaseService implements RequestPackageService
     protected $carScheduleRepository;
     protected $driverPackageScheduleRepository;
     protected $proposalRequestRepository;
-
     protected $calendarService;
+    protected $userRepository;
 
     public function __construct(RequestRepositoryInterface $requestRepository,
                                 PackageRepositoryInterface $packageRepository,
@@ -76,7 +77,8 @@ class RequestPackageService extends BaseService implements RequestPackageService
                                 DriverScheduleRepositoryInterface $driverScheduleRepository,
                                 CarScheduleRepositoryInterface $carScheduleRepository,
                                 DriverPackageScheduleRepositoryInterface $driverPackageScheduleRepository,
-                                ProposalRequestRepositoryInterface $proposalRequestRepository)
+                                ProposalRequestRepositoryInterface $proposalRequestRepository,
+                                UserRepositoryInterface $userRepository)
     {
         $this->requestRepository = $requestRepository;
         $this->packageRepository = $packageRepository;
@@ -90,6 +92,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $this->carScheduleRepository = $carScheduleRepository;
         $this->driverPackageScheduleRepository = $driverPackageScheduleRepository;
         $this->proposalRequestRepository = $proposalRequestRepository;
+        $this->userRepository = $userRepository;
     }
 
     /**
@@ -226,7 +229,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
         ], TypeLookup::STATUS_PACKAGE_REQUEST);
 
         $request = $this->requestRepository->findById($dto->request_id);
-
+        
         if (!in_array($request->status_id, $status->pluck('id')->toArray())) {
             throw new CustomErrorException('La solicitud debe estar en estatus '
                 .StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW).' o '
@@ -259,6 +262,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $driverId = null;
         if ($lastStatusId === $statusApproved->id) {
             $package = $this->packageRepository->findByRequestId($dto->request_id);
+            
             if (is_null($package->tracking_code)) {
                 $driverId = $package->driverPackageSchedule->driverSchedule->driver_id;
 
@@ -334,14 +338,34 @@ class RequestPackageService extends BaseService implements RequestPackageService
 
             // Mail::to($packageUpdate->email_receive)->send(new ApprovedPackageMail($packageUpdate, $request->code));
             $packageUpdate = $this->packageRepository->findById($dto->id);
+
+            $dateGoogleCalendar = $startDate;
+
         } else {
-            $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id', 'end_date']));
+            $request = $this->requestRepository->update($dto->request_id, $dto->request
+                ->toArray(['status_id', 'end_date']))->fresh(['package', 'user']);
             $packageUpdate = $this->packageRepository
                 ->update($dto->id, $dto->toArray(['tracking_code', 'url_tracking']))
                 ->fresh(['request', 'request.status', 'driverPackageSchedule', 'driverPackageSchedule.carSchedule',
                     'driverPackageSchedule.driverSchedule', 'driverPackageSchedule.carSchedule.car',
                     'driverPackageSchedule.driverSchedule.driver']);
+            $dateGoogleCalendar = $request->end_date;
         }
+
+        if (config('app.enable_google_calendar', false)) {
+            if($request->add_google_calendar){
+                $emails[] = $request->user->email;
+            }
+            $emails[] = $this->userRepository->findByOfficeIdAndRoleRecepcionist($request->package->office_id)->email;
+           
+            $event = $this->calendarService->createEventAllDay($request->title, Carbon::make($dateGoogleCalendar), $emails);
+
+            $dto = new RequestDTO([
+                'event_google_calendar_id' => $event->id
+            ]);
+            $this->requestRepository->update($request->id, $dto->toArray(['event_google_calendar_id']));
+        }
+
         return $packageUpdate;
     }
 
