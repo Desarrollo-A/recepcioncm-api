@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Contracts\Repositories\ActionRequestNotificationRepositoryInterface;
 use App\Core\BaseRepository;
+use App\Helpers\Utils;
 use App\Models\ActionRequestNotification;
 use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use Illuminate\Database\Eloquent\Builder;
@@ -37,9 +38,9 @@ class ActionRequestNotificationRepository extends BaseRepository implements Acti
                                 return $query
                                     ->select('requests.id')
                                     ->from('requests')
-                                    ->join('lookups', 'lookups.id', '=', 'requests.status_id')
+                                    ->join('lookups AS s', 's.id', '=', 'requests.status_id')
                                     ->whereDate('start_date', '<', now())
-                                    ->where('lookups.code', StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED));
+                                    ->whereIn('s.code', Utils::getStatusApprovedRequest());
                             });
                     });
             })
