@@ -174,8 +174,30 @@ class NotificationService extends BaseService implements NotificationServiceInte
     public function createConfirmNotification(): void
     {
         $this->requestRepository->getApprovedRequestsTomorrow()->each(function (Request $request) {
-            $notification = $this->createRow("Confirmación de solicitud $request->code", $request->user_id,
-                TypeNotificationsLookup::ROOM, NotificationColorLookup::BLUE, NotificationIconLookup::CONFIRM);
+            switch ($request->type_code) {
+                case TypeRequestLookup::code(TypeRequestLookup::ROOM):
+                    $typeNotification = TypeNotificationsLookup::ROOM;
+                    $typeRequest = TypeRequestLookup::ROOM;
+                    break;
+                case TypeRequestLookup::code(TypeRequestLookup::PARCEL):
+                    $typeNotification = TypeNotificationsLookup::PARCEL;
+                    $typeRequest = TypeRequestLookup::PARCEL;
+                    break;
+                case TypeRequestLookup::code(TypeRequestLookup::DRIVER):
+                    $typeNotification = TypeNotificationsLookup::DRIVER;
+                    $typeRequest = TypeRequestLookup::DRIVER;
+                    break;
+                case TypeRequestLookup::code(TypeRequestLookup::CAR):
+                    $typeNotification = TypeNotificationsLookup::CAR;
+                    $typeRequest = TypeRequestLookup::CAR;
+                    break;
+                default:
+                    $typeNotification = TypeNotificationsLookup::GENERAL;
+                    $typeRequest = '';
+            }
+
+            $notification = $this->createRow("Confirmación de solicitud de $typeRequest $request->code", $request->user_id,
+                $typeNotification, NotificationColorLookup::BLUE, NotificationIconLookup::CONFIRM);
             $this->createActionNotification($notification, $request, ActionRequestNotificationLookup::CONFIRM);
         });
 
