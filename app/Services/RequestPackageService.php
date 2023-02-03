@@ -24,6 +24,8 @@ use App\Helpers\Enum\QueryParam;
 use App\Helpers\File;
 use App\Helpers\Validation;
 use App\Mail\RequestPackage\ApprovedPackageMail;
+use App\Mail\RequestPackage\ApprovedRequestPackageInformationMail;
+use App\Mail\RequestPackage\CancelledRequestPackageInformationMail;
 use App\Models\Dto\CancelRequestDTO;
 use App\Models\Dto\DeliveredPackageDTO;
 use App\Models\Dto\PackageDTO;
@@ -240,11 +242,10 @@ class RequestPackageService extends BaseService implements RequestPackageService
         ], TypeLookup::STATUS_PACKAGE_REQUEST);
 
         $request = $this->requestRepository->findById($dto->request_id);
-
         if (!in_array($request->status_id, $status->pluck('id')->toArray())) {
             throw new CustomErrorException('La solicitud debe estar en estatus '
-                .StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW).' o '
-                .StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED),
+                .StatusPackageRequestLookup::NEW.' o '
+                .StatusPackageRequestLookup::APPROVED,
                 HttpCodes::HTTP_BAD_REQUEST);
         }
 
@@ -261,9 +262,11 @@ class RequestPackageService extends BaseService implements RequestPackageService
 
         $lastStatusId = $request->status_id;
 
-        $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id', 'event_google_calendar_id']));
-
         $this->cancelRequestRepository->create($dto->toArray(['request_id', 'cancel_comment', 'user_id']));
+
+        $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id', 'event_google_calendar_id']))
+                    ->fresh(['package', 'cancelRequest', 'package.driverPackageSchedule.carSchedule.car', 'user',
+                            'package.driverPackageSchedule.driverSchedule.driver']);
 
         $statusApproved = $status->first(function (Lookup $lookup) {
             return $lookup->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED);
@@ -272,8 +275,12 @@ class RequestPackageService extends BaseService implements RequestPackageService
         // Si la solicitud fue aprobada anteriormente
         $driverId = null;
         if ($lastStatusId === $statusApproved->id) {
+
             $package = $this->packageRepository->findByRequestId($dto->request_id);
             if (is_null($package->tracking_code)) {
+                $emailDriver = $request->package->driverPackageSchedule->driverSchedule->driver->email;
+                Mail::send(new CancelledRequestPackageInformationMail($request, $emailDriver));
+
                 $driverId = $package->driverPackageSchedule->driverSchedule->driver_id;
 
                 $this->driverPackageScheduleRepository->deleteByPackageId($package->id);
@@ -284,9 +291,9 @@ class RequestPackageService extends BaseService implements RequestPackageService
             $this->packageRepository->update($package->id, (new PackageDTO())
                 ->toArray(['tracking_code', 'url_tracking', 'auth_code']));
         }
-
+        
         return (object)[
-            'request' => $request->fresh(['package', 'cancelRequest']),
+            'request' => $request,
             'driverId' => $driverId
         ];
     }
@@ -318,7 +325,6 @@ class RequestPackageService extends BaseService implements RequestPackageService
             ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED),
                 TypeLookup::STATUS_PACKAGE_REQUEST)
             ->id;
-
         if (is_null($dto->tracking_code)) {
             $request = $this->requestRepository->findById($dto->request_id);
 
@@ -343,9 +349,16 @@ class RequestPackageService extends BaseService implements RequestPackageService
             $this->driverPackageScheduleRepository
                 ->create($dto->driverPackageSchedule->toArray(['package_id', 'driver_schedule_id', 'car_schedule_id']));
 
-            $packageUpdate = $this->packageRepository->findById($dto->id);
+            $packageUpdate = $this->packageRepository->findById($dto->id)
+                ->fresh(['request', 'request.status', 'driverPackageSchedule', 'driverPackageSchedule.carSchedule',
+                        'driverPackageSchedule.driverSchedule', 'driverPackageSchedule.carSchedule.car',
+                        'driverPackageSchedule.driverSchedule.driver', 'pickupAddress', 'arrivalAddress']);
 
             $dateGoogleCalendar = $startDate;
+
+            $emailDriver = $packageUpdate->driverPackageSchedule->driverSchedule->driver->email;
+
+            Mail::send(new ApprovedRequestPackageInformationMail($packageUpdate, $emailDriver));
 
         } else {
             $request = $this->requestRepository->update($dto->request_id, $dto->request
@@ -354,7 +367,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
                 ->update($dto->id, $dto->toArray(['tracking_code', 'url_tracking']))
                 ->fresh(['request', 'request.status', 'driverPackageSchedule', 'driverPackageSchedule.carSchedule',
                     'driverPackageSchedule.driverSchedule', 'driverPackageSchedule.carSchedule.car',
-                    'driverPackageSchedule.driverSchedule.driver']);
+                    'driverPackageSchedule.driverSchedule.driver', 'pickupAddress', 'arrivalAddress']);
             $dateGoogleCalendar = $request->end_date;
         }
 
@@ -371,7 +384,6 @@ class RequestPackageService extends BaseService implements RequestPackageService
             ]);
             $this->requestRepository->update($request->id, $dto->toArray(['event_google_calendar_id']));
         }
-
         return $packageUpdate;
     }
 

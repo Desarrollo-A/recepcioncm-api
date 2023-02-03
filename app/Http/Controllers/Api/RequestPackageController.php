@@ -131,7 +131,10 @@ class RequestPackageController extends BaseApiController
     {
         $dto = $request->toDTO();
         $packageApproved = $this->requestPackageService->approvedRequest($dto);
-        $this->notificationService->approvedPackageRequestNotification($packageApproved, $dto->driverPackageSchedule->driverSchedule->driver_id);
+        if (isset($dto->driverPackageSchedule->driverSchedule->driver_id)) {
+            $this->notificationService->approvedPackageRequestNotification($packageApproved,
+                $dto->driverPackageSchedule->driverSchedule->driver_id);
+        }
         return $this->noContentResponse();
     }
 
