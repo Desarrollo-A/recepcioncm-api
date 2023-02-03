@@ -110,13 +110,12 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
     public function getApprovedRequestsTomorrow(): Collection
     {
         return $this->entity
-            ->select(['requests.*'])
-            ->join('lookups AS status', 'status.id', '=', 'requests.status_id')
-            ->join('lookups AS type', 'type.id', '=', 'requests.type_id')
+            ->select(['requests.*', 't.code AS type_code'])
+            ->join('lookups AS s', 's.id', '=', 'requests.status_id')
+            ->join('lookups AS t', 't.id', '=', 'requests.type_id')
             ->whereDate('start_date', now()->addDay())
-            ->where('status.code', StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED))
-            ->whereIn('type.code', [TypeRequestLookup::code(TypeRequestLookup::ROOM),
-                TypeRequestLookup::code(TypeRequestLookup::DRIVER), TypeRequestLookup::code(TypeRequestLookup::CAR)])
+            ->whereIn('t.code', Utils::getAllTypesRequest())
+            ->whereIn('s.code', Utils::getStatusApprovedRequest())
             ->get();
     }
 
