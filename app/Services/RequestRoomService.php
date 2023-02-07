@@ -191,8 +191,6 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
             $this->requestRepository->update($request->id, $dto->toArray(['event_google_calendar_id']));
         }
 
-        Mail::send(new ApprovedRequestRoomMail([$request->user->email], $request));
-
         return $request;
     }
 
@@ -298,13 +296,9 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
 
         $this->cancelRequestRepository->create($dto->toArray(['request_id', 'cancel_comment', 'user_id']));
 
-        $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id', 'event_google_calendar_id']))
+        return $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id', 'event_google_calendar_id']))
             ->fresh(['requestRoom', 'requestRoom.room', 'requestRoom.room.office',
                 'requestRoom.room.recepcionist', 'user', 'status', 'cancelRequest']);
-
-        Mail::send(new CancelledRequestRoomMail([$request->user->email], $request));
-
-        return $request;
     }
 
     public function getAvailableScheduleByDay(int $requestId, Carbon $date): \Illuminate\Support\Collection
