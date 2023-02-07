@@ -325,6 +325,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
             ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED),
                 TypeLookup::STATUS_PACKAGE_REQUEST)
             ->id;
+
         if (is_null($dto->tracking_code)) {
             $request = $this->requestRepository->findById($dto->request_id);
 
@@ -384,6 +385,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
             ]);
             $this->requestRepository->update($request->id, $dto->toArray(['event_google_calendar_id']));
         }
+
         return $packageUpdate;
     }
 
@@ -576,8 +578,8 @@ class RequestPackageService extends BaseService implements RequestPackageService
             ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::DELIVERED),
                 TypeLookup::STATUS_PACKAGE_REQUEST)
             ->id;
-        $requestDTO = new RequestDTO(['status_id' => $statusId]);
-        $request = $this->requestRepository->update($package->request_id, $requestDTO->toArray(['status_id']));
+        $requestDTO = new RequestDTO(['status_id' => $statusId, 'end_date' => now()]);
+        $request = $this->requestRepository->update($package->request_id, $requestDTO->toArray(['status_id', 'end_date']));
 
         $this->deliveredPackageRepository->create($dto->toArray(['package_id', 'name_receive']));
 
