@@ -21,6 +21,8 @@ use App\Helpers\Enum\Path;
 use App\Helpers\Enum\QueryParam;
 use App\Helpers\File;
 use App\Helpers\Validation;
+use App\Mail\RequestDriver\ApprovedRequestDriverInformationMail;
+use App\Mail\RequestDriver\CancelledRequestDriverInformationMail;
 use App\Models\Dto\CancelRequestDTO;
 use App\Models\Dto\ProposalRequestDTO;
 use App\Models\Dto\RequestDriverDTO;
@@ -37,6 +39,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\Response as HttpCodes;
 
 class RequestDriverService extends BaseService implements RequestDriverServiceInterface
@@ -212,7 +215,6 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
         ], TypeLookup::STATUS_DRIVER_REQUEST);
 
         $request = $this->requestRepository->findById($dto->request_id);
-
         if (!in_array($request->status_id, $status->pluck('id')->toArray())) {
             throw new CustomErrorException('La solicitud debe estar en estatus '
                 .StatusDriverRequestLookup::code(StatusDriverRequestLookup::NEW).' o '
@@ -237,9 +239,19 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
             return $lookup->code === StatusDriverRequestLookup::code(StatusDriverRequestLookup::APPROVED);
         });
 
+        $this->cancelRequestRepository->create($dto->toArray(['request_id', 'cancel_comment', 'user_id']));
+
+        $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id', 'event_google_calendar_id']))
+            ->fresh(['status', 'cancelRequest', 'requestDriver', 'requestDriver.driverRequestSchedule.carSchedule.car',
+                    'requestDriver.driverRequestSchedule.driverSchedule.driver']);
+        
         // Si la solicitud fue aprobada anteriormente
         $driverId = null;
         if ($lastStatusId === $statusApproved->id) {
+            
+            $emailDriver = $request->requestDriver->driverRequestSchedule->driverSchedule->driver->email;
+            Mail::send(new CancelledRequestDriverInformationMail($request, $emailDriver));
+
             $requestDriver = $this->entityRepository->findByRequestId($dto->request_id);
             $driverId = $requestDriver->driverRequestSchedule->driverSchedule->driver_id;
 
@@ -247,13 +259,9 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
             $this->carScheduleRepository->delete($requestDriver->driverRequestSchedule->carSchedule->id);
             $this->driverScheduleRepository->delete($requestDriver->driverRequestSchedule->driverSchedule->id);
         }
-
-        $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id', 'event_google_calendar_id']));
-
-        $this->cancelRequestRepository->create($dto->toArray(['request_id', 'cancel_comment', 'user_id']));
-
+        
         return (object)[
-            'request' => $request->fresh(['status', 'cancelRequest', 'requestDriver']),
+            'request' => $request,
             'driverId' => $driverId
         ];
     }
@@ -276,12 +284,13 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
                 TypeLookup::STATUS_DRIVER_REQUEST)
             ->id;
 
-        $request = $this->requestRepository->findById($dto->request_id)
+        $request = $this->requestRepository->findById($dto->request_id);
+        $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id']))
             ->fresh(['requestDriver', 'requestDriver.driverRequestSchedule',
-                'requestDriver.driverRequestSchedule.driverSchedule','requestDriver.driverRequestSchedule.carSchedule',
-                'requestDriver.driverRequestSchedule.driverSchedule.driver',
-                'requestDriver.driverRequestSchedule.carSchedule.car', 'status', 'user']);
-        $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id']));
+            'requestDriver.driverRequestSchedule.driverSchedule','requestDriver.driverRequestSchedule.carSchedule',
+            'requestDriver.driverRequestSchedule.driverSchedule.driver',
+            'requestDriver.driverRequestSchedule.carSchedule.car' , 'requestDriver.pickupAddress', 
+            'requestDriver.arrivalAddress', 'status']);
 
         $dto->driverRequestSchedule->carSchedule->start_date = $request->start_date;
         $dto->driverRequestSchedule->carSchedule->end_date = $request->end_date;
@@ -297,10 +306,10 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
         $dto->driverRequestSchedule->car_schedule_id = $carSchedule->id;
         $this->driverRequestScheduleRepository
             ->create($dto->driverRequestSchedule->toArray(['request_driver_id', 'driver_schedule_id', 'car_schedule_id']));
-
+        
+        $emailDriver = $request->requestDriver->driverRequestSchedule->driverSchedule->driver->email;
+        Mail::send(new ApprovedRequestDriverInformationMail($request, $emailDriver));
         if (config('app.enable_google_calendar', false)) {
-            $emails = array();
-            $emails[] = $this->userRepository->findByOfficeIdAndRoleRecepcionist($request->requestDriver->office_id)->email;
             $emails[] = $this->userRepository->findById($dto->driverRequestSchedule->driverSchedule->driver_id)->email;
             if ($request->add_google_calendar) {
                 $emails[] = $request->user->email;
