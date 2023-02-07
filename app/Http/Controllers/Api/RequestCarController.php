@@ -104,9 +104,11 @@ class RequestCarController extends BaseApiController
     {
         $dto = $request->toDTO();
         $dto->request_id = $requestId;
-        $request = $this->requestCarService->cancelRequest($dto);
-        $this->notificationService->cancelRequestCarNotification($request, auth()->user());
-        $this->requestEmailService->sendCancelledRequestCarMail($request);
+        $data = $this->requestCarService->cancelRequest($dto);
+        $this->notificationService->cancelRequestCarNotification($data->request, auth()->user());
+        if ($data->previouslyApproved) {
+            $this->requestEmailService->sendCancelledRequestCarMail($data->request);
+        }
         return $this->noContentResponse();
     }
 

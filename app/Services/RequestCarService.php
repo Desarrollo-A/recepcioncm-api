@@ -204,9 +204,10 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
     }
 
     /**
+     * @return object {previouslyApproved: boolean, request: App\Models\Request}
      * @throws CustomErrorException
      */
-    public function cancelRequest(CancelRequestDTO $dto): Request
+    public function cancelRequest(CancelRequestDTO $dto): object
     {
         $status = $this->lookupRepository->findByCodeWhereInAndType([
             StatusCarRequestLookup::code(StatusCarRequestLookup::NEW),
@@ -240,7 +241,9 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         });
 
         // Si la solicitud fue aprobada anteriormente
+        $previouslyApproved = false;
         if ($lastStatusId === $statusApproved->id) {
+            $previouslyApproved = true;
             $requestCar = $this->entityRepository->findByRequestId($dto->request_id);
             $this->carRequestScheduleRepository->deleteByRequestCarId($requestCar->id);
             $this->carScheduleRepository->delete($requestCar->carRequestSchedule->carSchedule->id);
@@ -250,7 +253,10 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
 
         $this->cancelRequestRepository->create($dto->toArray(['request_id', 'cancel_comment', 'user_id']));
 
-        return $request->fresh(['requestCar', 'status', 'cancelRequest']);
+        return (object)[
+            'previouslyApproved' => $previouslyApproved,
+            'request' => $request->fresh(['requestCar', 'status', 'cancelRequest'])
+        ];
     }
 
     /**
@@ -263,11 +269,7 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
                 TypeLookup::STATUS_CAR_REQUEST)
             ->id;
 
-        $request = $this->requestRepository->findById($dto->request_id)
-            ->fresh(['requestCar', 'requestCar.carRequestSchedule',
-                'requestCar.carRequestSchedule.carSchedule',
-                'requestCar.carRequestSchedule.carSchedule.car', 'status', 'user']);
-        $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id']));
+        $request = $this->requestRepository->findById($dto->request_id);
 
         $dto->carRequestSchedule->carSchedule->start_date = $request->start_date;
         $dto->carRequestSchedule->carSchedule->end_date = $request->end_date;
@@ -277,6 +279,11 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         $dto->carRequestSchedule->car_schedule_id = $carSchedule->id;
         $this->carRequestScheduleRepository
             ->create($dto->carRequestSchedule->toArray(['request_car_id', 'car_schedule_id']));
+
+        $request = $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id']))
+            ->fresh(['requestCar', 'requestCar.carRequestSchedule',
+                'requestCar.carRequestSchedule.carSchedule',
+                'requestCar.carRequestSchedule.carSchedule.car', 'status', 'user']);
 
         if (config('app.enable_google_calendar', false)) {
             if($request->add_google_calendar){

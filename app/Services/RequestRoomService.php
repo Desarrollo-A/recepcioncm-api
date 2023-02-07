@@ -20,6 +20,8 @@ use App\Helpers\Enum\Message;
 use App\Helpers\Enum\QueryParam;
 use App\Helpers\Utils;
 use App\Helpers\Validation;
+use App\Mail\RequestRoom\ApprovedRequestRoomMail;
+use App\Mail\RequestRoom\CancelledRequestRoomMail;
 use App\Models\Dto\CancelRequestDTO;
 use App\Models\Dto\RequestDTO;
 use App\Models\Dto\RequestRoomDTO;
@@ -36,6 +38,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\Response;
 
 class RequestRoomService extends BaseService implements RequestRoomServiceInterface
@@ -188,6 +191,8 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
             $this->requestRepository->update($request->id, $dto->toArray(['event_google_calendar_id']));
         }
 
+        Mail::send(new ApprovedRequestRoomMail([$request->user->email], $request));
+
         return $request;
     }
 
@@ -291,12 +296,15 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
             $this->calendarService->deleteEvent($request->event_google_calendar_id);
         }
 
-        $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id', 'event_google_calendar_id']));
-
         $this->cancelRequestRepository->create($dto->toArray(['request_id', 'cancel_comment', 'user_id']));
 
-        return $request->fresh(['requestRoom', 'requestRoom.room', 'requestRoom.room.office',
-            'requestRoom.room.recepcionist', 'user', 'status', 'cancelRequest']);
+        $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id', 'event_google_calendar_id']))
+            ->fresh(['requestRoom', 'requestRoom.room', 'requestRoom.room.office',
+                'requestRoom.room.recepcionist', 'user', 'status', 'cancelRequest']);
+
+        Mail::send(new CancelledRequestRoomMail([$request->user->email], $request));
+
+        return $request;
     }
 
     public function getAvailableScheduleByDay(int $requestId, Carbon $date): \Illuminate\Support\Collection
