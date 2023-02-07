@@ -285,12 +285,6 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
             ->id;
 
         $request = $this->requestRepository->findById($dto->request_id);
-        $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id']))
-            ->fresh(['requestDriver', 'requestDriver.driverRequestSchedule',
-            'requestDriver.driverRequestSchedule.driverSchedule','requestDriver.driverRequestSchedule.carSchedule',
-            'requestDriver.driverRequestSchedule.driverSchedule.driver',
-            'requestDriver.driverRequestSchedule.carSchedule.car' , 'requestDriver.pickupAddress', 
-            'requestDriver.arrivalAddress', 'status']);
 
         $dto->driverRequestSchedule->carSchedule->start_date = $request->start_date;
         $dto->driverRequestSchedule->carSchedule->end_date = $request->end_date;
@@ -306,14 +300,25 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
         $dto->driverRequestSchedule->car_schedule_id = $carSchedule->id;
         $this->driverRequestScheduleRepository
             ->create($dto->driverRequestSchedule->toArray(['request_driver_id', 'driver_schedule_id', 'car_schedule_id']));
+
+        $request = $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id']))
+            ->fresh(['requestDriver', 'requestDriver.driverRequestSchedule',
+                'requestDriver.driverRequestSchedule.driverSchedule','requestDriver.driverRequestSchedule.carSchedule',
+                'requestDriver.driverRequestSchedule.driverSchedule.driver',
+                'requestDriver.driverRequestSchedule.carSchedule.car' , 'requestDriver.pickupAddress',
+                'requestDriver.arrivalAddress', 'status']);
         
-        $emailDriver = $request->requestDriver->driverRequestSchedule->driverSchedule->driver->email;
+        $emailDriver = $this->userRepository->findById($dto->driverRequestSchedule->driverSchedule->driver_id)->email;
         Mail::send(new ApprovedRequestDriverInformationMail($request, $emailDriver));
+
         if (config('app.enable_google_calendar', false)) {
-            $emails[] = $this->userRepository->findById($dto->driverRequestSchedule->driverSchedule->driver_id)->email;
+            $emails[] = $emailDriver;
+            $emails[] = $this->userRepository->findByOfficeIdAndRoleRecepcionist($request->requestDriver->office_id)->id;
+
             if ($request->add_google_calendar) {
                 $emails[] = $request->user->email;
             }
+
             $event = $this->calendarService->createEvent($request->title, $request->start_date, $request->end_date, $emails);
 
             $dto = new RequestDTO([
@@ -321,6 +326,7 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
             ]);
             $this->requestRepository->update($request->id, $dto->toArray(['event_google_calendar_id']));
         }
+
         return $request;
     }
 
