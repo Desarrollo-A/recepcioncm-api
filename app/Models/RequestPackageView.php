@@ -19,6 +19,7 @@ class RequestPackageView extends Model implements ScopeFilterInterface
     protected $casts = [
         'request_id' => 'integer',
         'start_date' => 'datetime',
+        'end_date'  =>  'datetime',
         'office_id' => 'integer',
         'package_id' => 'integer',
         'driver_id' => 'integer'
@@ -58,6 +59,22 @@ class RequestPackageView extends Model implements ScopeFilterInterface
             $query->where('office_id', $user->office_id);
         } else if ($user->role->name === NameRole::APPLICANT) {
             $query->where('user_id', $user->id);
+        }
+
+        return $query;
+    }
+
+    public function scopeFilterReport(Builder $query, array $params = []): Builder
+    {
+        if (empty($params)) {
+            return $query;
+        }
+
+        if (isset($params['start_date'])) {
+            $query->where('start_date', '>=', $params['start_date']);
+        }
+        if (isset($params['end_date'])) {
+            $query->where('end_date', '<=', $params['end_date']);
         }
 
         return $query;

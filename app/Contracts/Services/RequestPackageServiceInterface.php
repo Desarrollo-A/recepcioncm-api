@@ -69,7 +69,14 @@ interface RequestPackageServiceInterface extends BaseServiceInterface
     public function findAllByDriverIdPaginated(HttpRequest $request, User $user,
                                                array       $columns = ['*']): LengthAwarePaginator;
 
+    public function findAllDeliveredByDriverIdPaginated(HttpRequest $request, User $user,
+                                                        array $columns = ['*']): LengthAwarePaginator;
+
     public function deliveredPackage(DeliveredPackageDTO $dto): Request;
 
     public function deliveredRequestSignature(int $packageId, DeliveredPackageDTO $dto): void;
+
+    public function reportRequestPackagePdf (HttpRequest $request, int $driverId);
+
+    public function reportRequestPackageExcel(HttpRequest $request, int $driverId);
 }

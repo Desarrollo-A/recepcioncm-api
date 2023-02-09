@@ -45,7 +45,8 @@ class RequestPackageController extends BaseApiController
             ->only('transferRequest', 'getDriverSchedule', 'getPackagesByDriverId', 'onReadRequest',
                 'findAllByDateAndOffice', 'proposalRequest', 'approvedRequest');
         $this->middleware('role.permission:'.NameRole::DRIVER)
-            ->only('findAllByDriverIdPaginated', 'onRoad', 'deliveredRequest', 'deliveredRequestSignature');
+            ->only('findAllByDriverIdPaginated', 'onRoad', 'deliveredRequest', 'deliveredRequestSignature', 'findAllDeliveredByDriverIdPaginated', 
+                'getRequestPackageReportPdf', 'getRequestPackageReportExcel');
         
         $this->requestPackageService = $requestPackageService;
         $this->notificationService = $notificationService;
@@ -203,6 +204,12 @@ class RequestPackageController extends BaseApiController
         return $this->showAll(new RequestPackageViewCollection($requestPackages, true));
     }
 
+    public function findAllDeliveredByDriverIdPaginated(Request $request): JsonResponse
+    {
+        $requestPackage = $this->requestPackageService->findAllDeliveredByDriverIdPaginated($request, auth()->user());
+        return $this->showAll(new RequestPackageViewCollection($requestPackage, true));
+    }
+
     /**
      * @throws CustomErrorException
      */
@@ -221,5 +228,15 @@ class RequestPackageController extends BaseApiController
     {
         $this->requestPackageService->deliveredRequestSignature($packageId, $request->toDTO());
         return $this->noContentResponse();
+    }
+
+    public function getRequestPackageReportPdf(Request $request)
+    {
+        return $this->requestPackageService->reportRequestPackagePdf($request, auth()->id());
+    }
+
+    public function getRequestPackageReportExcel(Request $request)
+    {
+        return $this->requestPackageService->reportRequestPackageExcel($request, auth()->id());
     }
 }
