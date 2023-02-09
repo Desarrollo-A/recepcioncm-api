@@ -259,6 +259,12 @@ Route::prefix('v1')->group(function () {
 
                 Route::get('/input-output/excel', 'InputOutputInventoryViewController@getReportExcel')
                     ->name('report-excel');
+                
+                Route::get('/driver-delivered/pdf', 'RequestPackageController@getRequestPackageReportPdf')
+                    ->name('report-package-pdf');
+                    
+                Route::get('/driver-delivered/excel', 'RequestPackageController@getRequestPackageReportExcel')
+                    ->name('report-package-excel');
             });
         
         Route::prefix('offices')
@@ -350,6 +356,9 @@ Route::prefix('v1')->group(function () {
 
                 Route::get('/driver', 'RequestPackageController@findAllByDriverIdPaginated')
                     ->name('driver-paginated');
+
+                Route::get('/driver-delivered', 'RequestPackageController@findAllDeliveredByDriverIdPaginated')
+                    ->name('driver.delivered');
 
                 Route::post('/approved', 'RequestPackageController@approvedRequest')
                     ->name('approved');

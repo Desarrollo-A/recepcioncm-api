@@ -556,6 +556,14 @@ class RequestPackageService extends BaseService implements RequestPackageService
         return $this->requestPackageViewRepository->findAllByDriverIdPaginated($filters, $perPage, $user, $sort);
     }
 
+    public function findAllDeliveredByDriverIdPaginated(HttpRequest $request, User $user, array $columns = ['*']): LengthAwarePaginator
+    {
+        $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
+        $perPage = Validation::getPerPage($request->get(QueryParam::PAGINATION_KEY));
+        $sort = $request->get(QueryParam::ORDER_BY_KEY);
+        return $this->requestPackageViewRepository->findAllDeliveredByDriverIdPaginated($filters, $perPage, $user, $sort);
+    }
+
     /**
      * @throws CustomErrorException
      */
@@ -595,5 +603,40 @@ class RequestPackageService extends BaseService implements RequestPackageService
     {
         $dto->signature = File::uploadImage($dto->signature_file, Path::PACKAGE_SIGNATURES, File::SIGNATURE_HEIGHT_IMAGE);
         $this->deliveredPackageRepository->update($packageId, $dto->toArray(['signature']));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function reportRequestPackagePdf(HttpRequest $request, int $driverId)
+    {
+        $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
+        $data = $this->requestPackageViewRepository->getDataReport($filters, $driverId);
+        $path = str_replace('\\', '/', Path::STORAGE.Path::PACKAGE_SIGNATURES);
+        return File::generatePDF('pdf.reports.driver-delivered', 
+            array('items' => $data, 'path' => $path),
+            'solicitudes_paqueteria_entregadas', true);
+    }
+
+    /**
+     * @throws CustomErrorException
+     * @throws UnsupportedTypeException
+     * @throws WriterNotOpenedException
+     * @throws InvalidArgumentException
+     * @throws IOException
+     */
+    public function reportRequestPackageExcel(HttpRequest $request, int $driverId)
+    {
+        $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
+        $data = $this->requestPackageViewRepository->getDataReport($filters, $driverId)->map(function ($item) {
+            return collect([
+                'Clave' => $item->code,
+                'Fecha entrega' => $item->end_date->format('d-m-Y, h:i a'),
+                'Lugar salida' => $item->state_pickup,
+                'Lugar llegada' => $item->state_arrival,
+                'Recibió' => $item->name_receive,
+            ]);
+        });
+        return File::generateExcel($data,'solicitudes_paqueteria_entregadas');
     }
 }

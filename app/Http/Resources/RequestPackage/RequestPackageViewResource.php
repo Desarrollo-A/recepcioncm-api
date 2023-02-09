@@ -14,6 +14,7 @@ class RequestPackageViewResource extends JsonResource
             'code' => $this->code,
             'title' => $this->title,
             'startDate' => $this->start_date->toDateTimeString(),
+            'endDate' => !is_null($this->end_date) ? $this->end_date->toDateTimeString() : $this->end_date,
             'statusName' => $this->status_name,
             'statusCode' => $this->status_code,
             'fullName' => $this->full_name,
