@@ -8,6 +8,7 @@ use App\Models\Enums\Lookups\StatusPackageRequestLookup;
 use App\Models\RequestPackageView;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -46,5 +47,25 @@ class RequestPackageViewRepository extends BaseRepository implements RequestPack
             ])
             ->applySort($sort)
             ->paginate($limit, $columns);
+    }
+
+    public function findAllDeliveredByDriverIdPaginated(array $filters, int $limit, User $user, string $sort = null,
+                                            array $columns = ['*']): LengthAwarePaginator
+    {
+        return $this->entity
+        ->filter($filters)
+        ->where('driver_id', $user->id)
+        ->where('status_code', StatusPackageRequestLookup::code(StatusPackageRequestLookup::DELIVERED))
+        ->applySort($sort)
+        ->paginate($limit, $columns);
+    }
+
+    public function getDataReport (array $filters, int $driverId): Collection
+    {
+        return $this->entity
+            ->where('driver_id', $driverId)
+            ->filterReport($filters)
+            ->orderBy('end_date', 'DESC')
+            ->get();
     }
 }
