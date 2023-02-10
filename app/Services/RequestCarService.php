@@ -388,4 +388,41 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
 
         return $request;
     }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function uploadZipImages(int $id, RequestCarDTO $dto): void
+    {
+        $dto->image_zip = File::uploadFile($dto->image_zip_file, Path::REQUEST_CAR_IMAGES);
+        $this->entityRepository->update($id, $dto->toArray(['image_zip']));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function uploadResponsiveFile(int $id, RequestCarDTO $dto): void
+    {
+        $dto->responsive_filename = File::uploadFile($dto->responsive_file, Path::CAR_RESPONSIVE_FILE);
+        $this->entityRepository->update($id, $dto->toArray(['responsive_filename']));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function addExtraCarInformation(int $id, RequestCarDTO $dto): void
+    {
+        $fields = array();
+        if (!is_null($dto->initial_km)) {
+            $fields = array_merge($fields, ['initial_km']);
+        }
+        if (!is_null($dto->final_km)) {
+            $fields = array_merge($fields, ['final_km']);
+        }
+        if (!is_null($dto->delivery_condition)) {
+            $fields = array_merge($fields, ['delivery_condition']);
+        }
+
+        $this->entityRepository->update($id, $dto->toArray($fields));
+    }
 }

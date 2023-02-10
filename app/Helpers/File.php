@@ -21,8 +21,8 @@ class File
 {
     const INVENTORY_HEIGHT_IMAGE = 512;
     const SIGNATURE_HEIGHT_IMAGE = 200;
-    const IMAGE_NAME_LENGHT = 40;
-    const FILE_NAME_LENGHT = 40;
+    const IMAGE_NAME_LENGHT = 30;
+    const FILE_NAME_LENGHT = 30;
 
     /**
      * @throws CustomErrorException
@@ -30,7 +30,7 @@ class File
     public static function uploadImage(UploadedFile $imageFile, string $customPath, int $sizeHeight): string
     {
         try {
-            $imageName = Str::random(self::IMAGE_NAME_LENGHT) .
+            $imageName = self::getFilename(self::IMAGE_NAME_LENGHT) .
                 self::getFileExtension($imageFile->getClientOriginalName());
 
             $pathUrl = self::getFilePublicPath($customPath, $imageName);
@@ -49,7 +49,7 @@ class File
 
     public static function uploadFile(UploadedFile $file, string $customPath): string
     {
-        $filename = Str::random(self::FILE_NAME_LENGHT).self::getFileExtension($file->getClientOriginalName());
+        $filename = self::getFilename(self::FILE_NAME_LENGHT).self::getFileExtension($file->getClientOriginalName());
         $pathUrl = self::getFilePublicPath($customPath);
         $file->move($pathUrl, $filename);
         return $filename;
@@ -114,5 +114,12 @@ class File
     public static function getExposedPath(string $filename, string $path): string
     {
         return Path::STORAGE . $path . $filename;
+    }
+
+    public static function getFilename(int $lenght): string
+    {
+        $random = Str::random($lenght);
+        $timestamp = now()->getTimestamp();
+        return "{$random}_$timestamp";
     }
 }
