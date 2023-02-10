@@ -34,6 +34,8 @@ class CreateRequestCarsTable extends Migration
                 ->nullable();
             $table->text('delivery_condition')
                 ->nullable();
+            $table->string('image_zip', 50)
+                ->nullable();
             $table->timestamps();
         });
     }
