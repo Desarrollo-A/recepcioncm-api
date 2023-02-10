@@ -6,54 +6,36 @@ on:
       - test
 
 jobs:
-  web-deploy:
-    name: Deploy
+  deploy:
     runs-on: ubuntu-latest
-
+    if: github.ref == 'refs/heads/test'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      #- name: Setup PHP
-      #  uses: shivammathur/setup-php@v2
-      #  with:
-      #    php-version: 7.2.34
-
-      #- name: Get Composer Cache Directory 2
-      #  id: composer-cache
-      #  run: |
-      #    echo "::set-output name=dir::$(composer config cache-files-dir)"
-
-      #- uses: actions/cache@v2
-      #  id: actions-cache
-      #  with:
-      #    path: '${{ steps.composer-cache.outputs.dir }}'
-      #    key: '${{ runner.os }}-composer-${{ hashFiles(''**/composer.lock'') }}'
-      #    restore-keys: |
-      #      ${{ runner.os }}-composer-
-
-      #- name: Cache PHP dependencies
-      #  uses: actions/cache@v2
-      #  id: vendor-cache
-      #  with:
-      #    path: vendor
-      #    key: '${{ runner.OS }}-build-${{ hashFiles(''**/composer.lock'') }}'
-
-      #- name: Install Dependencies
-      #  if: steps.vendor-cache.outputs.cache-hit != 'true'
-      #  run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-
-      #- name: Change Directory Permissions
-      #  run: chmod -R 777 storage bootstrap/cache
-
-      #- name: Clear Config
-      #  run: php artisan config:clear
-
-      - name: Sync files
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.1
+      - name: Cache PHP dependencies
+        uses: actions/cache@v1
         with:
-          server: 104.198.134.0
-          port: 22
-          username: prohab
-          ssh_private_key: ${{secrets.SFTP_SSH_PRIVATE_KEY}}
-          remote_path: /mnt/data/aplicaciones/Prueba/recepcion-cm-api/
+          path: vendor
+          key: dependencies-php-composer-${{ hashFiles('**/composer.lock') }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.2
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
+
+      - name: Deploy
+        uses: AEnterprise/rsync-deploy@v1.0
+        env:
+          DEPLOY_KEY: ${{ secrets.SFTP_SSH_PRIVATE_KEY }}
+          ARGS: '-avzh --exclude=".*"'
+          SERVER_PORT: 22
+          FOLDER: "./"
+          SERVER_IP: 104.198.134.0
+          USERNAME: prohab
+          SERVER_DESTINATION: "/mnt/data/aplicaciones/Prueba/recepcion-cm-api/"
