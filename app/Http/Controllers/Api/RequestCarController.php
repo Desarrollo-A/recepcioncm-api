@@ -9,11 +9,14 @@ use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\CancelRequest\CancelRequest;
 use App\Http\Requests\Request\ResponseRejectRequest;
+use App\Http\Requests\RequestCar\AddExtraInformationCarRequest;
 use App\Http\Requests\RequestCar\ApprovedCarRequest;
 use App\Http\Requests\RequestCar\ProposalCarRequest;
 use App\Http\Requests\RequestCar\StoreRequestCarRequest;
 use App\Http\Requests\RequestCar\TransferCarRequest;
 use App\Http\Requests\RequestCar\UploadFileRequestCarRequest;
+use App\Http\Requests\RequestCar\UploadResponsiveFileCarRequest;
+use App\Http\Requests\RequestCar\UploadZipImagesCarRequest;
 use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\RequestCar\RequestCarResource;
 use App\Http\Resources\RequestCar\RequestCarViewCollection;
@@ -36,7 +39,8 @@ class RequestCarController extends BaseApiController
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
             ->only('index', 'store', 'uploadAuthorizationFile', 'show', 'cancelRequest', 'getStatusByStatusCurrent');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
-            ->only('transferRequest', 'approvedRequest', 'getBusyDaysForProposalCalendar', 'proposalRequest');
+            ->only('transferRequest', 'approvedRequest', 'getBusyDaysForProposalCalendar', 'proposalRequest',
+                'uploadZipImages', 'uploadResponsiveFile', 'addExtraCarInformation');
 
         $this->requestCarService = $requestCarService;
         $this->notificationService = $notificationService;
@@ -149,6 +153,36 @@ class RequestCarController extends BaseApiController
         $dto = $request->toDTO();
         $request = $this->requestCarService->responseRejectRequest($requestId, $dto);
         $this->notificationService->responseRejectCarRequestNotification($request);
+        return $this->noContentResponse();
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function uploadZipImages(int $id, UploadZipImagesCarRequest $request): JsonResponse
+    {
+        $dto = $request->toDTO();
+        $this->requestCarService->uploadZipImages($id, $dto);
+        return $this->noContentResponse();
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function uploadResponsiveFile(int $id, UploadResponsiveFileCarRequest $request): JsonResponse
+    {
+        $dto = $request->toDTO();
+        $this->requestCarService->uploadResponsiveFile($id, $dto);
+        return $this->noContentResponse();
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function addExtraCarInformation(int $id, AddExtraInformationCarRequest $request): JsonResponse
+    {
+        $dto = $request->toDTO();
+        $this->requestCarService->addExtraCarInformation($id, $dto);
         return $this->noContentResponse();
     }
 }
