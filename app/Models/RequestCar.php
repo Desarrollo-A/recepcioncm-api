@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class RequestCar extends Model
 {
     protected $fillable = ['authorization_filename', 'responsive_filename', 'request_id', 'office_id', 'initial_km',
-        'final_km', 'delivery_condition'];
+        'final_km', 'delivery_condition', 'image_zip'];
 
     protected $casts = [
         'id' => 'integer',

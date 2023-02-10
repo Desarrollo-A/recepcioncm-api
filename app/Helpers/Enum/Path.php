@@ -8,8 +8,11 @@ class Path
     const STORAGE_PUBLIC = 'public\\';
     const IMAGES = 'images\\';
     const INVENTORY_IMAGES = 'inventory\\';
-    const PACKAGE_AUTHORIZATION_DOCUMENTS = 'documents\\packages\\';
-    const DRIVER_AUTHORIZATION_DOCUMENTS = 'documents\\driver-request\\';
-    const CAR_AUTHORIZATION_DOCUMENTS = 'documents\\car-request\\';
-    const PACKAGE_SIGNATURES = 'images\\request-packages-signatures\\';
+    const DOCUMENTS = 'documents\\';
+    const PACKAGE_AUTHORIZATION_DOCUMENTS = self::DOCUMENTS.'packages\\';
+    const DRIVER_AUTHORIZATION_DOCUMENTS = self::DOCUMENTS.'driver-request\\';
+    const CAR_AUTHORIZATION_DOCUMENTS = self::DOCUMENTS.'car-request\\';
+    const CAR_RESPONSIVE_FILE = self::DOCUMENTS.'car-request\\responsive\\';
+    const PACKAGE_SIGNATURES = self::IMAGES.'request-packages-signatures\\';
+    const REQUEST_CAR_IMAGES = self::IMAGES.'request-car-images\\';
 }

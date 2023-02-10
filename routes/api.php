@@ -453,6 +453,14 @@ Route::prefix('v1')->group(function () {
                     ->name('upload-file')
                     ->where('requestId', Validation::INTEGER_ID);
 
+                Route::put('/upload-zip/{id}', 'RequestCarController@uploadZipImages')
+                    ->name('upload-zip')
+                    ->where('id', Validation::INTEGER_ID);
+
+                Route::put('/responsive-file/{id}', 'RequestCarController@uploadResponsiveFile')
+                    ->name('responsive-file')
+                    ->where('id', Validation::INTEGER_ID);
+
                 Route::patch('/transfer/{requestCarId}', 'RequestCarController@transferRequest')
                     ->name('transfer')
                     ->where('requestCarId', Validation::INTEGER_ID);
@@ -464,13 +472,17 @@ Route::prefix('v1')->group(function () {
                 Route::patch('/proposal', 'RequestCarController@proposalRequest')
                     ->name('proposal');
 
+                Route::patch('/response-reject/{requestId}', 'RequestCarController@responseRejectRequest')
+                    ->name('response-reject')
+                    ->where('requestId', Validation::INTEGER_ID);
+
+                Route::patch('/extra-information/{id}', 'RequestCarController@addExtraCarInformation')
+                    ->name('extra-information')
+                    ->where('id', Validation::INTEGER_ID);
+
                 Route::delete('/{requestId}', 'RequestCarController@deleteRequestCar')
                     ->name('delete')
                     ->where('requestId', validation::INTEGER_ID);
-
-                Route::patch('/response-reject/{requestId}', 'RequestCarController@responseRejectRequest')
-                    ->name('response-reject')
-                    ->where('id', Validation::INTEGER_ID);
             });
 
         Route::prefix('jobs')
