@@ -29,13 +29,13 @@ jobs:
       - name: Install dependencies
         run: composer install --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
 
-      - name: Deploy
-        uses: AEnterprise/rsync-deploy@v1.0
-        env:
-          DEPLOY_KEY: ${{ secrets.SFTP_SSH_PRIVATE_KEY }}
-          ARGS: '-avzh --exclude=".*"'
-          SERVER_PORT: 22
-          FOLDER: "./"
-          SERVER_IP: 104.198.134.0
-          USERNAME: prohab
-          SERVER_DESTINATION: "/mnt/data/aplicaciones/Prueba/recepcion-cm-api/"
+      - name: Copy files via SSH key
+        uses: appleboy/scp-action@master
+        with:
+          host: 104.198.134.0
+          username: prohab
+          port: 22
+          key: ${{ secrets.SFTP_SSH_PRIVATE_KEY }}
+          source: "./"
+          target: "/mnt/data/aplicaciones/Prueba/recepcion-cm-api/"
+          overwrite: true
