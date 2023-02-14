@@ -26,6 +26,9 @@ jobs:
           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd
           coverage: none
 
+      - name: Create file ENV Laravel Configuration for CI
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
       - name: Install dependencies
         run: composer install --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
 
