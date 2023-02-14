@@ -26,14 +26,10 @@ jobs:
           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd
           coverage: none
 
-      - name: Copy ENV Laravel Configuration for CI
-        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
-
       - name: Install dependencies
         run: composer install --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
 
       - name: Copy dotenv file
-        #run: php -r "file_put_contents(__DIR__ . '/.env', '${{ secrets.DOT_ENV_TEST }}');"
         run: |
           echo "${{ secrets.DOT_ENV_TEST }}" > '.env'
 
