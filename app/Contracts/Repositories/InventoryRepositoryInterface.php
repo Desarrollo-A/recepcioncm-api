@@ -21,4 +21,8 @@ interface InventoryRepositoryInterface extends BaseRepositoryInterface
     public function findAllByType(int $typeId, int $officeId): Collection;
 
     public function findAllSnacks(int $typeId, int $officeId): Collection;
+
+    public function decreaseStock(int $id, int $decrease): void;
+
+    public function incrementStock(int $id, int $increment): void;
 }

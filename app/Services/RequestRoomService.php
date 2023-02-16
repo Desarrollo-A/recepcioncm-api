@@ -20,8 +20,6 @@ use App\Helpers\Enum\Message;
 use App\Helpers\Enum\QueryParam;
 use App\Helpers\Utils;
 use App\Helpers\Validation;
-use App\Mail\RequestRoom\ApprovedRequestRoomMail;
-use App\Mail\RequestRoom\CancelledRequestRoomMail;
 use App\Models\Dto\CancelRequestDTO;
 use App\Models\Dto\RequestDTO;
 use App\Models\Dto\RequestRoomDTO;
@@ -38,7 +36,6 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\Response;
 
 class RequestRoomService extends BaseService implements RequestRoomServiceInterface
@@ -101,7 +98,8 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
      */
     public function create(RequestRoomDTO $dto): RequestRoom
     {
-        $roomRequestsOfWeekday = $this->requestRepository->getTotalRequestRoomOfWeekday($dto->request->user_id, now()->dayOfWeek + 1);
+        $roomRequestsOfWeekday = $this->requestRepository->getTotalRequestRoomOfWeekday($dto->request->user_id,
+            $dto->request->start_date->dayOfWeek + 1);
         if ($roomRequestsOfWeekday === self::REQUESTS_BY_DAY) {
             throw new CustomErrorException(Message::LIMIT_REQUEST_BY_DAY.
                 Utils::getDayName($dto->request->start_date->dayOfWeek), Response::HTTP_BAD_REQUEST);
@@ -170,6 +168,14 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         }
         $this->inventoryRequestRepository->bulkInsert($snacks);
 
+        foreach ($snacks as $snack) {
+            if (is_null($snack['quantity'])) {
+                continue;
+            }
+
+            $this->inventoryRepository->decreaseStock($snack['inventory_id'], $snack['quantity']);
+        }
+
         $approveStatusId = $this->lookupRepository->findByCodeAndType(StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED),
             TypeLookup::STATUS_ROOM_REQUEST)->id;
         $requestDTO = new RequestDTO(['status_id' => $approveStatusId]);
@@ -208,8 +214,8 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
             switch ($code) {
                 case StatusRoomRequestLookup::code(StatusRoomRequestLookup::NEW):
                     $statusArray = [StatusRoomRequestLookup::code(StatusRoomRequestLookup::PROPOSAL)];
-                    $request = $this->requestRepository->findById($requestId);
-                    if ($this->isAvailableSchedule($request->start_date, $request->end_date)) {
+                    $requestRoom = $this->entityRepository->findById($requestId);
+                    if ($this->isAvailableSchedule($requestRoom->request->start_date, $requestRoom->request->end_date, $requestRoom->room_id)) {
                         $statusArray[] = StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED);
                     }
 
@@ -496,8 +502,40 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
             ($time['end_time'] > $startTime && $time['end_time'] <= $endTime));
     }
 
-    private function isAvailableSchedule(Carbon $startDate, Carbon $endDate): bool
+    private function isAvailableSchedule(Carbon $startDate, Carbon $endDate, int $roomId): bool
     {
-        return $this->requestRepository->isAvailableSchedule($startDate, $endDate);
+        $approvedRequests = $this->requestRepository->getRequestRoomScheduleByDate($startDate, $roomId);
+        $proposalRequests = $this->requestRepository->getProposalRequestRoomScheduleByDate($startDate, $roomId);
+
+        if ($approvedRequests->count() === 0 && $proposalRequests->count() === 0) {
+            return false;
+        }
+
+        $isAvailable = true;
+
+        if ($approvedRequests->count() > 0) {
+            foreach ($approvedRequests as $request) {
+
+                if (($startDate->gte($request->start_date) && $startDate->lt($request->end_date)) ||
+                    ($endDate->gt($request->start_date) && $endDate->lte($request->end_date))) {
+                    $isAvailable = false;
+                    break;
+                }
+            }
+        }
+
+        if (!$isAvailable) return false;
+
+        if ($proposalRequests->count() > 0) {
+            foreach ($proposalRequests as $request) {
+                if (($startDate->gte($request->start_date) && $startDate->lt($request->end_date)) ||
+                    ($endDate->gt($request->start_date) && $endDate->lte($request->end_date))) {
+                    $isAvailable = false;
+                    break;
+                }
+            }
+        }
+
+        return $isAvailable;
     }
 }

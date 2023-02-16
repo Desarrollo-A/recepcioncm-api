@@ -14,7 +14,9 @@ use Illuminate\Database\Eloquent\Collection;
  */
 interface RequestRepositoryInterface extends BaseRepositoryInterface
 {
-    public function isAvailableSchedule(Carbon $startDate, Carbon $endDate): bool;
+    public function getRequestRoomScheduleByDate(Carbon $startDate, int $roomId): Collection;
+
+    public function getProposalRequestRoomScheduleByDate(Carbon $startDate, int $roomId): Collection;
 
     public function roomsSetAsideByDay(Carbon $date): Collection;
 

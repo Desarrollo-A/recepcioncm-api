@@ -37,16 +37,29 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
             ->findOrFail($id, $columns);
     }
 
-    public function isAvailableSchedule(Carbon $startDate, Carbon $endDate): bool
+    public function getRequestRoomScheduleByDate(Carbon $startDate, int $roomId): Collection
     {
-        $requests = $this->entity
-            ->join('lookups', 'lookups.id', '=', 'requests.status_id')
-            ->where('start_date', '>=', $startDate)
-            ->where('end_date', '<=', $endDate)
-            ->whereIn('lookups.code', [StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED),
-                StatusRoomRequestLookup::code(StatusRoomRequestLookup::PROPOSAL)])
-            ->count();
-        return $requests === 0;
+        return $this->entity
+            ->join('lookups AS s', 's.id', '=', 'requests.status_id')
+            ->join('lookups AS t', 't.id', '=', 'requests.type_id')
+            ->join('request_room AS rr', 'requests.id', '=', 'rr.request_id')
+            ->where('rr.room_id', $roomId)
+            ->where('s.code', StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED))
+            ->where('t.code', TypeRequestLookup::code(TypeRequestLookup::ROOM))
+            ->get(['start_date', 'end_date']);
+    }
+
+    public function getProposalRequestRoomScheduleByDate(Carbon $startDate, int $roomId): Collection
+    {
+        return $this->entity
+            ->join('lookups AS s', 's.id', '=', 'requests.status_id')
+            ->join('lookups AS t', 't.id', '=', 'requests.type_id')
+            ->join('request_room AS rr', 'requests.id', '=', 'rr.request_id')
+            ->join('proposal_requests AS pr', 'requests.id', '=', 'pr.request_id')
+            ->where('rr.room_id', $roomId)
+            ->where('s.code', StatusRoomRequestLookup::code(StatusRoomRequestLookup::PROPOSAL))
+            ->where('t.code', TypeRequestLookup::code(TypeRequestLookup::ROOM))
+            ->get(['pr.start_date', 'pr.end_date']);
     }
 
     public function roomsSetAsideByDay(Carbon $date): Collection

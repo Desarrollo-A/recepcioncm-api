@@ -40,8 +40,7 @@ class StoreInventoryRequestRequest extends FormRequest implements ReturnDtoInter
         return new InventoryRequestDTO([
             'request_id' =>  $this->requestId,
             'inventory_id' =>  $this->inventoryId,
-            'quantity' =>  $this->quantity,
-            'applied' =>  !is_null($this->quantity)
+            'quantity' =>  $this->quantity
         ]);
     }
 }

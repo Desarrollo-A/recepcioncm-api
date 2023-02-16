@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use App\Models\Inventory;
-use App\Models\InventoryRequest;
 use App\Models\Package;
 use App\Models\Request;
 use App\Models\RequestCar;
@@ -11,7 +10,6 @@ use App\Models\RequestDriver;
 use App\Models\RequestRoom;
 use App\Models\Room;
 use App\Observers\InventoryObserver;
-use App\Observers\InventoryRequestObserver;
 use App\Observers\PackageObserver;
 use App\Observers\RequestCarObserver;
 use App\Observers\RequestDriverObserver;
@@ -44,7 +42,6 @@ class EventServiceProvider extends ServiceProvider
 
         Inventory::observe(InventoryObserver::class);
         Room::observe(RoomObserver::class);
-        InventoryRequest::observe(InventoryRequestObserver::class);
         RequestRoom::observe(RequestRoomObserver::class);
         Request::observe(RequestObserver::class);
         Package::observe(PackageObserver::class);

@@ -65,4 +65,24 @@ class InventoryRepository extends BaseRepository implements InventoryRepositoryI
             ->orderBy('name', 'ASC')
             ->get();
     }
+
+    /**
+     * @throws \Throwable
+     */
+    public function decreaseStock(int $id, int $decrease): void
+    {
+        $inventory = $this->findById($id);
+        $inventory->stock = $inventory->stock - $decrease;
+        $inventory->saveOrFail();
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function incrementStock(int $id, int $increment): void
+    {
+        $inventory = $this->findById($id, ['stock']);
+        $inventory->stock = $inventory->stock + $increment;
+        $inventory->saveOrFail();
+    }
 }

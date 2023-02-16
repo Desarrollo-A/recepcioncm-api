@@ -56,7 +56,11 @@ class InventoryRequestService extends BaseService implements InventoryRequestSer
     {
         $this->validationInsertOrUpdate($dto, $officeId);
 
-        return $this->entityRepository->create($dto->toArray(['request_id', 'inventory_id', 'quantity', 'applied']));
+        $inventoryRequest = $this->entityRepository->create($dto->toArray(['request_id', 'inventory_id', 'quantity']));
+
+        $this->inventoryRepository->decreaseStock($dto->inventory_id, $dto->quantity);
+
+        return $inventoryRequest;
     }
 
     /**
@@ -67,8 +71,10 @@ class InventoryRequestService extends BaseService implements InventoryRequestSer
     {
         $oldStock = $this->inventoryRepository->findById($inventoryId, ['stock'])->stock;
         $oldQuantity = $this->entityRepository->findByRequestIdAndInventoryId($requestId, $inventoryId, ['quantity'])->quantity;
+
         $this->validationInsertOrUpdate($dto, $officeId, $oldQuantity);
         $this->entityRepository->updateInventoryRequest($requestId, $inventoryId, $dto->toArray(['quantity']));
+
         $newStock = ($oldStock + $oldQuantity) - $dto->quantity;
         $dto = new InventoryDTO(['stock' => $newStock]);
         $this->inventoryRepository->update($inventoryId, $dto->toArray(['stock']));
