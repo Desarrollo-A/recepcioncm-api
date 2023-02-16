@@ -2,7 +2,7 @@
 
 ## Instalación del proyecto
 
-Nota: Se debe tener instalado la versión de PHP 7.0 como mínimo, Composer y Node JS.
+Nota: Se debe tener instalado la versión de PHP 7.2 como mínimo, Composer y Node JS.
 
 - Descargar el repositorio de git.
 - Ejecutar el comando `composer install` para las dependiencias del proyecto.
@@ -18,7 +18,7 @@ Nota: Se debe tener instalado la versión de PHP 7.0 como mínimo, Composer y No
 
 ## Documentación del proyecto
 
-- Laravel 5.5 `https://laravel.com/docs/5.5`
+- Laravel 5.8 `https://laravel.com/docs/5.8`
 - Laravel DOMPDF `https://github.com/barryvdh/laravel-dompdf/tree/v0.8.7`
 - Intervention Image (Paquete para optimización de imágenes) `https://image.intervention.io/v2`
 - Laravel CORS `https://github.com/fruitcake/laravel-cors/tree/v1.0.6`

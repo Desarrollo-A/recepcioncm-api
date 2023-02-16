@@ -107,18 +107,6 @@ class InventoryService extends BaseService implements InventoryServiceInterface
         $this->entityRepository->update($id, $dto->toArray(['image']));
     }
 
-    /**
-     * @return void
-     * @throws CustomErrorException
-     */
-    public function updateStockAfterApprove(InventoryRequest $inventoryRequest)
-    {
-        $inventory = $this->entityRepository->findById($inventoryRequest->inventory_id);
-        $newStock = $inventory->stock - $inventoryRequest->quantity;
-        $dto = new InventoryDTO(['stock' => $newStock]);
-        $this->entityRepository->update($inventoryRequest->inventory_id, $dto->toArray(['stock']));
-    }
-
     public function findAllCoffee(int $officeId): Collection
     {
         $snackTypeId = $this->lookupRepository->findByCodeAndType(InventoryTypeLookup::code(InventoryTypeLookup::COFFEE),
@@ -132,23 +120,20 @@ class InventoryService extends BaseService implements InventoryServiceInterface
      */
     public function restoreStockAfterInventoryRequestDeleted(InventoryRequest $inventoryRequest)
     {
-        $inventory = $this->entityRepository->findById($inventoryRequest->inventory_id);
-        $newStock = $inventory->stock + $inventoryRequest->quantity;
-        $dto = new InventoryDTO(['stock' => $newStock]);
-        $this->entityRepository->update($inventoryRequest->inventory_id, $dto->toArray(['stock']));
+        if (!is_null($inventoryRequest->quantity)) {
+            $this->entityRepository->incrementStock($inventoryRequest->inventory_id, $inventoryRequest->quantity);
+        }
     }
 
     /**
      * @return void
-     * @throws CustomErrorException
      */
     public function restoreStockAfterInventoriesRequestDeleted(Collection $inventoriesRequest)
     {
         $inventoriesRequest->each( function ($snack) {
-            $inventory = $this->entityRepository->findById($snack->inventory_id);
-            $newStock = $inventory->stock + $snack->quantity;
-            $dto = new InventoryDTO(['stock' => $newStock]);
-            $this->entityRepository->update($snack->inventory_id, $dto->toArray(['stock']));
+            if (!is_null($snack->quantity)) {
+                $this->entityRepository->incrementStock($snack->id, $snack->quantity);
+            }
         });
     }
 

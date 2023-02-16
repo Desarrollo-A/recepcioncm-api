@@ -32,11 +32,6 @@ interface InventoryServiceInterface extends BaseServiceInterface
      */
     public function updateImage(int $id, InventoryDTO $dto);
 
-    /**
-     * @return void
-     */
-    public function updateStockAfterApprove(InventoryRequest $inventoryRequest);
-
     public function findAllCoffee(int $officeId): Collection;
 
     /**

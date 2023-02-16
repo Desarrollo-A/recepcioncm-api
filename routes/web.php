@@ -2,6 +2,4 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-   return response()->json(['message' => 'Server works!!!']);
-});
+Route::get('/', 'HomeController@index');

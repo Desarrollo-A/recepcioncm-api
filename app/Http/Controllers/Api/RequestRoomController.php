@@ -136,7 +136,7 @@ class RequestRoomController extends BaseApiController
 
     public function withoutAttendingRequest(int $requestId): JsonResponse
     {
-        $request = $this->requestRoomService->withoutAttendingRequest($requestId);
+        $this->requestRoomService->withoutAttendingRequest($requestId);
         $snacks = $this->inventoryRequestService->deleteSnacks($requestId);
         $this->inventoryService->restoreStockAfterInventoriesRequestDeleted($snacks);
         return $this->noContentResponse();
