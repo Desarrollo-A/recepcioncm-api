@@ -6,7 +6,6 @@ use App\Contracts\Services\InventoryRequestServiceInterface;
 use App\Contracts\Services\NotificationServiceInterface;
 use App\Contracts\Services\RequestServiceInterface;
 use App\Core\BaseApiController;
-use App\Models\Enums\NameRole;
 use Illuminate\Http\JsonResponse;
 
 class CronJobController extends BaseApiController
@@ -19,8 +18,6 @@ class CronJobController extends BaseApiController
                                 NotificationServiceInterface $notificationService,
                                 RequestServiceInterface $requestService)
     {
-        $this->middleware('role.permission:'.NameRole::ADMIN);
-
         $this->inventoryRequestService = $inventoryRequestService;
         $this->notificationService = $notificationService;
         $this->requestService = $requestService;

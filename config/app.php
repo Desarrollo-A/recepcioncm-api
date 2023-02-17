@@ -240,4 +240,6 @@ return [
     ],
 
     'enable_google_calendar' => env('ENABLE_GOOGLE_CALENDAR', false),
+
+    'token_cron_jobs' => env('TOKEN_CRON_JOBS', ''),
 ];

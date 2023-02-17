@@ -485,6 +485,25 @@ Route::prefix('v1')->group(function () {
                     ->where('requestId', validation::INTEGER_ID);
             });
 
+        Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');
+        Route::apiResource('rooms', 'RoomController')->only('store', 'index', 'update', 'destroy');
+        Route::apiResource('request-rooms', 'RequestRoomController')->only('store', 'index');
+        Route::apiResource('inventories', 'InventoryController')->only('store', 'index',
+            'update', 'destroy');
+        Route::apiResource('users', 'UserController')->only('index');
+        Route::apiResource('requests', 'RequestController')->only('show');
+        Route::apiResource('request-phone-numbers', 'RequestPhoneNumberController')
+            ->only('store', 'update', 'destroy');
+        Route::apiResource('notifications', 'NotificationController')->only('show');
+        Route::apiResource('request-emails', 'RequestEmailController')->only('store', 'update', 'destroy');
+        Route::apiResource('drivers', 'DriverController')->only('index');
+        Route::apiResource('request-packages', 'RequestPackageController')->only('index', 'store');
+        Route::apiResource('request-drivers', 'RequestDriverController')->only('index', 'store');
+        Route::apiResource('request-cars', 'RequestCarController')->only('store', 'index');
+    });
+
+    // Rutas para cron jobs
+    Route::middleware('cron.job.token')->group(function () {
         Route::prefix('jobs')
             ->name('jobs.')
             ->group(function () {
@@ -503,21 +522,5 @@ Route::prefix('v1')->group(function () {
                 Route::get('/finished', 'CronJobController@finishedRequest')
                     ->name('finished');
             });
-
-        Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');
-        Route::apiResource('rooms', 'RoomController')->only('store', 'index', 'update', 'destroy');
-        Route::apiResource('request-rooms', 'RequestRoomController')->only('store', 'index');
-        Route::apiResource('inventories', 'InventoryController')->only('store', 'index',
-            'update', 'destroy');
-        Route::apiResource('users', 'UserController')->only('index');
-        Route::apiResource('requests', 'RequestController')->only('show');
-        Route::apiResource('request-phone-numbers', 'RequestPhoneNumberController')
-            ->only('store', 'update', 'destroy');
-        Route::apiResource('notifications', 'NotificationController')->only('show');
-        Route::apiResource('request-emails', 'RequestEmailController')->only('store', 'update', 'destroy');
-        Route::apiResource('drivers', 'DriverController')->only('index');
-        Route::apiResource('request-packages', 'RequestPackageController')->only('index', 'store');
-        Route::apiResource('request-drivers', 'RequestDriverController')->only('index', 'store');
-        Route::apiResource('request-cars', 'RequestCarController')->only('store', 'index');
     });
 });
