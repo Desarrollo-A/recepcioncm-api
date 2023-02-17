@@ -29,7 +29,8 @@ class UserController extends BaseApiController
         $this->middleware('role.permission:'.NameRole::ADMIN)
             ->only('index', 'show', 'changeStatus');
         $this->middleware('role.permission:'.NameRole::ADMIN.','.NameRole::RECEPCIONIST.','.
-            NameRole::APPLICANT.','.NameRole::DRIVER)->only('showProfile');
+            NameRole::APPLICANT.','.NameRole::DRIVER)
+            ->only('showProfile');
 
         $this->userService = $userService;
         $this->menuService = $menuService;
@@ -72,5 +73,11 @@ class UserController extends BaseApiController
     {
         $user = $this->userService->findById(auth()->id());
         return $this->showOne(new UserResource($user));
+    }
+
+    public function removeOldTokens(): JsonResponse
+    {
+        $this->userService->removeOldTokens();
+        return $this->noContentResponse();
     }
 }
