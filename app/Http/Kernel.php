@@ -56,6 +56,7 @@ class Kernel extends HttpKernel
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
+        'cron.job.token' => \App\Http\Middleware\CheckCronJobToken::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'role.permission' => \App\Http\Middleware\RolePermission::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
