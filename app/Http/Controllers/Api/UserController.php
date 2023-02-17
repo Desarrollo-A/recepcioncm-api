@@ -8,6 +8,7 @@ use App\Contracts\Services\UserServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\User\ChangeStatusUserRequest;
+use App\Http\Requests\User\StoreDriverRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Resources\User\UserCollection;
 use App\Http\Resources\User\UserResource;
@@ -15,6 +16,7 @@ use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends BaseApiController
 {
@@ -79,5 +81,16 @@ class UserController extends BaseApiController
     {
         $this->userService->removeOldTokens();
         return $this->noContentResponse();
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function storeDriver(StoreDriverRequest $request): JsonResponse
+    {
+        $userDTO = $request->toDTO();
+        $user = $this->userService->storeDriver($userDTO);
+        $this->menuService->createDefaultMenu($user->id, $userDTO->role->name);
+        return $this->successResponse(['code' => Response::HTTP_OK], Response::HTTP_OK);
     }
 }

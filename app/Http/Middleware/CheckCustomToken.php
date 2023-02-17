@@ -6,15 +6,15 @@ use Closure;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 
-class CheckCronJobToken
+class CheckCustomToken
 {
     /**
      * @throws AuthorizationException
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next, string $configToken)
     {
         $token = $request->bearerToken();
-        if ($token !== config('app.token_cron_jobs', 'XXX')) {
+        if ($token !== config($configToken, 'XXX')) {
             throw new AuthorizationException();
         }
 
