@@ -21,4 +21,6 @@ interface UserServiceInterface extends BaseServiceInterface
      * @return void
      */
     public function changeStatus(int $id, UserDTO $dto);
+
+    public function removeOldTokens(): void;
 }

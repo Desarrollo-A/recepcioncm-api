@@ -16,6 +16,7 @@ use App\Models\Enums\Lookups\StatusUserLookup;
 use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -76,5 +77,18 @@ class UserService extends BaseService implements UserServiceInterface
     public function changeStatus(int $id, UserDTO $dto)
     {
         $this->entityRepository->update($id, $dto->toArray(['status_id']));
+    }
+
+    public function removeOldTokens(): void
+    {
+        $now = now();
+        $this->entityRepository->findAll([], null, ['id'])->each(function (User $user) use ($now) {
+            $user->tokens->each(function ($token) use ($now) {
+                $createdAt = Carbon::make($token->created_at);
+                if ($createdAt->diffInDays($now) > 7) {
+                    $token->delete();
+                }
+            });
+        });
     }
 }

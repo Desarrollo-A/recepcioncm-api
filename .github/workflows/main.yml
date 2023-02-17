@@ -66,6 +66,20 @@ jobs:
           php artisan route:cache
           php artisan view:cache
 
+      - name: Rsync files of Spatie's Google Calendar
+        run: |
+          touch GoogleCalendar.php
+          echo -e "${{ secrets.GOOGLE_CALENDAR }}" > GoogleCalendar.php
+          rsync -a GoogleCalendar.php ./vendor/spatie/laravel-google-calendar/src/GoogleCalendar.php
+          rm GoogleCalendar.php
+
+      - name: Rsync files of Spatie's Google Calendar Factory
+        run: |
+          touch GoogleCalendarFactory.php
+          echo -e "${{ secrets.GOOGLE_CALENDAR_FACTORY }}" > GoogleCalendarFactory.php
+          rsync -a GoogleCalendarFactory.php ./vendor/spatie/laravel-google-calendar/src/GoogleCalendarFactory.php
+          rm GoogleCalendarFactory.php
+
       - name: Copy files via SSH key
         uses: appleboy/scp-action@master
         with:
