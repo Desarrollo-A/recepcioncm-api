@@ -69,7 +69,7 @@ jobs:
       - name: Rsync files of Spatie's Google Calendar
         run: |
           touch GoogleCalendar.php
-          echo "${{ secrets.GOOGLE_CALENDAR }}" > GoogleCalendar.php
+          echo `${{ secrets.GOOGLE_CALENDAR }}` > GoogleCalendar.php
           rsync -a GoogleCalendar.php ./vendor/spatie/laravel-google-calendar/src/GoogleCalendar.php
           rm GoogleCalendar.php
 
