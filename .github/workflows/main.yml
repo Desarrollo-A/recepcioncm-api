@@ -39,9 +39,6 @@ jobs:
       - name: Generate key
         run: php artisan key:generate
 
-      - name: Access folder storage in public
-        run: php artisan storage:link
-
       - name: Generate keys passport
         run: php artisan passport:keys
 
@@ -73,6 +70,12 @@ jobs:
           echo -e "${{ secrets.GOOGLE_CALENDAR_FACTORY }}" > GoogleCalendarFactory.php
           rsync -a GoogleCalendarFactory.php ./vendor/spatie/laravel-google-calendar/src/GoogleCalendarFactory.php
           rm GoogleCalendarFactory.php
+
+      - name: Rsync file google-calendar
+        run: |
+          touch service-account-credentials.json
+          echo "${{ secrets.SERVICE_ACCOUNT_CREDENTIALS }}" > service-account-credentials.json
+          mv -vn service-account-credentials.json ./storage/app/google-calendar
 
       - name: Copy files via SSH key
         uses: appleboy/scp-action@master
