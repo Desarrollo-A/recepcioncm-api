@@ -503,7 +503,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // Rutas para cron jobs
-    Route::middleware('cron.job.token')->group(function () {
+    Route::middleware('custom.token:app.token_cron_jobs')->group(function () {
         Route::prefix('jobs')
             ->name('jobs.')
             ->group(function () {
@@ -524,6 +524,15 @@ Route::prefix('v1')->group(function () {
 
                 Route::get('/remove-old-tokens', 'UserController@removeOldTokens')
                     ->name('remove.old.tokens');
+            });
+    });
+
+    Route::middleware('custom.token:app.token_ch')->group(function () {
+        Route::prefix('users')
+            ->name('users.')
+            ->group(function () {
+                Route::post('/driver', 'UserController@storeDriver')
+                    ->name('driver');
             });
     });
 });

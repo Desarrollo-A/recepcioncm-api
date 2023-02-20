@@ -5,7 +5,7 @@ Hola {{ $fullName }}
 Tu nueva contraseña es: <b>{{ $newPassword }}</b>
 @endcomponent
 
-Gracias,<br>
+Saludos,<br>
 {{ config('app.name') }}
 
 @component('mail::subcopy')
