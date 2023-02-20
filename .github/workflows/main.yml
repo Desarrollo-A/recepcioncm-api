@@ -60,12 +60,6 @@ jobs:
       - name: Clear views
         run: php artisan view:clear
 
-      #- name: Cache files
-        #run: |
-          #php artisan config:cache
-          #php artisan route:cache
-          #php artisan view:cache
-
       - name: Rsync files of Spatie's Google Calendar
         run: |
           touch GoogleCalendar.php
