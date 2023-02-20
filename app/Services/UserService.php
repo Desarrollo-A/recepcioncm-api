@@ -11,6 +11,7 @@ use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
 use App\Helpers\Enum\QueryParam;
 use App\Helpers\Validation;
+use App\Mail\User\NewDriverMail;
 use App\Models\Dto\UserDTO;
 use App\Models\Enums\Lookups\StatusUserLookup;
 use App\Models\Enums\NameRole;
@@ -19,6 +20,8 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class UserService extends BaseService implements UserServiceInterface
 {
@@ -90,5 +93,29 @@ class UserService extends BaseService implements UserServiceInterface
                 }
             });
         });
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function storeDriver(UserDTO $dto): User
+    {
+        $dto->status_id = $this->lookupRepository
+            ->findByCodeAndType(StatusUserLookup::code(StatusUserLookup::ACTIVE),TypeLookup::STATUS_USER)
+            ->id;
+        $dto->role_id = $this->roleRepository->findByName(NameRole::DRIVER)->id;
+        $dto->office_id = $this->officeRepository->findByName($dto->office->name)->id;
+
+        $password = Str::random();
+        $dto->password = bcrypt($password);
+
+        $data = $dto->toArray(['no_employee', 'full_name', 'email', 'password', 'personal_phone', 'office_phone',
+            'position', 'area', 'status_id', 'role_id', 'office_id']);
+
+        $user = $this->entityRepository->create($data);
+
+        Mail::to($user)->send(new NewDriverMail($user, $password));
+
+        return $user;
     }
 }

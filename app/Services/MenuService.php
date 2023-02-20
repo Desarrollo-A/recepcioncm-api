@@ -34,6 +34,8 @@ class MenuService extends BaseService implements MenuServiceInterface
             $data = $this->createMenuAndSubmenuByRol(ViewsDefault::VIEWS_DEFAULT_RECEPCIONIST);
         } else if ($role === NameRole::APPLICANT) {
             $data = $this->createMenuAndSubmenuByRol(ViewsDefault::VIEWS_DEFAULT_APPLICANT);
+        } else if ($role === NameRole::DRIVER) {
+            $data = $this->createMenuAndSubmenuByRol(ViewsDefault::VIEWS_DEFAULT_DRIVER);
         }
 
         $user = $this->userRepository->findById($userId);
