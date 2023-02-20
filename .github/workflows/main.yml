@@ -96,5 +96,4 @@ jobs:
         with:
           host: 104.198.134.0:22
           password: ${{ secrets.SFTP_SSH_PRIVATE_KEY }}
-          script: |
-            cd /mnt/data/aplicaciones/Prueba/recepcion-cm-api && chgrp -R apache . && find . -type d -exec chmod 775 {} \;
+          script: /home/prohab/scripts/script-recepcion.sh
