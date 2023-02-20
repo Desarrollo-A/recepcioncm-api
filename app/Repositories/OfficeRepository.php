@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Contracts\Repositories\OfficeRepositoryInterface;
 use App\Core\BaseRepository;
+use App\Exceptions\CustomErrorException;
 use App\Models\Enums\Lookups\StatusCarLookup;
 use App\Models\Enums\Lookups\StatusUserLookup;
 use App\Models\Enums\NameRole;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
+use Symfony\Component\HttpFoundation\Response;
 
 class OfficeRepository extends BaseRepository implements OfficeRepositoryInterface
 {
@@ -27,7 +29,11 @@ class OfficeRepository extends BaseRepository implements OfficeRepositoryInterfa
 
     public function findByName(string $name): Office
     {
-        return $this->entity->where('name', $name)->firstOrFail();
+        return $this->entity
+            ->where('name', $name)
+            ->firstOr(function () {
+                throw new CustomErrorException('No existe el registro de la oficina', Response::HTTP_BAD_REQUEST);
+            });
     }
 
     public function getOfficeByStateWithDriver(int $stateId): Collection
