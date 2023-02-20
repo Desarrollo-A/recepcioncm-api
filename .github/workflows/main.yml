@@ -92,9 +92,10 @@ jobs:
           rm: true
 
       - name: Execute .sh to deploy
-        uses: JimCronqvist/action-ssh@master
+        uses: appleboy/ssh-action@master
         with:
-          host: '104.198.134.0:22'
-          password: ${{ secrets.SFTP_SSH_PRIVATE_KEY }}
-          script: /home/prohab/scripts/script-recepcion.sh
-          debug: true
+          host: 104.198.134.0
+          username: prohab
+          port: 22
+          key: ${{ secrets.SFTP_SSH_PRIVATE_KEY }}
+          script: "/home/prohab/scripts/script-recepcion.sh"
