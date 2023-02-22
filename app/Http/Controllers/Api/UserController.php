@@ -10,6 +10,7 @@ use App\Exceptions\CustomErrorException;
 use App\Http\Requests\User\ChangeStatusUserRequest;
 use App\Http\Requests\User\StoreDriverRequest;
 use App\Http\Requests\User\StoreUserRequest;
+use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Resources\User\UserCollection;
 use App\Http\Resources\User\UserResource;
 use App\Models\Enums\NameRole;
@@ -29,7 +30,7 @@ class UserController extends BaseApiController
                                 LookupServiceInterface $lookupService)
     {
         $this->middleware('role.permission:'.NameRole::ADMIN)
-            ->only('index', 'show', 'changeStatus');
+            ->only('index', 'show', 'changeStatus', 'update');
         $this->middleware('role.permission:'.NameRole::ADMIN.','.NameRole::RECEPCIONIST.','.
             NameRole::APPLICANT.','.NameRole::DRIVER)
             ->only('showProfile');
@@ -95,5 +96,14 @@ class UserController extends BaseApiController
         $user = $this->userService->storeDriver($userDTO);
         $this->menuService->createDefaultMenu($user->id, $userDTO->role->name);
         return $this->successResponse(['code' => Response::HTTP_OK], Response::HTTP_OK);
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function update(int $id, UpdateUserRequest $request): JsonResponse
+    {
+        $user = $this->userService->update($id, $request->toDTO());
+        return $this->showOne(new UserResource($user));
     }
 }

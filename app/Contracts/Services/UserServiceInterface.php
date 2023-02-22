@@ -25,4 +25,6 @@ interface UserServiceInterface extends BaseServiceInterface
     public function removeOldTokens(): void;
 
     public function storeDriver(UserDTO $dto): User;
+
+    public function update(int $id, UserDTO $dto): User;
 }

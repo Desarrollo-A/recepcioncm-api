@@ -42,21 +42,6 @@ jobs:
       - name: Generate keys passport
         run: php artisan passport:keys
 
-      - name: Change Directory Permissions
-        run: chmod -R 777 storage bootstrap/cache
-
-      - name: Remove the cached bootstrap files
-        run: php artisan optimize:clear
-
-      - name: Clear Config
-        run: php artisan config:clear
-
-      - name: Clear routes
-        run: php artisan route:clear
-
-      - name: Clear views
-        run: php artisan view:clear
-
       - name: Rsync files of Spatie's Google Calendar
         run: |
           touch GoogleCalendar.php

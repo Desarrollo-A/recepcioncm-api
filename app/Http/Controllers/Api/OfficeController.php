@@ -19,7 +19,8 @@ class OfficeController extends BaseApiController
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
             ->only('getByStateWithDriverWithoutOffice', 'getOfficeByStateWithDriverAndCarWithoutOffice',
                 'getOfficeByStateWithCarWithoutOffice');
-        $this->middleware('role.permission:'.NameRole::RECEPCIONIST. ','. NameRole::APPLICANT)
+        $this->middleware('role.permission:'.NameRole::RECEPCIONIST. ','. NameRole::APPLICANT. ','.
+            NameRole::ADMIN)
             ->only('getAll');
         
         $this->officeService = $officeService;
