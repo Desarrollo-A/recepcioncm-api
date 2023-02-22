@@ -118,4 +118,13 @@ class UserService extends BaseService implements UserServiceInterface
 
         return $user;
     }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function update(int $id, UserDTO $dto): User
+    {
+        return $this->entityRepository->update($id, $dto->toArray(['no_employee', 'full_name', 'email',
+            'personal_phone', 'office_phone', 'position', 'area', 'office_id', 'status_id']));
+    }
 }
