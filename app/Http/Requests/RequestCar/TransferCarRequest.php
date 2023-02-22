@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\RequestCar;
 
+use App\Exceptions\CustomErrorException;
 use App\Http\Requests\Contracts\ReturnDtoInterface;
 use App\Models\Dto\RequestCarDTO;
 use Illuminate\Foundation\Http\FormRequest;
@@ -27,6 +28,9 @@ class TransferCarRequest extends FormRequest implements ReturnDtoInterface
         ];
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function toDTO(): RequestCarDTO
     {
         return new RequestCarDTO(['office_id' => $this->officeId]);

@@ -32,7 +32,7 @@ class StarRatingRequest extends FormRequest implements ReturnDtoInterface
         return new ScoreDTO([
             'request_id' => $this->requestId,
             'score' => $this->score,
-            'comment' => $this->comment
+            'comment' => trim($this->comment)
         ]);
     }
 }
