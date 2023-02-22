@@ -31,7 +31,7 @@ class AddExtraInformationCarRequest extends FormRequest implements ReturnDtoInte
         return new RequestCarDTO([
             'initial_km' => $this->initialKm,
             'final_km' => $this->finalKm,
-            'delivery_condition' => $this->deliveryCondition
+            'delivery_condition' => trim($this->deliveryCondition)
         ]);
     }
 }

@@ -62,8 +62,8 @@ class StoreRequestCarRequest extends FormRequest implements ReturnDtoInterface
         $emails = array();
         foreach ($this->requestEmail as $email) {
             $emails[] = new RequestEmailDTO([
-                'name' => $email['name'],
-                'email' => $email['email'],
+                'name' => trim($email['name']),
+                'email' => trim($email['email']),
                 'created_at' => $now,
                 'updated_at' => $now
             ]);
@@ -74,7 +74,7 @@ class StoreRequestCarRequest extends FormRequest implements ReturnDtoInterface
             'start_date' => new Carbon($this->startDate),
             'end_date' => new Carbon($this->endDate),
             'people' => $this->people,
-            'comment' => $this->comment,
+            'comment' => trim($this->comment),
             'add_google_calendar' => $this->addGoogleCalendar,
             'user_id' => auth()->id(),
             'requestEmail' => $emails

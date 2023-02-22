@@ -37,7 +37,7 @@ class DeliveredPackageRequest extends FormRequest implements ReturnDtoInterface
     {
         return new DeliveredPackageDTO([
             'package_id' => $this->packageId,
-            'name_receive' => $this->nameReceive
+            'name_receive' => trim($this->nameReceive)
         ]);
     }
 }

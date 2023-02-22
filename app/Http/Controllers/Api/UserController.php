@@ -63,6 +63,9 @@ class UserController extends BaseApiController
         return $this->showOne(new UserResource($user));
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function changeStatus(int $id, ChangeStatusUserRequest $request): JsonResponse
     {
         $dto = $request->toDTO();
