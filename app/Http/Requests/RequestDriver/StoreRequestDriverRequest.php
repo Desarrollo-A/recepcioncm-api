@@ -123,30 +123,30 @@ class StoreRequestDriverRequest extends FormRequest implements ReturnDtoInterfac
         $emails = array();
         foreach ($this->requestEmail as $email) {
             $emails[] = new RequestEmailDTO([
-                'name' => $email['name'],
-                'email' => $email['email'],
+                'name' => trim($email['name']),
+                'email' => trim($email['email']),
                 'created_at' => $now,
                 'updated_at' => $now
             ]);
         }
 
         $pickupAddressDTO = new AddressDTO([
-            'street' => $this->requestDriver['pickupAddress']['street'],
-            'num_ext' => $this->requestDriver['pickupAddress']['numExt'],
-            'num_int' => $this->requestDriver['pickupAddress']['numInt'],
-            'suburb' => $this->requestDriver['pickupAddress']['suburb'],
-            'postal_code' => $this->requestDriver['pickupAddress']['postalCode'],
-            'state' => $this->requestDriver['pickupAddress']['state'],
+            'street' => trim($this->requestDriver['pickupAddress']['street']),
+            'num_ext' => trim($this->requestDriver['pickupAddress']['numExt']),
+            'num_int' => trim($this->requestDriver['pickupAddress']['numInt']),
+            'suburb' => trim($this->requestDriver['pickupAddress']['suburb']),
+            'postal_code' => trim($this->requestDriver['pickupAddress']['postalCode']),
+            'state' => trim($this->requestDriver['pickupAddress']['state']),
             'country_id' => $this->requestDriver['pickupAddress']['countryId']
         ]);
 
         $arrivalAddressDTO = new AddressDTO([
-            'street' => $this->requestDriver['arrivalAddress']['street'],
-            'num_ext' => $this->requestDriver['arrivalAddress']['numExt'],
-            'num_int' => $this->requestDriver['arrivalAddress']['numInt'],
-            'suburb' => $this->requestDriver['arrivalAddress']['suburb'],
-            'postal_code' => $this->requestDriver['arrivalAddress']['postalCode'],
-            'state' => $this->requestDriver['arrivalAddress']['state'],
+            'street' => trim($this->requestDriver['arrivalAddress']['street']),
+            'num_ext' => trim($this->requestDriver['arrivalAddress']['numExt']),
+            'num_int' => trim($this->requestDriver['arrivalAddress']['numInt']),
+            'suburb' => trim($this->requestDriver['arrivalAddress']['suburb']),
+            'postal_code' => trim($this->requestDriver['arrivalAddress']['postalCode']),
+            'state' => trim($this->requestDriver['arrivalAddress']['state']),
             'country_id' => $this->requestDriver['arrivalAddress']['countryId']
         ]);
 
@@ -155,7 +155,7 @@ class StoreRequestDriverRequest extends FormRequest implements ReturnDtoInterfac
             'start_date' => new Carbon($this->startDate),
             'end_date' => new Carbon($this->endDate),
             'people' => $this->people,
-            'comment' => $this->comment,
+            'comment' => trim($this->comment),
             'add_google_calendar' => $this->addGoogleCalendar,
             'user_id' => auth()->id(),
             'requestEmail' => $emails

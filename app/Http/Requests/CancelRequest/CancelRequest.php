@@ -34,7 +34,7 @@ class CancelRequest extends FormRequest implements ReturnDtoInterface
     public function toDTO(): CancelRequestDTO
     {
         return new CancelRequestDTO([
-            'cancel_comment' => $this->cancelComment,
+            'cancel_comment' => trim($this->cancelComment),
             'user_id' => auth()->id()
         ]);
     }

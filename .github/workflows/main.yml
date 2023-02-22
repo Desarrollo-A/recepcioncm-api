@@ -60,12 +60,6 @@ jobs:
       - name: Clear views
         run: php artisan view:clear
 
-      - name: Cache files
-        run: |
-          php artisan config:cache
-          php artisan route:cache
-          php artisan view:cache
-
       - name: Rsync files of Spatie's Google Calendar
         run: |
           touch GoogleCalendar.php
@@ -92,9 +86,10 @@ jobs:
           rm: true
 
       - name: Execute .sh to deploy
-        uses: JimCronqvist/action-ssh@master
+        uses: appleboy/ssh-action@master
         with:
-          host: 104.198.134.0:22
-          password: ${{ secrets.SFTP_SSH_PRIVATE_KEY }}
-          script: |
-            cd /mnt/data/aplicaciones/Prueba/recepcion-cm-api && ./server_deploy.sh
+          host: 104.198.134.0
+          username: prohab
+          port: 22
+          key: ${{ secrets.SFTP_SSH_PRIVATE_KEY }}
+          script: "/home/prohab/scripts/script-recepcion.sh"

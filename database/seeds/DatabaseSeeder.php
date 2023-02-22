@@ -31,13 +31,13 @@ class DatabaseSeeder extends Seeder
         $this->call(MenuUserSeeder::class);
         $this->call(RoomSeeder::class);
         $this->call(CarSeeder::class);
-        $this->call(CarDriverSeeder::class);
+        /*$this->call(CarDriverSeeder::class);
         $this->call(InventorySeeder::class);
         $this->call(RequestRoomSeeder::class);
         $this->call(InventoryHistorySeeder::class);
         $this->call(RequestPackageSeeder::class);
         $this->call(RequestDriverSeeder::class);
-        $this->call(RequestCarSeeder::class);
+        $this->call(RequestCarSeeder::class);*/
 
         Schema::enableForeignKeyConstraints();
     }
