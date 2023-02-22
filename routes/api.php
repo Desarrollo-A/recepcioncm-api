@@ -490,7 +490,7 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('request-rooms', 'RequestRoomController')->only('store', 'index');
         Route::apiResource('inventories', 'InventoryController')->only('store', 'index',
             'update', 'destroy');
-        Route::apiResource('users', 'UserController')->only('index');
+        Route::apiResource('users', 'UserController')->only('index', 'update');
         Route::apiResource('requests', 'RequestController')->only('show');
         Route::apiResource('request-phone-numbers', 'RequestPhoneNumberController')
             ->only('store', 'update', 'destroy');
