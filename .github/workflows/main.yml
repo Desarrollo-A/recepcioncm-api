@@ -71,7 +71,7 @@ jobs:
           key: ${{ secrets.SFTP_SSH_PRIVATE_KEY }}
           source: "./"
           target: "/mnt/data/aplicaciones/Prueba/recepcion-cm-api/"
-          rm: true
+          overwrite: true
 
       - name: Execute .sh to deploy
         uses: appleboy/ssh-action@master
