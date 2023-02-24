@@ -22,6 +22,8 @@ class CreateOfficesTable extends Migration
                 ->on('addresses');
             $table->integer('state_id')->unsigned();
             $table->foreign('state_id')->references('id')->on('states');
+            $table->boolean('status')
+                ->default(true);
             $table->timestamps();
         });
     }

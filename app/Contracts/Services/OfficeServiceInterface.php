@@ -2,6 +2,8 @@
 namespace App\Contracts\Services;
 
 use App\Core\Contracts\BaseServiceInterface;
+use App\Models\Dto\OfficeDTO;
+use App\Models\Office;
 use Illuminate\Database\Eloquent\Collection;
 
 interface OfficeServiceInterface extends BaseServiceInterface
@@ -18,5 +20,7 @@ interface OfficeServiceInterface extends BaseServiceInterface
 
     public function getOfficeByStateWithCarWithoutOffice(int $officeId, int $noPeople): Collection;
 
-    public function getAll(): Collection;
+    public function store(OfficeDTO $dto): Office;
+
+    public function update(int $id, OfficeDTO $dto): Office;
 }

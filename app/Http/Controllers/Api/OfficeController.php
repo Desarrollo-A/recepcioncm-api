@@ -4,9 +4,16 @@ namespace App\Http\Controllers\Api;
 
 use App\Contracts\Services\OfficeServiceInterface;
 use App\Core\BaseApiController;
+use App\Exceptions\CustomErrorException;
+use App\Helpers\Enum\Message;
+use App\Http\Requests\Office\StoreOfficeRequest;
+use App\Http\Requests\Office\UpdateOfficeRequest;
+use App\Http\Resources\Office\OfficeCollection;
 use App\Http\Resources\Office\OfficeResource;
 use App\Models\Enums\NameRole;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class OfficeController extends BaseApiController
 {
@@ -22,7 +29,9 @@ class OfficeController extends BaseApiController
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST. ','. NameRole::APPLICANT. ','.
             NameRole::ADMIN)
             ->only('getAll');
-        
+        $this->middleware('role.permission:' . NameRole::ADMIN)
+            ->only('index', 'store');
+
         $this->officeService = $officeService;
     }
 
@@ -64,7 +73,48 @@ class OfficeController extends BaseApiController
 
     public function getAll(): JsonResponse
     {
-        $offices = $this->officeService->getAll();
+        $offices = $this->officeService->findAll();
         return $this->showAll(OfficeResource::collection($offices));
+    }
+
+    public function index(Request $request): JsonResponse
+    {
+        $offices = $this->officeService->findAllPaginated($request);
+        return $this->showAll(new OfficeCollection($offices, true));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function store(StoreOfficeRequest $request): JsonResponse
+    {
+        $dto = $request->toDTO();
+        $office = $this->officeService->store($dto);
+        return $this->showOne(new OfficeResource($office));
+    }
+
+    public function show(int $id): JsonResponse
+    {
+        $office = $this->officeService->findById($id);
+        return $this->showOne(new OfficeResource($office));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function update(int $id, UpdateOfficeRequest $request): JsonResponse
+    {
+        $dto = $request->toDTO();
+        if ($id !== $dto->id) {
+            throw new CustomErrorException(Message::INVALID_ID_PARAMETER_WITH_ID_BODY, Response::HTTP_BAD_REQUEST);
+        }
+        $office = $this->officeService->update($id, $dto);
+        return $this->showOne(new OfficeResource($office));
+    }
+
+    public function destroy(int $id): JsonResponse
+    {
+        $this->officeService->delete($id);
+        return $this->noContentResponse();
     }
 }
