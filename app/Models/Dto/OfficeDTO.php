@@ -20,7 +20,12 @@ class OfficeDTO
     public $name;
 
     /**
-     * @var string
+     * @var int
+     */
+    public $address_id;
+
+    /**
+     * @var AddressDTO
      */
     public $address;
 
@@ -28,6 +33,11 @@ class OfficeDTO
      * @var int
      */
     public $state_id;
+
+    /**
+     * @var bool
+     */
+    public $status;
 
     /**
      * @throws CustomErrorException

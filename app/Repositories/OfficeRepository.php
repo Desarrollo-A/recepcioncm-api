@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Symfony\Component\HttpFoundation\Response;
 
 class OfficeRepository extends BaseRepository implements OfficeRepositoryInterface
@@ -148,10 +149,28 @@ class OfficeRepository extends BaseRepository implements OfficeRepositoryInterfa
             ->get();
     }
 
-    public function getAll(): Collection
+    public function findAll(array $filter = [], string $sort = null, array $columns = ['*']): Collection
     {
         return $this->entity
-            ->with('state')
-            ->get();
+            ->with(['state', 'address'])
+            ->filter($filter)
+            ->applySort($sort)
+            ->get($columns);
+    }
+
+    public function findAllPaginated(array $filters, int $limit, string $sort = null, array $columns = ['*']): LengthAwarePaginator
+    {
+        return $this->entity
+            ->with(['state', 'address'])
+            ->filter($filters)
+            ->applySort($sort)
+            ->paginate($limit, $columns);
+    }
+
+    public function findById(int $id, array $columns = ['*'])
+    {
+        return $this->entity
+            ->with(['state', 'address'])
+            ->findOrFail($id, $columns);
     }
 }
