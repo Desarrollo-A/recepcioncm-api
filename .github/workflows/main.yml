@@ -56,6 +56,25 @@ jobs:
           rsync -a GoogleCalendarFactory.php ./vendor/spatie/laravel-google-calendar/src/GoogleCalendarFactory.php
           rm GoogleCalendarFactory.php
 
+      - name: Execute .sh to deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: 104.198.134.0
+          username: prohab
+          port: 22
+          key: ${{ secrets.SFTP_SSH_PRIVATE_KEY }}
+          script: |
+            rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/.git
+            rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/app
+            rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/bootstrap
+            rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/config
+            rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/database
+            rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/public
+            rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/resources
+            rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/tests
+            rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/vendor
+            
+
       - name: Copy files via SSH key
         uses: appleboy/scp-action@master
         with:
