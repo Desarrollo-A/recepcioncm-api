@@ -35,25 +35,25 @@ class Car extends Model implements ScopeFilterInterface
             return $query;
         }
 
-        if (isset($params['business_name']) && trim($params['business_name'])) {
+        if (isset($params['business_name']) && trim($params['business_name']) !== '') {
             $query->orWhere('business_name', 'LIKE', "%${params['business_name']}%");
         }
-        if (isset($params['trademark']) && trim($params['trademark'])) {
+        if (isset($params['trademark']) && trim($params['trademark']) !== '') {
             $query->orWhere('trademark', 'LIKE', "%${params['trademark']}%");
         }
-        if (isset($params['model']) && trim($params['model'])) {
+        if (isset($params['model']) && trim($params['model']) !== '') {
             $query->orWhere('model', 'LIKE', "%${params['model']}%");
         }
-        if (isset($params['color']) && trim($params['color'])) {
+        if (isset($params['color']) && trim($params['color']) !== '') {
             $query->orWhere('color', 'LIKE', "%${params['color']}%");
         }
-        if (isset($params['license_plate']) && trim($params['license_plate'])) {
+        if (isset($params['license_plate']) && trim($params['license_plate']) !== '') {
             $query->orWhere('license_plate', 'LIKE', "%${params['license_plate']}%");
         }
-        if (isset($params['serie']) && trim($params['serie'])) {
+        if (isset($params['serie']) && trim($params['serie']) !== '') {
             $query->orWhere('serie', 'LIKE', "%${params['serie']}%");
         }
-        if (isset($params['circulation_card']) && trim($params['circulation_card'])) {
+        if (isset($params['circulation_card']) && trim($params['circulation_card']) !== '') {
             $query->orWhere('circulation_card', 'LIKE', "%${params['circulation_card']}%");
         }
         if (isset($params['people'])) {

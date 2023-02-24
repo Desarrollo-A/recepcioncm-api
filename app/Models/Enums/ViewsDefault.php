@@ -8,6 +8,10 @@ class ViewsDefault
         [
             'path' => '/dashboard/usuarios',
             'submenus' => []
+        ],
+        [
+            'path' => '/dashboard/oficinas',
+            'submenus' => []
         ]
     ];
 

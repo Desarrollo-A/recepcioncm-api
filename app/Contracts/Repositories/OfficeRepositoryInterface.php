@@ -6,6 +6,10 @@ use App\Core\Contracts\BaseRepositoryInterface;
 use App\Models\Office;
 use Illuminate\Database\Eloquent\Collection;
 
+/**
+ * @method Office create(array $data)
+ * @method Office update(int $id, array $data)
+ */
 interface OfficeRepositoryInterface extends BaseRepositoryInterface
 {
     public function findByName(string $name): Office;
@@ -21,6 +25,4 @@ interface OfficeRepositoryInterface extends BaseRepositoryInterface
     public function getOfficeByStateWithDriverAndCarWithoutOffice(Office $office, int $noPeople): Collection;
 
     public function getOfficeByStateWithCarWithoutOffice(Office $office, int $noPeople): Collection;
-
-    public function getAll(): Collection;
 }
