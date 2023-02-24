@@ -69,7 +69,8 @@ jobs:
             rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/bootstrap
             rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/config
             rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/database
-            rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/public
+            rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/public/css
+            rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/public/js
             rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/resources
             rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/tests
             rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/vendor
