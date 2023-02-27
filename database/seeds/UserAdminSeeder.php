@@ -19,10 +19,10 @@ class UserAdminSeeder extends Seeder
     public function run()
     {
         User::query()->create([
-            'no_employee' => 'CIB00000',
+            'no_employee' => 'ADMIN',
             'full_name' => 'ADMINISTRADOR TI',
-            'email' => 'admin@ciudadmaderas.com',
-            'password' => bcrypt('password'),
+            'email' => 'desarrollo_apis@ciudadmaderas.com',
+            'password' => bcrypt('tKx8Akw9Le3ZfDig'),
             'personal_phone' => '',
             'position' => 'ADMINISTRADOR',
             'area' => 'TI',

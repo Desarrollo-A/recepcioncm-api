@@ -25,13 +25,13 @@ class DatabaseSeeder extends Seeder
         $this->call(OfficeSeeder::class);
         $this->call(RoleSeeder::class);
         $this->call(UserAdminSeeder::class);
-        $this->call(UserSeeder::class);
+        // $this->call(UserSeeder::class);
         $this->call(MenuSeeder::class);
         $this->call(SubmenuSeeder::class);
         $this->call(MenuUserSeeder::class);
-        $this->call(RoomSeeder::class);
+        /*$this->call(RoomSeeder::class);
         $this->call(CarSeeder::class);
-        /*$this->call(CarDriverSeeder::class);
+        $this->call(CarDriverSeeder::class);
         $this->call(InventorySeeder::class);
         $this->call(RequestRoomSeeder::class);
         $this->call(InventoryHistorySeeder::class);
