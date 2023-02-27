@@ -4,11 +4,12 @@ on:
   push:
     branches:
       - test
+      - master
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/test'
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -39,9 +40,6 @@ jobs:
       - name: Generate key
         run: php artisan key:generate
 
-      - name: Generate keys passport
-        run: php artisan passport:keys
-
       - name: Rsync files of Spatie's Google Calendar
         run: |
           touch GoogleCalendar.php
@@ -64,17 +62,16 @@ jobs:
           port: 22
           key: ${{ secrets.SFTP_SSH_PRIVATE_KEY }}
           script: |
-            rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/.git
-            rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/app
-            rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/bootstrap
-            rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/config
-            rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/database
-            rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/public/css
-            rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/public/js
-            rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/resources
-            rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/tests
-            rm -rf /mnt/data/aplicaciones/Prueba/recepcion-cm-api/vendor
-            
+            rm -rf ${{ secrets.URL_FOLDER_TEST }}.git
+            rm -rf ${{ secrets.URL_FOLDER_TEST }}app
+            rm -rf ${{ secrets.URL_FOLDER_TEST }}bootstrap
+            rm -rf ${{ secrets.URL_FOLDER_TEST }}config
+            rm -rf ${{ secrets.URL_FOLDER_TEST }}database
+            rm -rf ${{ secrets.URL_FOLDER_TEST }}public/css
+            rm -rf ${{ secrets.URL_FOLDER_TEST }}public/js
+            rm -rf ${{ secrets.URL_FOLDER_TEST }}resources
+            rm -rf ${{ secrets.URL_FOLDER_TEST }}tests
+            rm -rf ${{ secrets.URL_FOLDER_TEST }}vendor
 
       - name: Copy files via SSH key
         uses: appleboy/scp-action@master
@@ -84,14 +81,13 @@ jobs:
           port: 22
           key: ${{ secrets.SFTP_SSH_PRIVATE_KEY }}
           source: "./"
-          target: "/mnt/data/aplicaciones/Prueba/recepcion-cm-api/"
+          target: ${{ secrets.URL_FOLDER_TEST }}
           overwrite: true
 
       - name: Execute .sh to deploy
         uses: appleboy/ssh-action@master
         with:
-          host: 104.198.134.0
-          username: prohab
-          port: 22
+          host: ${{ secrets.IP_HOST_TEST }}
+          username: ${{ secrets.USERNAME_TEST }}
           key: ${{ secrets.SFTP_SSH_PRIVATE_KEY }}
-          script: "/home/prohab/scripts/script-recepcion.sh"
+          script: ${{ secrets.FILE_PERMISSIONS_TEST }}
