@@ -98,14 +98,8 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
                     ->select(['driver_id'])
                     ->from('driver_package_schedules AS dps')
                     ->join('driver_schedules AS ds', 'dps.driver_schedule_id', '=', 'ds.id')
-                    ->where(function (QueryBuilder $query) use ($startDate, $endDate) {
-                        $query->whereDate('start_date', $startDate)
-                            ->orWhereDate('start_date', $endDate);
-                    })
-                    ->orWhere(function (QueryBuilder $query) use ($startDate, $endDate) {
-                        $query->whereDate('end_date', $startDate)
-                            ->orWhereDate('end_date', $endDate);
-                    });
+                    ->whereRaw("('{$startDate->toDateTimeString()}' >= start_date AND '{$startDate->toDateTimeString()}' < end_date) OR ".
+                        "('{$endDate->toDateTimeString()}' > start_date AND '{$endDate->toDateTimeString()}' <= end_date)");
             })
             ->get(['users.*']);
     }
