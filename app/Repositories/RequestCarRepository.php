@@ -25,6 +25,9 @@ class RequestCarRepository extends BaseRepository implements RequestCarRepositor
     {
         return $this->entity
             ->with([
+                'office',
+                'office.address',
+                'office.address.country',
                 'request',
                 'request.user',
                 'request.status',
