@@ -508,7 +508,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         $proposalRequests = $this->requestRepository->getProposalRequestRoomScheduleByDate($startDate, $roomId);
 
         if ($approvedRequests->count() === 0 && $proposalRequests->count() === 0) {
-            return false;
+            return true;
         }
 
         $isAvailable = true;
