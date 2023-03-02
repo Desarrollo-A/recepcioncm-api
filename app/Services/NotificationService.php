@@ -356,13 +356,15 @@ class NotificationService extends BaseService implements NotificationServiceInte
         $messageNotification = '';
         $colorNotification = '';
         $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($requestResponseReject->package->office_id)->id;
-        if($requestResponseReject->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::IN_REVIEW)){
+        if ($requestResponseReject->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::IN_REVIEW) ||
+            $requestResponseReject->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED)) {
             $messageNotification = "Propuesta de la solicitud de paquetería $requestResponseReject->code fue aceptada";
             $colorNotification = NotificationColorLookup::GREEN;
-        }else if($requestResponseReject->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::REJECTED)) {
+        } else if ($requestResponseReject->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::REJECTED)) {
             $messageNotification = "Propuesta de la solicitud de paquetería $requestResponseReject->code fue rechazada";
             $colorNotification = NotificationColorLookup::RED;
         }
+
         $notification = $this->createRow($messageNotification, $userId, TypeNotificationsLookup::PARCEL,
             $colorNotification, NotificationIconLookup::BOX);
         $this->requestNotificationService->create($requestResponseReject->id, $notification->id);

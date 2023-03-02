@@ -99,6 +99,17 @@ class PackageDTO
      * @var boolean
      */
     public $is_urgent;
+
+    /**
+     * @var ProposalPackageDTO
+     */
+    public $proposalPackage;
+
+    /**
+     * @var ProposalRequestDTO
+     */
+    public $proposalRequest;
+
     /**
      * @throws CustomErrorException
      */

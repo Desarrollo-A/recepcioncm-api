@@ -10,6 +10,7 @@ use App\Contracts\Repositories\DriverPackageScheduleRepositoryInterface;
 use App\Contracts\Repositories\DriverScheduleRepositoryInterface;
 use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\PackageRepositoryInterface;
+use App\Contracts\Repositories\ProposalPackageRepositoryInterface;
 use App\Contracts\Repositories\ProposalRequestRepositoryInterface;
 use App\Contracts\Repositories\RequestPackageViewRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
@@ -29,7 +30,6 @@ use App\Mail\RequestPackage\CancelledRequestPackageInformationMail;
 use App\Models\Dto\CancelRequestDTO;
 use App\Models\Dto\DeliveredPackageDTO;
 use App\Models\Dto\PackageDTO;
-use App\Models\Dto\ProposalRequestDTO;
 use App\Models\Dto\RequestDTO;
 use App\Models\Dto\ScoreDTO;
 use App\Models\Enums\Lookups\StatusPackageRequestLookup;
@@ -40,6 +40,10 @@ use App\Models\Lookup;
 use App\Models\Package;
 use App\Models\Request;
 use App\Models\User;
+use Box\Spout\Common\Exception\InvalidArgumentException;
+use Box\Spout\Common\Exception\IOException;
+use Box\Spout\Common\Exception\UnsupportedTypeException;
+use Box\Spout\Writer\Exception\WriterNotOpenedException;
 use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Collection;
@@ -70,6 +74,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
 
     protected $calendarService;
     protected $userRepository;
+    protected $proposalPackageRepository;
 
     public function __construct(RequestRepositoryInterface $requestRepository,
                                 PackageRepositoryInterface $packageRepository,
@@ -84,7 +89,8 @@ class RequestPackageService extends BaseService implements RequestPackageService
                                 DriverPackageScheduleRepositoryInterface $driverPackageScheduleRepository,
                                 ProposalRequestRepositoryInterface $proposalRequestRepository,
                                 DeliveredPackageRepositoryInterface $deliveredPackageRepository,
-                                UserRepositoryInterface $userRepository)
+                                UserRepositoryInterface $userRepository,
+                                ProposalPackageRepositoryInterface $proposalPackageRepository)
     {
         $this->requestRepository = $requestRepository;
         $this->packageRepository = $packageRepository;
@@ -100,6 +106,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $this->deliveredPackageRepository = $deliveredPackageRepository;
         $this->proposalRequestRepository = $proposalRequestRepository;
         $this->userRepository = $userRepository;
+        $this->proposalPackageRepository = $proposalPackageRepository;
     }
 
     /**
@@ -350,10 +357,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
             $this->driverPackageScheduleRepository
                 ->create($dto->driverPackageSchedule->toArray(['package_id', 'driver_schedule_id', 'car_schedule_id']));
 
-            $packageUpdate = $this->packageRepository->findById($dto->id)
-                ->fresh(['request', 'request.status', 'driverPackageSchedule', 'driverPackageSchedule.carSchedule',
-                        'driverPackageSchedule.driverSchedule', 'driverPackageSchedule.carSchedule.car',
-                        'driverPackageSchedule.driverSchedule.driver', 'pickupAddress', 'arrivalAddress']);
+            $packageUpdate = $this->packageRepository->findById($dto->id);
 
             $dateGoogleCalendar = $startDate;
 
@@ -364,6 +368,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
         } else {
             $request = $this->requestRepository->update($dto->request_id, $dto->request
                 ->toArray(['status_id', 'end_date']))->fresh(['package', 'user']);
+
             $packageUpdate = $this->packageRepository
                 ->update($dto->id, $dto->toArray(['tracking_code', 'url_tracking']))
                 ->fresh(['request', 'request.status', 'driverPackageSchedule', 'driverPackageSchedule.carSchedule',
@@ -385,6 +390,8 @@ class RequestPackageService extends BaseService implements RequestPackageService
             ]);
             $this->requestRepository->update($request->id, $dto->toArray(['event_google_calendar_id']));
         }
+
+        $this->proposalPackageRepository->deleteByPackageId($packageUpdate->id);
 
         return $packageUpdate;
     }
@@ -490,7 +497,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
     /**
      * @throws CustomErrorException
      */
-    public function proposalRequest(ProposalRequestDTO $dto): Request
+    public function proposalRequest(PackageDTO $dto): Request
     {
         $statusNewId = $this->lookupRepository->findByCodeAndType(
             StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW),
@@ -506,13 +513,34 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $statusProposalId = $this->lookupRepository->findByCodeAndType(
             StatusPackageRequestLookup::code(StatusPackageRequestLookup::PROPOSAL),
             TypeLookup::STATUS_PACKAGE_REQUEST)->id;
-        $requestDTO = new RequestDTO(['status_id' => $statusProposalId]);
+        $dto->request->status_id = $statusProposalId;
 
-        $request = $this->requestRepository->update($dto->request_id, $requestDTO->toArray(['status_id']));
+        $this->proposalRequestRepository->create($dto->proposalRequest->toArray(['request_id', 'start_date', 'end_date']));
 
-        $this->proposalRequestRepository->create($dto->toArray(['request_id', 'start_date']));
+        $this->proposalPackageRepository->create($dto->proposalPackage->toArray(['package_id', 'is_driver_selected']));
 
-        return $request;
+        if ($dto->proposalPackage->is_driver_selected) {
+            $startDate = "{$dto->proposalRequest->start_date->toDateString()} $this->START_TIME_WORKING";
+            $endDate = "{$dto->proposalRequest->start_date->toDateString()} $this->END_TIME_WORKING";
+
+            $dto->driverPackageSchedule->carSchedule->start_date = $startDate;
+            $dto->driverPackageSchedule->carSchedule->end_date = $endDate;
+            $carSchedule = $this->carScheduleRepository
+                ->create($dto->driverPackageSchedule->carSchedule->toArray(['car_id', 'start_date', 'end_date']));
+
+            $dto->driverPackageSchedule->driverSchedule->start_date = $startDate;
+            $dto->driverPackageSchedule->driverSchedule->end_date = $endDate;
+            $driverSchedule = $this->driverScheduleRepository
+                ->create($dto->driverPackageSchedule->driverSchedule->toArray(['driver_id', 'start_date', 'end_date']));
+
+            $dto->driverPackageSchedule->driver_schedule_id = $driverSchedule->id;
+            $dto->driverPackageSchedule->car_schedule_id = $carSchedule->id;
+            $this->driverPackageScheduleRepository
+                ->create($dto->driverPackageSchedule->toArray(['package_id', 'driver_schedule_id', 'car_schedule_id']));
+        }
+
+        return $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id']))
+            ->fresh(['package']);
     }
 
     /**
@@ -520,14 +548,23 @@ class RequestPackageService extends BaseService implements RequestPackageService
      */
     public function responseRejectRequest(int $requestId, RequestDTO $dto): Request
     {
+        if (!in_array($dto->status->code, StatusPackageRequestLookup::getAllCodes()->all())) {
+            throw new CustomErrorException('No existe el estatus', HttpCodes::HTTP_NOT_FOUND);
+        }
+
         $proposalStatusId = $this->lookupRepository->findByCodeAndType(StatusPackageRequestLookup::code(
             StatusPackageRequestLookup::PROPOSAL), TypeLookup::STATUS_PACKAGE_REQUEST)->id;
 
-        $request = $this->requestRepository->findById($requestId);
+        $package = $this->packageRepository->findByRequestId($requestId);
 
-        if ($request->status_id !== $proposalStatusId) {
+        if ($package->request->status_id !== $proposalStatusId) {
             throw new CustomErrorException('La solicitud debe de estar en estatus '.StatusPackageRequestLookup::PROPOSAL,
                 HttpCodes::HTTP_BAD_REQUEST);
+        }
+
+        if ($dto->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::IN_REVIEW) &&
+            $package->proposalPackage->is_driver_selected) {
+            $dto->status->code = StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED);
         }
 
         $dto->status_id = $this->lookupRepository
@@ -536,14 +573,37 @@ class RequestPackageService extends BaseService implements RequestPackageService
         if (!is_null($dto->proposal_id)) {
             $proposalData = $this->proposalRequestRepository->findById($dto->proposal_id);
             $dto->start_date = $proposalData->start_date;
-            $data = $dto->toArray(['status_id', 'start_date']);
+
+            if ($package->proposalPackage->is_driver_selected) {
+                $this->proposalPackageRepository->deleteByPackageId($package->id);
+
+                if (config('app.enable_google_calendar', false)) {
+                    if($package->request->add_google_calendar) {
+                        $emails[] = $package->request->user->email;
+                    }
+                    $emails[] = $this->userRepository->findByOfficeIdAndRoleRecepcionist($package->office_id)->email;
+
+                    $event = $this->calendarService->createEventAllDay($package->request->title, $proposalData->start_date, $emails);
+
+                    $dto = new RequestDTO([
+                        'event_google_calendar_id' => $event->id
+                    ]);
+                    $this->requestRepository->update($package->request_id, $dto->toArray(['event_google_calendar_id']));
+                }
+            }
+
+            $dto->end_date = $proposalData->end_date;
+
+            $columnsRequestUpdate = ['status_id', 'start_date', 'end_date'];
         } else {
-            $data = $dto->toArray(['status_id']);
+            $this->proposalPackageRepository->deleteByPackageId($package->id);
+
+            $columnsRequestUpdate = ['status_id'];
         }
 
         $this->proposalRequestRepository->deleteByRequestId($requestId);
 
-        return $this->requestRepository->update($requestId, $data)->fresh(['status']);
+        return $this->requestRepository->update($requestId, $dto->toArray($columnsRequestUpdate))->fresh(['status']);
     }
 
     /**
