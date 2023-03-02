@@ -180,6 +180,9 @@ class RequestPackageController extends BaseApiController
         return $this->showAll(PackageResource::collection($packages));
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function proposalRequest(ProposalPackageRequest $request): JsonResponse
     {
         $requestPackageProposal = $this->requestPackageService->proposalRequest($request->toDTO());

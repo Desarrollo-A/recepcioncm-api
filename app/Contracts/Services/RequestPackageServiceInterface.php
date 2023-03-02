@@ -59,7 +59,7 @@ interface RequestPackageServiceInterface extends BaseServiceInterface
 
     public function findAllByDateAndOffice(int $officeId, Carbon $date): Collection;
 
-    public function proposalRequest(ProposalRequestDTO $dto): Request;
+    public function proposalRequest(PackageDTO $dto): Request;
 
     public function responseRejectRequest(int $requestId, RequestDTO $dto): Request;
 
@@ -69,6 +69,9 @@ interface RequestPackageServiceInterface extends BaseServiceInterface
     public function findAllByDriverIdPaginated(HttpRequest $request, User $user,
                                                array       $columns = ['*']): LengthAwarePaginator;
 
+    /**
+     * @param User|Authenticatable $user
+     */
     public function findAllDeliveredByDriverIdPaginated(HttpRequest $request, User $user,
                                                         array $columns = ['*']): LengthAwarePaginator;
 

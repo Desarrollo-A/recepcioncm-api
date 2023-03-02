@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Contracts\Repositories\PackageRepositoryInterface;
 use App\Core\BaseRepository;
+use App\Models\Enums\Lookups\StatusPackageRequestLookup;
 use App\Models\Package;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -45,7 +46,8 @@ class PackageRepository extends BaseRepository implements PackageRepositoryInter
                 'driverPackageSchedule.driverSchedule.driver',
                 'pickupAddress.office',
                 'arrivalAddress.office',
-                'deliveredPackage'
+                'deliveredPackage',
+                'proposalPackage'
             ])
             ->where('request_id', $requestId)
             ->firstOrFail();
@@ -79,10 +81,13 @@ class PackageRepository extends BaseRepository implements PackageRepositoryInter
     {
         return $this->entity
             ->with(['pickupAddress', 'pickupAddress.country', 'arrivalAddress', 'arrivalAddress.country', 'request'])
-            ->join('driver_package_schedules','driver_package_schedules.package_id','=','packages.id')
-            ->join('driver_schedules','driver_package_schedules.driver_schedule_id','=','driver_schedules.id')
-            ->whereDate('driver_schedules.start_date', $date)
-            ->where('driver_schedules.driver_id', $driverId)
+            ->join('driver_package_schedules AS dps','dps.package_id','=','packages.id')
+            ->join('driver_schedules AS ds','dps.driver_schedule_id','=','ds.id')
+            ->join('requests AS r', 'packages.request_id', '=', 'r.id')
+            ->join('lookups AS s', 'r.status_id', '=', 's.id')
+            ->where('s.code', StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED))
+            ->whereDate('ds.start_date', $date)
+            ->where('ds.driver_id', $driverId)
             ->get(['packages.*']);
     }
 

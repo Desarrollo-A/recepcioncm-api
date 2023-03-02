@@ -7,6 +7,7 @@ use App\Helpers\File;
 use App\Http\Resources\Address\AddressResource;
 use App\Http\Resources\DeliveredPackage\DeliveredPackageResource;
 use App\Http\Resources\DriverPackageSchedule\DriverPackageScheduleResource;
+use App\Http\Resources\ProposalPackage\ProposalPackageResource;
 use App\Http\Resources\Request\RequestResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -33,7 +34,8 @@ class PackageResource extends JsonResource
             'arrivalAddress' => AddressResource::make($this->whenLoaded('arrivalAddress')),
             'request' => RequestResource::make($this->whenLoaded('request')),
             'driverPackageSchedule' => DriverPackageScheduleResource::make($this->whenLoaded('driverPackageSchedule')),
-            'deliveredPackage' => DeliveredPackageResource::make($this->whenLoaded('deliveredPackage'))
+            'deliveredPackage' => DeliveredPackageResource::make($this->whenLoaded('deliveredPackage')),
+            'proposalPackage' => ProposalPackageResource::make($this->whenLoaded('proposalPackage')),
         ];
     }
 }

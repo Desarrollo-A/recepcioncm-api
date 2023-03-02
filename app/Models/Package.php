@@ -44,4 +44,9 @@ class Package extends Model
     {
         return $this->hasOne(DeliveredPackage::class);
     }
+
+    public function proposalPackage(): HasOne
+    {
+        return $this->hasOne(ProposalPackage::class);
+    }
 }
