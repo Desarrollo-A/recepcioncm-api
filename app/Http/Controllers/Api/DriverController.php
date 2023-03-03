@@ -51,9 +51,13 @@ class DriverController extends BaseApiController
         return $this->showAll(DriverResource::collection($drivers));
     }
 
-    public function getAvailableDriversPackage(int $officeId, Carbon $date): JsonResponse
+    /**
+     * @throws CustomErrorException
+     */
+    public function getAvailableDriversPackage(int $officeId, string $date): JsonResponse
     {
-        $drivers = $this->driverService->getAvailableDriversPackage($officeId, $date);
+        $convertDate = new Carbon(Validation::validateDate($date));
+        $drivers = $this->driverService->getAvailableDriversPackage($officeId, $convertDate);
         return $this->showAll(DriverResource::collection($drivers));
     }
 
