@@ -108,14 +108,19 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
             ->get(['u.*']);
     }
 
-    public function getAvailableDriversRequest(int $officeId, Carbon $startDate, Carbon $endDate): Collection
+    public function getAvailableDriversRequest(int $officeId, Carbon $startDate, Carbon $endDate, int $people): Collection
     {
+        $startDateFormat = $startDate->toDateTimeString();
+        $endDateFormat = $endDate->toDateTimeString();
+
         return $this->entity
-            ->driverUser()
-            ->join('lookups', 'lookups.id', '=', 'users.status_id')
+            ->from('users AS u')
+            ->join('lookups', 'lookups.id', '=', 'u.status_id')
+            ->join('roles', 'roles.id', '=', 'u.role_id')
+            ->where('roles.name', NameRole::DRIVER)
             ->where('lookups.code', StatusUserLookup::code(StatusUserLookup::ACTIVE))
-            ->where('users.office_id', $officeId)
-            ->whereNotIn('users.id', function (QueryBuilder $query) use ($startDate, $endDate) {
+            ->where('u.office_id', $officeId)
+            ->whereNotIn('u.id', function (QueryBuilder $query) use ($startDate, $endDate) {
                 return $query
                     ->select(['driver_id'])
                     ->from('driver_request_schedules AS drs')
@@ -129,7 +134,7 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
                             ->where('end_date', '<=', $endDate->toDateTimeString());
                     });
             })
-            ->whereNotIn('users.id', function (QueryBuilder $query) use ($startDate, $endDate) {
+            ->whereNotIn('u.id', function (QueryBuilder $query) use ($startDate, $endDate) {
                 return $query
                     ->select(['driver_id'])
                     ->from('driver_package_schedules AS dps')
@@ -137,7 +142,54 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
                     ->whereRaw("('{$startDate->toDateTimeString()}' >= start_date AND '{$startDate->toDateTimeString()}' < end_date) OR ".
                         "('{$endDate->toDateTimeString()}' > start_date AND '{$endDate->toDateTimeString()}' <= end_date)");
             })
-            ->get(['users.*']);
+            ->whereExists(function (QueryBuilder $query) use ($officeId, $startDate, $endDate, $startDateFormat, $endDateFormat, $people) {
+                $query
+                    ->selectRaw('COUNT(*)')
+                    ->from('cars')
+                    ->join('lookups', 'lookups.id', '=', 'cars.status_id')
+                    ->where('lookups.code', StatusCarLookup::code(StatusCarLookup::ACTIVE))
+                    ->where('office_id', $officeId)
+                    ->where('people', '>=', $people + 1) // Se aumenta 1 por el chofer
+                    ->whereNotIn('cars.id', function (QueryBuilder $query) use ($officeId) {
+                        return $query
+                            ->selectRaw('DISTINCT(car_driver.car_id)')
+                            ->from('users')
+                            ->join('car_driver', 'car_driver.driver_id', '=', 'users.id')
+                            ->whereRaw("users.office_id = $officeId AND users.id <> u.id");
+                    })
+                    ->whereNotIn('cars.id', function (QueryBuilder $query) use ($startDate, $endDate) {
+                        return $query
+                            ->select(['car_id'])
+                            ->from('driver_package_schedules AS dps')
+                            ->join('car_schedules AS cs', 'dps.car_schedule_id', '=', 'cs.id')
+                            ->where(function (QueryBuilder $query) use ($startDate, $endDate) {
+                                $query->whereDate('start_date', $startDate)
+                                    ->orWhereDate('start_date', $endDate);
+                            })
+                            ->orWhere(function (QueryBuilder $query) use ($startDate, $endDate) {
+                                $query->whereDate('end_date', $startDate)
+                                    ->orWhereDate('end_date', $endDate);
+                            });
+                    })
+                    ->whereNotIn('cars.id', function (QueryBuilder $query) use ($startDateFormat, $endDateFormat) {
+                        return $query
+                            ->select(['car_id'])
+                            ->from('driver_request_schedules AS drs')
+                            ->join('car_schedules AS cs', 'drs.car_schedule_id', '=', 'cs.id')
+                            ->whereRaw("('$startDateFormat' >= start_date AND '$startDateFormat' < end_date) OR ".
+                                "('$endDateFormat' > start_date AND '$endDateFormat' <= end_date)");
+                    })
+                    ->whereNotIn('cars.id', function (QueryBuilder $query) use ($startDateFormat, $endDateFormat) {
+                        return $query
+                            ->select(['car_id'])
+                            ->from('car_request_schedules AS crs')
+                            ->join('car_schedules AS cs', 'crs.car_schedule_id', '=', 'cs.id')
+                            ->whereRaw("('$startDateFormat' >= start_date AND '$startDateFormat' < end_date) OR ".
+                                "('$endDateFormat' > start_date AND '$endDateFormat' <= end_date)");
+                    })
+                    ->havingRaw('COUNT(*) > 0');
+            })
+            ->get(['u.*']);
     }
 
     public function getAvailableDriverProposal(int $officeId, Carbon $startDate, Carbon $endDate): Collection

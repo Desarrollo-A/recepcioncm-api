@@ -108,9 +108,9 @@ Route::prefix('v1')->group(function () {
                     ->name('show')
                     ->where('driverId', Validation::INTEGER_ID);
 
-                Route::get('/available-driver-request/{driverId}', 'CarController@getAvailableCarsInRequestDriver')
+                Route::get('/available-driver-request/{requestId}', 'CarController@getAvailableCarsInRequestDriver')
                     ->name('available-driver-request')
-                    ->where('driverId', Validation::INTEGER_ID);
+                    ->where('requestId', Validation::INTEGER_ID);
 
                 Route::get('/available-car-request/{officeId}', 'CarController@getAvailableCarsInRequestCar')
                     ->name('available-car-request')

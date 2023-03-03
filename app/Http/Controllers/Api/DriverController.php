@@ -64,11 +64,11 @@ class DriverController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function getAvailableDriversRequest(int $officeId, Request $request): JsonResponse
+    public function getAvailableDriversRequest(int $requestId, Request $request): JsonResponse
     {
         $startDate = new Carbon(Validation::validateDate($request->get('start_date')));
         $endDate = new Carbon(Validation::validateDate($request->get('end_date')));
-        $drivers = $this->driverService->getAvailableDriversRequest($officeId, $startDate, $endDate);
+        $drivers = $this->driverService->getAvailableDriversRequest($requestId, $startDate, $endDate);
         return $this->showAll(DriverResource::collection($drivers));
     }
 
