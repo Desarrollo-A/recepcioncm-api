@@ -49,13 +49,13 @@ class InputOutputInventoryView extends Model implements ScopeFilterInterface
         }
 
         if (isset($params['types'])) {
-            $query->whereIn('type_id', $params['types']);
+            $query->orWhereIn('type_id', $params['types']);
         }
         if (isset($params['start_date'])) {
-            $query->where('move_date', '>=', $params['start_date']);
+            $query->orWhere('move_date', '>=', $params['start_date']);
         }
         if (isset($params['end_date'])) {
-            $query->where('move_date', '<=', $params['end_date']);
+            $query->orWhere('move_date', '<=', $params['end_date']);
         }
 
         return $query;

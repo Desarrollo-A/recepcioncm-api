@@ -36,8 +36,8 @@ class InputOutputInventoryViewRepository extends BaseRepository implements Input
     public function getDataReport(array $filters, int $officeId): Collection
     {
         return $this->entity
-            ->where('office_id', $officeId)
             ->filterReport($filters)
+            ->where('office_id', $officeId)
             ->orderByRaw('move_date DESC, type ASC')
             ->get();
     }
