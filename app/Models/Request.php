@@ -28,7 +28,9 @@ class Request extends Model
         'user_id' => 'integer',
         'status_id' => 'integer',
         'created_at' => 'datetime',
-        'updated_at' => 'datetime'
+        'updated_at' => 'datetime',
+        'total' => 'integer',
+        'weekday' => 'integer',
     ];
 
     public function user(): BelongsTo
