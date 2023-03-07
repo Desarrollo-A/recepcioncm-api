@@ -170,19 +170,36 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
             ->count();
     }
 
-    public function getTotalRequestRoomOfWeekday(int $userId, int $weekday): int
+    public function getRequestRoomOfWeekdayByUser(int $userId): Collection
     {
-        return $this->entity
-            ->join('lookups AS s', 's.id', '=', 'requests.status_id')
-            ->join('lookups AS t', 't.id', '=', 'requests.type_id')
-            ->where('user_id', $userId)
-            ->whereRaw("DATEPART(WEEKDAY, start_date) = $weekday")
-            ->whereDate('start_date', '>=', now())
+        $union = $this->entity
+            ->newModelInstance()
+            ->selectRaw('COUNT(*) AS total, DATEPART(WEEKDAY, start_date) AS weekday, r.user_id')
+            ->from('requests AS r')
+            ->join('lookups AS t', 'r.type_id', '=', 't.id')
+            ->join('lookups AS s', 'r.status_id', '=', 's.id')
             ->where('t.code', TypeRequestLookup::code(TypeRequestLookup::ROOM))
-            ->whereIn('s.code', [StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED),
-                StatusRoomRequestLookup::code(StatusRoomRequestLookup::PROPOSAL),
-                StatusRoomRequestLookup::code(StatusRoomRequestLookup::IN_REVIEW)])
-            ->count();
+            ->where('user_id', $userId)
+            ->whereIn('s.code', [
+                StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED),
+                StatusRoomRequestLookup::code(StatusRoomRequestLookup::IN_REVIEW)
+            ])
+            ->whereDate('start_date', '>=', now())
+            ->groupBy([DB::raw('DATEPART(WEEKDAY, start_date)'), 'r.user_id']);
+
+        return $this->entity
+            ->selectRaw('COUNT(*) AS total, DATEPART(WEEKDAY, pr.start_date) AS weekday, r.user_id')
+            ->from('requests AS r')
+            ->join('proposal_requests AS pr', 'pr.request_id', '=', 'r.id')
+            ->join('lookups AS t', 'r.type_id', '=', 't.id')
+            ->join('lookups AS s', 'r.status_id', '=', 's.id')
+            ->where('t.code', TypeRequestLookup::code(TypeRequestLookup::ROOM))
+            ->where('user_id', $userId)
+            ->where('s.code', StatusRoomRequestLookup::code(StatusRoomRequestLookup::PROPOSAL))
+            ->whereDate('pr.start_date', '>=', now())
+            ->union($union)
+            ->groupBy([DB::raw('DATEPART(WEEKDAY, pr.start_date)'), 'r.user_id'])
+            ->get();
     }
 
     public function getRequestRoomAfterNowInWeekday(int $userId, int $weekday): Collection
@@ -194,9 +211,7 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
             ->whereRaw("DATEPART(WEEKDAY, start_date) = $weekday")
             ->whereDate('start_date', '>=', now())
             ->where('t.code', TypeRequestLookup::code(TypeRequestLookup::ROOM))
-            ->whereNotIn('s.code', [StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED),
-                StatusRoomRequestLookup::code(StatusRoomRequestLookup::PROPOSAL),
-                StatusRoomRequestLookup::code(StatusRoomRequestLookup::IN_REVIEW)])
+            ->where('s.code', StatusRoomRequestLookup::code(StatusRoomRequestLookup::NEW))
             ->get(['requests.*']);
     }
 

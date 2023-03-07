@@ -142,6 +142,10 @@ Route::prefix('v1')->group(function () {
                     ->name('schedule')
                     ->where('requestId', Validation::INTEGER_ID);
 
+                Route::get('/weekday/{userId}', 'RequestRoomController@getRequestRoomOfWeekdayByUser')
+                    ->name('weekday')
+                    ->where('userId', Validation::INTEGER_ID);
+
                 Route::post('/assign-snack', 'RequestRoomController@assignSnack')
                     ->name('assign-snack');
 
