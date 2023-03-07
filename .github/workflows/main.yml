@@ -67,6 +67,7 @@ jobs:
             rm -rf ${{ secrets.URL_FOLDER_TEST }}public/css
             rm -rf ${{ secrets.URL_FOLDER_TEST }}public/js
             rm -rf ${{ secrets.URL_FOLDER_TEST }}resources
+            rm -rf ${{ secrets.URL_FOLDER_TEST }}routes
             rm -rf ${{ secrets.URL_FOLDER_TEST }}tests
             rm -rf ${{ secrets.URL_FOLDER_TEST }}vendor
 
