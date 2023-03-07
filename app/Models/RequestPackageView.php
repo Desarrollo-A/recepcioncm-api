@@ -71,10 +71,10 @@ class RequestPackageView extends Model implements ScopeFilterInterface
         }
 
         if (isset($params['start_date'])) {
-            $query->where('end_date', '>=', $params['start_date']);
+            $query->orWhere('end_date', '>=', $params['start_date']);
         }
         if (isset($params['end_date'])) {
-            $query->where('end_date', '<=', $params['end_date']);
+            $query->orWhere('end_date', '<=', $params['end_date']);
         }
 
         return $query;

@@ -63,8 +63,8 @@ class RequestPackageViewRepository extends BaseRepository implements RequestPack
     public function getDataReport (array $filters, int $driverId): Collection
     {
         return $this->entity
-            ->where('driver_id', $driverId)
             ->filterReport($filters)
+            ->where('driver_id', $driverId)
             ->orderBy('end_date', 'DESC')
             ->get();
     }

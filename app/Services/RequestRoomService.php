@@ -98,9 +98,13 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
      */
     public function create(RequestRoomDTO $dto): RequestRoom
     {
-        $roomRequestsOfWeekday = $this->requestRepository->getTotalRequestRoomOfWeekday($dto->request->user_id,
-            $dto->request->start_date->dayOfWeek + 1);
-        if ($roomRequestsOfWeekday === self::REQUESTS_BY_DAY) {
+        $roomRequestsOfWeekday = $this->requestRepository
+            ->getRequestRoomOfWeekdayByUser($dto->request->user_id)
+            ->first(function ($data) use ($dto) {
+                return $data->weekday === ($dto->request->start_date->dayOfWeek + 1);
+            });
+
+        if (isset($roomRequestsOfWeekday->total) && $roomRequestsOfWeekday->total >= self::REQUESTS_BY_DAY) {
             throw new CustomErrorException(Message::LIMIT_REQUEST_BY_DAY.
                 Utils::getDayName($dto->request->start_date->dayOfWeek), Response::HTTP_BAD_REQUEST);
         }
@@ -391,9 +395,13 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
      */
     public function checkRequestsByDay(Request $request, int $recepcionistId)
     {
-        $roomRequestsOfWeekday = $this->requestRepository->getTotalRequestRoomOfWeekday($request->user_id,
-            $request->start_date->dayOfWeek + 1);
-        if ($roomRequestsOfWeekday < self::REQUESTS_BY_DAY) {
+        $roomRequestsOfWeekday = $this->requestRepository
+            ->getRequestRoomOfWeekdayByUser($request->user_id)
+            ->first(function ($data) use ($request) {
+                return $data->weekday === ($request->start_date->dayOfWeek + 1);
+            });
+
+        if (isset($roomRequestsOfWeekday->total) && $roomRequestsOfWeekday->total < self::REQUESTS_BY_DAY) {
             return;
         }
 
@@ -537,5 +545,10 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         }
 
         return $isAvailable;
+    }
+
+    public function getRequestRoomOfWeekdayByUser(int $userId): Collection
+    {
+        return $this->requestRepository->getRequestRoomOfWeekdayByUser($userId);
     }
 }
