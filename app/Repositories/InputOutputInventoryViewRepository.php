@@ -38,6 +38,9 @@ class InputOutputInventoryViewRepository extends BaseRepository implements Input
         return $this->entity
             ->filterReport($filters)
             ->where('office_id', $officeId)
+            ->when(isset($filters['types']), function (Builder $query) use ($filters) {
+                return $query->whereIn('type_id', $filters['types']);
+            })
             ->orderByRaw('move_date DESC, type ASC')
             ->get();
     }
