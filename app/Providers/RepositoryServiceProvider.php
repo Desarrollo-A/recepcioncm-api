@@ -52,6 +52,7 @@ class RepositoryServiceProvider extends ServiceProvider
         'CarRequestScheduleRepositoryInterface' => 'CarRequestScheduleRepository',
         'DeliveredPackageRepositoryInterface' => 'DeliveredPackageRepository',
         'ProposalPackageRepositoryInterface' => 'ProposalPackageRepository',
+        'CarDriverRepositoryInterface' => 'CarDriverRepository',
     ];
 
     public function register()

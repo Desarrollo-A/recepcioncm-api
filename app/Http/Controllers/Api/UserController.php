@@ -81,12 +81,6 @@ class UserController extends BaseApiController
         return $this->showOne(new UserResource($user));
     }
 
-    public function removeOldTokens(): JsonResponse
-    {
-        $this->userService->removeOldTokens();
-        return $this->noContentResponse();
-    }
-
     /**
      * @throws CustomErrorException
      */
