@@ -328,7 +328,9 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
 
         if (config('app.enable_google_calendar', false)) {
             $emails[] = $emailDriver;
-            $emails[] = $this->userRepository->findByOfficeIdAndRoleRecepcionist($request->requestDriver->office_id)->id;
+            $emails[] = $this->userRepository
+                ->findByOfficeIdAndRoleRecepcionist($request->requestDriver->office_id)
+                ->email;
 
             if ($request->add_google_calendar) {
                 $emails[] = $request->user->email;

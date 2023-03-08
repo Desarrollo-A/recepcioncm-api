@@ -301,10 +301,13 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
                 'requestCar.carRequestSchedule.carSchedule.car', 'status', 'user']);
 
         if (config('app.enable_google_calendar', false)) {
-            if($request->add_google_calendar){
+            if ($request->add_google_calendar) {
                 $emails[] = $request->user->email;
             }
-            $emails[] = $this->userRepository->findByOfficeIdAndRoleRecepcionist($request->requestCar->office_id)->email;
+
+            $emails[] = $this->userRepository
+                ->findByOfficeIdAndRoleRecepcionist($request->requestCar->office_id)
+                ->email;
             
             $event = $this->calendarService->createEvent($request->title, $request->start_date, $request->end_date, $emails);
 
