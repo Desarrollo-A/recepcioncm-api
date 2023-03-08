@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Contracts\Repositories\CarDriverRepositoryInterface;
 use App\Contracts\Repositories\CarRepositoryInterface;
 use App\Contracts\Repositories\DriverPackageScheduleRepositoryInterface;
 use App\Contracts\Repositories\DriverRepositoryInterface;
@@ -30,18 +31,23 @@ class CarService extends BaseService implements CarServiceInterface
     protected $driverRepository;
     protected $driverPackageScheduleRepository;
     protected $requestCarRepository;
+    protected $carDriverRepository;
 
-    public function __construct(CarRepositoryInterface $carRepository,
-                                LookupRepositoryInterface $lookupRepository,
-                                DriverRepositoryInterface $driverRepository,
-                                DriverPackageScheduleRepositoryInterface $driverPackageScheduleRepository,
-                                RequestCarRepositoryInterface $requestCarRepository)
+    public function __construct(
+        CarRepositoryInterface $carRepository,
+        LookupRepositoryInterface $lookupRepository,
+        DriverRepositoryInterface $driverRepository,
+        DriverPackageScheduleRepositoryInterface $driverPackageScheduleRepository,
+        RequestCarRepositoryInterface $requestCarRepository,
+        CarDriverRepositoryInterface $carDriverRepository
+    )
     {
         $this->entityRepository = $carRepository;
         $this->lookupRepository = $lookupRepository;
         $this->driverRepository = $driverRepository;
         $this->driverPackageScheduleRepository = $driverPackageScheduleRepository;
         $this->requestCarRepository = $requestCarRepository;
+        $this->carDriverRepository = $carDriverRepository;
     }
 
     /**
@@ -164,6 +170,14 @@ class CarService extends BaseService implements CarServiceInterface
         }
 
         return collect($availableCars);
+    }
+
+    public function clearRelationWithDriver(int $carId, int $statusId): void
+    {
+        $status = $this->lookupRepository->findById($statusId);
+        if ($status->code === StatusCarLookup::code(StatusCarLookup::DOWN)) {
+            $this->carDriverRepository->deleteByCarId($carId);
+        }
     }
 
     private function isScheduleBusy(array $time, Carbon $startTime, Carbon $endTime): bool

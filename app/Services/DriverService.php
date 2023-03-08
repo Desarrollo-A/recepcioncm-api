@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use App\Contracts\Repositories\CarDriverRepositoryInterface;
 use App\Contracts\Repositories\CarRepositoryInterface;
 use App\Contracts\Repositories\DriverRepositoryInterface;
+use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\RequestDriverRepositoryInterface;
 use App\Contracts\Services\DriverServiceInterface;
 use App\Core\BaseService;
@@ -11,6 +13,8 @@ use App\Exceptions\CustomErrorException;
 use App\Helpers\Enum\QueryParam;
 use App\Helpers\Utils;
 use App\Helpers\Validation;
+use App\Models\Enums\Lookups\StatusUserLookup;
+use App\Models\Enums\NameRole;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -24,14 +28,22 @@ class DriverService extends BaseService implements DriverServiceInterface
     protected $entityRepository;
     protected $carRepository;
     protected $requestDriverRepository;
+    protected $lookupRepository;
+    protected $carDriverRepository;
 
-    public function __construct(DriverRepositoryInterface $driverRepository,
-                                CarRepositoryInterface $carRepository,
-                                RequestDriverRepositoryInterface $requestDriverRepository)
+    public function __construct(
+        DriverRepositoryInterface $driverRepository,
+        CarRepositoryInterface $carRepository,
+        RequestDriverRepositoryInterface $requestDriverRepository,
+        LookupRepositoryInterface $lookupRepository,
+        CarDriverRepositoryInterface $carDriverRepository
+    )
     {
         $this->entityRepository = $driverRepository;
         $this->carRepository = $carRepository;
         $this->requestDriverRepository = $requestDriverRepository;
+        $this->lookupRepository = $lookupRepository;
+        $this->carDriverRepository = $carDriverRepository;
     }
 
     /**
@@ -179,6 +191,19 @@ class DriverService extends BaseService implements DriverServiceInterface
         }
 
         return collect($availableDrivers);
+    }
+
+    public function clearRelationWithCar(int $driverId, int $statusId): void
+    {
+        $user = $this->entityRepository->findById($driverId);
+        if ($user->role->name !== NameRole::DRIVER) {
+            return;
+        }
+
+        $status = $this->lookupRepository->findById($statusId);
+        if ($status->code === StatusUserLookup::code(StatusUserLookup::INACTIVE)) {
+            $this->carDriverRepository->deleteByDriverId($driverId);
+        }
     }
 
     private function isScheduleBusy(array $time, Carbon $startTime, Carbon $endTime): bool

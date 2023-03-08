@@ -527,7 +527,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/finished', 'CronJobController@finishedRequest')
                     ->name('finished');
 
-                Route::get('/remove-old-tokens', 'UserController@removeOldTokens')
+                Route::get('/remove-old-tokens', 'CronJobController@removeOldTokens')
                     ->name('remove.old.tokens');
             });
     });

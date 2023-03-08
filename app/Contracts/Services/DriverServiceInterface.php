@@ -25,4 +25,6 @@ interface DriverServiceInterface extends BaseServiceInterface
     public function getAvailableDriversRequest(int $requestId, Carbon $startDate, Carbon $endDate): Collection;
 
     public function getAvailableDriversProposalRequest(int $requestId, Carbon $dateSelected, int $people): \Illuminate\Support\Collection;
+
+    public function clearRelationWithCar(int $driverId, int $statusId): void;
 }

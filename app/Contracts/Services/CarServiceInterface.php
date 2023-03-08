@@ -33,4 +33,6 @@ interface CarServiceInterface extends BaseServiceInterface
     public function getAvailableCarsInRequestPackage(int $driverId, Carbon $startDate): Collection;
 
     public function getAvailableCarsProposalRequest(int $requestId, Carbon $dateSelected): \Illuminate\Support\Collection;
+
+    public function clearRelationWithDriver(int $carId, int $statusId): void;
 }

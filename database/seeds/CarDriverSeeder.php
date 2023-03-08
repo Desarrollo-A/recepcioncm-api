@@ -16,16 +16,18 @@ class CarDriverSeeder extends Seeder
     public function run()
     {
         $roleRecepcionist = Role::query()->where('name', NameRole::RECEPCIONIST)->first()->id;
+        $roleDriver = Role::query()->where('name', NameRole::DRIVER)->first()->id;
 
         User::query()
             ->where('role_id', $roleRecepcionist)
-            ->each(function (User $user) {
+            ->each(function (User $user) use ($roleDriver) {
                 Car::query()
                     ->where('office_id', $user->office_id)
-                    ->each(function (Car $car) use ($user) {
+                    ->each(function (Car $car) use ($user, $roleDriver) {
                         $driver = User::query()
                             ->leftJoin('car_driver', 'car_driver.driver_id', '=', 'users.id')
                             ->where('users.office_id', $user->office_id)
+                            ->where('users.role_id', $roleDriver)
                             ->whereNull('car_driver.car_id')
                             ->inRandomOrder()
                             ->firstOrFail();

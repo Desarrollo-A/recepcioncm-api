@@ -41,7 +41,7 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
     public function findById(int $id, array $columns = ['*'])
     {
         return $this->entity
-            ->with(['cars', 'office'])
+            ->with(['cars', 'office', 'role'])
             ->findOrFail($id, $columns);
     }
 

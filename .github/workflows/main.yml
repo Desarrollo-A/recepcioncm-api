@@ -55,9 +55,8 @@ jobs:
       - name: Execute .sh to deploy
         uses: appleboy/ssh-action@master
         with:
-          host: 104.198.134.0
-          username: prohab
-          port: 22
+          host: ${{ secrets.IP_HOST_TEST }}
+          username: ${{ secrets.USERNAME_TEST }}
           key: ${{ secrets.SFTP_SSH_PRIVATE_KEY }}
           script: |
             rm -rf ${{ secrets.URL_FOLDER_TEST }}.git
@@ -68,15 +67,15 @@ jobs:
             rm -rf ${{ secrets.URL_FOLDER_TEST }}public/css
             rm -rf ${{ secrets.URL_FOLDER_TEST }}public/js
             rm -rf ${{ secrets.URL_FOLDER_TEST }}resources
+            rm -rf ${{ secrets.URL_FOLDER_TEST }}routes
             rm -rf ${{ secrets.URL_FOLDER_TEST }}tests
             rm -rf ${{ secrets.URL_FOLDER_TEST }}vendor
 
       - name: Copy files via SSH key
         uses: appleboy/scp-action@master
         with:
-          host: 104.198.134.0
-          username: prohab
-          port: 22
+          host: ${{ secrets.IP_HOST_TEST }}
+          username: ${{secrets.USERNAME_TEST}}
           key: ${{ secrets.SFTP_SSH_PRIVATE_KEY }}
           source: "./"
           target: ${{ secrets.URL_FOLDER_TEST }}
