@@ -11,6 +11,7 @@ use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\ProposalRequestRepositoryInterface;
 use App\Contracts\Repositories\RequestDriverRepositoryInterface;
 use App\Contracts\Repositories\RequestDriverViewRepositoryInterface;
+use App\Contracts\Repositories\RequestEmailRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Contracts\Repositories\UserRepositoryInterface;
 use App\Contracts\Services\CalendarServiceInterface;
@@ -55,21 +56,25 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
     protected $driverRequestScheduleRepository;
     protected $proposalRequestRepository;
     protected $userRepository;
+    protected $requestEmailRepository;
 
     protected $calendarService;
 
-    public function __construct(RequestDriverRepositoryInterface $requestDriverRepository,
-                                RequestRepositoryInterface $requestRepository,
-                                LookupRepositoryInterface $lookupRepository,
-                                AddressRepositoryInterface $addressRepository,
-                                RequestDriverViewRepositoryInterface $requestDriverViewRepository,
-                                CancelRequestRepositoryInterface $cancelRequestRepository,
-                                DriverScheduleRepositoryInterface $driverScheduleRepository,
-                                CarScheduleRepositoryInterface $carScheduleRepository,
-                                DriverRequestScheduleRepositoryInterface $driverRequestScheduleRepository,
-                                CalendarServiceInterface $calendarService,
-                                ProposalRequestRepositoryInterface $proposalRequestRepository,
-                                UserRepositoryInterface $userRepository)
+    public function __construct(
+        RequestDriverRepositoryInterface $requestDriverRepository,
+        RequestRepositoryInterface $requestRepository,
+        LookupRepositoryInterface $lookupRepository,
+        AddressRepositoryInterface $addressRepository,
+        RequestDriverViewRepositoryInterface $requestDriverViewRepository,
+        CancelRequestRepositoryInterface $cancelRequestRepository,
+        DriverScheduleRepositoryInterface $driverScheduleRepository,
+        CarScheduleRepositoryInterface $carScheduleRepository,
+        DriverRequestScheduleRepositoryInterface $driverRequestScheduleRepository,
+        CalendarServiceInterface $calendarService,
+        ProposalRequestRepositoryInterface $proposalRequestRepository,
+        RequestEmailRepositoryInterface $requestEmailRepository,
+        UserRepositoryInterface $userRepository
+    )
     {
         $this->entityRepository = $requestDriverRepository;
         $this->requestRepository = $requestRepository;
@@ -82,6 +87,7 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
         $this->driverRequestScheduleRepository = $driverRequestScheduleRepository;
         $this->calendarService = $calendarService;
         $this->proposalRequestRepository = $proposalRequestRepository;
+        $this->requestEmailRepository = $requestEmailRepository;
         $this->userRepository = $userRepository;
     }
 
@@ -113,6 +119,15 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
         $request = $this->requestRepository->create($dto->request->toArray(['title', 'start_date', 'end_date', 'comment',
             'type_id', 'add_google_calendar', 'user_id', 'status_id', 'people']));
         $dto->request_id = $request->id;
+
+        if (count($dto->request->requestEmail) > 0) {
+            $emailsInsert = array();
+            foreach ($dto->request->requestEmail as $data) {
+                $data->request_id = $request->id;
+                $emailsInsert[] = $data->toArray(['request_id', 'name', 'email', 'created_at', 'updated_at']);
+            }
+            $this->requestEmailRepository->bulkInsert($emailsInsert);
+        }
 
         $requestDriver = $this->entityRepository->create($dto->toArray(['pickup_address_id', 'arrival_address_id',
             'request_id', 'office_id']));
