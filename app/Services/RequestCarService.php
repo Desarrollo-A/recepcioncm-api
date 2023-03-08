@@ -9,6 +9,7 @@ use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\ProposalRequestRepositoryInterface;
 use App\Contracts\Repositories\RequestCarRepositoryInterface;
 use App\Contracts\Repositories\RequestCarViewRepositoryInterface;
+use App\Contracts\Repositories\RequestEmailRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Contracts\Repositories\UserRepositoryInterface;
 use App\Contracts\Services\CalendarServiceInterface;
@@ -48,18 +49,22 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
     protected $carRequestScheduleRepository;
     protected $proposalRequestRepository;
     protected $userRepository;
+    protected $requestEmailRepository;
     protected $calendarService;
 
-    public function __construct(RequestCarRepositoryInterface $requestCarRepository,
-                                RequestRepositoryInterface $requestRepository,
-                                LookupRepositoryInterface $lookupRepository,
-                                RequestCarViewRepositoryInterface $requestCarViewRepository,
-                                CancelRequestRepositoryInterface $cancelRequestRepository,
-                                CarScheduleRepositoryInterface $carScheduleRepository,
-                                CarRequestScheduleRepositoryInterface $carRequestScheduleRepository,
-                                ProposalRequestRepositoryInterface $proposalRequestRepository,
-                                CalendarServiceInterface $calendarService,
-                                UserRepositoryInterface $userRepository)
+    public function __construct(
+        RequestCarRepositoryInterface $requestCarRepository,
+        RequestRepositoryInterface $requestRepository,
+        LookupRepositoryInterface $lookupRepository,
+        RequestCarViewRepositoryInterface $requestCarViewRepository,
+        CancelRequestRepositoryInterface $cancelRequestRepository,
+        CarScheduleRepositoryInterface $carScheduleRepository,
+        CarRequestScheduleRepositoryInterface $carRequestScheduleRepository,
+        ProposalRequestRepositoryInterface $proposalRequestRepository,
+        CalendarServiceInterface $calendarService,
+        UserRepositoryInterface $userRepository,
+        RequestEmailRepositoryInterface $requestEmailRepository
+    )
     {
         $this->entityRepository = $requestCarRepository;
         $this->requestRepository = $requestRepository;
@@ -71,6 +76,7 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         $this->proposalRequestRepository = $proposalRequestRepository;
         $this->calendarService = $calendarService;
         $this->userRepository = $userRepository;
+        $this->requestEmailRepository = $requestEmailRepository;
     }
 
     /**
@@ -90,6 +96,15 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         $request = $this->requestRepository->create($dto->request->toArray(['title', 'start_date', 'end_date', 'comment',
             'type_id', 'add_google_calendar', 'user_id', 'status_id', 'people']));
         $dto->request_id = $request->id;
+
+        if (count($dto->request->requestEmail) > 0) {
+            $emailsInsert = array();
+            foreach ($dto->request->requestEmail as $data) {
+                $data->request_id = $request->id;
+                $emailsInsert[] = $data->toArray(['request_id', 'name', 'email', 'created_at', 'updated_at']);
+            }
+            $this->requestEmailRepository->bulkInsert($emailsInsert);
+        }
 
         $requestCar = $this->entityRepository->create($dto->toArray(['request_id', 'office_id']));
 
