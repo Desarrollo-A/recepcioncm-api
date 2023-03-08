@@ -21,10 +21,17 @@ class CarDriverRepository extends BaseRepository implements CarDriverRepositoryI
         $this->entity = $entity;
     }
 
-    public function deleteByCarId($carId): bool
+    public function deleteByCarId(int $carId): bool
     {
         return $this->entity
             ->where('car_id', $carId)
+            ->delete();
+    }
+
+    public function deleteByDriverId(int $driverId): bool
+    {
+        return $this->entity
+            ->where('driver_id', $driverId)
             ->delete();
     }
 }

@@ -10,7 +10,9 @@ use App\Models\RequestCar;
 use App\Models\RequestDriver;
 use App\Models\RequestRoom;
 use App\Models\Room;
+use App\Models\User;
 use App\Observers\CarObserver;
+use App\Observers\DriverObserver;
 use App\Observers\InventoryObserver;
 use App\Observers\PackageObserver;
 use App\Observers\RequestCarObserver;
@@ -50,5 +52,6 @@ class EventServiceProvider extends ServiceProvider
         RequestDriver::observe(RequestDriverObserver::class);
         RequestCar::observe(RequestCarObserver::class);
         Car::observe(CarObserver::class);
+        User::observe(DriverObserver::class);
     }
 }
