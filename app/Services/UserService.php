@@ -6,22 +6,38 @@ use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\OfficeRepositoryInterface;
 use App\Contracts\Repositories\RoleRepositoryInterface;
 use App\Contracts\Repositories\UserRepositoryInterface;
+use App\Contracts\Services\MenuServiceInterface;
 use App\Contracts\Services\UserServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
+use App\Helpers\Enum\Path;
 use App\Helpers\Enum\QueryParam;
+use App\Helpers\File;
+use App\Helpers\Utils;
 use App\Helpers\Validation;
 use App\Mail\User\NewDriverMail;
+use App\Models\Dto\BulkLoadFileDTO;
+use App\Models\Dto\OfficeDTO;
+use App\Models\Dto\RoleDTO;
 use App\Models\Dto\UserDTO;
 use App\Models\Enums\Lookups\StatusUserLookup;
 use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
 use App\Models\User;
+use Box\Spout\Common\Exception\InvalidArgumentException;
+use Box\Spout\Common\Exception\IOException;
+use Box\Spout\Common\Exception\UnsupportedTypeException;
+use Box\Spout\Reader\Exception\ReaderNotOpenedException;
+use Box\Spout\Writer\Exception\WriterNotOpenedException;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Rap2hpoutre\FastExcel\FastExcel;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class UserService extends BaseService implements UserServiceInterface
 {
@@ -30,15 +46,21 @@ class UserService extends BaseService implements UserServiceInterface
     protected $lookupRepository;
     protected $officeRepository;
 
-    public function __construct(UserRepositoryInterface $userRepository,
-                                RoleRepositoryInterface $roleRepository,
-                                LookupRepositoryInterface $lookupRepository,
-                                OfficeRepositoryInterface $officeRepository)
+    protected $menuService;
+
+    public function __construct(
+        UserRepositoryInterface $userRepository,
+        RoleRepositoryInterface $roleRepository,
+        LookupRepositoryInterface $lookupRepository,
+        OfficeRepositoryInterface $officeRepository,
+        MenuServiceInterface $menuService
+    )
     {
         $this->entityRepository = $userRepository;
         $this->roleRepository = $roleRepository;
         $this->lookupRepository = $lookupRepository;
         $this->officeRepository = $officeRepository;
+        $this->menuService = $menuService;
     }
 
     /**
@@ -126,5 +148,117 @@ class UserService extends BaseService implements UserServiceInterface
     {
         return $this->entityRepository->update($id, $dto->toArray(['no_employee', 'full_name', 'email',
             'personal_phone', 'office_phone', 'position', 'area', 'office_id', 'status_id']));
+    }
+
+    /**
+     * @return StreamedResponse | bool
+     * @throws CustomErrorException
+     * @throws ReaderNotOpenedException
+     * @throws IOException
+     * @throws InvalidArgumentException
+     * @throws UnsupportedTypeException
+     * @throws WriterNotOpenedException
+     */
+    public function bulkStoreDriver(BulkLoadFileDTO $dto)
+    {
+        $filename = File::uploadFile($dto->file, Path::TMP);
+        $data = (new FastExcel())->import(File::getExposedPath($filename, Path::TMP));
+        File::deleteFile($filename, Path::TMP);
+
+        if ($data->count() === 0) {
+            throw new CustomErrorException('No hay registros en el archivo', Response::HTTP_BAD_REQUEST);
+        }
+
+        $errors = [];
+        $usersDTO = [];
+        $userArray = array_map(function ($row) {
+            return [
+                'no_employee' => trim($row['num_colaborador']),
+                'full_name' => trim($row['nombre_completo']),
+                'email' => trim($row['correo']),
+                'personal_phone' => trim($row['tel_personal']),
+                'office_phone' => isset($row['tel_oficina']) ? trim($row['tel_oficina']) : $row['tel_oficina'],
+                'position' => trim($row['posicion']),
+                'area' => trim($row['area']),
+                'officeName' => trim($row['nombre_oficina'])
+            ];
+        }, $data->toArray());
+
+        foreach ($userArray as $i => $data) {
+            $validator = Validator::make($data, [
+                'no_employee' => ['required', 'max:50', 'unique:users,no_employee'],
+                'full_name' => ['required', 'max:150'],
+                'email' => ['required', 'email:dns', 'max:150', 'unique:users,email'],
+                'personal_phone' => ['required', 'min:10', 'max:10'],
+                'office_phone' => ['nullable', 'min:10', 'max:10'],
+                'position' => ['required', 'max:100'],
+                'area' => ['required', 'max:100'],
+                'officeName' => ['required', 'min:3', 'max:150']
+            ]);
+
+            if ($validator->fails()) {
+                $errors[$i + 2] = Utils::convertErrorMessageToStringArray($validator->errors()->toArray());
+                continue;
+            }
+
+            $office = new OfficeDTO(['name' => $data['officeName']]);
+            $role = new RoleDTO(['name' => NameRole::DRIVER]);
+
+            $usersDTO[] = new UserDTO([
+                'no_employee' => $data['no_employee'],
+                'full_name' => $data['full_name'],
+                'email' => $data['email'],
+                'personal_phone' => $data['personal_phone'],
+                'office_phone' => $data['office_phone'],
+                'position' => $data['position'],
+                'area' => $data['area'],
+                'role' => $role,
+                'office' => $office
+            ]);
+        }
+
+        if (count($errors) > 0) {
+            return File::generateExcel(Utils::convertErrorMessageToCollectionExcel($errors), 'errores-archivo');
+        }
+
+        $offices = $this->officeRepository->findAllActive();
+        foreach ($usersDTO as $i => $userDTO) {
+            $exist = $offices
+                ->where('name', '=', $userDTO->office->name)
+                ->first();
+
+            if (is_null($exist)) {
+                $errors[$i + 2] = ['No existe la oficina'];
+            }
+        }
+
+        if (count($errors) > 0) {
+            return File::generateExcel(Utils::convertErrorMessageToCollectionExcel($errors), 'errores-archivo');
+        }
+
+        $statusId = $this->lookupRepository
+            ->findByCodeAndType(StatusUserLookup::code(StatusUserLookup::ACTIVE),TypeLookup::STATUS_USER)
+            ->id;
+        $roleId = $this->roleRepository
+            ->findByName(NameRole::DRIVER)
+            ->id;
+
+        foreach ($usersDTO as $userDTO) {
+            $password = Str::random();
+            $userDTO->password = bcrypt($password);
+            $userDTO->status_id = $statusId;
+            $userDTO->role_id = $roleId;
+
+            $user = $this->entityRepository->create($userDTO->toArray([
+                'no_employee', 'full_name', 'email', 'password', 'personal_phone',
+                'office_phone', 'position', 'area', 'status_id', 'role_id', 'office_id'
+            ]));
+
+            $this->menuService->createDefaultMenu($user->id, NameRole::DRIVER);
+
+            Mail::to($user)->send(new NewDriverMail($user, $password));
+        }
+
+        return true;
     }
 }

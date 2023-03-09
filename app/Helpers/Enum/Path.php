@@ -9,6 +9,7 @@ class Path
     const IMAGES = 'images/';
     const INVENTORY_IMAGES = 'inventory/';
     const DOCUMENTS = 'documents/';
+    const TMP = 'tmp/';
     const PACKAGE_AUTHORIZATION_DOCUMENTS = self::DOCUMENTS.'packages/';
     const DRIVER_AUTHORIZATION_DOCUMENTS = self::DOCUMENTS.'driver-request/';
     const CAR_AUTHORIZATION_DOCUMENTS = self::DOCUMENTS.'car-request/';

@@ -167,5 +167,14 @@ return [
         'title'                 => 'título',
         'username'              => 'usuario',
         'year'                  => 'año',
+
+        // Atributos personalizados
+        'no_employee'           => '# de colaborador',
+        'full_name'             => 'Nombre completo',
+        'personal_phone'        => 'Teléfono personal',
+        'office_phone'          => 'Teléfono de oficina',
+        'position'              => 'Posición',
+        'area'                  => 'Área',
+        'officeName'            => 'Nombre de oficina'
     ],
 ];

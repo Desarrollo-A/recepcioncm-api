@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
 use Rap2hpoutre\FastExcel\FastExcel;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class File
 {
@@ -71,7 +72,7 @@ class File
      * @throws InvalidArgumentException
      * @throws IOException
      */
-    public static function generateExcel($data, string $filename = 'download')
+    public static function generateExcel($data, string $filename = 'download'): StreamedResponse
     {
         $headerStyle = (new StyleBuilder())
             ->setFontSize(14)
