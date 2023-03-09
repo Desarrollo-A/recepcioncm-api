@@ -7,6 +7,7 @@ use App\Contracts\Services\MenuServiceInterface;
 use App\Contracts\Services\UserServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
+use App\Http\Requests\User\BulkStoreDriverRequest;
 use App\Http\Requests\User\ChangeStatusUserRequest;
 use App\Http\Requests\User\StoreDriverRequest;
 use App\Http\Requests\User\StoreUserRequest;
@@ -18,6 +19,7 @@ use App\Models\Enums\TypeLookup;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class UserController extends BaseApiController
 {
@@ -25,9 +27,11 @@ class UserController extends BaseApiController
     private $menuService;
     private $lookupService;
 
-    public function __construct(UserServiceInterface $userService,
-                                MenuServiceInterface $menuService,
-                                LookupServiceInterface $lookupService)
+    public function __construct(
+        UserServiceInterface $userService,
+        MenuServiceInterface $menuService,
+        LookupServiceInterface $lookupService
+    )
     {
         $this->middleware('role.permission:'.NameRole::ADMIN)
             ->only('index', 'show', 'changeStatus', 'update');
@@ -99,5 +103,15 @@ class UserController extends BaseApiController
     {
         $user = $this->userService->update($id, $request->toDTO());
         return $this->showOne(new UserResource($user));
+    }
+
+    /**
+     * @throws CustomErrorException
+     * @return StreamedResponse | JsonResponse
+     */
+    public function bulkStoreDriver(BulkStoreDriverRequest $request)
+    {
+        $result = $this->userService->bulkStoreDriver($request->toDTO());
+        return ($result instanceof StreamedResponse) ? $result : $this->noContentResponse();
     }
 }

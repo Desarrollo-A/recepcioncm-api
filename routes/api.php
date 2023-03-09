@@ -538,6 +538,9 @@ Route::prefix('v1')->group(function () {
             ->group(function () {
                 Route::post('/driver', 'UserController@storeDriver')
                     ->name('driver');
+
+                Route::post('/bulk/driver', 'UserController@bulkStoreDriver')
+                    ->name('bulk.driver');
             });
     });
 });

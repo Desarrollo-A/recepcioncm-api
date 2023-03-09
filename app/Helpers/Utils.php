@@ -12,6 +12,7 @@ use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Notification;
 use App\Models\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 class Utils
 {
@@ -226,5 +227,34 @@ class Utils
     public static function createEventCalendarObject(string $title, Request $request): object
     {
         return (object)['title' => $title, 'request' => $request];
+    }
+
+    public static function convertErrorMessageToStringArray(array $errors): array
+    {
+        $convertErrorsArray = [];
+
+        foreach ($errors as $error) {
+            foreach ($error as $row) {
+                $convertErrorsArray[] = $row;
+            }
+        }
+
+        return $convertErrorsArray;
+    }
+
+    public static function convertErrorMessageToCollectionExcel(array $errors): Collection
+    {
+        $data = [];
+
+        foreach ($errors as $i => $error) {
+            foreach ($error as $row) {
+                $data[] = [
+                    'Línea' => $i,
+                    'Error' => $row
+                ];
+            }
+        }
+
+        return collect($data);
     }
 }

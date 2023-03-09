@@ -25,4 +25,6 @@ interface OfficeRepositoryInterface extends BaseRepositoryInterface
     public function getOfficeByStateWithDriverAndCarWithoutOffice(Office $office, int $noPeople): Collection;
 
     public function getOfficeByStateWithCarWithoutOffice(Office $office, int $noPeople): Collection;
+
+    public function findAllActive(): Collection;
 }

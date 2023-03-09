@@ -173,4 +173,11 @@ class OfficeRepository extends BaseRepository implements OfficeRepositoryInterfa
             ->with(['state', 'address'])
             ->findOrFail($id, $columns);
     }
+
+    public function findAllActive(): Collection
+    {
+        return $this->entity
+            ->where('status', true)
+            ->get();
+    }
 }
