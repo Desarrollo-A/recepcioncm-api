@@ -99,16 +99,16 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
                     ->select(['car_id'])
                     ->from('driver_request_schedules AS drs')
                     ->join('car_schedules AS cs', 'drs.car_schedule_id', '=', 'cs.id')
-                    ->whereRaw("('$startDateFormat' >= start_date AND '$startDateFormat' < end_date) OR ".
-                        "('$endDateFormat' > start_date AND '$endDateFormat' <= end_date)");
+                    ->whereRaw("(start_date >= '$startDateFormat' AND start_date < '$endDateFormat') OR ".
+                        "(end_date > '$startDateFormat' AND end_date <= '$endDateFormat')");
             })
             ->whereNotIn('cars.id', function (QueryBuilder $query) use ($startDateFormat, $endDateFormat) {
                 return $query
                     ->select(['car_id'])
                     ->from('car_request_schedules AS crs')
                     ->join('car_schedules AS cs', 'crs.car_schedule_id', '=', 'cs.id')
-                    ->whereRaw("('$startDateFormat' >= start_date AND '$startDateFormat' < end_date) OR ".
-                        "('$endDateFormat' > start_date AND '$endDateFormat' <= end_date)");
+                    ->whereRaw("(start_date >= '$startDateFormat' AND start_date < '$endDateFormat') OR ".
+                        "(end_date > '$startDateFormat' AND end_date <= '$endDateFormat')");
             })
             ->get(['cars.*']);
     }
@@ -141,16 +141,16 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
                     ->select(['car_id'])
                     ->from('driver_request_schedules AS drs')
                     ->join('car_schedules AS cs', 'drs.car_schedule_id', '=', 'cs.id')
-                    ->whereRaw("('$startDateFormat' >= start_date AND '$startDateFormat' < end_date) OR ".
-                        "('$endDateFormat' > start_date AND '$endDateFormat' <= end_date)");
+                    ->whereRaw("(start_date >= '$startDateFormat' AND start_date < '$endDateFormat') OR ".
+                        "(end_date > '$startDateFormat' AND end_date <= '$endDateFormat')");
             })
             ->whereNotIn('cars.id', function (QueryBuilder $query) use ($startDateFormat, $endDateFormat) {
                 return $query
                     ->select(['car_id'])
                     ->from('car_request_schedules AS crs')
                     ->join('car_schedules AS cs', 'crs.car_schedule_id', '=', 'cs.id')
-                    ->whereRaw("('$startDateFormat' >= start_date AND '$startDateFormat' < end_date) OR ".
-                        "('$endDateFormat' > start_date AND '$endDateFormat' <= end_date)");
+                    ->whereRaw("(start_date >= '$startDateFormat' AND start_date < '$endDateFormat') OR ".
+                        "(end_date > '$startDateFormat' AND end_date <= '$endDateFormat')");
             })
             ->get(['cars.*']);
     }
