@@ -30,6 +30,7 @@ use Box\Spout\Common\Exception\UnsupportedTypeException;
 use Box\Spout\Reader\Exception\ReaderNotOpenedException;
 use Box\Spout\Writer\Exception\WriterNotOpenedException;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Mail;
@@ -260,5 +261,27 @@ class UserService extends BaseService implements UserServiceInterface
         }
 
         return true;
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function downUser(string $noEmployee): void
+    {
+        try {
+            $user = $this->entityRepository->findByNoEmployee($noEmployee);
+            $status = $this->lookupRepository->findByCodeAndType(
+                StatusUserLookup::code(StatusUserLookup::INACTIVE), TypeLookup::STATUS_USER
+            );
+            $dto = new UserDTO(['status_id' => $status->id]);
+
+            $this->entityRepository->update($user->id, $dto->toArray(['status_id']));
+
+            $user->tokens->each(function ($token) {
+                $token->delete();
+            });
+        } catch (ModelNotFoundException $ex) {
+            //
+        }
     }
 }

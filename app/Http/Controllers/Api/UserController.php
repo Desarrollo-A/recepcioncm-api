@@ -114,4 +114,10 @@ class UserController extends BaseApiController
         $result = $this->userService->bulkStoreDriver($request->toDTO());
         return ($result instanceof StreamedResponse) ? $result : $this->noContentResponse();
     }
+
+    public function downUser(string $noEmployee): JsonResponse
+    {
+        $this->userService->downUser($noEmployee);
+        return $this->successResponse(['code' => Response::HTTP_OK], Response::HTTP_OK);
+    }
 }
