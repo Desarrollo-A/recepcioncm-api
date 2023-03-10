@@ -300,7 +300,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
             'event_google_calendar_id' => null
         ]);
 
-        if (config('app.enable_google_calendar', false)) {
+        if (config('app.enable_google_calendar', false) && !is_null($request->event_google_calendar_id)) {
             $this->calendarService->deleteEvent($request->event_google_calendar_id);
         }
 
