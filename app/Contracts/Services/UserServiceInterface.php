@@ -34,4 +34,6 @@ interface UserServiceInterface extends BaseServiceInterface
      * @return StreamedResponse | bool
      */
     public function bulkStoreDriver(BulkLoadFileDTO $dto);
+
+    public function downUser(string $noEmployee): void;
 }

@@ -534,13 +534,16 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware('custom.token:app.token_ch')->group(function () {
         Route::prefix('users')
-            ->name('users.')
+            ->name('users.ch.')
             ->group(function () {
                 Route::post('/driver', 'UserController@storeDriver')
                     ->name('driver');
 
                 Route::post('/bulk/driver', 'UserController@bulkStoreDriver')
                     ->name('bulk.driver');
+
+                Route::put('/down/{noEmployee}', 'UserController@downUser')
+                    ->name('down');
             });
     });
 });
