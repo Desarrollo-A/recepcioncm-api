@@ -263,7 +263,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
 
         $requestDTO = new RequestDTO(['status_id' => $cancelStatusId]);
 
-        if (config('app.enable_google_calendar', false)) {
+        if (config('app.enable_google_calendar', false) && !is_null($request->event_google_calendar_id)) {
             $this->calendarService->deleteEvent($request->event_google_calendar_id);
         }
 
