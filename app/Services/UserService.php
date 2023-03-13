@@ -23,6 +23,7 @@ use App\Models\Dto\UserDTO;
 use App\Models\Enums\Lookups\StatusUserLookup;
 use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
+use App\Models\Office;
 use App\Models\User;
 use Box\Spout\Common\Exception\InvalidArgumentException;
 use Box\Spout\Common\Exception\IOException;
@@ -280,6 +281,62 @@ class UserService extends BaseService implements UserServiceInterface
             $user->tokens->each(function ($token) {
                 $token->delete();
             });
+        } catch (ModelNotFoundException $ex) {
+            //
+        }
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function updateUser(string $noEmployee, UserDTO $dto): void
+    {
+        try {
+            $user = $this->entityRepository->findByNoEmployee($noEmployee);
+
+            $columns = [];
+
+            if (!is_null($dto->no_employee)) {
+                $columns[] = 'no_employee';
+            }
+            if (!is_null($dto->full_name)) {
+                $columns[] = 'full_name';
+            }
+            if (!is_null($dto->email)) {
+                $columns[] = 'email';
+            }
+            if (!is_null($dto->personal_phone)) {
+                $columns[] = 'personal_phone';
+            }
+            if (!is_null($dto->office_phone)) {
+                $columns[] = 'office_phone';
+            }
+            if (!is_null($dto->position)) {
+                $columns[] = 'position';
+            }
+            if (!is_null($dto->area)) {
+                $columns[] = 'area';
+            }
+            if (!is_null($dto->office->name)) {
+                $dto->office_id = $this->officeRepository->findByName($dto->office->name)->id;
+                $columns[] = 'office_id';
+            }
+
+            if (count($columns) === 0) {
+                return;
+            }
+
+            $userUpdated = $this->entityRepository->update($user->id, $dto->toArray($columns));
+
+            if (
+                $user->no_employee !== $userUpdated->no_employee ||
+                $user->email !== $userUpdated->email ||
+                $user->office_id !== $userUpdated->office_id
+            ) {
+                $userUpdated->tokens->each(function ($token) {
+                    $token->delete();
+                });
+            }
         } catch (ModelNotFoundException $ex) {
             //
         }
