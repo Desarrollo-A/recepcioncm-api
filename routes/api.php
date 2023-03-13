@@ -544,6 +544,9 @@ Route::prefix('v1')->group(function () {
 
                 Route::put('/down/{noEmployee}', 'UserController@downUser')
                     ->name('down');
+
+                Route::put('/ch/{noEmployee}', 'UserController@updateCh')
+                    ->name('ch');
             });
     });
 });
