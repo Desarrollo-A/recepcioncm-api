@@ -577,6 +577,8 @@ class RequestPackageService extends BaseService implements RequestPackageService
             $dto->start_date = $proposalData->start_date;
 
             if ($package->proposalPackage->is_driver_selected) {
+                $dto->end_date = "{$proposalData->start_date->toDateString()} $this->END_TIME_WORKING";
+
                 if (config('app.enable_google_calendar', false)) {
                     if($package->request->add_google_calendar) {
                         $emails[] = $package->request->user->email;
@@ -590,9 +592,9 @@ class RequestPackageService extends BaseService implements RequestPackageService
                     ]);
                     $this->requestRepository->update($package->request_id, $dto->toArray(['event_google_calendar_id']));
                 }
+            } else {
+                $dto->end_date = $proposalData->end_date;
             }
-
-            $dto->end_date = $proposalData->end_date;
 
             $columnsRequestUpdate = ['status_id', 'start_date', 'end_date'];
         } else {
