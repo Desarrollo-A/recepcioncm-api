@@ -36,4 +36,6 @@ interface UserServiceInterface extends BaseServiceInterface
     public function bulkStoreDriver(BulkLoadFileDTO $dto);
 
     public function downUser(string $noEmployee): void;
+
+    public function updateUser(string $noEmployee, UserDTO $dto): void;
 }

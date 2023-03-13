@@ -11,6 +11,7 @@ use App\Http\Requests\User\BulkStoreDriverRequest;
 use App\Http\Requests\User\ChangeStatusUserRequest;
 use App\Http\Requests\User\StoreDriverRequest;
 use App\Http\Requests\User\StoreUserRequest;
+use App\Http\Requests\User\UpdateUserChRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Resources\User\UserCollection;
 use App\Http\Resources\User\UserResource;
@@ -118,6 +119,15 @@ class UserController extends BaseApiController
     public function downUser(string $noEmployee): JsonResponse
     {
         $this->userService->downUser($noEmployee);
+        return $this->successResponse(['code' => Response::HTTP_OK], Response::HTTP_OK);
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function updateCh(string $noEmployee, UpdateUserChRequest $request): JsonResponse
+    {
+        $this->userService->updateUser($noEmployee, $request->toDTO());
         return $this->successResponse(['code' => Response::HTTP_OK], Response::HTTP_OK);
     }
 }
