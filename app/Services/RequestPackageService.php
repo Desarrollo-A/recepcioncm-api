@@ -552,8 +552,10 @@ class RequestPackageService extends BaseService implements RequestPackageService
             throw new CustomErrorException('No existe el estatus', HttpCodes::HTTP_NOT_FOUND);
         }
 
-        $proposalStatusId = $this->lookupRepository->findByCodeAndType(StatusPackageRequestLookup::code(
-            StatusPackageRequestLookup::PROPOSAL), TypeLookup::STATUS_PACKAGE_REQUEST)->id;
+        $proposalStatusId = $this->lookupRepository->findByCodeAndType(
+            StatusPackageRequestLookup::code(StatusPackageRequestLookup::PROPOSAL),
+            TypeLookup::STATUS_PACKAGE_REQUEST)
+            ->id;
 
         $package = $this->packageRepository->findByRequestId($requestId);
 
@@ -575,8 +577,6 @@ class RequestPackageService extends BaseService implements RequestPackageService
             $dto->start_date = $proposalData->start_date;
 
             if ($package->proposalPackage->is_driver_selected) {
-                $this->proposalPackageRepository->deleteByPackageId($package->id);
-
                 if (config('app.enable_google_calendar', false)) {
                     if($package->request->add_google_calendar) {
                         $emails[] = $package->request->user->email;
@@ -596,11 +596,10 @@ class RequestPackageService extends BaseService implements RequestPackageService
 
             $columnsRequestUpdate = ['status_id', 'start_date', 'end_date'];
         } else {
-            $this->proposalPackageRepository->deleteByPackageId($package->id);
-
             $columnsRequestUpdate = ['status_id'];
         }
 
+        $this->proposalPackageRepository->deleteByPackageId($package->id);
         $this->proposalRequestRepository->deleteByRequestId($requestId);
 
         return $this->requestRepository->update($requestId, $dto->toArray($columnsRequestUpdate))->fresh(['status']);
