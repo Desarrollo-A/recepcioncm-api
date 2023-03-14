@@ -18,9 +18,6 @@ class RequestCarResource extends JsonResource
             'authorizationFilename' => is_null($this->authorization_filename)
                 ? null
                 : File::getExposedPath($this->authorization_filename, Path::CAR_AUTHORIZATION_DOCUMENTS),
-            'responsiveFilename' => is_null($this->responsive_filename)
-                ? null
-                : File::getExposedPath($this->responsive_filename, Path::CAR_RESPONSIVE_FILE),
             'requestId' => $this->request_id,
             'officeId' => $this->office_id,
             'initialKm' => $this->initial_km,

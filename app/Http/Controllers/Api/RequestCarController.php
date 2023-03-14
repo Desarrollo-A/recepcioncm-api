@@ -15,7 +15,6 @@ use App\Http\Requests\RequestCar\ProposalCarRequest;
 use App\Http\Requests\RequestCar\StoreRequestCarRequest;
 use App\Http\Requests\RequestCar\TransferCarRequest;
 use App\Http\Requests\RequestCar\UploadFileRequestCarRequest;
-use App\Http\Requests\RequestCar\UploadResponsiveFileCarRequest;
 use App\Http\Requests\RequestCar\UploadZipImagesCarRequest;
 use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\RequestCar\RequestCarResource;
@@ -40,7 +39,7 @@ class RequestCarController extends BaseApiController
             ->only('index', 'store', 'uploadAuthorizationFile', 'show', 'cancelRequest', 'getStatusByStatusCurrent');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
             ->only('transferRequest', 'approvedRequest', 'getBusyDaysForProposalCalendar', 'proposalRequest',
-                'uploadZipImages', 'uploadResponsiveFile', 'addExtraCarInformation');
+                'uploadZipImages', 'addExtraCarInformation');
 
         $this->requestCarService = $requestCarService;
         $this->notificationService = $notificationService;
@@ -163,16 +162,6 @@ class RequestCarController extends BaseApiController
     {
         $dto = $request->toDTO();
         $this->requestCarService->uploadZipImages($id, $dto);
-        return $this->noContentResponse();
-    }
-
-    /**
-     * @throws CustomErrorException
-     */
-    public function uploadResponsiveFile(int $id, UploadResponsiveFileCarRequest $request): JsonResponse
-    {
-        $dto = $request->toDTO();
-        $this->requestCarService->uploadResponsiveFile($id, $dto);
         return $this->noContentResponse();
     }
 

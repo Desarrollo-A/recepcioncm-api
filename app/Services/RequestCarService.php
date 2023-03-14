@@ -419,15 +419,6 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
     /**
      * @throws CustomErrorException
      */
-    public function uploadResponsiveFile(int $id, RequestCarDTO $dto): void
-    {
-        $dto->responsive_filename = File::uploadFile($dto->responsive_file, Path::CAR_RESPONSIVE_FILE);
-        $this->entityRepository->update($id, $dto->toArray(['responsive_filename']));
-    }
-
-    /**
-     * @throws CustomErrorException
-     */
     public function addExtraCarInformation(int $id, RequestCarDTO $dto): void
     {
         $fields = array();
