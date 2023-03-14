@@ -31,11 +31,6 @@ class RequestCarDTO
     public $responsive_file;
 
     /**
-     * @var string
-     */
-    public $responsive_filename;
-
-    /**
      * @var int
      */
     public $office_id;

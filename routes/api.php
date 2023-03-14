@@ -461,10 +461,6 @@ Route::prefix('v1')->group(function () {
                     ->name('upload-zip')
                     ->where('id', Validation::INTEGER_ID);
 
-                Route::put('/responsive-file/{id}', 'RequestCarController@uploadResponsiveFile')
-                    ->name('responsive-file')
-                    ->where('id', Validation::INTEGER_ID);
-
                 Route::patch('/transfer/{requestCarId}', 'RequestCarController@transferRequest')
                     ->name('transfer')
                     ->where('requestCarId', Validation::INTEGER_ID);

@@ -17,8 +17,6 @@ class CreateRequestCarsTable extends Migration
             $table->bigIncrements('id');
             $table->string('authorization_filename', 50)
                 ->nullable();
-            $table->string('responsive_filename', 50)
-                ->nullable();
             $table->unsignedBigInteger('request_id');
             $table->foreign('request_id')
                 ->references('id')
@@ -36,6 +34,8 @@ class CreateRequestCarsTable extends Migration
                 ->nullable();
             $table->string('image_zip', 50)
                 ->nullable();
+            $table->boolean('terms_conditions')
+                ->default(true);
             $table->timestamps();
         });
     }
