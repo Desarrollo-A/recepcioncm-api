@@ -37,7 +37,7 @@ class ProposalPackageRequest extends FormRequest implements ReturnDtoInterface
             ]);
         } else {
             $validations = array_merge($validations, [
-                'endDate' => ['required', 'date', 'date_format:Y-m-d']
+                'endDate' => ['required', 'date', 'date_format:Y-m-d', 'after_or_equal:startDate']
             ]);
         }
 
