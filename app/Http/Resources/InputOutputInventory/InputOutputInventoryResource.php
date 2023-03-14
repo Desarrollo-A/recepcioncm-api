@@ -14,7 +14,7 @@ class InputOutputInventoryResource extends Resource
             'quantity' => $this->sum_quantity,
             'cost' => $this->sum_cost,
             'type' => $this->type,
-            'moveDate' => $this->move_date->toDateString()
+            'moveDate' => $this->move_date->toDateTimeString()
         ];
     }
 }
