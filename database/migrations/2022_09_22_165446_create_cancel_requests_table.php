@@ -17,7 +17,8 @@ class CreateCancelRequestsTable extends Migration
             $table->unsignedBigInteger('request_id');
             $table->foreign('request_id')
                 ->references('id')
-                ->on('requests');
+                ->on('requests')
+                ->onDelete('cascade');
             $table->text('cancel_comment');
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')

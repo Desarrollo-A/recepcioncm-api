@@ -17,11 +17,13 @@ class CreateCarRequestSchedulesTable extends Migration
             $table->unsignedBigInteger('request_car_id');
             $table->foreign('request_car_id')
                 ->references('id')
-                ->on('request_cars');
+                ->on('request_cars')
+                ->onDelete('cascade');
             $table->unsignedBigInteger('car_schedule_id');
             $table->foreign('car_schedule_id')
                 ->references('id')
-                ->on('car_schedules');
+                ->on('car_schedules')
+                ->onDelete('cascade');
             $table->timestamps();
         });
     }
