@@ -18,16 +18,6 @@ class RequestCarDTO
     /**
      * @var UploadedFile
      */
-    public $authorization_file;
-
-    /**
-     * @var string
-     */
-    public $authorization_filename;
-
-    /**
-     * @var UploadedFile
-     */
     public $responsive_file;
 
     /**

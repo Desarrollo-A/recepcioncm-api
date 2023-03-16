@@ -14,7 +14,6 @@ use App\Http\Requests\RequestCar\ApprovedCarRequest;
 use App\Http\Requests\RequestCar\ProposalCarRequest;
 use App\Http\Requests\RequestCar\StoreRequestCarRequest;
 use App\Http\Requests\RequestCar\TransferCarRequest;
-use App\Http\Requests\RequestCar\UploadFileRequestCarRequest;
 use App\Http\Requests\RequestCar\UploadZipImagesCarRequest;
 use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\RequestCar\RequestCarResource;
@@ -34,9 +33,9 @@ class RequestCarController extends BaseApiController
                                 RequestEmailServiceInterface $requestEmailService)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
-            ->only('store', 'uploadAuthorizationFile', 'deleteRequestCar', 'responseRejectRequest');
+            ->only('store', 'deleteRequestCar', 'responseRejectRequest');
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
-            ->only('index', 'store', 'uploadAuthorizationFile', 'show', 'cancelRequest', 'getStatusByStatusCurrent');
+            ->only('index', 'store', 'show', 'cancelRequest', 'getStatusByStatusCurrent');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
             ->only('transferRequest', 'approvedRequest', 'getBusyDaysForProposalCalendar', 'proposalRequest',
                 'uploadZipImages', 'addExtraCarInformation');
@@ -61,16 +60,6 @@ class RequestCarController extends BaseApiController
         $dto = $request->toDTO();
         $requestCar = $this->requestCarService->create($dto);
         return $this->showOne(new RequestCarResource($requestCar));
-    }
-
-    /**
-     * @throws CustomErrorException
-     */
-    public function uploadAuthorizationFile(int $requestId, UploadFileRequestCarRequest $request): JsonResponse
-    {
-        $dto = $request->toDTO();
-        $this->requestCarService->uploadAuthorizationFile($requestId, $dto);
-        return $this->noContentResponse();
     }
 
     public function deleteRequestCar(int $requestId): JsonResponse

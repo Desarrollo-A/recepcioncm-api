@@ -100,6 +100,11 @@ class Request extends Model
         return $this->hasOne(Score::class);
     }
 
+    public function perDiem(): HasOne
+    {
+        return $this->hasOne(PerDiem::class);
+    }
+
     public function scopeExpired(Builder $query): Builder
     {
         $query->where('lookups.code', StatusRoomRequestLookup::code(StatusRoomRequestLookup::NEW));
