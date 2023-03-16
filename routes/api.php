@@ -417,10 +417,6 @@ Route::prefix('v1')->group(function () {
                 Route::post('/approved', 'RequestDriverController@approvedRequest')
                     ->name('approved');
 
-                Route::put('/upload-file/{requestId}', 'RequestDriverController@uploadAuthorizationFile')
-                    ->name('upload-file')
-                    ->where('requestId', Validation::INTEGER_ID);
-
                 Route::patch('/cancel/{requestId}', 'RequestDriverController@cancelRequest')
                     ->name('cancel-request-package')
                     ->where('requestId', Validation::INTEGER_ID);

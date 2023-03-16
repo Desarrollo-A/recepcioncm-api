@@ -36,16 +36,6 @@ class RequestDriverDTO
     public $arrivalAddress;
 
     /**
-     * @var UploadedFile
-     */
-    public $authorization_file;
-
-    /**
-     * @var string
-     */
-    public $authorization_filename;
-
-    /**
      * @var int
      */
     public $office_id;

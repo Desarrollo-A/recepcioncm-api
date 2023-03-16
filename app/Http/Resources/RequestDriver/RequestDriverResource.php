@@ -15,9 +15,6 @@ class RequestDriverResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'authorizationFilename' => is_null($this->authorization_filename)
-                ? null
-                : File::getExposedPath($this->authorization_filename, Path::DRIVER_AUTHORIZATION_DOCUMENTS),
             'pickupAddressId' => $this->pickup_address_id,
             'arrivalAddressId' => $this->arrival_address_id,
             'requestId' => $this->request_id,

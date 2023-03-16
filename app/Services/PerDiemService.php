@@ -41,7 +41,7 @@ class PerDiemService extends BaseService implements PerDiemServiceInterface
      */
     public function uploadBillZip(int $requestId, PerDiemDTO $dto): void
     {
-        $dto->bill_filename = File::uploadFile($dto->bill_file, Path::REQUEST_CAR_BILL_ZIP);
+        $dto->bill_filename = File::uploadFile($dto->bill_file, Path::REQUEST_BILL_ZIP);
         $this->entityRepository->update($requestId, $dto->toArray(['bill_filename']));
     }
 }

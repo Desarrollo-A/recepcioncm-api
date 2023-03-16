@@ -23,8 +23,6 @@ class CreateRequestDriversTable extends Migration
             $table->foreign('arrival_address_id')
                 ->references('id')
                 ->on('addresses');
-            $table->string('authorization_filename', 50)
-                ->nullable();
             $table->unsignedBigInteger('request_id');
             $table->foreign('request_id')
                 ->references('id')

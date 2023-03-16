@@ -32,7 +32,7 @@ class RequestDriverController extends BaseApiController
                                 RequestEmailServiceInterface $requestEmailService)
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
-            ->only('store', 'uploadAuthorizationFile', 'responseRejectRequest');
+            ->only('store', 'responseRejectRequest');
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
             ->only('index', 'getStatusByStatusCurrent', 'cancelRequest');
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST.','.NameRole::DRIVER)
@@ -55,16 +55,6 @@ class RequestDriverController extends BaseApiController
         $dto = $request->toDTO();
         $requestDriver = $this->requestDriverService->create($dto);
         return $this->showOne(new RequestDriverResource($requestDriver));
-    }
-
-    /**
-     * @throws CustomErrorException
-     */
-    public function uploadAuthorizationFile(int $requestId, UploadFileDriverRequest $request): JsonResponse
-    {
-        $dto = $request->toDTO();
-        $this->requestDriverService->uploadAuthorizationFile($requestId, $dto);
-        return $this->noContentResponse();
     }
 
     public function index(Request $request): JsonResponse

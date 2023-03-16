@@ -17,7 +17,7 @@ class PerDiemResource extends JsonResource
             'food' => $this->food,
             'billFilename' => is_null($this->bill_filename)
                 ? null
-                : File::getExposedPath($this->bill_filename, Path::REQUEST_CAR_BILL_ZIP),
+                : File::getExposedPath($this->bill_filename, Path::REQUEST_BILL_ZIP),
             'spent' => $this->spent
         ];
     }
