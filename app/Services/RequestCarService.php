@@ -114,15 +114,6 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
     /**
      * @throws CustomErrorException
      */
-    public function uploadAuthorizationFile(int $id, RequestCarDTO $dto): void
-    {
-        $dto->authorization_filename = File::uploadFile($dto->authorization_file, Path::CAR_AUTHORIZATION_DOCUMENTS);
-        $this->entityRepository->update($id, $dto->toArray(['authorization_filename']));
-    }
-
-    /**
-     * @throws CustomErrorException
-     */
     public function findAllCarsPaginated(HttpRequest $request, User $user, array $columns = ['*']): LengthAwarePaginator
     {
         $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
@@ -131,16 +122,15 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         return $this->requestCarViewRepository->findAllRequestsCarPaginated($filters, $perPage, $user, $sort);
     }
 
+    /**
+     * @throws AuthorizationException
+     */
     public function deleteRequestCar(int $requestId, User $user): RequestCar
     {
         $requestCar = $this->entityRepository->findByRequestId($requestId);
 
         if($requestCar->request->user_id !== $user->id){
             throw new AuthorizationException();
-        }
-
-        if(!is_null($requestCar->authorization_filename)){
-            File::deleteFile($requestCar->authorization_filename, Path::CAR_AUTHORIZATION_DOCUMENTS);
         }
 
         $this->requestRepository->delete($requestId);

@@ -18,9 +18,7 @@ use App\Contracts\Services\CalendarServiceInterface;
 use App\Contracts\Services\RequestDriverServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
-use App\Helpers\Enum\Path;
 use App\Helpers\Enum\QueryParam;
-use App\Helpers\File;
 use App\Helpers\Validation;
 use App\Mail\RequestDriver\ApprovedRequestDriverInformationMail;
 use App\Mail\RequestDriver\CancelledRequestDriverInformationMail;
@@ -132,15 +130,6 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
         $requestDriver = $this->entityRepository->create($dto->toArray(['pickup_address_id', 'arrival_address_id',
             'request_id', 'office_id']));
         return $requestDriver->fresh(['request', 'pickupAddress', 'arrivalAddress']);
-    }
-
-    /**
-     * @throws CustomErrorException
-     */
-    public function uploadAuthorizationFile(int $id, RequestDriverDTO $dto): void
-    {
-        $dto->authorization_filename = File::uploadFile($dto->authorization_file, Path::DRIVER_AUTHORIZATION_DOCUMENTS);
-        $this->entityRepository->update($id, $dto->toArray(['authorization_filename']));
     }
 
     /**

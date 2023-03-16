@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class RequestDriver extends Model
 {
-    protected $fillable = ['pickup_address_id', 'arrival_address_id', 'authorization_filename', 'office_id', 'request_id'];
+    protected $fillable = ['pickup_address_id', 'arrival_address_id', 'office_id', 'request_id'];
 
     protected $casts = [
         'id' => 'integer',

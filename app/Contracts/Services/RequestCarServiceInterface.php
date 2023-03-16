@@ -18,8 +18,6 @@ interface RequestCarServiceInterface extends BaseServiceInterface
 {
     public function create(RequestCarDTO $dto): RequestCar;
 
-    public function uploadAuthorizationFile(int $id, RequestCarDTO $dto): void;
-
     /**
      * @param User|Authenticatable $user
      */

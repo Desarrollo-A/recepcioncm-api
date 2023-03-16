@@ -417,10 +417,6 @@ Route::prefix('v1')->group(function () {
                 Route::post('/approved', 'RequestDriverController@approvedRequest')
                     ->name('approved');
 
-                Route::put('/upload-file/{requestId}', 'RequestDriverController@uploadAuthorizationFile')
-                    ->name('upload-file')
-                    ->where('requestId', Validation::INTEGER_ID);
-
                 Route::patch('/cancel/{requestId}', 'RequestDriverController@cancelRequest')
                     ->name('cancel-request-package')
                     ->where('requestId', Validation::INTEGER_ID);
@@ -453,10 +449,6 @@ Route::prefix('v1')->group(function () {
                 Route::post('/approved', 'RequestCarController@approvedRequest')
                     ->name('approved');
 
-                Route::put('/upload-file/{requestId}', 'RequestCarController@uploadAuthorizationFile')
-                    ->name('upload-file')
-                    ->where('requestId', Validation::INTEGER_ID);
-
                 Route::put('/upload-zip/{id}', 'RequestCarController@uploadZipImages')
                     ->name('upload-zip')
                     ->where('id', Validation::INTEGER_ID);
@@ -485,6 +477,17 @@ Route::prefix('v1')->group(function () {
                     ->where('requestId', validation::INTEGER_ID);
             });
 
+        Route::prefix('per-diems')
+            ->name('per-diems.')
+            ->group(function () {
+                Route::put('/spent/{requestId}', 'PerDiemController@updateSpent')
+                    ->name('spent')
+                    ->where('requestId', validation::INTEGER_ID);
+
+                Route::put('/upload-bill/{requestId}', 'PerDiemController@uploadBillZip')
+                    ->name('upload-bill');
+            });
+
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');
         Route::apiResource('rooms', 'RoomController')->only('store', 'index', 'update', 'destroy');
         Route::apiResource('request-rooms', 'RequestRoomController')->only('store', 'index');
@@ -501,6 +504,7 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('request-drivers', 'RequestDriverController')->only('index', 'store');
         Route::apiResource('request-cars', 'RequestCarController')->only('store', 'index');
         Route::apiResource('offices', 'OfficeController');
+        Route::apiResource('per-diems', 'PerDiemController')->only('store');
     });
 
     // Rutas para cron jobs

@@ -287,16 +287,15 @@ class RequestService extends BaseService implements RequestServiceInterface
         return $package;
     }
 
+    /**
+     * @throws AuthorizationException
+     */
     public function deleteRequestDriver(int $requestId, int $userId): RequestDriver
     {
         $requestDriver = $this->requestDriverRepository->findByRequestId($requestId);
         
         if ($requestDriver->request->user_id !== $userId){
             throw new AuthorizationException();
-        }
-
-        if(!is_null($requestDriver->authorization_filename)){
-            File::deleteFile($requestDriver->authorization_filename, Path::DRIVER_AUTHORIZATION_DOCUMENTS);
         }
 
         $this->entityRepository->delete($requestId);
