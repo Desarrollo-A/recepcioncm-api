@@ -49,10 +49,10 @@ class InputOutputInventoryView extends Model implements ScopeFilterInterface
         }
 
         if (isset($params['start_date'])) {
-            $query->where('move_date', '>=', $params['start_date']);
+            $query->whereDate('move_date', '>=', $params['start_date']);
         }
         if (isset($params['end_date'])) {
-            $query->where('move_date', '<=', $params['end_date']);
+            $query->whereDate('move_date', '<=', $params['end_date']);
         }
 
         return $query;

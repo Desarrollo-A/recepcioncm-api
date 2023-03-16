@@ -18,8 +18,6 @@ interface RequestDriverServiceInterface extends BaseServiceInterface
 {
     public function create(RequestDriverDTO $dto): RequestDriver;
 
-    public function uploadAuthorizationFile(int $id, RequestDriverDTO $dto): void;
-
     /**
      * @param User|Authenticatable $user
      */
@@ -31,6 +29,9 @@ interface RequestDriverServiceInterface extends BaseServiceInterface
 
     public function transferRequest(int $requestDriverId, RequestDriverDTO $dto): RequestDriver;
 
+    /**
+     * @param User|Authenticatable $user
+     */
     public function findByDriverRequestId(int $requestId, User $user): RequestDriver;
 
     public function approvedRequest(RequestDriverDTO $dto): Request;

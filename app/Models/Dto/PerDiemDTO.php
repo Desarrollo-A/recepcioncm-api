@@ -6,39 +6,9 @@ use App\Exceptions\CustomErrorException;
 use App\Models\Contracts\DataTransferObject;
 use Illuminate\Http\UploadedFile;
 
-class RequestDriverDTO
+class PerDiemDTO
 {
     use DataTransferObject;
-
-    /**
-     * @var int
-     */
-    public $id;
-
-    /**
-     * @var int
-     */
-    public $pickup_address_id;
-
-    /**
-     * @var AddressDTO
-     */
-    public $pickupAddress;
-
-    /**
-     * @var int
-     */
-    public $arrival_address_id;
-
-    /**
-     * @var AddressDTO
-     */
-    public $arrivalAddress;
-
-    /**
-     * @var int
-     */
-    public $office_id;
 
     /**
      * @var int
@@ -46,14 +16,34 @@ class RequestDriverDTO
     public $request_id;
 
     /**
-     * @var RequestDTO
+     * @var float
      */
-    public $request;
+    public $gasoline;
 
     /**
-     * @var DriverRequestScheduleDTO
+     * @var float
      */
-    public $driverRequestSchedule;
+    public $tollbooths;
+
+    /**
+     * @var float
+     */
+    public $food;
+
+    /**
+     * @var string
+     */
+    public $bill_filename;
+
+    /**
+     * @var UploadedFile
+     */
+    public $bill_file;
+
+    /**
+     * @var float
+     */
+    public $spent;
 
     /**
      * @throws CustomErrorException

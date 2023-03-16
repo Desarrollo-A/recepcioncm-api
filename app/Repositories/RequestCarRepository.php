@@ -34,6 +34,7 @@ class RequestCarRepository extends BaseRepository implements RequestCarRepositor
                 'request.cancelRequest',
                 'request.cancelRequest.user',
                 'request.score',
+                'request.perDiem',
                 'carRequestSchedule',
                 'carRequestSchedule.carSchedule',
                 'carRequestSchedule.carSchedule.car',

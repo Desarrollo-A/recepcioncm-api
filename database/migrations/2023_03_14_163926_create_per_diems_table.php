@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCancelRequestsTable extends Migration
+class CreatePerDiemsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,19 +13,20 @@ class CreateCancelRequestsTable extends Migration
      */
     public function up()
     {
-        Schema::create('cancel_requests', function (Blueprint $table) {
+        Schema::create('per_diems', function (Blueprint $table) {
             $table->unsignedBigInteger('request_id');
             $table->foreign('request_id')
                 ->references('id')
                 ->on('requests')
                 ->onDelete('cascade');
-            $table->text('cancel_comment');
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')
-                ->references('id')
-                ->on('users');
-            $table->timestamp('created_at')
-                ->useCurrent();
+            $table->float('gasoline');
+            $table->float('tollbooths');
+            $table->float('food');
+            $table->string('bill_filename', 50)
+                ->nullable();
+            $table->float('spent')
+                ->nullable();
+            $table->timestamps();
         });
     }
 
@@ -36,6 +37,6 @@ class CreateCancelRequestsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('cancel_requests');
+        Schema::dropIfExists('per_diems');
     }
 }

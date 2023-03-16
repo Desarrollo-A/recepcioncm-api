@@ -11,8 +11,7 @@ class Path
     const DOCUMENTS = 'documents/';
     const TMP = 'tmp/';
     const PACKAGE_AUTHORIZATION_DOCUMENTS = self::DOCUMENTS.'packages/';
-    const DRIVER_AUTHORIZATION_DOCUMENTS = self::DOCUMENTS.'driver-request/';
-    const CAR_AUTHORIZATION_DOCUMENTS = self::DOCUMENTS.'car-request/';
+    const REQUEST_BILL_ZIP = self::DOCUMENTS.'bill-zip/';
     const PACKAGE_SIGNATURES = self::IMAGES.'request-packages-signatures/';
     const REQUEST_CAR_IMAGES = self::IMAGES.'request-car-images/';
 }
