@@ -270,6 +270,9 @@ class RequestService extends BaseService implements RequestServiceInterface
         $this->proposalRequestRepository->deleteInRequestIds($proposalIds);
     }
 
+    /**
+     * @throws AuthorizationException
+     */
     public function deleteRequestPackage(int $requestId, int $userId): Package
     {
         $package = $this->packageRepository->findByRequestId($requestId);
@@ -283,7 +286,14 @@ class RequestService extends BaseService implements RequestServiceInterface
         }
 
         $this->entityRepository->delete($requestId);
-        $this->addressRepository->bulkDelete([$package->pickup_address_id, $package->arrival_address_id]);
+
+        if (!isset($package->pickupAddress->office)) {
+            $this->addressRepository->delete($package->pickup_address_id);;
+        }
+        if (!isset($package->arrivalAddress->office)) {
+            $this->addressRepository->delete($package->arrival_address_id);
+        }
+
         return $package;
     }
 
@@ -299,7 +309,14 @@ class RequestService extends BaseService implements RequestServiceInterface
         }
 
         $this->entityRepository->delete($requestId);
-        $this->addressRepository->bulkDelete([$requestDriver->pickup_address_id, $requestDriver->arrival_address_id]);
+
+        if (!isset($requestDriver->pickupAddress->office)) {
+            $this->addressRepository->delete($requestDriver->pickup_address_id);;
+        }
+        if (!isset($requestDriver->arrivalAddress->office)) {
+            $this->addressRepository->delete($requestDriver->arrival_address_id);
+        }
+
         return $requestDriver;
     }
 }
