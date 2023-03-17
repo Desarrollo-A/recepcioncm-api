@@ -72,7 +72,7 @@ class UserController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function changeStatus(int $id, ChangeStatusUserRequest $request): JsonResponse
+    public function changeStatus(int $id, ChangeStatusUserRequest $request): \Illuminate\Http\Response
     {
         $dto = $request->toDTO();
         $this->lookupService->validateLookup($dto->status_id, TypeLookup::STATUS_USER, 'Estatus no válido');
@@ -108,7 +108,7 @@ class UserController extends BaseApiController
 
     /**
      * @throws CustomErrorException
-     * @return StreamedResponse | JsonResponse
+     * @return StreamedResponse | \Illuminate\Http\Response
      */
     public function bulkStoreDriver(BulkStoreDriverRequest $request)
     {

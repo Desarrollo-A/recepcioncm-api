@@ -43,7 +43,7 @@ class InventoryRequestController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function update(int $requestId, int $inventoryId, UpdateInventoryRequestRequest $request): JsonResponse
+    public function update(int $requestId, int $inventoryId, UpdateInventoryRequestRequest $request): \Illuminate\Http\Response
     {
         $dto = $request->toDTO();
         if ($requestId !== $dto->request_id || $inventoryId !== $dto->inventory_id) {
@@ -55,7 +55,7 @@ class InventoryRequestController extends BaseApiController
         return $this->noContentResponse();
     }
 
-    public function delete(int $requestId, int $inventoryId): JsonResponse
+    public function delete(int $requestId, int $inventoryId): \Illuminate\Http\Response
     {
         $inventoryRequest = $this->inventoryRequestService->deleteSnack($requestId, $inventoryId);
         $this->inventoryService->restoreStockAfterInventoryRequestDeleted($inventoryRequest);

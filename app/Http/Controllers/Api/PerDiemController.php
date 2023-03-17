@@ -11,6 +11,7 @@ use App\Http\Requests\PerDiem\UploadBillPerDiemRequest;
 use App\Http\Resources\PerDiem\PerDiemResource;
 use App\Models\Enums\NameRole;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 
 class PerDiemController extends BaseApiController
 {
@@ -47,7 +48,7 @@ class PerDiemController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function uploadBillZip(int $requestId, UploadBillPerDiemRequest $request): JsonResponse
+    public function uploadBillZip(int $requestId, UploadBillPerDiemRequest $request): Response
     {
         $this->perDiemService->uploadBillZip($requestId, $request->toDTO());
         return $this->noContentResponse();

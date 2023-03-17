@@ -10,6 +10,7 @@ use App\Http\Requests\RequestEmail\UpdateEmailRequest;
 use App\Http\Resources\RequestEmail\EmailResource;
 use App\Models\Enums\NameRole;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 
 class RequestEmailController extends BaseApiController
 {
@@ -39,7 +40,7 @@ class RequestEmailController extends BaseApiController
         return $this->showOne(new EmailResource($email));
     }
 
-    public function destroy(int $id): JsonResponse
+    public function destroy(int $id): Response
     {
         $this->requestEmailService->delete($id);
         return $this->noContentResponse();
