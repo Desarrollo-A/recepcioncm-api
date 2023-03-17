@@ -27,8 +27,10 @@ class RequestDriverRepository extends BaseRepository implements RequestDriverRep
             ->with([
                 'pickupAddress',
                 'pickupAddress.country',
+                'pickupAddress.office',
                 'arrivalAddress',
                 'arrivalAddress.country',
+                'arrivalAddress.office',
                 'request',
                 'request.user',
                 'request.status',

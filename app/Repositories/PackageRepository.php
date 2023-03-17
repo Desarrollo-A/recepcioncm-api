@@ -30,8 +30,10 @@ class PackageRepository extends BaseRepository implements PackageRepositoryInter
             ->with([
                 'pickupAddress',
                 'pickupAddress.country',
+                'pickupAddress.office',
                 'arrivalAddress',
                 'arrivalAddress.country',
+                'arrivalAddress.office',
                 'request',
                 'request.user',
                 'request.status',
