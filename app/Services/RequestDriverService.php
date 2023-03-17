@@ -435,8 +435,6 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
                 ->fresh(['status', 'requestDriver']);
         }
 
-        $this->proposalRequestRepository->deleteByRequestId($requestId);
-
         return $request;
     }
 }

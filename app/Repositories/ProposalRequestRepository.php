@@ -36,16 +36,6 @@ class ProposalRequestRepository extends BaseRepository implements ProposalReques
             ->get();
     }
 
-    public function deleteByRequestId(int $requestId): void
-    {
-        $this->entity->where('request_id', $requestId)->delete();
-    }
-
-    public function deleteInRequestIds(array $ids): void
-    {
-        $this->entity->whereIn('request_id', $ids)->delete();
-    }
-
     public function findOneByRequestId(int $requestId): ProposalRequest
     {
         return $this->entity

@@ -170,16 +170,18 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
             ->count();
     }
 
-    public function getRequestRoomOfWeekdayByUser(int $userId): Collection
+    public function getRequestRoomOfWeekdayByUser(int $userId, int $roomId): Collection
     {
         $union = $this->entity
             ->newModelInstance()
             ->selectRaw('COUNT(*) AS total, DATEPART(WEEKDAY, start_date) AS weekday, r.user_id')
             ->from('requests AS r')
+            ->join('request_room AS rr', 'rr.request_id', '=', 'r.id')
             ->join('lookups AS t', 'r.type_id', '=', 't.id')
             ->join('lookups AS s', 'r.status_id', '=', 's.id')
             ->where('t.code', TypeRequestLookup::code(TypeRequestLookup::ROOM))
             ->where('user_id', $userId)
+            ->where('rr.room_id', $roomId)
             ->whereIn('s.code', [
                 StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED),
                 StatusRoomRequestLookup::code(StatusRoomRequestLookup::IN_REVIEW)
@@ -190,11 +192,13 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
         return $this->entity
             ->selectRaw('COUNT(*) AS total, DATEPART(WEEKDAY, pr.start_date) AS weekday, r.user_id')
             ->from('requests AS r')
+            ->join('request_room AS rr', 'rr.request_id', '=', 'r.id')
             ->join('proposal_requests AS pr', 'pr.request_id', '=', 'r.id')
             ->join('lookups AS t', 'r.type_id', '=', 't.id')
             ->join('lookups AS s', 'r.status_id', '=', 's.id')
             ->where('t.code', TypeRequestLookup::code(TypeRequestLookup::ROOM))
             ->where('user_id', $userId)
+            ->where('rr.room_id', $roomId)
             ->where('s.code', StatusRoomRequestLookup::code(StatusRoomRequestLookup::PROPOSAL))
             ->whereDate('pr.start_date', '>=', now())
             ->union($union)
@@ -202,12 +206,14 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
             ->get();
     }
 
-    public function getRequestRoomAfterNowInWeekday(int $userId, int $weekday): Collection
+    public function getRequestRoomAfterNowInWeekday(int $userId, int $roomId, int $weekday): Collection
     {
         return $this->entity
+            ->join('request_room AS rr', 'rr.request_id', '=', 'requests.id')
             ->join('lookups AS s', 's.id', '=', 'requests.status_id')
             ->join('lookups AS t', 't.id', '=', 'requests.type_id')
             ->where('user_id', $userId)
+            ->where('rr.room_id', $roomId)
             ->whereRaw("DATEPART(WEEKDAY, start_date) = $weekday")
             ->whereDate('start_date', '>=', now())
             ->where('t.code', TypeRequestLookup::code(TypeRequestLookup::ROOM))
