@@ -391,8 +391,6 @@ class RequestPackageService extends BaseService implements RequestPackageService
             $this->requestRepository->update($request->id, $dto->toArray(['event_google_calendar_id']));
         }
 
-        $this->proposalPackageRepository->deleteByPackageId($packageUpdate->id);
-
         return $packageUpdate;
     }
 
@@ -600,9 +598,6 @@ class RequestPackageService extends BaseService implements RequestPackageService
         } else {
             $columnsRequestUpdate = ['status_id'];
         }
-
-        $this->proposalPackageRepository->deleteByPackageId($package->id);
-        $this->proposalRequestRepository->deleteByRequestId($requestId);
 
         return $this->requestRepository->update($requestId, $dto->toArray($columnsRequestUpdate))->fresh(['status']);
     }

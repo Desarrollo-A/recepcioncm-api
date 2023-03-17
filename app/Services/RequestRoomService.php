@@ -99,7 +99,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
     public function create(RequestRoomDTO $dto): RequestRoom
     {
         $roomRequestsOfWeekday = $this->requestRepository
-            ->getRequestRoomOfWeekdayByUser($dto->request->user_id)
+            ->getRequestRoomOfWeekdayByUser($dto->request->user_id, $dto->room_id)
             ->first(function ($data) use ($dto) {
                 return $data->weekday === ($dto->request->start_date->dayOfWeek + 1);
             });
@@ -251,7 +251,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
     }
 
     /**
-     * @throws CustomErrorException
+     * @throws AuthorizationException
      */
     public function findByRequestId(int $requestId, User $user): RequestRoom
     {
@@ -358,7 +358,8 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
             TypeLookup::STATUS_ROOM_REQUEST)->id;
         $dto->status_id = $statusProposalId;
 
-        $request = $this->requestRepository->update($requestId, $dto->toArray(['status_id']));
+        $request = $this->requestRepository->update($requestId, $dto->toArray(['status_id']))
+            ->fresh(['requestRoom']);
 
         foreach ($dto->proposalRequest as $proposal) {
             $proposal->request_id = $requestId;
@@ -395,36 +396,37 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
      */
     public function checkRequestsByDay(Request $request, int $recepcionistId)
     {
-        $roomRequestsOfWeekday = $this->requestRepository
-            ->getRequestRoomOfWeekdayByUser($request->user_id)
-            ->first(function ($data) use ($request) {
-                return $data->weekday === ($request->start_date->dayOfWeek + 1);
-            });
+        $roomRequests = $this->requestRepository
+            ->getRequestRoomOfWeekdayByUser($request->user_id, $request->requestRoom->room_id);
 
-        if (isset($roomRequestsOfWeekday->total) && $roomRequestsOfWeekday->total < self::REQUESTS_BY_DAY) {
-            return;
+        foreach($roomRequests as $roomRequest) {
+            if ($roomRequest->total <= self::REQUESTS_BY_DAY) {
+                continue;
+            }
+
+            $requests = $this->requestRepository->getRequestRoomAfterNowInWeekday(
+                $request->user_id, $request->requestRoom->room_id, $roomRequest->weekday
+            );
+            if ($requests->count() === 0) {
+                continue;
+            }
+
+            $message = Message::LIMIT_REQUEST_BY_DAY.Utils::getDayName($roomRequest->weekday - 1);
+            $data = [];
+            foreach ($requests as $r) {
+                $dto = new CancelRequestDTO([
+                    'request_id' => $r->id,
+                    'cancel_comment' => $message,
+                    'user_id' => $recepcionistId
+                ]);
+                $data[] = $dto->toArray(['request_id', 'cancel_comment', 'user_id']);
+            }
+
+            $cancelStatusId = $this->lookupRepository->findByCodeAndType(StatusRoomRequestLookup::code(StatusRoomRequestLookup::CANCELLED),
+                TypeLookup::STATUS_ROOM_REQUEST)->id;
+            $this->requestRepository->bulkStatusUpdate($requests->pluck('id')->toArray(), $cancelStatusId);
+            $this->cancelRequestRepository->bulkInsert($data);
         }
-
-        $requests = $this->requestRepository->getRequestRoomAfterNowInWeekday($request->user_id, $request->start_date->dayOfWeek + 1);
-        if ($requests->count() === 0) {
-            return;
-        }
-
-        $message = Message::LIMIT_REQUEST_BY_DAY.Utils::getDayName($request->start_date->dayOfWeek);
-        $data = [];
-        foreach ($requests as $r) {
-            $dto = new CancelRequestDTO([
-                'request_id' => $r->id,
-                'cancel_comment' => $message,
-                'user_id' => $recepcionistId
-            ]);
-            $data[] = $dto->toArray(['request_id', 'cancel_comment', 'user_id']);
-        }
-
-        $cancelStatusId = $this->lookupRepository->findByCodeAndType(StatusRoomRequestLookup::code(StatusRoomRequestLookup::CANCELLED),
-            TypeLookup::STATUS_ROOM_REQUEST)->id;
-        $this->requestRepository->bulkStatusUpdate($requests->pluck('id')->toArray(), $cancelStatusId);
-        $this->cancelRequestRepository->bulkInsert($data);
     }
 
     /**
@@ -451,8 +453,6 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         } else {
             $data = $dto->toArray(['status_id']);
         }
-
-        $this->proposalRequestRepository->deleteByRequestId($id);
 
         return $this->requestRepository->update($id, $data)
             ->fresh(['requestRoom', 'requestRoom.room', 'status']);
@@ -545,10 +545,5 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         }
 
         return $isAvailable;
-    }
-
-    public function getRequestRoomOfWeekdayByUser(int $userId): Collection
-    {
-        return $this->requestRepository->getRequestRoomOfWeekdayByUser($userId);
     }
 }

@@ -10,5 +10,5 @@ use App\Models\ProposalPackage;
  */
 interface ProposalPackageRepositoryInterface extends BaseRepositoryInterface
 {
-    public function deleteByPackageId(int $packageId): bool;
+    //
 }
