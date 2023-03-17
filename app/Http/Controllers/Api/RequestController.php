@@ -11,6 +11,7 @@ use App\Http\Requests\Request\StarRatingRequest;
 use App\Http\Resources\Request\RequestResource;
 use App\Models\Enums\NameRole;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 
 class RequestController extends BaseApiController
 {
@@ -38,21 +39,21 @@ class RequestController extends BaseApiController
         return $this->showOne(new RequestResource($request));
     }
 
-    public function deleteRequestRoom(int $id): JsonResponse
+    public function deleteRequestRoom(int $id): Response
     {
         $request = $this->requestService->deleteRequestRoom($id, auth()->id());
         $this->notificationService->newToDeletedRequestRoomNotification($request);
         return $this->noContentResponse();
     }
 
-    public function deleteRequestPackage(int $requestId): JsonResponse
+    public function deleteRequestPackage(int $requestId): Response
     {
         $package = $this->requestService->deleteRequestPackage($requestId, auth()->id());
         $this->notificationService->deleteRequestPackageNotification($package);
         return $this->noContentResponse();
     }
 
-    public function deleteRequestDriver(int $id): JsonResponse
+    public function deleteRequestDriver(int $id): Response
     {
         $requestDriver = $this->requestService->deleteRequestDriver($id, auth()->id());
         $this->notificationService->deleteRequestDriverNotification($requestDriver);
@@ -62,7 +63,7 @@ class RequestController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function starRatingRequest(StarRatingRequest $request): JsonResponse
+    public function starRatingRequest(StarRatingRequest $request): Response
     {
         $dto = $request->toDTO();
         $this->scoreService->create($dto);

@@ -6,9 +6,9 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\Resource;
+use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpFoundation\Response;
 
 trait ApiResponse
 {
@@ -47,9 +47,9 @@ trait ApiResponse
     /**
      * Función que retorna una respuesta 204 no content
      */
-    protected function noContentResponse(): JsonResponse
+    protected function noContentResponse(): Response
     {
-        return response()->json([], Response::HTTP_NO_CONTENT);
+        return response()->noContent();
     }
 
     /**

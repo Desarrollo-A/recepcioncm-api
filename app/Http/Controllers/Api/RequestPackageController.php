@@ -25,6 +25,7 @@ use App\Models\Enums\NameRole;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Symfony\Component\HttpFoundation\Response as HttpCodes;
 
 class RequestPackageController extends BaseApiController
@@ -65,7 +66,7 @@ class RequestPackageController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function uploadAuthorizationFile(int $requestId, UploadFileRequestPackageRequest $request): JsonResponse
+    public function uploadAuthorizationFile(int $requestId, UploadFileRequestPackageRequest $request): Response
     {
         $dto = $request->toDTO();
         $this->requestPackageService->uploadAuthorizationFile($requestId, $dto);
@@ -94,7 +95,7 @@ class RequestPackageController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function cancelRequest(int $requestId, CancelRequest $request): JsonResponse
+    public function cancelRequest(int $requestId, CancelRequest $request): Response
     {
         $dto = $request->toDTO();
         $dto->request_id = $requestId;
@@ -106,7 +107,7 @@ class RequestPackageController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function transferRequest(int $packageId, TransferPackageRequest $request): JsonResponse
+    public function transferRequest(int $packageId, TransferPackageRequest $request): Response
     {
         $packageTransfer = $this->requestPackageService->transferRequest($packageId, $request->toDTO());
         $this->notificationService->transferPackageRequestNotification($packageTransfer);
@@ -128,7 +129,7 @@ class RequestPackageController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function approvedRequest(ApprovedPackageRequest $request): JsonResponse
+    public function approvedRequest(ApprovedPackageRequest $request): Response
     {
         $dto = $request->toDTO();
         $packageApproved = $this->requestPackageService->approvedRequest($dto);
@@ -142,7 +143,7 @@ class RequestPackageController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function insertScore(StarRatingRequest $request): JsonResponse
+    public function insertScore(StarRatingRequest $request): Response
     {
         $scoreDTO = $request->toDTO();
         $this->requestPackageService->insertScore($scoreDTO);
@@ -167,7 +168,7 @@ class RequestPackageController extends BaseApiController
         return $this->showOne(new PackageExposedResource($package));
     }
 
-    public function onRoad(int $requestId): JsonResponse
+    public function onRoad(int $requestId): Response
     {
         $requestPackageOnRoad = $this->requestPackageService->onRoad($requestId);
         $this->notificationService->onRoadPackageRequestNotification($requestPackageOnRoad);
@@ -183,7 +184,7 @@ class RequestPackageController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function proposalRequest(ProposalPackageRequest $request): JsonResponse
+    public function proposalRequest(ProposalPackageRequest $request): Response
     {
         $requestPackageProposal = $this->requestPackageService->proposalRequest($request->toDTO());
         $this->notificationService->proposalPackageRequestNotification($requestPackageProposal);
@@ -193,7 +194,7 @@ class RequestPackageController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function responseRejectRequest(int $requestId, ResponseRejectRequest $request): JsonResponse
+    public function responseRejectRequest(int $requestId, ResponseRejectRequest $request): Response
     {
         $dto = $request->toDTO();
         $request = $this->requestPackageService->responseRejectRequest($requestId, $dto);
@@ -216,7 +217,7 @@ class RequestPackageController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function deliveredRequest(DeliveredPackageRequest $request): JsonResponse
+    public function deliveredRequest(DeliveredPackageRequest $request): Response
     {
         $dto = $request->toDTO();
         $packageDelivered = $this->requestPackageService->deliveredPackage($dto);
@@ -227,7 +228,7 @@ class RequestPackageController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function deliveredRequestSignature(int $packageId, UploadSignatureRequest $request): JsonResponse
+    public function deliveredRequestSignature(int $packageId, UploadSignatureRequest $request): Response
     {
         $this->requestPackageService->deliveredRequestSignature($packageId, $request->toDTO());
         return $this->noContentResponse();

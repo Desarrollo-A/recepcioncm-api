@@ -24,6 +24,7 @@ use App\Models\Enums\TypeLookup;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class RequestRoomController extends BaseApiController
 {
@@ -84,7 +85,7 @@ class RequestRoomController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function assignSnack(AssignSnackRequest $request): JsonResponse
+    public function assignSnack(AssignSnackRequest $request): Response
     {
         $dto = $request->toDTO();
         $requestModel = $this->requestRoomService->assignSnack($dto, auth()->user()->office_id);
@@ -104,7 +105,7 @@ class RequestRoomController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function cancelRequest(int $requestId, CancelRequest $request): JsonResponse
+    public function cancelRequest(int $requestId, CancelRequest $request): Response
     {
         $dto = $request->toDTO();
         $dto->request_id = $requestId;
@@ -125,7 +126,7 @@ class RequestRoomController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function proposalRequest(int $requestId, ProposalRequestRoomRequest $request): JsonResponse
+    public function proposalRequest(int $requestId, ProposalRequestRoomRequest $request): Response
     {
         $dto = $request->toDTO();
         $requestModel = $this->requestRoomService->proposalRequest($requestId, $dto);
@@ -134,7 +135,7 @@ class RequestRoomController extends BaseApiController
         return $this->noContentResponse();
     }
 
-    public function withoutAttendingRequest(int $requestId): JsonResponse
+    public function withoutAttendingRequest(int $requestId): Response
     {
         $this->requestRoomService->withoutAttendingRequest($requestId);
         $snacks = $this->inventoryRequestService->deleteSnacks($requestId);
@@ -145,7 +146,7 @@ class RequestRoomController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function responseRejectRequest(int $id, ResponseRejectRequest $request): JsonResponse
+    public function responseRejectRequest(int $id, ResponseRejectRequest $request): Response
     {
         $dto = $request->toDTO();
         $requestModel = $this->requestRoomService->responseRejectRequest($id, $dto);

@@ -21,6 +21,7 @@ use App\Http\Resources\RequestCar\RequestCarViewCollection;
 use App\Models\Enums\NameRole;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class RequestCarController extends BaseApiController
 {
@@ -62,7 +63,7 @@ class RequestCarController extends BaseApiController
         return $this->showOne(new RequestCarResource($requestCar));
     }
 
-    public function deleteRequestCar(int $requestId): JsonResponse
+    public function deleteRequestCar(int $requestId): Response
     {
         $requestCar = $this->requestCarService->deleteRequestCar($requestId, auth()->user());
         $this->notificationService->deleteRequestCarNotification($requestCar);
@@ -82,7 +83,7 @@ class RequestCarController extends BaseApiController
         return $this->showAll(LookupResource::collection($status));
     }
 
-    public function transferRequest(int $requestCarId, TransferCarRequest $request): JsonResponse
+    public function transferRequest(int $requestCarId, TransferCarRequest $request): Response
     {
         $requestCar = $this->requestCarService->transferRequest($requestCarId, $request->toDTO());
         $this->notificationService->transferRequestCarNotification($requestCar);
@@ -92,7 +93,7 @@ class RequestCarController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function cancelRequest(int $requestId, CancelRequest $request): JsonResponse
+    public function cancelRequest(int $requestId, CancelRequest $request): Response
     {
         $dto = $request->toDTO();
         $dto->request_id = $requestId;
@@ -107,7 +108,7 @@ class RequestCarController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function approvedRequest(ApprovedCarRequest $request): JsonResponse
+    public function approvedRequest(ApprovedCarRequest $request): Response
     {
         $dto = $request->toDTO();
         $request = $this->requestCarService->approvedRequest($dto);
@@ -125,7 +126,7 @@ class RequestCarController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function proposalRequest(ProposalCarRequest $request): JsonResponse
+    public function proposalRequest(ProposalCarRequest $request): Response
     {
         $dto = $request->toDTO();
         $request = $this->requestCarService->proposalRequest($dto);
@@ -136,7 +137,7 @@ class RequestCarController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function responseRejectRequest(int $requestId, ResponseRejectRequest $request): JsonResponse
+    public function responseRejectRequest(int $requestId, ResponseRejectRequest $request): Response
     {
         $dto = $request->toDTO();
         $request = $this->requestCarService->responseRejectRequest($requestId, $dto);
@@ -147,7 +148,7 @@ class RequestCarController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function uploadZipImages(int $id, UploadZipImagesCarRequest $request): JsonResponse
+    public function uploadZipImages(int $id, UploadZipImagesCarRequest $request): Response
     {
         $dto = $request->toDTO();
         $this->requestCarService->uploadZipImages($id, $dto);
@@ -157,7 +158,7 @@ class RequestCarController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function addExtraCarInformation(int $id, AddExtraInformationCarRequest $request): JsonResponse
+    public function addExtraCarInformation(int $id, AddExtraInformationCarRequest $request): Response
     {
         $dto = $request->toDTO();
         $this->requestCarService->addExtraCarInformation($id, $dto);

@@ -13,13 +13,13 @@ use App\Http\Requests\RequestDriver\ApprovedDriverRequest;
 use App\Http\Requests\RequestDriver\ProposalDriverRequest;
 use App\Http\Requests\RequestDriver\StoreRequestDriverRequest;
 use App\Http\Requests\RequestDriver\TransferDriverRequest;
-use App\Http\Requests\RequestDriver\UploadFileDriverRequest;
 use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\RequestDriver\RequestDriverResource;
 use App\Http\Resources\RequestDriver\RequestDriverViewCollection;
 use App\Models\Enums\NameRole;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class RequestDriverController extends BaseApiController
 {
@@ -79,7 +79,7 @@ class RequestDriverController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function cancelRequest(int $requestId, CancelRequest $request): JsonResponse
+    public function cancelRequest(int $requestId, CancelRequest $request): Response
     {
         $dto = $request->toDTO();
         $dto->request_id = $requestId;
@@ -94,7 +94,7 @@ class RequestDriverController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function transferRequest(int $requestDriverId, TransferDriverRequest $request): JsonResponse
+    public function transferRequest(int $requestDriverId, TransferDriverRequest $request): Response
     {
         $requestDriver = $this->requestDriverService->transferRequest($requestDriverId, $request->toDTO());
         $this->notificationService->transferRequestDriverNotification($requestDriver);
@@ -104,7 +104,7 @@ class RequestDriverController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function approvedRequest(ApprovedDriverRequest $request): JsonResponse
+    public function approvedRequest(ApprovedDriverRequest $request): Response
     {
         $dto = $request->toDTO();
         $request = $this->requestDriverService->approvedRequest($dto);
@@ -128,7 +128,7 @@ class RequestDriverController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function proposalRequest(ProposalDriverRequest $request): JsonResponse
+    public function proposalRequest(ProposalDriverRequest $request): Response
     {
         $dto = $request->toDTO();
         $proposalDriverRequest = $this->requestDriverService->proposalRequest($dto);
@@ -139,7 +139,7 @@ class RequestDriverController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function responseRejectRequest(int $requestId, ResponseRejectRequest $request): JsonResponse
+    public function responseRejectRequest(int $requestId, ResponseRejectRequest $request): Response
     {
         $dto = $request->toDTO();
         $requestDriverResponseReject = $this->requestDriverService->responseRejectRequest($requestId, $dto);

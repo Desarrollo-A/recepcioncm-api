@@ -68,7 +68,7 @@ class InventoryController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function updateImage(UpdateImageInventoryRequest $request, int $id): JsonResponse
+    public function updateImage(UpdateImageInventoryRequest $request, int $id): \Illuminate\Http\Response
     {
         $dto = $request->toDTO();
         $this->inventoryService->updateImage($id, $dto);
@@ -81,7 +81,7 @@ class InventoryController extends BaseApiController
         return $this->showOne(new InventoryResource($inventory));
     }
 
-    public function destroy(int $id): JsonResponse
+    public function destroy(int $id): \Illuminate\Http\Response
     {
         $this->inventoryService->delete($id);
         return $this->noContentResponse();
@@ -90,7 +90,7 @@ class InventoryController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function updateStock(UpdateStockInventoryRequest $request, int $id): JsonResponse
+    public function updateStock(UpdateStockInventoryRequest $request, int $id): \Illuminate\Http\Response
     {
         $dto = $request->toDTO();
         $this->inventoryService->updateStock($id, $dto);
@@ -104,7 +104,7 @@ class InventoryController extends BaseApiController
         return $this->showAll(new InventoryCollection($inventories));
     }
 
-    public function deleteImage(int $id): JsonResponse
+    public function deleteImage(int $id): \Illuminate\Http\Response
     {
         $this->inventoryService->deleteImage($id);
         return $this->noContentResponse();

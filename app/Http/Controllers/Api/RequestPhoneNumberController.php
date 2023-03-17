@@ -10,6 +10,7 @@ use App\Http\Requests\RequestPhoneNumber\UpdatePhoneNumberRequest;
 use App\Http\Resources\RequestPhoneNumber\PhoneNumberResource;
 use App\Models\Enums\NameRole;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 
 class RequestPhoneNumberController extends BaseApiController
 {
@@ -39,7 +40,7 @@ class RequestPhoneNumberController extends BaseApiController
         return $this->showOne(new PhoneNumberResource($phone));
     }
 
-    public function destroy(int $id): JsonResponse
+    public function destroy(int $id): Response
     {
         $this->requestPhoneNumberService->delete($id);
         return $this->noContentResponse();
