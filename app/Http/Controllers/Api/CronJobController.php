@@ -7,7 +7,7 @@ use App\Contracts\Services\NotificationServiceInterface;
 use App\Contracts\Services\RequestServiceInterface;
 use App\Contracts\Services\UserServiceInterface;
 use App\Core\BaseApiController;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 
 class CronJobController extends BaseApiController
 {
@@ -30,25 +30,25 @@ class CronJobController extends BaseApiController
         $this->userService = $userService;
     }
 
-    public function updateSnackCountable(): JsonResponse
+    public function updateSnackCountable(): Response
     {
         $this->inventoryRequestService->addHistoryRequestSnackCountable();
         return $this->noContentResponse();
     }
 
-    public function updateSnackUncountable(): JsonResponse
+    public function updateSnackUncountable(): Response
     {
         $this->inventoryRequestService->updateSnackUncountableApplied();
         return $this->noContentResponse();
     }
 
-    public function confirmRequest(): JsonResponse
+    public function confirmRequest(): Response
     {
         $this->notificationService->createConfirmNotification();
         return $this->noContentResponse();
     }
 
-    public function finishedRequest(): JsonResponse
+    public function finishedRequest(): Response
     {
         $requests = $this->requestService->changeToFinished();
         if ($requests->count() > 0) {
@@ -58,13 +58,13 @@ class CronJobController extends BaseApiController
         return $this->noContentResponse();
     }
 
-    public function expiredRequest(): JsonResponse
+    public function expiredRequest(): Response
     {
         $this->requestService->changeToExpired();
         return $this->noContentResponse();
     }
 
-    public function removeOldTokens(): JsonResponse
+    public function removeOldTokens(): Response
     {
         $this->userService->removeOldTokens();
         return $this->noContentResponse();

@@ -67,7 +67,7 @@ class RoomController extends BaseApiController
         return $this->showOne(new RoomResource($room));
     }
 
-    public function destroy(int $id): JsonResponse
+    public function destroy(int $id): \Illuminate\Http\Response
     {
         $this->roomService->delete($id);
         return $this->noContentResponse();
@@ -82,7 +82,7 @@ class RoomController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function changeStatus(int $id, ChangeStatusRoomRequest $request): JsonResponse
+    public function changeStatus(int $id, ChangeStatusRoomRequest $request): \Illuminate\Http\Response
     {
         $roomDTO = $request->toDTO();
         $this->lookupService->validateLookup($roomDTO->status_id, TypeLookup::STATUS_ROOM, 'Estatus no válido.');

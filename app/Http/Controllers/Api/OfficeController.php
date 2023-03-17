@@ -112,7 +112,7 @@ class OfficeController extends BaseApiController
         return $this->showOne(new OfficeResource($office));
     }
 
-    public function destroy(int $id): JsonResponse
+    public function destroy(int $id): \Illuminate\Http\Response
     {
         $this->officeService->delete($id);
         return $this->noContentResponse();

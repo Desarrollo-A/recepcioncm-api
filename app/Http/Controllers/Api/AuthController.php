@@ -14,6 +14,7 @@ use App\Http\Resources\User\UserResource;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Pusher\Pusher;
 use Pusher\PusherException;
 
@@ -29,7 +30,7 @@ class AuthController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function changePassword(ChangePasswordRequest $request): JsonResponse
+    public function changePassword(ChangePasswordRequest $request): Response
     {
         $userDTO = $request->toDTO();
         $this->authService->changePassword($userDTO);
@@ -58,7 +59,7 @@ class AuthController extends BaseApiController
         return $this->successResponse(new LoginResource($data), 200);
     }
 
-    public function logout(): JsonResponse
+    public function logout(): Response
     {
         auth()->user()->token()->delete();
         return $this->noContentResponse();
@@ -67,7 +68,7 @@ class AuthController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function restorePassword(RestorePasswordRequest $request): JsonResponse
+    public function restorePassword(RestorePasswordRequest $request): Response
     {
         $userDTO = $request->toDTO();
         $this->authService->restorePassword($userDTO->email);

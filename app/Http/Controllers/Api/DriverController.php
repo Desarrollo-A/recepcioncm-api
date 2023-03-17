@@ -14,6 +14,7 @@ use App\Models\Enums\NameRole;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class DriverController extends BaseApiController
 {
@@ -32,7 +33,7 @@ class DriverController extends BaseApiController
         return $this->showAll(new DriverCollection($drivers, true));
     }
 
-    public function insertDriverCar(DriverCarRequest $request): JsonResponse
+    public function insertDriverCar(DriverCarRequest $request): Response
     {   
         $driverCarDTO = $request->toDto();
         $this->driverService->insertDriverCar($driverCarDTO->car_id, $driverCarDTO->driver_id);

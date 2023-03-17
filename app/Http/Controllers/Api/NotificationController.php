@@ -8,6 +8,7 @@ use App\Core\BaseApiController;
 use App\Http\Resources\Notification\NotificationResource;
 use App\Models\Enums\NameRole;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 
 class NotificationController extends BaseApiController
 {
@@ -41,19 +42,19 @@ class NotificationController extends BaseApiController
         return $this->showAll(NotificationResource::collection($notifications));
     }
 
-    public function readNotification(int $id): JsonResponse
+    public function readNotification(int $id): Response
     {
         $this->notificationService->readNotification($id);
         return $this->noContentResponse();
     }
 
-    public function readAllNotification(): JsonResponse
+    public function readAllNotification(): Response
     {
         $this->notificationService->readAllNotificationUser(auth()->id());
         return $this->noContentResponse();
     }
 
-    public function wasAnswered(int $notificationId): JsonResponse
+    public function wasAnswered(int $notificationId): Response
     {
         $this->actionRequestNotificationService->wasAnswered($notificationId);
         return $this->noContentResponse();

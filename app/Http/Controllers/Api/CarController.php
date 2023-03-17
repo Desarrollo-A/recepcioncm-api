@@ -19,6 +19,7 @@ use App\Models\Enums\TypeLookup;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Symfony\Component\HttpFoundation\Response as HttpCodes;
 
 class CarController extends BaseApiController
@@ -70,7 +71,7 @@ class CarController extends BaseApiController
         return $this->showOne(new CarResource($car));
     }
 
-    public function destroy(int $id): JsonResponse
+    public function destroy(int $id): Response
     {
         $this->carService->delete($id);
         return $this->noContentResponse();
@@ -79,7 +80,7 @@ class CarController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function changeStatus(int $id, ChangeStatusCarRequest $request): JsonResponse
+    public function changeStatus(int $id, ChangeStatusCarRequest $request): Response
     {
         $carDTO = $request->toDTO();
         $this->lookupService->validateLookup($carDTO->status_id, TypeLookup::STATUS_CAR, 'Estatus no válido');
