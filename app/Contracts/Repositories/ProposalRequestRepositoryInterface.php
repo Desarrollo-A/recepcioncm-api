@@ -14,9 +14,5 @@ interface ProposalRequestRepositoryInterface extends BaseRepositoryInterface
 {
     public function roomsSetAsideByDay(Carbon $date): Collection;
 
-    public function deleteByRequestId(int $requestId): void;
-
-    public function deleteInRequestIds(array $ids): void;
-
     public function findOneByRequestId(int $requestId): ProposalRequest;
 }

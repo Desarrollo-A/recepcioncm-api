@@ -266,8 +266,6 @@ class RequestService extends BaseService implements RequestServiceInterface
         if (count($carSchedulesIds) > 0) {
             $this->carScheduleRepository->bulkDelete($carSchedulesIds);
         }
-
-        $this->proposalRequestRepository->deleteInRequestIds($proposalIds);
     }
 
     /**

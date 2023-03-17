@@ -44,6 +44,4 @@ interface RequestRoomServiceInterface extends BaseServiceInterface
     public function checkRequestsByDay(Request $request, int $recepcionistId);
 
     public function responseRejectRequest(int $id, RequestDTO $dto): Request;
-
-    public function getRequestRoomOfWeekdayByUser(int $userId): Collection;
 }

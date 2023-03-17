@@ -37,9 +37,9 @@ interface RequestRepositoryInterface extends BaseRepositoryInterface
 
     public function getTotalRequetsOfLastMonth(int $officeId): int;
 
-    public function getRequestRoomAfterNowInWeekday(int $userId, int $weekday): Collection;
+    public function getRequestRoomAfterNowInWeekday(int $userId, int $roomId, int $weekday): Collection;
 
-    public function getRequestRoomOfWeekdayByUser(int $userId): Collection;
+    public function getRequestRoomOfWeekdayByUser(int $userId, int $roomId): Collection;
 
     public function getTotalApplicantByStatus(int $userId, array $statusCodes = []): int;
 

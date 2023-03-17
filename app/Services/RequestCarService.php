@@ -392,8 +392,6 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
                 ->fresh(['status', 'requestDriver']);
         }
 
-        $this->proposalRequestRepository->deleteByRequestId($requestId);
-
         return $request;
     }
 

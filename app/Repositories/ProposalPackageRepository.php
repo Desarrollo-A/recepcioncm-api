@@ -23,11 +23,4 @@ class ProposalPackageRepository extends BaseRepository implements ProposalPackag
     {
         $this->entity = $entity;
     }
-
-    public function deleteByPackageId(int $packageId): bool
-    {
-        return $this->entity
-            ->where('package_id', $packageId)
-            ->delete();
-    }
 }

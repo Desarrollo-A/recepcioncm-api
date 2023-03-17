@@ -19,7 +19,6 @@ use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\Request\AvailableScheduleResource;
 use App\Http\Resources\RequestRoom\RequestRoomResource;
 use App\Http\Resources\RequestRoom\RequestRoomViewCollection;
-use App\Http\Resources\RequestRoom\WeekdayRoomByUser;
 use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
 use Carbon\Carbon;
@@ -45,7 +44,7 @@ class RequestRoomController extends BaseApiController
         $this->middleware('role.permission:'.NameRole::APPLICANT)
             ->only('store', 'responseRejectRequest');
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
-            ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest', 'getRequestRoomOfWeekdayByUser');
+            ->only('index', 'show', 'getStatusByStatusCurrent', 'cancelRequest');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
             ->only('assignSnack', 'getAvailableScheduleByDay', 'withoutAttendingRequest', 'proposalRequest');
 
@@ -152,11 +151,5 @@ class RequestRoomController extends BaseApiController
         $requestModel = $this->requestRoomService->responseRejectRequest($id, $dto);
         $this->notificationService->proposalToRejectedOrResponseRequestRoomNotification($requestModel);
         return $this->noContentResponse();
-    }
-
-    public function getRequestRoomOfWeekdayByUser(int $userId): JsonResponse
-    {
-        $data = $this->requestRoomService->getRequestRoomOfWeekdayByUser($userId);
-        return $this->showAll(WeekdayRoomByUser::collection($data));
     }
 }
