@@ -142,22 +142,27 @@ class Utils
     {
         if ($day === 0) {
             return 'Domingo';
-        } else if ($day === 1) {
-            return 'Lunes';
-        } else if ($day === 2) {
-            return 'Martes';
-        } else if ($day === 3) {
-            return 'Miércoles';
-        } else if ($day === 4) {
-            return 'Jueves';
-        } else if ($day === 5) {
-            return 'Viernes';
-        } else if ($day === 5) {
-            return 'Sábado';
-        } else {
-            return '';
-
         }
+        if ($day === 1) {
+            return 'Lunes';
+        }
+        if ($day === 2) {
+            return 'Martes';
+        }
+        if ($day === 3) {
+            return 'Miércoles';
+        }
+        if ($day === 4) {
+            return 'Jueves';
+        }
+        if ($day === 5) {
+            return 'Viernes';
+        }
+        if ($day === 6) {
+            return 'Sábado';
+        }
+
+        return '';
     }
 
     public static function getStatusApprovedRequest(): array

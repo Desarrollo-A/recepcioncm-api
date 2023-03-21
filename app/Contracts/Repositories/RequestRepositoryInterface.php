@@ -24,10 +24,7 @@ interface RequestRepositoryInterface extends BaseRepositoryInterface
 
     public function getExpired(): Collection;
 
-    /**
-     * @return void
-     */
-    public function bulkStatusUpdate(array $ids, int $statusId);
+    public function bulkStatusUpdate(array $ids, int $statusId): void;
 
     public function getApprovedRequestsTomorrow(): Collection;
 
@@ -48,4 +45,6 @@ interface RequestRepositoryInterface extends BaseRepositoryInterface
     public function getAllApprovedRecepcionistWithStartDateCondition(int $officeId, string $startDateOperator = '='): Collection;
 
     public function getAllApprovedApplicantWithStartDateCondition(int $userId, string $startDateOperator = '='): Collection;
+
+    public function getTotalManagerRequestPackagesByStatus(int $departmentManagerId, array $statusCodes = []): int;
 }

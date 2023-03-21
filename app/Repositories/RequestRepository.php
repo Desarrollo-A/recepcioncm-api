@@ -110,10 +110,7 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
             ->get();
     }
 
-    /**
-     * @return void
-     */
-    public function bulkStatusUpdate(array $ids, int $statusId)
+    public function bulkStatusUpdate(array $ids, int $statusId): void
     {
         $this->entity
             ->whereIn('id', $ids)
@@ -295,5 +292,18 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
             ->whereDate('requests.start_date', $startDateOperator, now())
             ->orderBy('requests.start_date', 'ASC')
             ->get(['requests.*']);
+    }
+
+    public function getTotalManagerRequestPackagesByStatus(int $departmentManagerId, array $statusCodes = []): int
+    {
+        return $this->entity
+            ->join('packages AS p','p.request_id', '=', 'requests.id')
+            ->join('users AS u', 'requests.user_id', '=', 'u.id')
+            ->join('lookups AS s', 'requests.status_id', '=', 's.id')
+            ->where('u.department_manager_id', $departmentManagerId)
+            ->when(count($statusCodes) > 0, function (Builder $query) use ($statusCodes) {
+                return $query->whereIn('s.code', $statusCodes);
+            })
+            ->count(['requests.id']);
     }
 }
