@@ -86,6 +86,16 @@ class UserDTO
     public $office;
 
     /**
+     * @var string
+     */
+    public $department_manager_no_employee;
+
+    /**
+     * @var int
+     */
+    public $departmentManagerId;
+
+    /**
      * @throws CustomErrorException
      */
     public function __construct(array $data = [])

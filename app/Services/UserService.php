@@ -70,6 +70,10 @@ class UserService extends BaseService implements UserServiceInterface
      */
     public function create(UserDTO $dto): User
     {
+        $dto->departmentManagerId = $this->entityRepository
+            ->findByNoEmployeeAndIsManager($dto->department_manager_no_employee)
+            ->id;
+
         $dto->status_id = $this->lookupRepository->findByCodeAndType(StatusUserLookup::code(StatusUserLookup::ACTIVE),
             TypeLookup::STATUS_USER)->id;
         if ($dto->role->name === NameRole::RECEPCIONIST) {
@@ -80,7 +84,7 @@ class UserService extends BaseService implements UserServiceInterface
         $dto->office_id = $this->officeRepository->findByName($dto->office->name)->id;
 
         $data = $dto->toArray(['no_employee', 'full_name', 'email', 'password', 'personal_phone', 'office_phone',
-            'position', 'area', 'status_id', 'role_id', 'office_id']);
+            'position', 'area', 'status_id', 'role_id', 'office_id', 'department_manager_id']);
 
         $user = $this->entityRepository->create($data);
         return $this->entityRepository->findById($user->id);

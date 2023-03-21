@@ -21,4 +21,6 @@ interface UserRepositoryInterface extends BaseRepositoryInterface
 
     public function findAllPaginatedWithoutUser(int $userId, array $filters, int $limit, string $sort = null,
                                                 array $columns = ['*']): LengthAwarePaginator;
+
+    public function findByNoEmployeeAndIsManager(string $noEmployee): User;
 }

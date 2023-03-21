@@ -29,7 +29,9 @@ class StoreUserRequest extends FormRequest implements ReturnDtoInterface
             'position' => ['required', 'max:100'],
             'area' => ['required', 'max:100'],
             'isRecepcionist' => ['required', 'bail', 'boolean'],
-            'office.name' => ['required', 'min:3', 'max:150']
+            'office.name' => ['required', 'min:3', 'max:150'],
+
+            'departmentManagerNoEmployee' => ['required', 'max:50', 'exists:users,no_employee']
         ];
     }
 
@@ -43,7 +45,8 @@ class StoreUserRequest extends FormRequest implements ReturnDtoInterface
             'position' => 'Puesto',
             'area' => 'Área / Departamento',
             'isRecepcionist' => 'Recepcionista',
-            'office.name' => 'Oficina'
+            'office.name' => 'Oficina',
+            'departmentManagerNoEmployee' => '# de colaborador del director'
         ];
     }
 
@@ -65,7 +68,8 @@ class StoreUserRequest extends FormRequest implements ReturnDtoInterface
             'position' => trim($this->position),
             'area' => trim($this->area),
             'role' => $role,
-            'office' => $office
+            'office' => $office,
+            'department_manager_no_employee' => trim($this->departmentManagerNoEmployee)
         ]);
     }
 }
