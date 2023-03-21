@@ -89,4 +89,13 @@ class ViewsDefault
             ]
         ],
     ];
+
+    const VIEWS_DEFAULT_DEPARTMENT_MANAGER = [
+        [
+            'path' => '/dashboard/director/solicitudes',
+            'submenus' => [
+                ['path' => '/paqueteria']
+            ]
+        ]
+    ];
 }

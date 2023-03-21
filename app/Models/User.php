@@ -31,7 +31,8 @@ class User extends Authenticatable
         'status',
         'role_id',
         'status_id',
-        'office_id'
+        'office_id',
+        'department_manager_id'
     ];
 
     protected $casts = [
@@ -39,6 +40,7 @@ class User extends Authenticatable
         'status_id' => 'integer',
         'role_id' => 'integer',
         'office_id' => 'integer',
+        'department_manager_id' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
