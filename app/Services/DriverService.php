@@ -66,7 +66,7 @@ class DriverService extends BaseService implements DriverServiceInterface
         $driver = $this->entityRepository->findById($driverId);
         if ($car->office_id !== $driver->office_id){
             throw new CustomErrorException('La oficina del conductor no coincide con la oficina del vehículo',
-                                            Response::HTTP_BAD_REQUEST);
+                Response::HTTP_BAD_REQUEST);
         }
         $this->entityRepository->sync($driverId, 'cars', ['car_id' => $carId]);
     }
