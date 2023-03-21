@@ -17,5 +17,6 @@ class RoleSeeder extends Seeder
         Role::query()->create(['name' => NameRole::RECEPCIONIST]);
         Role::query()->create(['name' => NameRole::APPLICANT]);
         Role::query()->create(['name' => NameRole::DRIVER]);
+        Role::query()->create(['name' => NameRole::DEPARTMENT_MANAGER]);
     }
 }

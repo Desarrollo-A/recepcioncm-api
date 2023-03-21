@@ -81,5 +81,12 @@ class MenuSeeder extends Seeder
             'icon' => 'mat:apartment',
             'order' => 10
         ]);
+
+        Menu::query()->create([
+            'path_route' => '/dashboard/director/solicitudes',
+            'label' => 'Solicitudes',
+            'icon' => 'mat:assignment_turned_in',
+            'order' => 11
+        ]);
     }
 }
