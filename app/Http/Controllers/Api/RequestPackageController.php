@@ -11,6 +11,7 @@ use App\Http\Requests\DeliveredPackage\DeliveredPackageRequest;
 use App\Http\Requests\DeliveredPackage\UploadSignatureRequest;
 use App\Http\Requests\Request\ResponseRejectRequest;
 use App\Http\Requests\Request\StarRatingRequest;
+use App\Http\Requests\RequestPackage\AcceptCancelPackageRequest;
 use App\Http\Requests\RequestPackage\ApprovedPackageRequest;
 use App\Http\Requests\RequestPackage\ProposalPackageRequest;
 use App\Http\Requests\RequestPackage\StoreRequestPackageRequest;
@@ -27,6 +28,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Symfony\Component\HttpFoundation\Response as HttpCodes;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class RequestPackageController extends BaseApiController
 {
@@ -48,6 +50,8 @@ class RequestPackageController extends BaseApiController
         $this->middleware('role.permission:'.NameRole::DRIVER)
             ->only('findAllByDriverIdPaginated', 'onRoad', 'deliveredRequest', 'deliveredRequestSignature', 'findAllDeliveredByDriverIdPaginated', 
                 'getRequestPackageReportPdf', 'getRequestPackageReportExcel');
+        $this->middleware('role.permission:'.NameRole::DEPARTMENT_MANAGER)
+            ->only('acceptCancelPackage');
         
         $this->requestPackageService = $requestPackageService;
         $this->notificationService = $notificationService;
@@ -239,8 +243,18 @@ class RequestPackageController extends BaseApiController
         return $this->requestPackageService->reportRequestPackagePdf($request, auth()->id());
     }
 
-    public function getRequestPackageReportExcel(Request $request)
+    public function getRequestPackageReportExcel(Request $request): StreamedResponse
     {
         return $this->requestPackageService->reportRequestPackageExcel($request, auth()->id());
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function acceptCancelPackage(int $requestId, AcceptCancelPackageRequest $request): Response
+    {
+        $package = $this->requestPackageService->acceptCancelPackage($requestId, $request->toDTO());
+        $this->notificationService->acceptOrCancelPackageRequestNotification($package);
+        return $this->noContentResponse();
     }
 }

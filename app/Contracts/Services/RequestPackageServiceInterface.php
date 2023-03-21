@@ -18,6 +18,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 interface RequestPackageServiceInterface extends BaseServiceInterface
 {
@@ -81,5 +82,7 @@ interface RequestPackageServiceInterface extends BaseServiceInterface
 
     public function reportRequestPackagePdf (HttpRequest $request, int $driverId);
 
-    public function reportRequestPackageExcel(HttpRequest $request, int $driverId);
+    public function reportRequestPackageExcel(HttpRequest $request, int $driverId): StreamedResponse;
+
+    public function acceptCancelPackage(int $requestId, RequestDTO $dto): Package;
 }

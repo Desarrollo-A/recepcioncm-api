@@ -18,6 +18,6 @@ class PackageObserver
 
     public function created(Package $package)
     {
-        $this->notificationService->createRequestPackageNotification($package->fresh(['request']));
+        $this->notificationService->createRequestPackageNotification($package->fresh(['request', 'request.user']));
     }
 }   
