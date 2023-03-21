@@ -39,6 +39,11 @@ class CreateUsersTable extends Migration
             $table->foreign('office_id')
                 ->references('id')
                 ->on('offices');
+            $table->unsignedBigInteger('department_manager_id')
+                ->nullable();
+            $table->foreign('department_manager_id')
+                ->references('id')
+                ->on('users');
             $table->timestamps();
         });
     }

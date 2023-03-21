@@ -24,6 +24,7 @@ class UserSeeder extends Seeder
         $reception = Role::query()->where('name', NameRole::RECEPCIONIST)->first()->id;
         $solicitante = Role::query()->where('name', NameRole::APPLICANT)->first()->id;
         $conductor = Role::query()->where('name', NameRole::DRIVER)->first()->id;
+        $director = Role::query()->where('name', NameRole::DEPARTMENT_MANAGER)->first()->id;
         $officeId = Office::all(['id']);
         $activeStatus = Lookup::query()
             ->where('type', TypeLookup::STATUS_USER)
@@ -33,26 +34,43 @@ class UserSeeder extends Seeder
 
         for($i = 0; $i < 3; $i++) {
             factory(User::class)->create([
-                'role_id' => $reception,
+                'role_id' => $director,
                 'status_id' => $activeStatus,
                 'office_id' => $officeId->random()
+            ]);
+        }
+
+        $directors = User::query()
+            ->whereHas('role', function (\Illuminate\Database\Eloquent\Builder $query) {
+                $query->where('name', NameRole::DEPARTMENT_MANAGER);
+            })
+            ->get(['id']);
+
+        for($i = 0; $i < 3; $i++) {
+            factory(User::class)->create([
+                'role_id' => $reception,
+                'status_id' => $activeStatus,
+                'office_id' => $officeId->random(),
+                'department_manager_id' => $directors->random()
             ]);
         }
 
         factory(User::class, self::TOTAL_USERS_APPLICANT)->create([
             'role_id' => $solicitante,
             'status_id' => $activeStatus,
-            'office_id' => $officeId->random()
+            'office_id' => $officeId->random(),
+            'department_manager_id' => $directors->random()
         ]);
 
         User::query()
             ->where('role_id', $reception)
             ->get()
-            ->each(function (User $user) use ($conductor, $activeStatus) {
+            ->each(function (User $user) use ($conductor, $activeStatus, $directors) {
                 factory(User::class, self::TOTAL_USERS_DRIVER)->create([
                     'role_id' => $conductor,
                     'status_id' => $activeStatus,
-                    'office_id' => $user->office_id
+                    'office_id' => $user->office_id,
+                    'department_manager_id' => $directors->random()
                 ]);
             });
 

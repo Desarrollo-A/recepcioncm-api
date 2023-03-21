@@ -19,6 +19,7 @@ class SubmenuSeeder extends Seeder
         $mantoMenu = Menu::query()->where('path_route', '/dashboard/mantenimiento')->first()->id;
         $reportMenu = Menu::query()->where('path_route', '/dashboard/reporte')->first()->id;
         $requestAssignsMenu = Menu::query()->where('path_route', '/dashboard/solicitudes-asignadas')->first()->id;
+        $requestManager = Menu::query()->where('path_route', '/dashboard/director/solicitudes')->first()->id;
 
         $this->createSubmenu('/sala', 'Salas de Junta',1, $requestMenu);
         $this->createSubmenu('/paqueteria', 'Paquetería', 2, $requestMenu);
@@ -44,6 +45,8 @@ class SubmenuSeeder extends Seeder
 
         $this->createSubmenu('/paqueteria','Paquetería',1, $requestAssignsMenu);
         $this->createSubmenu('/conductor', 'Chofer', 2, $requestAssignsMenu);
+
+        $this->createSubmenu('/paqueteria', 'Paquetería', 1, $requestManager);
     }
 
     private function createSubmenu(string $pathRoute, string $label, int $order, int $menuId): void

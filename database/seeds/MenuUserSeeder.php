@@ -29,6 +29,9 @@ class MenuUserSeeder extends Seeder
         $menuDriver = $this->getMenu(ViewsDefault::VIEWS_DEFAULT_DRIVER);
         $submenuDriver = $this->getSubmenu(ViewsDefault::VIEWS_DEFAULT_DRIVER);
 
+        $menuManager = $this->getMenu(ViewsDefault::VIEWS_DEFAULT_DEPARTMENT_MANAGER);
+        $submenuManager = $this->getSubmenu(ViewsDefault::VIEWS_DEFAULT_DEPARTMENT_MANAGER);
+
         User::query()
             ->with('menus')
             ->whereHas('role', function (Builder $query) {
@@ -73,6 +76,18 @@ class MenuUserSeeder extends Seeder
             ->map(function (User $user) use ($menuDriver, $submenuDriver) {
                 $user->menus()->attach($menuDriver);
                 $user->submenus()->attach($submenuDriver);
+                return $user;
+            });
+
+        User::query()
+            ->with('menus')
+            ->whereHas('role', function (Builder $query) {
+                $query->where('name', NameRole::DEPARTMENT_MANAGER);
+            })
+            ->get()
+            ->map(function (User $user) use ($menuManager, $submenuManager) {
+                $user->menus()->attach($menuManager);
+                $user->submenus()->attach($submenuManager);
                 return $user;
             });
     }
