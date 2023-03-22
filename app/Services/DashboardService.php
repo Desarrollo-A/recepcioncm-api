@@ -54,6 +54,12 @@ class DashboardService implements DashboardServiceInterface
             ]);
             $totalRequests = $this->driverPackageScheduleRepository->getTotalByStatus($user->id);
         }
+        if ($roleName === NameRole::DEPARTMENT_MANAGER) {
+            $totalNews = $this->requestRepository->getTotalManagerRequestPackagesByStatus(
+                $user->id, [StatusPackageRequestLookup::code(StatusPackageRequestLookup::IN_REVIEW_MANAGER)]
+            );
+            $totalRequests = $this->requestRepository->getTotalManagerRequestPackagesByStatus($user->id);
+        }
 
         return collect([
             'news' => $totalNews,
@@ -65,7 +71,7 @@ class DashboardService implements DashboardServiceInterface
 
     public function getTotalLast7Days(User $user): array
     {
-        if (in_array($user->role->name, [NameRole::APPLICANT, NameRole::DRIVER])) {
+        if (in_array($user->role->name, [NameRole::APPLICANT, NameRole::DRIVER, NameRole::DEPARTMENT_MANAGER])) {
             return [];
         }
         return $this->requestRepository->getTotalLast7Days($user->office_id);
@@ -73,7 +79,7 @@ class DashboardService implements DashboardServiceInterface
 
     public function getTotalRequetsOfMonth(User $user): int
     {
-        if (in_array($user->role->name, [NameRole::APPLICANT, NameRole::DRIVER])) {
+        if (in_array($user->role->name, [NameRole::APPLICANT, NameRole::DRIVER, NameRole::DEPARTMENT_MANAGER])) {
             return 0;
         }
         return $this->requestRepository->getTotalRequetsOfMonth($user->office_id);
@@ -81,7 +87,7 @@ class DashboardService implements DashboardServiceInterface
 
     public function getRequestPercentage(User $user): int
     {
-        if (in_array($user->role->name, [NameRole::APPLICANT, NameRole::DRIVER])) {
+        if (in_array($user->role->name, [NameRole::APPLICANT, NameRole::DRIVER, NameRole::DEPARTMENT_MANAGER])) {
             return 0;
         }
 

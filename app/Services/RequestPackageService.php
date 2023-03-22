@@ -53,6 +53,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response as HttpCodes;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class RequestPackageService extends BaseService implements RequestPackageServiceInterface
 {
@@ -126,7 +127,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
         }
         
         $dto->request->status_id = $this->lookupRepository
-            ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW),
+            ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::IN_REVIEW_MANAGER),
                 TypeLookup::STATUS_PACKAGE_REQUEST)
             ->id;
 
@@ -227,6 +228,15 @@ class RequestPackageService extends BaseService implements RequestPackageService
                     break;
                 case StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED):
                     $status = $this->lookupRepository->findByCodeWhereInAndType([
+                        StatusPackageRequestLookup::code(StatusPackageRequestLookup::CANCELLED)
+                    ], TypeLookup::STATUS_PACKAGE_REQUEST);
+                    break;
+            }
+        } else if ($roleName === NameRole::DEPARTMENT_MANAGER) {
+            switch ($code) {
+                case StatusPackageRequestLookup::code(StatusPackageRequestLookup::IN_REVIEW_MANAGER):
+                    $status = $this->lookupRepository->findByCodeWhereInAndType([
+                        StatusPackageRequestLookup::code(StatusPackageRequestLookup::ACCEPT),
                         StatusPackageRequestLookup::code(StatusPackageRequestLookup::CANCELLED)
                     ], TypeLookup::STATUS_PACKAGE_REQUEST);
                     break;
@@ -670,7 +680,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
     {
         $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
         $data = $this->requestPackageViewRepository->getDataReport($filters, $driverId);
-        $path = str_replace('\\', '/', Path::STORAGE.Path::PACKAGE_SIGNATURES);
+        $path = Path::STORAGE.Path::PACKAGE_SIGNATURES;
         return File::generatePDF('pdf.reports.driver-delivered', 
             array('items' => $data, 'path' => $path),
             'solicitudes_paqueteria_entregadas', true);
@@ -683,7 +693,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
      * @throws InvalidArgumentException
      * @throws IOException
      */
-    public function reportRequestPackageExcel(HttpRequest $request, int $driverId)
+    public function reportRequestPackageExcel(HttpRequest $request, int $driverId): StreamedResponse
     {
         $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
         $data = $this->requestPackageViewRepository->getDataReport($filters, $driverId)->map(function ($item) {
@@ -696,5 +706,42 @@ class RequestPackageService extends BaseService implements RequestPackageService
             ]);
         });
         return File::generateExcel($data,'solicitudes_paqueteria_entregadas');
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function acceptCancelPackage(int $requestId, RequestDTO $dto): Request
+    {
+        if (!in_array($dto->status->code, StatusPackageRequestLookup::getAllCodes()->all())) {
+            throw new CustomErrorException('No existe el estatus', HttpCodes::HTTP_NOT_FOUND);
+        }
+
+        $statusCode = ($dto->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::ACCEPT))
+            ? StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW)
+            : StatusPackageRequestLookup::code(StatusPackageRequestLookup::CANCELLED);
+
+        $dto->status_id = $this->lookupRepository
+            ->findByCodeAndType($statusCode,TypeLookup::STATUS_PACKAGE_REQUEST)
+            ->id;
+
+        if ($statusCode === StatusPackageRequestLookup::code(StatusPackageRequestLookup::CANCELLED)) {
+            $dto->cancelRequest->request_id = $requestId;
+            $this->cancelRequestRepository->create($dto->cancelRequest->toArray(['request_id', 'cancel_comment', 'user_id']));
+        }
+
+        return $this->requestRepository->update($requestId, $dto->toArray(['status_id']))
+            ->fresh(['status', 'package']);
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function findAllPackagesByManagerIdPaginated(HttpRequest $request, int $departmentManagerId, array $columns = ['*']): LengthAwarePaginator
+    {
+        $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
+        $perPage = Validation::getPerPage($request->get(QueryParam::PAGINATION_KEY));
+        $sort = $request->get(QueryParam::ORDER_BY_KEY);
+        return $this->requestPackageViewRepository->findAllPackagesByManagerIdPaginated($filters, $perPage, $departmentManagerId, $sort);
     }
 }

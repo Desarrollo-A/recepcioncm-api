@@ -9,4 +9,9 @@ class NameRole
     const APPLICANT = 'Solicitante';
     const DRIVER = 'Conductor';
     const DEPARTMENT_MANAGER = 'Director de departamento';
+
+    static function allRolesMiddleware(): string
+    {
+        return self::ADMIN.','.self::RECEPCIONIST.','.self::APPLICANT.','.self::DRIVER.','.self::DEPARTMENT_MANAGER;
+    }
 }

@@ -250,8 +250,8 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function createRequestPackageNotification(Package $package): void
     {
-        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($package->office_id)->id;
-        $notification = $this->createRow("Nueva solicitud de paquetería {$package->request->code}", $userId,
+        $notification = $this->createRow("Solicitud de paquetería {$package->request->code} para revisión",
+            $package->request->user->department_manager_id,
             TypeNotificationsLookup::PARCEL, NotificationColorLookup::BLUE, NotificationIconLookup::TRUCK);
         $this->requestNotificationService->create($package->request_id, $notification->id);
         Utils::eventAlertNotification($notification);
@@ -559,6 +559,30 @@ class NotificationService extends BaseService implements NotificationServiceInte
         }
         $notification = $this->createRow($messageNotification, $userId, TypeNotificationsLookup::CAR,
             $colorNotification, NotificationIconLookup::CAR);
+        $this->requestNotificationService->create($request->id, $notification->id);
+        Utils::eventAlertNotification($notification);
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function acceptOrCancelPackageRequestNotification(Request $request): void
+    {
+        $message = '';
+        $colorNotification = '';
+        $userId = null;
+        if ($request->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW)) {
+            $message = "Nueva solicitud de paquetería $request->code";
+            $colorNotification = NotificationColorLookup::BLUE;
+            $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($request->package->office_id)->id;
+        } else if ($request->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::CANCELLED)) {
+            $message = "La solicitud de paquetería $request->code fue cancelada";
+            $colorNotification = NotificationColorLookup::RED;
+            $userId = $request->user_id;
+        }
+
+        $notification = $this->createRow($message, $userId,
+            TypeNotificationsLookup::PARCEL, $colorNotification, NotificationIconLookup::TRUCK);
         $this->requestNotificationService->create($request->id, $notification->id);
         Utils::eventAlertNotification($notification);
     }

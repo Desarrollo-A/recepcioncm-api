@@ -14,7 +14,8 @@ class DashboardController extends BaseApiController
 
     public function __construct(DashboardServiceInterface $dashboardService)
     {
-        $this->middleware('role.permission:'.NameRole::RECEPCIONIST.','.NameRole::APPLICANT.','.NameRole::DRIVER);
+        $this->middleware('role.permission:'.NameRole::RECEPCIONIST.','.NameRole::APPLICANT.','
+            .NameRole::DRIVER.','.NameRole::DEPARTMENT_MANAGER);
         $this->dashboardService = $dashboardService;
     }
 
