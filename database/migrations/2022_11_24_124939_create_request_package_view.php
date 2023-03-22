@@ -31,7 +31,7 @@ class CreateRequestPackageView extends Migration
         return 'CREATE OR ALTER VIEW request_package_view AS
             SELECT r.id AS request_id, r.code, r.title, r.start_date, r.end_date, s.name AS status_name, s.code AS status_code, 
             p.office_id, u.full_name, pick.state AS state_pickup, arrv.state AS state_arrival, r.user_id, p.id AS package_id,
-            ds.driver_id, dpk.name_receive, dpk.signature
+            ds.driver_id, dpk.name_receive, dpk.signature, u.department_manager_id
             FROM packages p
             INNER JOIN requests r ON r.id = p.request_id
             INNER JOIN lookups s ON r.status_id = s.id

@@ -22,9 +22,9 @@ class RequestPackageSeeder extends Seeder
      */
     public function run()
     {
-        $statusNew = Lookup::query()
+        $statusInReviewManager = Lookup::query()
             ->where('type', TypeLookup::STATUS_PACKAGE_REQUEST)
-            ->where('code', StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW))
+            ->where('code', StatusPackageRequestLookup::code(StatusPackageRequestLookup::IN_REVIEW_MANAGER))
             ->first()
             ->id;
 
@@ -46,7 +46,7 @@ class RequestPackageSeeder extends Seeder
         User::query()
             ->where('role_id', $roleApplicant)
             ->get('id')
-            ->each(function ($user) use ($statusNew, $typePackage, $countries, $date, $roleDriver) {
+            ->each(function ($user) use ($statusInReviewManager, $typePackage, $countries, $date, $roleDriver) {
                 $officesIds = Office::query()
                     ->whereIn('id', function(\Illuminate\Database\Query\Builder $query) use ($roleDriver) {
                         return $query->selectRaw('DISTINCT(office_id)')
@@ -55,7 +55,7 @@ class RequestPackageSeeder extends Seeder
                     })
                     ->get('id');
 
-                foreach (range(0,2) as $i) {
+                foreach (range(0,2) as $ignored) {
                     $pickupAddress = factory(Address::class)
                         ->create([
                             'country_id' => $countries->shuffle()->first()->id
@@ -70,7 +70,7 @@ class RequestPackageSeeder extends Seeder
                         ->create([
                             'start_date' => "$date 00:00:00.000",
                             'user_id' => $user->id,
-                            'status_id' => $statusNew,
+                            'status_id' => $statusInReviewManager,
                             'type_id' => $typePackage,
                             'people' => null
                         ]);

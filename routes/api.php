@@ -360,6 +360,9 @@ Route::prefix('v1')->group(function () {
                 Route::get('/driver-delivered', 'RequestPackageController@findAllDeliveredByDriverIdPaginated')
                     ->name('driver.delivered');
 
+                Route::get('/department-manager', 'RequestPackageController@findAllPackagesByManagerIdPaginated')
+                    ->name('department-manager');
+
                 Route::post('/approved', 'RequestPackageController@approvedRequest')
                     ->name('approved');
 
@@ -391,6 +394,10 @@ Route::prefix('v1')->group(function () {
 
                 Route::patch('/response-reject/{requestId}', 'RequestPackageController@responseRejectRequest')
                     ->name('response-reject')
+                    ->where('id', Validation::INTEGER_ID);
+
+                Route::patch('/accept-cancel/{requestId}', 'RequestPackageController@acceptCancelPackage')
+                    ->name('accept-cancel')
                     ->where('id', Validation::INTEGER_ID);
             });
 

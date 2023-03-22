@@ -51,6 +51,11 @@ class RequestDTO
     public $cancel_comment;
 
     /**
+     * @var CancelRequestDTO
+     */
+    public $cancelRequest;
+
+    /**
      * @var bool
      */
     public $add_google_calendar;
