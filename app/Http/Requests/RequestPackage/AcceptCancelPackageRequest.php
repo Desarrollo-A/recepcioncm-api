@@ -28,6 +28,14 @@ class AcceptCancelPackageRequest extends FormRequest implements ReturnDtoInterfa
         return $validations;
     }
 
+    public function attributes(): array
+    {
+        return [
+            'status.code' => 'Clave del estatus',
+            'cancelRequest.cancelComment' => 'Comentario de cancelación'
+        ];
+    }
+
     /**
      * @throws CustomErrorException
      */

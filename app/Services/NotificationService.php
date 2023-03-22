@@ -566,24 +566,24 @@ class NotificationService extends BaseService implements NotificationServiceInte
     /**
      * @throws CustomErrorException
      */
-    public function acceptOrCancelPackageRequestNotification(Package $package): void
+    public function acceptOrCancelPackageRequestNotification(Request $request): void
     {
         $message = '';
         $colorNotification = '';
         $userId = null;
-        if ($package->request->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW)) {
-            $message = "Nueva solicitud de paquetería {$package->request->code}";
+        if ($request->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW)) {
+            $message = "Nueva solicitud de paquetería $request->code";
             $colorNotification = NotificationColorLookup::BLUE;
-            $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($package->office_id)->id;
-        } else if ($package->request->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::CANCELLED)) {
-            $message = "La solicitud de paquetería {$package->request->code} fue cancelada";
+            $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($request->package->office_id)->id;
+        } else if ($request->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::CANCELLED)) {
+            $message = "La solicitud de paquetería $request->code fue cancelada";
             $colorNotification = NotificationColorLookup::RED;
-            $userId = $package->request->user_id;
+            $userId = $request->user_id;
         }
 
         $notification = $this->createRow($message, $userId,
             TypeNotificationsLookup::PARCEL, $colorNotification, NotificationIconLookup::TRUCK);
-        $this->requestNotificationService->create($package->request_id, $notification->id);
+        $this->requestNotificationService->create($request->id, $notification->id);
         Utils::eventAlertNotification($notification);
     }
 

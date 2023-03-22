@@ -42,7 +42,8 @@ class RequestPackageController extends BaseApiController
             ->only('store', 'uploadAuthorizationFile', 'responseRejectRequest');
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
             ->only('index', 'cancelRequest');
-        $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST.','.NameRole::DRIVER)
+        $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST.','.NameRole::DRIVER.
+            ','.NameRole::DEPARTMENT_MANAGER)
             ->only('show', 'getStatusByStatusCurrent');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
             ->only('transferRequest', 'getDriverSchedule', 'getPackagesByDriverId', 'onReadRequest',
@@ -253,8 +254,8 @@ class RequestPackageController extends BaseApiController
      */
     public function acceptCancelPackage(int $requestId, AcceptCancelPackageRequest $request): Response
     {
-        $package = $this->requestPackageService->acceptCancelPackage($requestId, $request->toDTO());
-        $this->notificationService->acceptOrCancelPackageRequestNotification($package);
+        $request = $this->requestPackageService->acceptCancelPackage($requestId, $request->toDTO());
+        $this->notificationService->acceptOrCancelPackageRequestNotification($request);
         return $this->noContentResponse();
     }
 

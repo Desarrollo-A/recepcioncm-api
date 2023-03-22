@@ -711,7 +711,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
     /**
      * @throws CustomErrorException
      */
-    public function acceptCancelPackage(int $requestId, RequestDTO $dto): Package
+    public function acceptCancelPackage(int $requestId, RequestDTO $dto): Request
     {
         if (!in_array($dto->status->code, StatusPackageRequestLookup::getAllCodes()->all())) {
             throw new CustomErrorException('No existe el estatus', HttpCodes::HTTP_NOT_FOUND);
@@ -725,14 +725,13 @@ class RequestPackageService extends BaseService implements RequestPackageService
             ->findByCodeAndType($statusCode,TypeLookup::STATUS_PACKAGE_REQUEST)
             ->id;
 
-        $package = $this->packageRepository->findByRequestId($requestId);
-
         if ($statusCode === StatusPackageRequestLookup::code(StatusPackageRequestLookup::CANCELLED)) {
             $dto->cancelRequest->request_id = $requestId;
             $this->cancelRequestRepository->create($dto->cancelRequest->toArray(['request_id', 'cancel_comment', 'user_id']));
         }
 
-        return $this->packageRepository->update($package->id, $dto->toArray(['status_id']));
+        return $this->requestRepository->update($requestId, $dto->toArray(['status_id']))
+            ->fresh(['status', 'package']);
     }
 
     /**
