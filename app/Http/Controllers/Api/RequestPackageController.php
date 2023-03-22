@@ -257,4 +257,10 @@ class RequestPackageController extends BaseApiController
         $this->notificationService->acceptOrCancelPackageRequestNotification($package);
         return $this->noContentResponse();
     }
+
+    public function findAllPackagesByManagerIdPaginated(Request $request): JsonResponse
+    {
+        $packages = $this->requestPackageService->findAllPackagesByManagerIdPaginated($request, auth()->id());
+        return $this->showAll(new RequestPackageViewCollection($packages, true));
+    }
 }

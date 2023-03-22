@@ -15,11 +15,12 @@ class NotificationController extends BaseApiController
     private $notificationService;
     private $actionRequestNotificationService;
 
-    public function __construct(NotificationServiceInterface              $notificationService,
-                                ActionRequestNotificationServiceInterface $actionRequestNotificationService)
+    public function __construct(
+        NotificationServiceInterface $notificationService,
+        ActionRequestNotificationServiceInterface $actionRequestNotificationService
+    )
     {
-        $this->middleware('role.permission:' . NameRole::ADMIN . ','
-            . NameRole::APPLICANT . ',' . NameRole::RECEPCIONIST.','.NameRole::DRIVER)
+        $this->middleware('role.permission:'.NameRole::allRolesMiddleware())
             ->only('getAllNotificationUnread', 'readNotification', 'readAllNotification',
                 'existUnreadNotifications', 'show');
         $this->middleware('role.permission:' . NameRole::APPLICANT)

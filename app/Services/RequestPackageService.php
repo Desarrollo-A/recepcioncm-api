@@ -734,4 +734,15 @@ class RequestPackageService extends BaseService implements RequestPackageService
 
         return $this->packageRepository->update($package->id, $dto->toArray(['status_id']));
     }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function findAllPackagesByManagerIdPaginated(HttpRequest $request, int $departmentManagerId, array $columns = ['*']): LengthAwarePaginator
+    {
+        $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
+        $perPage = Validation::getPerPage($request->get(QueryParam::PAGINATION_KEY));
+        $sort = $request->get(QueryParam::ORDER_BY_KEY);
+        return $this->requestPackageViewRepository->findAllPackagesByManagerIdPaginated($filters, $perPage, $departmentManagerId, $sort);
+    }
 }

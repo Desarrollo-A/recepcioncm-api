@@ -360,6 +360,9 @@ Route::prefix('v1')->group(function () {
                 Route::get('/driver-delivered', 'RequestPackageController@findAllDeliveredByDriverIdPaginated')
                     ->name('driver.delivered');
 
+                Route::get('/department-manager', 'RequestPackageController@findAllPackagesByManagerIdPaginated')
+                    ->name('department-manager');
+
                 Route::post('/approved', 'RequestPackageController@approvedRequest')
                     ->name('approved');
 

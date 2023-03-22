@@ -68,4 +68,16 @@ class RequestPackageViewRepository extends BaseRepository implements RequestPack
             ->orderBy('end_date', 'DESC')
             ->get();
     }
+
+    public function findAllPackagesByManagerIdPaginated(
+        array $filters, int $limit, int $departmentManagerId, string $sort = null, array $columns = ['*']
+    ): LengthAwarePaginator
+    {
+        return $this->entity
+            ->filter($filters)
+            ->where('department_manager_id', $departmentManagerId)
+            ->where('status_code', StatusPackageRequestLookup::code(StatusPackageRequestLookup::IN_REVIEW_MANAGER))
+            ->applySort($sort)
+            ->paginate($limit, $columns);
+    }
 }

@@ -85,4 +85,7 @@ interface RequestPackageServiceInterface extends BaseServiceInterface
     public function reportRequestPackageExcel(HttpRequest $request, int $driverId): StreamedResponse;
 
     public function acceptCancelPackage(int $requestId, RequestDTO $dto): Package;
+
+    public function findAllPackagesByManagerIdPaginated(HttpRequest $request, int $departmentManagerId,
+                                                        array $columns = ['*']): LengthAwarePaginator;
 }

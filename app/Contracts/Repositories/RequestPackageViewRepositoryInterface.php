@@ -19,4 +19,9 @@ interface RequestPackageViewRepositoryInterface extends BaseRepositoryInterface
                                                         array $columns = ['*']): LengthAwarePaginator;
 
     public function getDataReport (array $filters, int $driverId): Collection;
+
+    public function findAllPackagesByManagerIdPaginated(
+        array $filters, int $limit, int $departmentManagerId, string $sort = null,
+        array $columns = ['*']
+    ): LengthAwarePaginator;
 }
