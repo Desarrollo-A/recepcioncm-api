@@ -38,16 +38,6 @@ class PackageDTO
     /**
      * @var string
      */
-    public $authorization_filename;
-
-    /**
-     * @var UploadedFile
-     */
-    public $authorization_file;
-
-    /**
-     * @var string
-     */
     public $name_receive;
 
     /**

@@ -23,8 +23,6 @@ class CreatePackagesTable extends Migration
             $table->foreign('arrival_address_id')
                 ->references('id')
                 ->on('addresses');
-            $table->string('authorization_filename', 50)
-                ->nullable();
             $table->string('name_receive', 150);
             $table->string('email_receive', 150);
             $table->unsignedBigInteger('request_id');

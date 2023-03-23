@@ -16,7 +16,6 @@ use App\Http\Requests\RequestPackage\ApprovedPackageRequest;
 use App\Http\Requests\RequestPackage\ProposalPackageRequest;
 use App\Http\Requests\RequestPackage\StoreRequestPackageRequest;
 use App\Http\Requests\RequestPackage\TransferPackageRequest;
-use App\Http\Requests\RequestPackage\UploadFileRequestPackageRequest;
 use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\Package\PackageExposedResource;
 use App\Http\Resources\Package\PackageResource;
@@ -66,16 +65,6 @@ class RequestPackageController extends BaseApiController
         $dto = $request->toDTO();
         $package = $this->requestPackageService->createRequestPackage($dto);
         return $this->showOne(new PackageResource($package));
-    }
-
-    /**
-     * @throws CustomErrorException
-     */
-    public function uploadAuthorizationFile(int $requestId, UploadFileRequestPackageRequest $request): Response
-    {
-        $dto = $request->toDTO();
-        $this->requestPackageService->uploadAuthorizationFile($requestId, $dto);
-        return $this->noContentResponse();
     }
 
     public function index(Request $request): JsonResponse

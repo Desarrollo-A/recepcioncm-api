@@ -148,15 +148,6 @@ class RequestPackageService extends BaseService implements RequestPackageService
     /**
      * @throws CustomErrorException
      */
-    public function uploadAuthorizationFile(int $id, PackageDTO $dto): void
-    {
-        $dto->authorization_filename = File::uploadFile($dto->authorization_file, Path::PACKAGE_AUTHORIZATION_DOCUMENTS);
-        $this->packageRepository->update($id, $dto->toArray(['authorization_filename']));
-    }
-
-    /**
-     * @throws CustomErrorException
-     */
     public function findAllPackagesPaginated(HttpRequest $request, User $user, array $columns = ['*']): LengthAwarePaginator
     {
         $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));

@@ -369,10 +369,6 @@ Route::prefix('v1')->group(function () {
                 Route::post('/delivered', 'RequestPackageController@deliveredRequest')
                     ->name('delivered');
 
-                Route::put('/upload-file/{requestId}', 'RequestPackageController@uploadAuthorizationFile')
-                    ->name('upload-file')
-                    ->where('requestId', Validation::INTEGER_ID);
-
                 Route::put('/signature/{packageId}', 'RequestPackageController@deliveredRequestSignature')
                     ->name('signature')
                     ->where('packageId', Validation::INTEGER_ID);
