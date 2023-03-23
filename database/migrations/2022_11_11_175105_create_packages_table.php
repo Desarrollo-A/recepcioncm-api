@@ -37,14 +37,14 @@ class CreatePackagesTable extends Migration
                 ->references('id')
                 ->on('offices');
             $table->string('tracking_code', 25)
-                ->nullable()
-                ->index();
+                ->nullable();
             $table->string('url_tracking')
                 ->nullable();
             $table->string('auth_code', 50)
                 ->nullable();
             $table->boolean('is_urgent')
                 ->nullable();
+            $table->boolean('is_heavy_shipping');
             $table->timestamps();
         });
     }
