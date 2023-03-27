@@ -66,6 +66,10 @@ Route::prefix('v1')->group(function () {
                 Route::get('/find-all-type/{type}', 'LookupController@findAllByType')
                     ->name('find-all-type')
                     ->where('type', Validation::INTEGER_ID);
+
+                Route::get('/find-by-code-type/{type}/{code}', 'LookupController@findByCodeAndType')
+                    ->name('find-by-code-type')
+                    ->where('type', Validation::INTEGER_ID);
             });
 
         Route::prefix('states')
@@ -270,7 +274,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix('offices')
             ->name('offices.')
             ->group(function(){
-                Route::get('/state-driver/{stateId}', 'OfficeController@getOfficeByStateWithDriver')
+                Route::get('/state-driver/{stateId}', 'OfficeController@getOfficeByStateId')
                     ->name('state-driver')
                     ->where('stateId', Validation::INTEGER_ID);
 
@@ -368,10 +372,6 @@ Route::prefix('v1')->group(function () {
 
                 Route::post('/delivered', 'RequestPackageController@deliveredRequest')
                     ->name('delivered');
-
-                Route::put('/upload-file/{requestId}', 'RequestPackageController@uploadAuthorizationFile')
-                    ->name('upload-file')
-                    ->where('requestId', Validation::INTEGER_ID);
 
                 Route::put('/signature/{packageId}', 'RequestPackageController@deliveredRequestSignature')
                     ->name('signature')

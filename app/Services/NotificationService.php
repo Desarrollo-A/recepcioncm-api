@@ -262,7 +262,13 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function deleteRequestPackageNotification (Package $package): void
     {
-        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($package->office_id)->id;
+        $userId = null;
+        if ($package->request->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::IN_REVIEW_MANAGER)) {
+            $userId = $package->request->user->department_manager_id;
+        } else if ($package->request->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW)) {
+            $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($package->office_id)->id;
+        }
+
         $notificationDelete = $this->createRow("La solicitud de paquetería {$package->request->code} fue eliminada",
             $userId, TypeNotificationsLookup::PARCEL, NotificationColorLookup::RED, NotificationIconLookup::TRUCK);
         Utils::eventAlertNotification($notificationDelete);

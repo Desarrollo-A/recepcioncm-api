@@ -38,16 +38,6 @@ class PackageDTO
     /**
      * @var string
      */
-    public $authorization_filename;
-
-    /**
-     * @var UploadedFile
-     */
-    public $authorization_file;
-
-    /**
-     * @var string
-     */
     public $name_receive;
 
     /**
@@ -99,6 +89,16 @@ class PackageDTO
      * @var boolean
      */
     public $is_urgent;
+
+    /**
+     * @var bool
+     */
+    public $is_heavy_shipping;
+
+    /**
+     * @var HeavyShipmentDTO[]
+     */
+    public $heavyShipments;
 
     /**
      * @var ProposalPackageDTO

@@ -17,9 +17,6 @@ class PackageResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'authorizationFilename' => is_null($this->authorization_filename)
-                ? null
-                : File::getExposedPath($this->authorization_filename, Path::PACKAGE_AUTHORIZATION_DOCUMENTS),
             'nameReceive' => $this->name_receive,
             'emailReceive' => $this->email_receive,
             'commentReceive' => $this->comment_receive,
