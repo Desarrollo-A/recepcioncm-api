@@ -5,6 +5,7 @@ namespace App\Http\Requests\RequestPackage;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\Contracts\ReturnDtoInterface;
 use App\Models\Dto\AddressDTO;
+use App\Models\Dto\HeavyShipmentDTO;
 use App\Models\Dto\PackageDTO;
 use App\Models\Dto\RequestDTO;
 use Illuminate\Foundation\Http\FormRequest;
@@ -33,6 +34,7 @@ class StoreRequestPackageRequest extends FormRequest implements ReturnDtoInterfa
             'package.commentReceive' => ['min:3', 'max:2500'],
             'package.officeId' => ['required', 'integer'],
             'package.isUrgent' =>  ['boolean'],
+            'package.isHeavyShipping' => ['required', 'boolean'],
         ];
 
         if ($this->package['pickupAddress']['isExternal']) {
@@ -45,7 +47,7 @@ class StoreRequestPackageRequest extends FormRequest implements ReturnDtoInterfa
                 'package.pickupAddress.state' => ['min:3', 'max:100'],
                 'package.pickupAddress.countryId' => ['required', 'integer']
             ]);
-        }else {
+        } else {
             $rulesArray = array_merge($rulesArray, [
                 'package.pickupAddressId' => ['required', 'integer']
             ]);
@@ -61,9 +63,20 @@ class StoreRequestPackageRequest extends FormRequest implements ReturnDtoInterfa
                 'package.arrivalAddress.state' => ['min:3', 'max:100'],
                 'package.arrivalAddress.countryId' => ['required', 'integer'],
             ]);
-        }else {
+        } else {
             $rulesArray = array_merge($rulesArray, [
                 'package.arrivalAddressId' => ['required', 'integer']
+            ]);
+        }
+
+        if ($this->package['isHeavyShipping']) {
+            $rulesArray = array_merge($rulesArray, [
+                'package.heavyShipments' => ['required', 'array'],
+                'package.heavyShipments.*.high' => ['required', 'numeric', 'gt:0'],
+                'package.heavyShipments.*.long' => ['required', 'numeric', 'gt:0'],
+                'package.heavyShipments.*.width' => ['required', 'numeric', 'gt:0'],
+                'package.heavyShipments.*.weight' => ['required', 'numeric', 'gt:0'],
+                'package.heavyShipments.*.description' => ['required', 'string', 'min:3', 'max:2500']
             ]);
         }
 
@@ -103,7 +116,14 @@ class StoreRequestPackageRequest extends FormRequest implements ReturnDtoInterfa
             
             'package.pickupAddressId' =>  'ID dirección de salida',
             'package.arrivalAddressId' =>  'ID dirección llegada',
-            
+
+            'package.isHeavyShipping' => 'Peso del paquete',
+            'package.heavyShipments' => 'Artículos',
+            'package.heavyShipments.*.high' => 'Altura',
+            'package.heavyShipments.*.long' => 'Largo',
+            'package.heavyShipments.*.width' => 'Ancho',
+            'package.heavyShipments.*.weight' => 'Peso',
+            'package.heavyShipments.*.description' => 'Descripción'
         ];
     }
 
@@ -140,6 +160,20 @@ class StoreRequestPackageRequest extends FormRequest implements ReturnDtoInterfa
             'user_id' => auth()->id()
         ]);
 
+        $heavyShipments = [];
+        $now = now();
+        foreach ($this->package['heavyShipments'] as $heavyShipment) {
+            $heavyShipments[] = new HeavyShipmentDTO([
+                'high' => $heavyShipment['high'],
+                'long' => $heavyShipment['long'],
+                'width' => $heavyShipment['width'],
+                'weight' => $heavyShipment['weight'],
+                'description' => $heavyShipment['description'],
+                'created_at' => $now,
+                'updated_at' => $now
+            ]);
+        }
+
         return new PackageDTO([
             'name_receive' => $this->package['nameReceive'],
             'email_receive' => $this->package['emailReceive'],
@@ -149,7 +183,9 @@ class StoreRequestPackageRequest extends FormRequest implements ReturnDtoInterfa
             'office_id' => $this->package['officeId'],
             'is_urgent' => $this->package['isUrgent'],
             'pickup_address_id' => $this->package['pickupAddressId'],
-            'arrival_address_id' => $this->package['arrivalAddressId']
+            'arrival_address_id' => $this->package['arrivalAddressId'],
+            'is_heavy_shipping' => $this->package['isHeavyShipping'],
+            'heavyShipments' => $heavyShipments
         ]);
     }
 }

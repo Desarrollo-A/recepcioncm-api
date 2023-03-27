@@ -37,17 +37,19 @@ class OfficeRepository extends BaseRepository implements OfficeRepositoryInterfa
             });
     }
 
-    public function getOfficeByStateWithDriver(int $stateId): Collection
+    public function getOfficeByStateId(int $stateId): Collection
     {
         return $this->entity
             ->where('state_id', $stateId)
-            ->whereIn('id', function($query){
-                return $query->selectRaw('DISTINCT(office_id)')
+            ->where('status', true)
+            ->whereIn('id', function (QueryBuilder $query) {
+                return $query
+                    ->selectRaw('DISTINCT(office_id)')
                     ->from('users')
                     ->join('lookups', 'lookups.id', '=', 'users.status_id')
                     ->join('roles', 'roles.id', '=', 'users.role_id')
                     ->where('lookups.code', StatusUserLookup::code(StatusUserLookup::ACTIVE))
-                    ->where('roles.name', NameRole::DRIVER);
+                    ->where('roles.name', NameRole::RECEPCIONIST);
             })
             ->orderBy('name', 'ASC')
             ->get();

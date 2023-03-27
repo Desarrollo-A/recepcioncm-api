@@ -22,9 +22,9 @@ class OfficeService extends BaseService implements OfficeServiceInterface
         $this->addressRepository = $addressRepository;
     }
 
-    public function getOfficeByStateWithDriver(int $stateId): Collection
+    public function getOfficeByStateId(int $stateId): Collection
     {
-        return $this->entityRepository->getOfficeByStateWithDriver($stateId);
+        return $this->entityRepository->getOfficeByStateId($stateId);
     }
 
     public function getByStateWithDriverWithoutOffice(int $officeId): Collection

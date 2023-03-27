@@ -8,6 +8,7 @@ use App\Contracts\Repositories\CarScheduleRepositoryInterface;
 use App\Contracts\Repositories\DeliveredPackageRepositoryInterface;
 use App\Contracts\Repositories\DriverPackageScheduleRepositoryInterface;
 use App\Contracts\Repositories\DriverScheduleRepositoryInterface;
+use App\Contracts\Repositories\HeavyShipmentRepositoryInterface;
 use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\PackageRepositoryInterface;
 use App\Contracts\Repositories\ProposalPackageRepositoryInterface;
@@ -76,22 +77,26 @@ class RequestPackageService extends BaseService implements RequestPackageService
     protected $calendarService;
     protected $userRepository;
     protected $proposalPackageRepository;
+    protected $heavyShipmentRepository;
 
-    public function __construct(RequestRepositoryInterface $requestRepository,
-                                PackageRepositoryInterface $packageRepository,
-                                LookupRepositoryInterface $lookupRepository,
-                                AddressRepositoryInterface $addressRepository,
-                                RequestPackageViewRepositoryInterface $requestPackageViewRepository,
-                                ScoreRepositoryInterface $scoreRepository,
-                                CancelRequestRepositoryInterface $cancelRequestRepository,
-                                CalendarServiceInterface $calendarService,
-                                DriverScheduleRepositoryInterface $driverScheduleRepository,
-                                CarScheduleRepositoryInterface $carScheduleRepository,
-                                DriverPackageScheduleRepositoryInterface $driverPackageScheduleRepository,
-                                ProposalRequestRepositoryInterface $proposalRequestRepository,
-                                DeliveredPackageRepositoryInterface $deliveredPackageRepository,
-                                UserRepositoryInterface $userRepository,
-                                ProposalPackageRepositoryInterface $proposalPackageRepository)
+    public function __construct(
+        RequestRepositoryInterface $requestRepository,
+        PackageRepositoryInterface $packageRepository,
+        LookupRepositoryInterface $lookupRepository,
+        AddressRepositoryInterface $addressRepository,
+        RequestPackageViewRepositoryInterface $requestPackageViewRepository,
+        ScoreRepositoryInterface $scoreRepository,
+        CancelRequestRepositoryInterface $cancelRequestRepository,
+        CalendarServiceInterface $calendarService,
+        DriverScheduleRepositoryInterface $driverScheduleRepository,
+        CarScheduleRepositoryInterface $carScheduleRepository,
+        DriverPackageScheduleRepositoryInterface $driverPackageScheduleRepository,
+        ProposalRequestRepositoryInterface $proposalRequestRepository,
+        DeliveredPackageRepositoryInterface $deliveredPackageRepository,
+        UserRepositoryInterface $userRepository,
+        ProposalPackageRepositoryInterface $proposalPackageRepository,
+        HeavyShipmentRepositoryInterface $heavyShipmentRepository
+    )
     {
         $this->requestRepository = $requestRepository;
         $this->packageRepository = $packageRepository;
@@ -108,6 +113,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $this->proposalRequestRepository = $proposalRequestRepository;
         $this->userRepository = $userRepository;
         $this->proposalPackageRepository = $proposalPackageRepository;
+        $this->heavyShipmentRepository = $heavyShipmentRepository;
     }
 
     /**
@@ -125,7 +131,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
                 'suburb', 'postal_code', 'state', 'country_id']));
             $dto->arrival_address_id = $arrivalAddress->id;
         }
-        
+
         $dto->request->status_id = $this->lookupRepository
             ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::IN_REVIEW_MANAGER),
                 TypeLookup::STATUS_PACKAGE_REQUEST)
@@ -141,17 +147,22 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $dto->request_id = $request->id;
 
         $package = $this->packageRepository->create($dto->toArray(['pickup_address_id', 'arrival_address_id',
-            'name_receive', 'email_receive', 'comment_receive', 'request_id', 'office_id', 'is_urgent']));
-        return $package->fresh(['request', 'pickupAddress', 'arrivalAddress']);
-    }
+            'name_receive', 'email_receive', 'comment_receive', 'request_id', 'office_id', 'is_urgent',
+            'is_heavy_shipping']));
 
-    /**
-     * @throws CustomErrorException
-     */
-    public function uploadAuthorizationFile(int $id, PackageDTO $dto): void
-    {
-        $dto->authorization_filename = File::uploadFile($dto->authorization_file, Path::PACKAGE_AUTHORIZATION_DOCUMENTS);
-        $this->packageRepository->update($id, $dto->toArray(['authorization_filename']));
+        if (count($dto->heavyShipments) > 0) {
+            $heavyShipments = [];
+            foreach ($dto->heavyShipments as $heavyShipment) {
+                $heavyShipment->package_id = $package->id;
+
+                $heavyShipments[] = $heavyShipment->toArray(['package_id', 'high', 'long', 'width', 'weight',
+                    'description', 'created_at', 'updated_at']);
+            }
+
+            $this->heavyShipmentRepository->bulkInsert($heavyShipments);
+        }
+
+        return $package->fresh(['request', 'pickupAddress', 'arrivalAddress']);
     }
 
     /**

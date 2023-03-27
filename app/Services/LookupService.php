@@ -6,6 +6,7 @@ use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Services\LookupServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
+use App\Models\Lookup;
 use Illuminate\Database\Eloquent\Collection;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -36,5 +37,10 @@ class LookupService extends BaseService implements LookupServiceInterface
     public function findAllByType(int $type): Collection
     {
         return $this->entityRepository->findAllByType($type);
+    }
+
+    public function findByCodeAndType(string $code, int $typeId): Lookup
+    {
+        return $this->entityRepository->findByCodeAndType($code, $typeId);
     }
 }

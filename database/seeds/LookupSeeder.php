@@ -19,6 +19,7 @@ use App\Models\Enums\Lookups\StatusPackageRequestLookup;
 use App\Models\Enums\Lookups\CountryAddressLookup;
 use App\Models\Enums\Lookups\StatusDriverRequestLookup;
 use App\Models\Enums\Lookups\StatusCarRequestLookup;
+use App\Models\Enums\Lookups\HeavyShippingLookup;
 
 class LookupSeeder extends Seeder
 {
@@ -91,6 +92,10 @@ class LookupSeeder extends Seeder
 
         StatusCarRequestLookup::getAll()->each(function (string $lookup) {
             $this->createLookup(TypeLookup::STATUS_CAR_REQUEST, StatusCarRequestLookup::code($lookup), $lookup);
+        });
+
+        HeavyShippingLookup::getAll()->each(function (string $lookup) {
+            $this->createLookup(TypeLookup::HEAVY_SHIPPING, HeavyShippingLookup::code($lookup), $lookup);
         });
     }
 

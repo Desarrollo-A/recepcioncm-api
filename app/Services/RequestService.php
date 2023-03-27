@@ -275,18 +275,14 @@ class RequestService extends BaseService implements RequestServiceInterface
     {
         $package = $this->packageRepository->findByRequestId($requestId);
 
-        if($package->request->user_id !== $userId){
+        if ($package->request->user_id !== $userId) {
             throw new AuthorizationException();
-        }
-
-        if(!is_null($package->authorization_filename)){
-            File::deleteFile($package->authorization_filename, Path::PACKAGE_AUTHORIZATION_DOCUMENTS);
         }
 
         $this->entityRepository->delete($requestId);
 
         if (!isset($package->pickupAddress->office)) {
-            $this->addressRepository->delete($package->pickup_address_id);;
+            $this->addressRepository->delete($package->pickup_address_id);
         }
         if (!isset($package->arrivalAddress->office)) {
             $this->addressRepository->delete($package->arrival_address_id);

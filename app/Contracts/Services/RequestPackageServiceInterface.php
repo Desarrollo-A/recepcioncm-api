@@ -24,8 +24,6 @@ interface RequestPackageServiceInterface extends BaseServiceInterface
 {
     public function createRequestPackage(PackageDTO $dto): Package;
 
-    public function uploadAuthorizationFile(int $id, PackageDTO $dto): void;
-
     /**
      * @param User|Authenticatable $user
      */

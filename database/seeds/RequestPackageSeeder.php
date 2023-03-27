@@ -81,7 +81,8 @@ class RequestPackageSeeder extends Seeder
                             'arrival_address_id' => $arrivalAddress->id,
                             'request_id' => $request->id,
                             'office_id' => $officesIds->shuffle()->first()->id,
-                            'is_urgent' => false
+                            'is_urgent' => false,
+                            'is_heavy_shipping' => false
                         ]);
                 }
             });
