@@ -7,6 +7,7 @@ use App\Helpers\File;
 use App\Http\Resources\Address\AddressResource;
 use App\Http\Resources\DeliveredPackage\DeliveredPackageResource;
 use App\Http\Resources\DriverPackageSchedule\DriverPackageScheduleResource;
+use App\Http\Resources\HeavyShipping\HeavyShippingResource;
 use App\Http\Resources\ProposalPackage\ProposalPackageResource;
 use App\Http\Resources\Request\RequestResource;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -27,12 +28,14 @@ class PackageResource extends JsonResource
             'trackingCode' => $this->tracking_code,
             'urlTracking' => $this->url_tracking,
             'isUrgent' => $this->is_urgent,
+            'isHeavyShipping' => $this->is_heavy_shipping,
             'pickupAddress' => AddressResource::make($this->whenLoaded('pickupAddress')),
             'arrivalAddress' => AddressResource::make($this->whenLoaded('arrivalAddress')),
             'request' => RequestResource::make($this->whenLoaded('request')),
             'driverPackageSchedule' => DriverPackageScheduleResource::make($this->whenLoaded('driverPackageSchedule')),
             'deliveredPackage' => DeliveredPackageResource::make($this->whenLoaded('deliveredPackage')),
             'proposalPackage' => ProposalPackageResource::make($this->whenLoaded('proposalPackage')),
+            'heavyShipments' => HeavyShippingResource::collection($this->whenLoaded('heavyShippments'))
         ];
     }
 }
