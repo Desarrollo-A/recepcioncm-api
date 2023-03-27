@@ -20,4 +20,5 @@ class TypeLookup
     const COUNTRY_ADDRESS = 14; // Listado de Países para las direcciones,
     const STATUS_DRIVER_REQUEST = 15; // Estatus de solicitudes de chofer
     const STATUS_CAR_REQUEST = 16; // Estatus de solicitudes de vehiculo
+    const HEAVY_SHIPPING = 17; // KG permitidos por paquetería antes de mencionar las dimensiones y peso
 }

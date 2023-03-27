@@ -21,4 +21,10 @@ class LookupController extends BaseApiController
         $lookups = $this->lookupService->findAllByType($type);
         return $this->showAll(LookupResource::collection($lookups));
     }
+
+    public function findByCodeAndType(int $type, string $code): JsonResponse
+    {
+        $lookup = $this->lookupService->findByCodeAndType($code, $type);
+        return $this->showOne(new LookupResource($lookup));
+    }
 }

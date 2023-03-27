@@ -14,14 +14,16 @@ class CreateHeavyShipmentsTable extends Migration
     public function up()
     {
         Schema::create('heavy_shipments', function (Blueprint $table) {
+            $table->bigIncrements('id');
             $table->unsignedBigInteger('package_id');
             $table->foreign('package_id')
                 ->references('id')
                 ->on('packages');
-            $table->float('high', 5); // Alto
-            $table->float('long', 5); // Largo
-            $table->float('width', 5); // Ancho
-            $table->float('weight', 5); // Peso KG
+            $table->float('high', 7); // Alto
+            $table->float('long', 7); // Largo
+            $table->float('width', 7); // Ancho
+            $table->float('weight', 7); // Peso KG
+            $table->text('description');
             $table->timestamps();
         });
     }

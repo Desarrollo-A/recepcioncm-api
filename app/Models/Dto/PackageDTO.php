@@ -91,6 +91,16 @@ class PackageDTO
     public $is_urgent;
 
     /**
+     * @var bool
+     */
+    public $is_heavy_shipping;
+
+    /**
+     * @var HeavyShipmentDTO[]
+     */
+    public $heavyShipments;
+
+    /**
      * @var ProposalPackageDTO
      */
     public $proposalPackage;
