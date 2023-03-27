@@ -49,7 +49,8 @@ class PackageRepository extends BaseRepository implements PackageRepositoryInter
                 'pickupAddress.office',
                 'arrivalAddress.office',
                 'deliveredPackage',
-                'proposalPackage'
+                'proposalPackage',
+                'heavyShippments'
             ])
             ->where('request_id', $requestId)
             ->firstOrFail();

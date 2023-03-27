@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Package extends Model
@@ -49,5 +50,10 @@ class Package extends Model
     public function proposalPackage(): HasOne
     {
         return $this->hasOne(ProposalPackage::class);
+    }
+
+    public function heavyShippments(): HasMany
+    {
+        return $this->hasMany(HeavyShipment::class);
     }
 }
