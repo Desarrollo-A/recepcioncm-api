@@ -44,7 +44,11 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
             ->join('lookups AS t', 't.id', '=', 'requests.type_id')
             ->join('request_room AS rr', 'requests.id', '=', 'rr.request_id')
             ->where('rr.room_id', $roomId)
-            ->where('s.code', StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED))
+            ->whereDate('requests.start_date', $startDate)
+            ->whereIn('s.code', [
+                StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED),
+                StatusRoomRequestLookup::code(StatusRoomRequestLookup::IN_REVIEW)
+            ])
             ->where('t.code', TypeRequestLookup::code(TypeRequestLookup::ROOM))
             ->get(['start_date', 'end_date']);
     }
@@ -57,6 +61,7 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
             ->join('request_room AS rr', 'requests.id', '=', 'rr.request_id')
             ->join('proposal_requests AS pr', 'requests.id', '=', 'pr.request_id')
             ->where('rr.room_id', $roomId)
+            ->whereDate('pr.start_date', $startDate)
             ->where('s.code', StatusRoomRequestLookup::code(StatusRoomRequestLookup::PROPOSAL))
             ->where('t.code', TypeRequestLookup::code(TypeRequestLookup::ROOM))
             ->get(['pr.start_date', 'pr.end_date']);
@@ -85,7 +90,8 @@ class RequestRepository extends BaseRepository implements RequestRepositoryInter
                 StatusRoomRequestLookup::code(StatusRoomRequestLookup::APPROVED)
             ])
             ->whereIn('t.code', [
-                TypeRequestLookup::code(TypeRequestLookup::CAR), TypeRequestLookup::code(TypeRequestLookup::DRIVER),
+                TypeRequestLookup::code(TypeRequestLookup::CAR),
+                TypeRequestLookup::code(TypeRequestLookup::DRIVER),
                 TypeRequestLookup::code(TypeRequestLookup::ROOM)
             ])
             ->get($columns);

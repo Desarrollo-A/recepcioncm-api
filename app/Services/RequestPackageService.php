@@ -589,7 +589,8 @@ class RequestPackageService extends BaseService implements RequestPackageService
         }
 
         $dto->status_id = $this->lookupRepository
-            ->findByCodeAndType($dto->status->code, TypeLookup::STATUS_PACKAGE_REQUEST)->id;
+            ->findByCodeAndType($dto->status->code, TypeLookup::STATUS_PACKAGE_REQUEST)
+            ->id;
 
         if (!is_null($dto->proposal_id)) {
             $proposalData = $this->proposalRequestRepository->findById($dto->proposal_id);
@@ -602,7 +603,9 @@ class RequestPackageService extends BaseService implements RequestPackageService
                     if($package->request->add_google_calendar) {
                         $emails[] = $package->request->user->email;
                     }
-                    $emails[] = $this->userRepository->findByOfficeIdAndRoleRecepcionist($package->office_id)->email;
+                    $emails[] = $this->userRepository
+                        ->findByOfficeIdAndRoleRecepcionist($package->office_id)
+                        ->email;
 
                     $event = $this->calendarService->createEventAllDay($package->request->title, $proposalData->start_date, $emails);
 
@@ -618,6 +621,12 @@ class RequestPackageService extends BaseService implements RequestPackageService
             $columnsRequestUpdate = ['status_id', 'start_date', 'end_date'];
         } else {
             $columnsRequestUpdate = ['status_id'];
+
+            if ($package->proposalPackage->is_driver_selected) {
+                $this->driverPackageScheduleRepository->deleteByPackageId($package->id);
+                $this->carScheduleRepository->delete($package->driverPackageSchedule->carSchedule->id);
+                $this->driverScheduleRepository->delete($package->driverPackageSchedule->driverSchedule->id);
+            }
         }
 
         return $this->requestRepository->update($requestId, $dto->toArray($columnsRequestUpdate))->fresh(['status']);

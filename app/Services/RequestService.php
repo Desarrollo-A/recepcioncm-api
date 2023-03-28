@@ -148,7 +148,6 @@ class RequestService extends BaseService implements RequestServiceInterface
 
     public function changeToExpired(): void
     {
-        $proposalIds = [];
         $carSchedulesIds = [];
         $expired = $this->entityRepository->getExpired();
 
@@ -166,10 +165,6 @@ class RequestService extends BaseService implements RequestServiceInterface
             $proposalRequestRoom = $expiredRequestRoom->filter(function ($request) {
                 return $request->status_code === StatusRoomRequestLookup::code(StatusRoomRequestLookup::PROPOSAL);
             });
-
-            if ($proposalRequestRoom->count() > 0) {
-                $proposalIds = array_merge($proposalIds, $proposalRequestRoom->pluck('id')->values()->toArray());
-            }
         }
 
         $expiredRequestPackage = $expired->filter(function ($request) {
@@ -186,10 +181,6 @@ class RequestService extends BaseService implements RequestServiceInterface
             $proposalRequestPackage = $expiredRequestPackage->filter(function ($request) {
                 return $request->status_code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::PROPOSAL);
             });
-
-            if ($proposalRequestPackage->count() > 0) {
-                $proposalIds = array_merge($proposalIds, $proposalRequestPackage->pluck('id')->values()->toArray());
-            }
         }
 
         $expiredRequestDriver = $expired->filter(function ($request) {
@@ -206,10 +197,6 @@ class RequestService extends BaseService implements RequestServiceInterface
             $proposalRequestDriver = $expiredRequestDriver->filter(function ($request) {
                 return $request->status_code === StatusDriverRequestLookup::code(StatusDriverRequestLookup::PROPOSAL);
             });
-
-            if ($proposalRequestDriver->count() > 0) {
-                $proposalIds = array_merge($proposalIds, $proposalRequestDriver->pluck('id')->values()->toArray());
-            }
         }
 
         $expiredRequestCar = $expired->filter(function ($request) {
@@ -226,10 +213,6 @@ class RequestService extends BaseService implements RequestServiceInterface
             $proposalRequestCar = $expiredRequestCar->filter(function ($request) {
                 return $request->status_code === StatusCarRequestLookup::code(StatusCarRequestLookup::PROPOSAL);
             });
-
-            if ($proposalRequestCar->count() > 0) {
-                $proposalIds = array_merge($proposalIds, $proposalRequestCar->pluck('id')->values()->toArray());
-            }
         }
 
         $assignRequestDriver = $expired->filter(function ($request) {
