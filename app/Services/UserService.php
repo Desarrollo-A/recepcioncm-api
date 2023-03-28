@@ -70,17 +70,32 @@ class UserService extends BaseService implements UserServiceInterface
      */
     public function create(UserDTO $dto): User
     {
-        $dto->status_id = $this->lookupRepository->findByCodeAndType(StatusUserLookup::code(StatusUserLookup::ACTIVE),
-            TypeLookup::STATUS_USER)->id;
-        if ($dto->role->name === NameRole::RECEPCIONIST) {
-            $dto->role_id = $this->roleRepository->findByName(NameRole::RECEPCIONIST)->id;
-        } else {
-            $dto->role_id = $this->roleRepository->findByName(NameRole::APPLICANT)->id;
-        }
-        $dto->office_id = $this->officeRepository->findByName($dto->office->name)->id;
+        $dto->status_id = $this->lookupRepository
+            ->findByCodeAndType(StatusUserLookup::code(StatusUserLookup::ACTIVE),TypeLookup::STATUS_USER)
+            ->id;
 
-        $data = $dto->toArray(['no_employee', 'full_name', 'email', 'password', 'personal_phone', 'office_phone',
-            'position', 'area', 'status_id', 'role_id', 'office_id']);
+        $dto->department_manager_id = $this->entityRepository
+            ->findManagerWhereInNoEmployee($dto->managers)
+            ->id;
+
+        if ($dto->role->name === NameRole::RECEPCIONIST) {
+            $dto->role_id = $this->roleRepository
+                ->findByName(NameRole::RECEPCIONIST)
+                ->id;
+        } else {
+            $dto->role_id = $this->roleRepository
+                ->findByName(NameRole::APPLICANT)
+                ->id;
+        }
+
+        $dto->office_id = $this->officeRepository
+            ->findByName($dto->office->name)
+            ->id;
+
+        $data = $dto->toArray([
+            'no_employee', 'full_name', 'email', 'password', 'personal_phone', 'office_phone',
+            'position', 'area', 'status_id', 'role_id', 'office_id', 'department_manager_id'
+        ]);
 
         $user = $this->entityRepository->create($data);
         return $this->entityRepository->findById($user->id);
@@ -190,7 +205,7 @@ class UserService extends BaseService implements UserServiceInterface
             $validator = Validator::make($data, [
                 'no_employee' => ['required', 'max:50', 'unique:users,no_employee'],
                 'full_name' => ['required', 'max:150'],
-                'email' => ['required', 'email:dns', 'max:150', 'unique:users,email'],
+                'email' => ['required', 'email:dns', 'max:150'],
                 'personal_phone' => ['required', 'min:10', 'max:10'],
                 'office_phone' => ['nullable', 'min:10', 'max:10'],
                 'position' => ['required', 'max:100'],
