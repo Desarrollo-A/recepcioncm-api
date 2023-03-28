@@ -8,7 +8,7 @@ class NameRole
     const RECEPCIONIST = 'Recepción';
     const APPLICANT = 'Solicitante';
     const DRIVER = 'Conductor';
-    const DEPARTMENT_MANAGER = 'Director de departamento';
+    const DEPARTMENT_MANAGER = 'Dirección';
 
     static function allRolesMiddleware(): string
     {

@@ -22,28 +22,30 @@ class StoreUserRequest extends FormRequest implements ReturnDtoInterface
         return [
             'noEmployee' => ['required', 'max:50', 'unique:users,no_employee'],
             'fullName' => ['required', 'max: 150'],
-            'email' => ['required', 'email:dns', 'max: 150', 'unique:users'],
+            'email' => ['required', 'email:dns', 'max: 150'],
             'password' => ['required', 'min:5', 'max: 50'],
             'personalPhone' => ['required', 'min:10', 'max:10'],
             'officePhone' => ['nullable', 'min:10', 'max:10'],
             'position' => ['required', 'max:100'],
             'area' => ['required', 'max:100'],
             'isRecepcionist' => ['required', 'bail', 'boolean'],
-            'office.name' => ['required', 'min:3', 'max:150']
+            'office.name' => ['required', 'min:3', 'max:150'],
+            'managers' => ['required', 'array']
         ];
     }
 
     public function attributes()
     {
         return [
-            'noEmployee' => 'Usuario',
+            'noEmployee' => '# de colaborador',
             'fullName' => 'Nombre completo',
             'personalPhone' => 'Teléfono personal',
             'officePhone' => 'Teléfono de oficina',
             'position' => 'Puesto',
             'area' => 'Área / Departamento',
             'isRecepcionist' => 'Recepcionista',
-            'office.name' => 'Oficina'
+            'office.name' => 'Oficina',
+            'managers' => 'Director'
         ];
     }
 
@@ -65,7 +67,8 @@ class StoreUserRequest extends FormRequest implements ReturnDtoInterface
             'position' => trim($this->position),
             'area' => trim($this->area),
             'role' => $role,
-            'office' => $office
+            'office' => $office,
+            'managers' => $this->managers
         ]);
     }
 }

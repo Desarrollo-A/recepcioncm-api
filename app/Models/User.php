@@ -28,7 +28,6 @@ class User extends Authenticatable
         'office_phone',
         'position',
         'area',
-        'status',
         'role_id',
         'status_id',
         'office_id',

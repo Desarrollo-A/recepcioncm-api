@@ -22,7 +22,7 @@ class StoreDriverRequest extends FormRequest implements ReturnDtoInterface
         return [
             'clave' => ['required', 'max:50', 'unique:users,no_employee'],
             'nombreCompleto' => ['required', 'max:150'],
-            'correo' => ['required', 'email:dns', 'max:150', 'unique:users,email'],
+            'correo' => ['required', 'email:dns', 'max:150'],
             'telPersonal' => ['required', 'min:10', 'max:10'],
             'telOficina' => ['nullable', 'min:10', 'max:10'],
             'posicion' => ['required', 'max:100'],
