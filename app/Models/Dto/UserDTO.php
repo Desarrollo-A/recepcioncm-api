@@ -81,9 +81,19 @@ class UserDTO
     public $office_id;
 
     /**
+     * @var int
+     */
+    public $department_manager_id;
+
+    /**
      * @var OfficeDTO
      */
     public $office;
+
+    /**
+     * @var string[]
+     */
+    public $managers;
 
     /**
      * @throws CustomErrorException

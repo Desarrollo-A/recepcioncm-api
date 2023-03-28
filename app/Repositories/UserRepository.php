@@ -83,4 +83,20 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
             ->applySort($sort)
             ->paginate($limit, $columns);
     }
+
+    public function findManagerWhereInNoEmployee(array $codes): User
+    {
+        return $this->entity
+            ->whereHas('role', function (Builder $query) {
+                $query->where('name', NameRole::DEPARTMENT_MANAGER);
+            })
+            ->whereHas('status', function(Builder $query) {
+                $query->where('code', StatusUserLookup::code(StatusUserLookup::ACTIVE));
+            })
+            ->whereIn('no_employee', $codes)
+            ->firstOr(function () {
+                throw new CustomErrorException('No existe el director.',
+                    Response::HTTP_BAD_REQUEST);
+            });
+    }
 }
