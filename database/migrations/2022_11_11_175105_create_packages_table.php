@@ -34,10 +34,6 @@ class CreatePackagesTable extends Migration
             $table->foreign('office_id')
                 ->references('id')
                 ->on('offices');
-            $table->string('tracking_code', 25)
-                ->nullable();
-            $table->string('url_tracking')
-                ->nullable();
             $table->string('auth_code', 50)
                 ->nullable();
             $table->boolean('is_urgent')

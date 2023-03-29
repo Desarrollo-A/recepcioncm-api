@@ -6,6 +6,7 @@ use App\Helpers\Enum\Path;
 use App\Helpers\File;
 use App\Http\Resources\Address\AddressResource;
 use App\Http\Resources\DeliveredPackage\DeliveredPackageResource;
+use App\Http\Resources\DetailExternalParcel\DetailExternalParcelResource;
 use App\Http\Resources\DriverPackageSchedule\DriverPackageScheduleResource;
 use App\Http\Resources\HeavyShipping\HeavyShippingResource;
 use App\Http\Resources\ProposalPackage\ProposalPackageResource;
@@ -35,7 +36,8 @@ class PackageResource extends JsonResource
             'driverPackageSchedule' => DriverPackageScheduleResource::make($this->whenLoaded('driverPackageSchedule')),
             'deliveredPackage' => DeliveredPackageResource::make($this->whenLoaded('deliveredPackage')),
             'proposalPackage' => ProposalPackageResource::make($this->whenLoaded('proposalPackage')),
-            'heavyShipments' => HeavyShippingResource::collection($this->whenLoaded('heavyShippments'))
+            'heavyShipments' => HeavyShippingResource::collection($this->whenLoaded('heavyShippments')),
+            'detailExternalParcel' => DetailExternalParcelResource::make($this->whenLoaded('detailExternalParcel')),
         ];
     }
 }
