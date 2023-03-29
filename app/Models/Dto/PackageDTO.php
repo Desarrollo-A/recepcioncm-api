@@ -61,16 +61,6 @@ class PackageDTO
     public $office_id;
 
     /**
-     * @var string
-     */
-    public $tracking_code;
-
-    /**
-     * @var string
-     */
-    public $url_tracking;
-
-    /**
      * @var RequestDTO
      */
     public $request;
@@ -109,6 +99,11 @@ class PackageDTO
      * @var ProposalRequestDTO
      */
     public $proposalRequest;
+
+    /**
+     * @var DetailExternalParcelDTO
+     */
+    public $detailExternalParcel;
 
     /**
      * @throws CustomErrorException

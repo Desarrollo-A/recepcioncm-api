@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Package extends Model
 {
     protected $fillable = ['pickup_address_id', 'arrival_address_id', 'name_receive', 'email_receive', 'request_id',
-        'office_id', 'tracking_code', 'url_tracking', 'auth_code', 'is_urgent', 'is_heavy_shipping'];
+        'office_id', 'auth_code', 'is_urgent', 'is_heavy_shipping'];
 
     protected $casts = [
         'id' => 'integer',
@@ -55,5 +55,10 @@ class Package extends Model
     public function heavyShippments(): HasMany
     {
         return $this->hasMany(HeavyShipment::class);
+    }
+
+    public function detailExternalParcel(): HasOne
+    {
+        return $this->hasOne(DetailExternalParcel::class);
     }
 }
