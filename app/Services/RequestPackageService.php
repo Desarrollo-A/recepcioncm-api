@@ -6,6 +6,7 @@ use App\Contracts\Repositories\AddressRepositoryInterface;
 use App\Contracts\Repositories\CancelRequestRepositoryInterface;
 use App\Contracts\Repositories\CarScheduleRepositoryInterface;
 use App\Contracts\Repositories\DeliveredPackageRepositoryInterface;
+use App\Contracts\Repositories\DetailExternalParcelRepositoryInterface;
 use App\Contracts\Repositories\DriverPackageScheduleRepositoryInterface;
 use App\Contracts\Repositories\DriverScheduleRepositoryInterface;
 use App\Contracts\Repositories\HeavyShipmentRepositoryInterface;
@@ -78,6 +79,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
     protected $userRepository;
     protected $proposalPackageRepository;
     protected $heavyShipmentRepository;
+    protected $detailExternalParcelRepository;
 
     public function __construct(
         RequestRepositoryInterface $requestRepository,
@@ -95,7 +97,8 @@ class RequestPackageService extends BaseService implements RequestPackageService
         DeliveredPackageRepositoryInterface $deliveredPackageRepository,
         UserRepositoryInterface $userRepository,
         ProposalPackageRepositoryInterface $proposalPackageRepository,
-        HeavyShipmentRepositoryInterface $heavyShipmentRepository
+        HeavyShipmentRepositoryInterface $heavyShipmentRepository,
+        DetailExternalParcelRepositoryInterface $detailExternalParcelRepository
     )
     {
         $this->requestRepository = $requestRepository;
@@ -114,6 +117,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $this->userRepository = $userRepository;
         $this->proposalPackageRepository = $proposalPackageRepository;
         $this->heavyShipmentRepository = $heavyShipmentRepository;
+        $this->detailExternalParcelRepository = $detailExternalParcelRepository;
     }
 
     /**
@@ -305,7 +309,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
         if ($lastStatusId === $statusApproved->id) {
 
             $package = $this->packageRepository->findByRequestId($dto->request_id);
-            if (is_null($package->tracking_code)) {
+            if (!isset($package->detailExternalParcel)) {
                 $emailDriver = $request->package->driverPackageSchedule->driverSchedule->driver->email;
                 Mail::send(new CancelledRequestPackageInformationMail($request, $emailDriver));
 
@@ -316,8 +320,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
                 $this->driverScheduleRepository->delete($package->driverPackageSchedule->driverSchedule->id);
             }
 
-            $this->packageRepository->update($package->id, (new PackageDTO())
-                ->toArray(['tracking_code', 'url_tracking', 'auth_code']));
+            $this->detailExternalParcelRepository->deleteByPackageId($package->id);
         }
         
         return (object)[
@@ -350,11 +353,13 @@ class RequestPackageService extends BaseService implements RequestPackageService
     public function approvedRequest(PackageDTO $dto): Package
     {
         $dto->request->status_id = $this->lookupRepository
-            ->findByCodeAndType(StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED),
-                TypeLookup::STATUS_PACKAGE_REQUEST)
+            ->findByCodeAndType(
+                StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED),
+                TypeLookup::STATUS_PACKAGE_REQUEST
+            )
             ->id;
 
-        if (is_null($dto->tracking_code)) {
+        if (!isset($dto->detailExternalParcel)) {
             $request = $this->requestRepository->findById($dto->request_id);
 
             $startDate = "{$request->start_date->toDateString()} $this->START_TIME_WORKING";
@@ -387,14 +392,15 @@ class RequestPackageService extends BaseService implements RequestPackageService
             Mail::send(new ApprovedRequestPackageInformationMail($packageUpdate, $emailDriver));
 
         } else {
-            $request = $this->requestRepository->update($dto->request_id, $dto->request
-                ->toArray(['status_id', 'end_date']))->fresh(['package', 'user']);
+            $request = $this->requestRepository
+                ->update($dto->request_id, $dto->request->toArray(['status_id', 'end_date']))
+                ->fresh(['package', 'user']);
 
-            $packageUpdate = $this->packageRepository
-                ->update($dto->id, $dto->toArray(['tracking_code', 'url_tracking']))
-                ->fresh(['request', 'request.status', 'driverPackageSchedule', 'driverPackageSchedule.carSchedule',
-                    'driverPackageSchedule.driverSchedule', 'driverPackageSchedule.carSchedule.car',
-                    'driverPackageSchedule.driverSchedule.driver', 'pickupAddress', 'arrivalAddress']);
+            $this->detailExternalParcelRepository->create($dto->detailExternalParcel->toArray([
+                'package_id', 'company_name', 'tracking_code', 'url_tracking'
+            ]));
+
+            $packageUpdate = $this->packageRepository->findById($dto->id);
             $dateGoogleCalendar = $request->end_date;
         }
 

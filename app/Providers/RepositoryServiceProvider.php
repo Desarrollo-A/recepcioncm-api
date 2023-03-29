@@ -54,7 +54,8 @@ class RepositoryServiceProvider extends ServiceProvider
         'ProposalPackageRepositoryInterface' => 'ProposalPackageRepository',
         'CarDriverRepositoryInterface' => 'CarDriverRepository',
         'PerDiemRepositoryInterface' => 'PerDiemRepository',
-        'HeavyShipmentRepositoryInterface' => 'HeavyShipmentRepository'
+        'HeavyShipmentRepositoryInterface' => 'HeavyShipmentRepository',
+        'DetailExternalParcelRepositoryInterface' => 'DetailExternalParcelRepository',
     ];
 
     public function register()

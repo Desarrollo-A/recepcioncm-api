@@ -34,8 +34,10 @@ class RequestPackageController extends BaseApiController
     private $requestPackageService;
     private $notificationService;
 
-    public function __construct(RequestPackageServiceInterface $requestPackageService,
-                                NotificationServiceInterface $notificationService)
+    public function __construct(
+        RequestPackageServiceInterface $requestPackageService,
+        NotificationServiceInterface $notificationService
+    )
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
             ->only('store', 'uploadAuthorizationFile', 'responseRejectRequest');
