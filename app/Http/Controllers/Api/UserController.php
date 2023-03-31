@@ -35,7 +35,7 @@ class UserController extends BaseApiController
     )
     {
         $this->middleware('role.permission:'.NameRole::ADMIN)
-            ->only('index', 'show', 'changeStatus', 'update');
+            ->only('index', 'show', 'changeStatus', 'update', 'findAllDepartmentManagers');
         $this->middleware('role.permission:'.NameRole::allRolesMiddleware())
             ->only('showProfile');
 
@@ -128,5 +128,11 @@ class UserController extends BaseApiController
     {
         $this->userService->updateUser($noEmployee, $request->toDTO());
         return $this->successResponse(['code' => Response::HTTP_OK], Response::HTTP_OK);
+    }
+
+    public function findAllDepartmentManagers(): JsonResponse
+    {
+        $users = $this->userService->findAllDepartmentManagers();
+        return $this->showAll(new UserCollection($users));
     }
 }

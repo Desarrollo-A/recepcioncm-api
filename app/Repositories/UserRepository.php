@@ -99,4 +99,16 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
                     Response::HTTP_BAD_REQUEST);
             });
     }
+
+    public function findAllDepartmentManagers(): Collection
+    {
+        return $this->entity
+            ->whereHas('role', function (Builder $query) {
+                $query->where('name', NameRole::DEPARTMENT_MANAGER);
+            })
+            ->whereHas('status', function(Builder $query) {
+                $query->where('code', StatusUserLookup::code(StatusUserLookup::ACTIVE));
+            })
+            ->get();
+    }
 }

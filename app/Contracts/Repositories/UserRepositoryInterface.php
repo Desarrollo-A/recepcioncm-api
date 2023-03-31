@@ -4,6 +4,7 @@ namespace App\Contracts\Repositories;
 
 use App\Core\Contracts\BaseRepositoryInterface;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
@@ -23,4 +24,6 @@ interface UserRepositoryInterface extends BaseRepositoryInterface
                                                 array $columns = ['*']): LengthAwarePaginator;
 
     public function findManagerWhereInNoEmployee(array $codes): User;
+
+    public function findAllDepartmentManagers(): Collection;
 }

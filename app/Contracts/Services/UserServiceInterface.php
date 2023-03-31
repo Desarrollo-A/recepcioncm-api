@@ -6,6 +6,7 @@ use App\Core\Contracts\BaseServiceInterface;
 use App\Models\Dto\BulkLoadFileDTO;
 use App\Models\Dto\UserDTO;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -38,4 +39,6 @@ interface UserServiceInterface extends BaseServiceInterface
     public function downUser(string $noEmployee): void;
 
     public function updateUser(string $noEmployee, UserDTO $dto): void;
+
+    public function findAllDepartmentManagers(): Collection;
 }

@@ -28,15 +28,15 @@ class UpdateUserRequest extends FormRequest implements ReturnDtoInterface
             'email' => [
                 'required',
                 'email:dns',
-                'max:150',
-                Rule::unique('users', 'email')->ignore($this->id, 'id')
+                'max:150'
             ],
             'personalPhone' => ['required', 'min:10', 'max:10'],
             'officePhone' => ['nullable', 'min:10', 'max:10'],
             'position' => ['required', 'max:100'],
             'area' => ['required', 'max:100'],
-            'officeId' => ['required', 'integer'],
-            'statusId' => ['required', 'integer']
+            'officeId' => ['required', 'integer', 'exists:offices,id'],
+            'statusId' => ['required', 'integer', 'exists:states,id'],
+            'departmentManagerId' => ['nullable', 'integer', 'exists:users,id']
         ];
     }
 
@@ -52,7 +52,8 @@ class UpdateUserRequest extends FormRequest implements ReturnDtoInterface
             'position' => 'Puesto',
             'area' => 'Área / Departamento',
             'officeId' => 'Oficina',
-            'statusId' => 'Estatus'
+            'statusId' => 'Estatus',
+            'departmentManagerId' => 'Director'
         ];
     }
 
@@ -70,7 +71,8 @@ class UpdateUserRequest extends FormRequest implements ReturnDtoInterface
             'position' => trim($this->position),
             'area' => trim($this->area),
             'office_id' => $this->officeId,
-            'status_id' => $this->statusId
+            'status_id' => $this->statusId,
+            'department_manager_id' => $this->departmentManagerId
         ]);
     }
 }
