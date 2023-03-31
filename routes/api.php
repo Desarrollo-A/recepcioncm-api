@@ -231,6 +231,9 @@ Route::prefix('v1')->group(function () {
                 Route::get('/profile', 'UserController@showProfile')
                     ->name('profile');
 
+                Route::get('/department-manager', 'UserController@findAllDepartmentManagers')
+                    ->name('department-manager');
+
                 Route::patch('/change-status/{id}', 'UserController@changeStatus')
                     ->name('change-status')
                     ->where('id', Validation::INTEGER_ID);
