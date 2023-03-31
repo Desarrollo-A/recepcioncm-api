@@ -23,7 +23,6 @@ use App\Models\Dto\UserDTO;
 use App\Models\Enums\Lookups\StatusUserLookup;
 use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
-use App\Models\Office;
 use App\Models\User;
 use Box\Spout\Common\Exception\InvalidArgumentException;
 use Box\Spout\Common\Exception\IOException;
@@ -31,6 +30,7 @@ use Box\Spout\Common\Exception\UnsupportedTypeException;
 use Box\Spout\Reader\Exception\ReaderNotOpenedException;
 use Box\Spout\Writer\Exception\WriterNotOpenedException;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -163,8 +163,15 @@ class UserService extends BaseService implements UserServiceInterface
      */
     public function update(int $id, UserDTO $dto): User
     {
-        return $this->entityRepository->update($id, $dto->toArray(['no_employee', 'full_name', 'email',
-            'personal_phone', 'office_phone', 'position', 'area', 'office_id', 'status_id']));
+        $user = $this->entityRepository->findById($id);
+
+        $fields = ['no_employee', 'full_name', 'email', 'personal_phone', 'office_phone', 'position', 'area',
+            'office_id', 'status_id'];
+        if ($user->role->name == NameRole::APPLICANT) {
+            $fields = array_merge($fields, ['department_manager_id']);
+        }
+
+        return $this->entityRepository->update($id, $dto->toArray($fields));
     }
 
     /**
@@ -355,5 +362,10 @@ class UserService extends BaseService implements UserServiceInterface
         } catch (ModelNotFoundException $ex) {
             //
         }
+    }
+
+    public function findAllDepartmentManagers(): Collection
+    {
+        return $this->entityRepository->findAllDepartmentManagers();
     }
 }

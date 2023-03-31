@@ -37,7 +37,8 @@ class UserResource extends Resource
             'role' => RoleResource::make($this->whenLoaded('role')),
             'status' => LookupResource::make($this->whenLoaded('status')),
             'office' => OfficeResource::make($this->whenLoaded('office')),
-            'token' => $this->when( !empty($this->token), $this->token)
+            'token' => $this->when( !empty($this->token), $this->token),
+            'departmentManagerId' => $this->department_manager_id
         ];
     }
 }
