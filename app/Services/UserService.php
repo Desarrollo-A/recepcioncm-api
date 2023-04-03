@@ -171,7 +171,16 @@ class UserService extends BaseService implements UserServiceInterface
             $fields = array_merge($fields, ['department_manager_id']);
         }
 
-        return $this->entityRepository->update($id, $dto->toArray($fields));
+        $user = $this->entityRepository->update($id, $dto->toArray($fields));
+
+        $status = $this->lookupRepository->findById($dto->status_id);
+        if ($status->code === StatusUserLookup::code(StatusUserLookup::INACTIVE)) {
+            $user->tokens->each(function ($token) {
+                $token->delete();
+            });
+        }
+
+        return $user;
     }
 
     /**
