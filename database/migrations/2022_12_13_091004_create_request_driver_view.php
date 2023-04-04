@@ -29,7 +29,7 @@ class CreateRequestDriverView extends Migration
     private function createView(): string
     {
         return 'CREATE OR ALTER VIEW request_driver_view AS
-            SELECT r.id AS request_id, r.code, r.title, r.start_date, r.end_date, s.name AS status_name, 
+            SELECT r.id AS request_id, r.code, r.title, r.start_date, r.end_date, s.value AS status_name, 
             s.code AS status_code, rd.office_id, u.full_name, pick.state AS state_pickup, 
             arrv.state AS state_arrival, r.user_id, rd.id AS request_driver_id, ds.driver_id
             FROM request_drivers rd

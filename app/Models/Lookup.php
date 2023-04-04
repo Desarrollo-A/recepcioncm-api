@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Lookup extends Model implements ScopeFilterInterface
 {
-    protected $fillable = ['type', 'code', 'name'];
+    protected $fillable = ['type', 'code', 'value'];
 
     protected $casts = [
         'id' => 'integer',
@@ -31,7 +31,7 @@ class Lookup extends Model implements ScopeFilterInterface
         }
 
         if (isset($params['lookup']) && trim($params['lookup']) !== '') {
-            $query->where('name', 'LIKE', "%${params['lookup']}%");
+            $query->where('value', 'LIKE', "%${params['lookup']}%");
         }
 
         return $query;

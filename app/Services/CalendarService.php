@@ -33,7 +33,7 @@ class CalendarService implements CalendarServiceInterface
                     if ($typeCodeRequest === TypeRequestLookup::code(TypeRequestLookup::ROOM)) {
                         return Utils::createEventCalendarObject(
                             "Solicitud $request->code de sala. Sala {$request->requestRoom->room->name} - ".
-                            "Tipo {$request->type->name}",
+                            "Tipo {$request->type->value}",
                             $request);
                     } else if ($typeCodeRequest === TypeRequestLookup::code(TypeRequestLookup::PARCEL)) {
                         $driverName = $request->package->driverPackageSchedule->driverSchedule->driver->full_name;
@@ -72,7 +72,7 @@ class CalendarService implements CalendarServiceInterface
                         $officeName = $request->requestRoom->room->office->name;
 
                         return Utils::createEventCalendarObject(
-                            "Solicitud $request->code de sala. Oficina $officeName, Sala $roomName - Tipo {$request->type->name}",
+                            "Solicitud $request->code de sala. Oficina $officeName, Sala $roomName - Tipo {$request->type->value}",
                             $request);
                     } else if ($typeCodeRequest === TypeRequestLookup::code(TypeRequestLookup::PARCEL)) {
                         $driverName = $request->package->driverPackageSchedule->driverSchedule->driver->full_name;

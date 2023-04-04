@@ -27,7 +27,7 @@ class LookupDTO
     /**
      * @var string
      */
-    public $name;
+    public $value;
 
     /**
      * @var bool
