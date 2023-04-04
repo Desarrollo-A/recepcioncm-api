@@ -99,12 +99,12 @@ class LookupSeeder extends Seeder
         });
     }
 
-    private function createLookup(int $type, string $code, string $name): void
+    private function createLookup(int $type, string $code, string $value): void
     {
         Lookup::query()->create([
             'type' => $type,
             'code' => $code,
-            'name' => $name
+            'value' => $value
         ]);
     }
 }

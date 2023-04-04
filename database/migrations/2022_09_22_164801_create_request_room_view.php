@@ -29,8 +29,8 @@ class CreateRequestRoomView extends Migration
     public function createView(): string
     {
         return 'CREATE OR ALTER VIEW request_room_view AS
-            SELECT r.id, r.title, r.code, r.start_date, r.end_date, u.full_name, ro.office_id, r.user_id, s.name AS status_name,
-            ro.name AS room_name, l.name AS level_meeting, s.code AS status_code
+            SELECT r.id, r.title, r.code, r.start_date, r.end_date, u.full_name, ro.office_id, r.user_id, s.value AS status_name,
+            ro.name AS room_name, l.value AS level_meeting, s.code AS status_code
             FROM request_room rr
             INNER JOIN requests r ON r.id = rr.request_id
             INNER JOIN users u ON u.id = r.user_id

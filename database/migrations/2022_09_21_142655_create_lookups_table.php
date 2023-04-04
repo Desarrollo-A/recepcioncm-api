@@ -17,7 +17,7 @@ class CreateLookupsTable extends Migration
             $table->increments('id');
             $table->smallInteger('type');
             $table->string('code', 50);
-            $table->string('name');
+            $table->string('value');
             $table->boolean('status')->default(true);
             $table->timestamps();
         });
