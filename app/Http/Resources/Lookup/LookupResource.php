@@ -12,7 +12,7 @@ class LookupResource extends Resource
             'id' => $this->id,
             'type' => $this->type,
             'code' => $this->code,
-            'name' => $this->name
+            'value' => $this->value
         ];
     }
 }

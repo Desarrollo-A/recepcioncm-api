@@ -30,7 +30,7 @@ class CreateRequestCarView extends Migration
     {
         return 'CREATE OR ALTER VIEW request_car_view AS
             SELECT REQ.id AS request_id, REQ.code, REQ.title, REQ.start_date, REQ.end_date, 
-                LPS.name AS status_name, LPS.code AS status_code, RQCAR.office_id, USU.full_name,
+                LPS.value AS status_name, LPS.code AS status_code, RQCAR.office_id, USU.full_name,
                 REQ.user_id, RQCAR.id AS request_car_id
             FROM requests AS REQ
             INNER JOIN lookups AS LPS ON REQ.status_id = LPS.id

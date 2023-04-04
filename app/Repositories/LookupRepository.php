@@ -27,7 +27,7 @@ class LookupRepository extends BaseRepository implements LookupRepositoryInterfa
         return $this->entity
             ->where('type', $type)
             ->where('status', true)
-            ->orderBy('name')
+            ->orderBy('value')
             ->get($columns);
     }
 
@@ -37,7 +37,7 @@ class LookupRepository extends BaseRepository implements LookupRepositoryInterfa
             ->where('code', $code)
             ->where('type', $type)
             ->where('status', true)
-            ->orderBy('name')
+            ->orderBy('value')
             ->firstOrFail();
     }
 
@@ -47,7 +47,7 @@ class LookupRepository extends BaseRepository implements LookupRepositoryInterfa
             ->whereIn('code', $codes)
             ->where('type', $type)
             ->where('status', true)
-            ->orderBy('name')
+            ->orderBy('value')
             ->get();
     }
 }
