@@ -3,12 +3,14 @@
 namespace App\Helpers;
 
 use App\Exceptions\CustomErrorException;
+use App\Helpers\Enum\Message;
 use App\Helpers\Enum\Path;
 use Box\Spout\Common\Exception\InvalidArgumentException;
 use Box\Spout\Common\Exception\IOException;
 use Box\Spout\Common\Exception\UnsupportedTypeException;
 use Box\Spout\Writer\Exception\WriterNotOpenedException;
 use Box\Spout\Writer\Style\StyleBuilder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
@@ -56,13 +58,29 @@ class File
         return $filename;
     }
 
-    public static function generatePDF(string $view, array $data, string $filename = 'download', bool $isLandscape = false)
+    /**
+     * @throws CustomErrorException
+     */
+    public static function generatePDF (
+        string $view, Collection $data, string $filename = 'download', array $extraData = [], bool $isLandscape = false
+    )
     {
+        if ($data->count() === 0) {
+            throw new CustomErrorException(Message::REPORT_EMPTY, Response::HTTP_BAD_REQUEST);
+        }
+
+        $dataContent = array('items' => $data);
+        if (count($extraData) > 0) {
+            $dataContent = array_merge($dataContent, $extraData);
+        }
+
         $pdf = App::make('dompdf.wrapper');
-        $pdf->loadView($view, $data);
+        $pdf->loadView($view, $dataContent);
+
         if ($isLandscape) {
             $pdf->setPaper('a4', 'landscape');
         }
+
         return $pdf->download("$filename.pdf");
     }
 
@@ -71,9 +89,14 @@ class File
      * @throws WriterNotOpenedException
      * @throws InvalidArgumentException
      * @throws IOException
+     * @throws CustomErrorException
      */
-    public static function generateExcel($data, string $filename = 'download'): StreamedResponse
+    public static function generateExcel(\Illuminate\Support\Collection $data, string $filename = 'download'): StreamedResponse
     {
+        if ($data->count() === 0) {
+            throw new CustomErrorException(Message::REPORT_EMPTY, Response::HTTP_BAD_REQUEST);
+        }
+
         $headerStyle = (new StyleBuilder())
             ->setFontSize(14)
             ->setFontBold()

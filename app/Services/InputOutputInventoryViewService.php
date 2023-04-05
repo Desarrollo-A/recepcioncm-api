@@ -15,6 +15,7 @@ use Box\Spout\Common\Exception\UnsupportedTypeException;
 use Box\Spout\Writer\Exception\WriterNotOpenedException;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class InputOutputInventoryViewService extends BaseService implements InputOutputInventoryViewServiceInterface
 {
@@ -43,8 +44,8 @@ class InputOutputInventoryViewService extends BaseService implements InputOutput
     {
         $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
         $data = $this->entityRepository->getDataReport($filters, $officeId);
-        return File::generatePDF('pdf.reports.input-output-inventory', array('items' => $data),
-            'entradas_salidas_inventario');
+
+        return File::generatePDF('pdf.reports.input-output-inventory', $data,'entradas_salidas_inventario');
     }
 
     /**
@@ -54,7 +55,7 @@ class InputOutputInventoryViewService extends BaseService implements InputOutput
      * @throws InvalidArgumentException
      * @throws IOException
      */
-    public function reportInputOutputExcel(Request $request, int $officeId)
+    public function reportInputOutputExcel(Request $request, int $officeId): StreamedResponse
     {
         $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
         $data = $this->entityRepository->getDataReport($filters, $officeId)->map(function ($item) {
@@ -67,6 +68,7 @@ class InputOutputInventoryViewService extends BaseService implements InputOutput
                 'Fecha movimiento' => $item->move_date->format('d-m-Y')
             ]);
         });
+
         return File::generateExcel($data,'entradas_salidas_inventario');
     }
 }

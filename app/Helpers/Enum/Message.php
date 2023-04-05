@@ -22,9 +22,8 @@ class Message
     const QUERY_EXCEPTION_1451 = 'No se puede eliminar el registro porque está relacionado con algún otro.';
     const INTERNAL_SERVER_ERROR = 'Ocurrió algo inesperado. Consulte al administrador.';
     const THROTTLE_REQUESTS_EXCEPTION = 'Muchos intentos realizados.';
-
-    // Mensajes de asunto de correo electrónico
     const RESTORE_PASSWORD = 'Nueva contraseña';
+    const REPORT_EMPTY = 'No hay registros para el reporte';
 
     public static function getMessageHasNotAllowedSorts(string $class): string
     {

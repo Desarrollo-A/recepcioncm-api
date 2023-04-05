@@ -707,9 +707,14 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
         $data = $this->requestPackageViewRepository->getDataReport($filters, $driverId);
         $path = Path::STORAGE.Path::PACKAGE_SIGNATURES;
-        return File::generatePDF('pdf.reports.driver-delivered', 
-            array('items' => $data, 'path' => $path),
-            'solicitudes_paqueteria_entregadas', true);
+
+        return File::generatePDF (
+            'pdf.reports.driver-delivered',
+            $data,
+            'solicitudes_paqueteria_entregadas',
+            array('path' => $path),
+            true
+        );
     }
 
     /**
@@ -731,6 +736,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
                 'Recibió' => $item->name_receive,
             ]);
         });
+
         return File::generateExcel($data,'solicitudes_paqueteria_entregadas');
     }
 
