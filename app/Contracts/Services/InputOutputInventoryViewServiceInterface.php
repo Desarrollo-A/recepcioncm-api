@@ -5,6 +5,7 @@ namespace App\Contracts\Services;
 use App\Core\Contracts\BaseServiceInterface;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 interface InputOutputInventoryViewServiceInterface extends BaseServiceInterface
 {
@@ -12,5 +13,5 @@ interface InputOutputInventoryViewServiceInterface extends BaseServiceInterface
 
     public function reportInputOutputPdf(Request $request, int $officeId);
 
-    public function reportInputOutputExcel(Request $request, int $officeId);
+    public function reportInputOutputExcel(Request $request, int $officeId): StreamedResponse;
 }
