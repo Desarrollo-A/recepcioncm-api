@@ -21,8 +21,8 @@ class StoreRequestCarRequest extends FormRequest implements ReturnDtoInterface
     {
         return [
             'title' => ['required', 'string', 'min:3', 'max: 100'],
-            'startDate' => ['required', 'date', 'date_format:Y-m-d H:i', 'after:now'],
-            'endDate' => ['required', 'date', 'date_format:Y-m-d H:i', 'after:startDate'],
+            'startDate' => ['required', 'date', 'date_format:Y-m-d H:i:s', 'after:now'],
+            'endDate' => ['required', 'date', 'date_format:Y-m-d H:i:s', 'after:startDate'],
             'people' => ['required', 'integer', 'min:2'],
             'comment' => ['nullable', 'string'],
             'addGoogleCalendar' => ['required', 'boolean'],
