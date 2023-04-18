@@ -14,6 +14,7 @@ use App\Http\Requests\RequestCar\ApprovedCarRequest;
 use App\Http\Requests\RequestCar\ProposalCarRequest;
 use App\Http\Requests\RequestCar\StoreRequestCarRequest;
 use App\Http\Requests\RequestCar\TransferCarRequest;
+use App\Http\Requests\RequestCar\UploadImagesFilesRequest;
 use App\Http\Requests\RequestCar\UploadZipImagesCarRequest;
 use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\RequestCar\RequestCarResource;
@@ -39,7 +40,7 @@ class RequestCarController extends BaseApiController
             ->only('index', 'store', 'show', 'cancelRequest', 'getStatusByStatusCurrent');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
             ->only('transferRequest', 'approvedRequest', 'getBusyDaysForProposalCalendar', 'proposalRequest',
-                'uploadZipImages', 'addExtraCarInformation');
+                'addExtraCarInformation', 'uploadImagesFiles');
 
         $this->requestCarService = $requestCarService;
         $this->notificationService = $notificationService;
@@ -148,20 +149,20 @@ class RequestCarController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function uploadZipImages(int $id, UploadZipImagesCarRequest $request): Response
+    public function addExtraCarInformation(int $id, AddExtraInformationCarRequest $request): Response
     {
         $dto = $request->toDTO();
-        $this->requestCarService->uploadZipImages($id, $dto);
+        $this->requestCarService->addExtraCarInformation($id, $dto);
         return $this->noContentResponse();
     }
 
     /**
      * @throws CustomErrorException
      */
-    public function addExtraCarInformation(int $id, AddExtraInformationCarRequest $request): Response
+    public function uploadImagesFiles(int $id, UploadImagesFilesRequest $request): Response
     {
         $dto = $request->toDTO();
-        $this->requestCarService->addExtraCarInformation($id, $dto);
+        $this->requestCarService->uploadImagesFiles($id, $dto);
         return $this->noContentResponse();
     }
 }

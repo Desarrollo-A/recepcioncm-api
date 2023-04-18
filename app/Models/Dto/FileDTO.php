@@ -4,36 +4,21 @@ namespace App\Models\Dto;
 
 use App\Exceptions\CustomErrorException;
 use App\Models\Contracts\DataTransferObject;
-use Illuminate\Http\UploadedFile;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class PerDiemDTO
+class FileDTO
 {
     use DataTransferObject;
 
     /**
-     * @var int
+     * @var string
      */
-    public $request_id;
+    public $filename;
 
     /**
-     * @var float
+     * @var UploadedFile
      */
-    public $gasoline;
-
-    /**
-     * @var float
-     */
-    public $tollbooths;
-
-    /**
-     * @var float
-     */
-    public $food;
-
-    /**
-     * @var float
-     */
-    public $spent;
+    public $file;
 
     /**
      * @throws CustomErrorException
