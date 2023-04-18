@@ -14,6 +14,7 @@ class CreatePerDiemsTable extends Migration
     public function up()
     {
         Schema::create('per_diems', function (Blueprint $table) {
+            $table->bigIncrements('id');
             $table->unsignedBigInteger('request_id');
             $table->foreign('request_id')
                 ->references('id')
@@ -22,8 +23,6 @@ class CreatePerDiemsTable extends Migration
             $table->float('gasoline');
             $table->float('tollbooths');
             $table->float('food');
-            $table->string('bill_filename', 50)
-                ->nullable();
             $table->float('spent')
                 ->nullable();
             $table->timestamps();

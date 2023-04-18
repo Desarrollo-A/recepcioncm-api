@@ -455,8 +455,8 @@ Route::prefix('v1')->group(function () {
                 Route::post('/approved', 'RequestCarController@approvedRequest')
                     ->name('approved');
 
-                Route::put('/upload-zip/{id}', 'RequestCarController@uploadZipImages')
-                    ->name('upload-zip')
+                Route::put('/upload-image-files/{id}', 'RequestCarController@uploadImagesFiles')
+                    ->name('upload-image-files')
                     ->where('id', Validation::INTEGER_ID);
 
                 Route::patch('/transfer/{requestCarId}', 'RequestCarController@transferRequest')
@@ -486,12 +486,13 @@ Route::prefix('v1')->group(function () {
         Route::prefix('per-diems')
             ->name('per-diems.')
             ->group(function () {
-                Route::put('/spent/{requestId}', 'PerDiemController@updateSpent')
+                Route::put('/spent/{id}', 'PerDiemController@updateSpent')
                     ->name('spent')
-                    ->where('requestId', validation::INTEGER_ID);
+                    ->where('id', validation::INTEGER_ID);
 
-                Route::put('/upload-bill/{requestId}', 'PerDiemController@uploadBillZip')
-                    ->name('upload-bill');
+                Route::put('/upload-bill-files/{id}', 'PerDiemController@uploadBillFiles')
+                    ->name('upload-bill-files')
+                    ->where('id', validation::INTEGER_ID);
             });
 
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');

@@ -2,9 +2,8 @@
 
 namespace App\Http\Resources\RequestCar;
 
-use App\Helpers\Enum\Path;
-use App\Helpers\File;
 use App\Http\Resources\CarRequestSchedule\CarRequestScheduleResource;
+use App\Http\Resources\File\FileResource;
 use App\Http\Resources\Office\OfficeResource;
 use App\Http\Resources\Request\RequestResource;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -20,12 +19,10 @@ class RequestCarResource extends JsonResource
             'initialKm' => $this->initial_km,
             'finalKm' => $this->final_km,
             'deliveryCondition' => $this->delivery_condition,
-            'imageZip' => is_null($this->image_zip)
-                ? null
-                : File::getExposedPath($this->image_zip, Path::REQUEST_CAR_IMAGES),
             'request' => RequestResource::make($this->whenLoaded('request')),
             'carRequestSchedule' => CarRequestScheduleResource::make($this->whenLoaded('carRequestSchedule')),
             'office' => OfficeResource::make($this->whenLoaded('office')),
+            'files' => FileResource::collection($this->whenLoaded('files'))
         ];
     }
 }

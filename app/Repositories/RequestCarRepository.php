@@ -25,6 +25,7 @@ class RequestCarRepository extends BaseRepository implements RequestCarRepositor
     {
         return $this->entity
             ->with([
+                'files',
                 'office',
                 'office.address',
                 'office.address.country',
@@ -35,6 +36,7 @@ class RequestCarRepository extends BaseRepository implements RequestCarRepositor
                 'request.cancelRequest.user',
                 'request.score',
                 'request.perDiem',
+                'request.perDiem.files',
                 'carRequestSchedule',
                 'carRequestSchedule.carSchedule',
                 'carRequestSchedule.carSchedule.car',

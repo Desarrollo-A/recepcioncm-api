@@ -2,22 +2,28 @@
 
 namespace App\Services;
 
+use App\Contracts\Repositories\FileRepositoryInterface;
 use App\Contracts\Repositories\PerDiemRepositoryInterface;
 use App\Contracts\Services\PerDiemServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
 use App\Helpers\Enum\Path;
-use App\Helpers\File;
 use App\Models\Dto\PerDiemDTO;
+use App\Models\File;
 use App\Models\PerDiem;
 
 class PerDiemService extends BaseService implements PerDiemServiceInterface
 {
     protected $entityRepository;
+    protected $fileRepository;
 
-    public function __construct(PerDiemRepositoryInterface $perDiemRepository)
+    public function __construct(
+        PerDiemRepositoryInterface $perDiemRepository,
+        FileRepositoryInterface $fileRepository
+    )
     {
         $this->entityRepository = $perDiemRepository;
+        $this->fileRepository = $fileRepository;
     }
 
     /**
@@ -31,17 +37,21 @@ class PerDiemService extends BaseService implements PerDiemServiceInterface
     /**
      * @throws CustomErrorException
      */
-    public function update(int $requestId, PerDiemDTO $dto): PerDiem
+    public function update(int $id, PerDiemDTO $dto): PerDiem
     {
-        return $this->entityRepository->update($requestId, $dto->toArray(['spent']));
+        return $this->entityRepository->update($id, $dto->toArray(['spent']));
     }
 
-    /**
-     * @throws CustomErrorException
-     */
-    public function uploadBillZip(int $requestId, PerDiemDTO $dto): void
+    public function uploadBillFiles(int $id, array $filesDTO): void
     {
-        $dto->bill_filename = File::uploadFile($dto->bill_file, Path::REQUEST_BILL_ZIP);
-        $this->entityRepository->update($requestId, $dto->toArray(['bill_filename']));
+        $perDiem = $this->entityRepository->findById($id, ['id']);
+        $files = [];
+
+        foreach ($filesDTO as $dto) {
+            $filename = \App\Helpers\File::uploadFile($dto->file, Path::FILES);
+            $files[] = new File(['filename' => $filename]);
+        }
+
+        $this->fileRepository->saveManyFiles($perDiem, $files);
     }
 }

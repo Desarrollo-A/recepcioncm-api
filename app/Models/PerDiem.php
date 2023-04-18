@@ -4,17 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * Clase de viáticos
  */
 class PerDiem extends Model
 {
-    protected $primaryKey = 'request_id';
-
-    protected $fillable = ['request_id', 'gasoline', 'tollbooths', 'food', 'bill_filename', 'spent'];
+    protected $fillable = ['request_id', 'gasoline', 'tollbooths', 'food', 'spent'];
 
     protected $casts = [
+        'id' => 'integer',
         'request_id' => 'integer',
         'gasoline' => 'float',
         'tollbooths' => 'float',
@@ -25,5 +25,10 @@ class PerDiem extends Model
     public function request(): BelongsTo
     {
         return $this->belongsTo(Request::class);
+    }
+
+    public function files(): MorphMany
+    {
+        return $this->morphMany(File::class, 'fileable');
     }
 }

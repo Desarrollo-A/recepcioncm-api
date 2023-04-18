@@ -56,16 +56,6 @@ class RequestCarDTO
     public $carRequestSchedule;
 
     /**
-     * @var string
-     */
-    public $image_zip;
-
-    /**
-     * @var UploadedFile
-     */
-    public $image_zip_file;
-
-    /**
      * @throws CustomErrorException
      */
     public function __construct(array $data = [])

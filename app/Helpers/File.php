@@ -50,7 +50,10 @@ class File
         }
     }
 
-    public static function uploadFile(UploadedFile $file, string $customPath): string
+    /**
+     * @param UploadedFile|\Symfony\Component\HttpFoundation\File\UploadedFile $file
+     */
+    public static function uploadFile($file, string $customPath): string
     {
         $filename = self::getFilename(self::FILE_NAME_LENGHT).self::getFileExtension($file->getClientOriginalName());
         $pathUrl = self::getFilePublicPath($customPath);

@@ -7,7 +7,7 @@ use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Http\Requests\PerDiem\StorePerDiemRequest;
 use App\Http\Requests\PerDiem\UpdateSpentPerDiemRequest;
-use App\Http\Requests\PerDiem\UploadBillPerDiemRequest;
+use App\Http\Requests\PerDiem\UploadBillFilesRequest;
 use App\Http\Resources\PerDiem\PerDiemResource;
 use App\Models\Enums\NameRole;
 use Illuminate\Http\JsonResponse;
@@ -22,7 +22,7 @@ class PerDiemController extends BaseApiController
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
             ->only('store');
         $this->middleware('role.permission:'.NameRole::APPLICANT)
-            ->only('updateSpent', 'uploadBillZip');
+            ->only('updateSpent', 'uploadBillFiles');
 
         $this->perDiemService = $perDiemService;
     }
@@ -39,18 +39,19 @@ class PerDiemController extends BaseApiController
     /**
      * @throws CustomErrorException
      */
-    public function updateSpent(int $requestId, UpdateSpentPerDiemRequest $request): JsonResponse
+    public function updateSpent(int $id, UpdateSpentPerDiemRequest $request): JsonResponse
     {
-        $perDiem = $this->perDiemService->update($requestId, $request->toDTO());
+        $perDiem = $this->perDiemService->update($id, $request->toDTO());
         return $this->showOne(new PerDiemResource($perDiem));
     }
 
     /**
      * @throws CustomErrorException
      */
-    public function uploadBillZip(int $requestId, UploadBillPerDiemRequest $request): Response
+    public function uploadBillFiles(int $id, UploadBillFilesRequest $request): Response
     {
-        $this->perDiemService->uploadBillZip($requestId, $request->toDTO());
+        $dto = $request->toDTO();
+        $this->perDiemService->uploadBillFiles($id, $dto);
         return $this->noContentResponse();
     }
 }
