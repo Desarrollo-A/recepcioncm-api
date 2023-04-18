@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Contracts\Repositories\CancelRequestRepositoryInterface;
 use App\Contracts\Repositories\CarRequestScheduleRepositoryInterface;
 use App\Contracts\Repositories\CarScheduleRepositoryInterface;
+use App\Contracts\Repositories\FileRepositoryInterface;
 use App\Contracts\Repositories\LookupRepositoryInterface;
 use App\Contracts\Repositories\ProposalRequestRepositoryInterface;
 use App\Contracts\Repositories\RequestCarRepositoryInterface;
@@ -18,9 +19,9 @@ use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
 use App\Helpers\Enum\Path;
 use App\Helpers\Enum\QueryParam;
-use App\Helpers\File;
 use App\Helpers\Validation;
 use App\Models\Dto\CancelRequestDTO;
+use App\Models\Dto\FileDTO;
 use App\Models\Dto\ProposalRequestDTO;
 use App\Models\Dto\RequestCarDTO;
 use App\Models\Dto\RequestDTO;
@@ -28,6 +29,7 @@ use App\Models\Enums\Lookups\StatusCarRequestLookup;
 use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
+use App\Models\File;
 use App\Models\Lookup;
 use App\Models\Request;
 use App\Models\RequestCar;
@@ -51,6 +53,7 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
     protected $userRepository;
     protected $requestEmailRepository;
     protected $calendarService;
+    protected $fileRepository;
 
     public function __construct(
         RequestCarRepositoryInterface $requestCarRepository,
@@ -63,7 +66,8 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         ProposalRequestRepositoryInterface $proposalRequestRepository,
         CalendarServiceInterface $calendarService,
         UserRepositoryInterface $userRepository,
-        RequestEmailRepositoryInterface $requestEmailRepository
+        RequestEmailRepositoryInterface $requestEmailRepository,
+        FileRepositoryInterface $fileRepository
     )
     {
         $this->entityRepository = $requestCarRepository;
@@ -77,6 +81,7 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         $this->calendarService = $calendarService;
         $this->userRepository = $userRepository;
         $this->requestEmailRepository = $requestEmailRepository;
+        $this->fileRepository = $fileRepository;
     }
 
     /**
@@ -398,15 +403,6 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
     /**
      * @throws CustomErrorException
      */
-    public function uploadZipImages(int $id, RequestCarDTO $dto): void
-    {
-        $dto->image_zip = File::uploadFile($dto->image_zip_file, Path::REQUEST_CAR_IMAGES);
-        $this->entityRepository->update($id, $dto->toArray(['image_zip']));
-    }
-
-    /**
-     * @throws CustomErrorException
-     */
     public function addExtraCarInformation(int $id, RequestCarDTO $dto): void
     {
         $fields = array();
@@ -421,5 +417,18 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         }
 
         $this->entityRepository->update($id, $dto->toArray($fields));
+    }
+
+    public function uploadImagesFiles(int $id, array $filesDTO): void
+    {
+        $requestCar = $this->entityRepository->findById($id, ['id']);
+        $files = [];
+
+        foreach ($filesDTO as $dto) {
+            $filename = \App\Helpers\File::uploadFile($dto->file, Path::FILES);
+            $files[] = new File(['filename' => $filename]);
+        }
+
+        $this->fileRepository->saveManyFiles($requestCar, $files);
     }
 }

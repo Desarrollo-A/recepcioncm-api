@@ -56,6 +56,7 @@ class RepositoryServiceProvider extends ServiceProvider
         'PerDiemRepositoryInterface' => 'PerDiemRepository',
         'HeavyShipmentRepositoryInterface' => 'HeavyShipmentRepository',
         'DetailExternalParcelRepositoryInterface' => 'DetailExternalParcelRepository',
+        'FileRepositoryInterface' => 'FileRepository',
     ];
 
     public function register()

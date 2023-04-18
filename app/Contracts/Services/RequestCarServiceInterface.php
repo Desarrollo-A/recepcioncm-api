@@ -4,6 +4,7 @@ namespace App\Contracts\Services;
 
 use App\Core\Contracts\BaseServiceInterface;
 use App\Models\Dto\CancelRequestDTO;
+use App\Models\Dto\FileDTO;
 use App\Models\Dto\RequestCarDTO;
 use App\Models\Dto\RequestDTO;
 use App\Models\Request;
@@ -47,7 +48,10 @@ interface RequestCarServiceInterface extends BaseServiceInterface
 
     public function responseRejectRequest(int $requestId, RequestDTO $dto): Request;
 
-    public function uploadZipImages(int $id, RequestCarDTO $dto): void;
-
     public function addExtraCarInformation(int $id, RequestCarDTO $dto): void;
+
+    /**
+     * @param FileDTO[] $filesDTO
+     */
+    public function uploadImagesFiles(int $id, array $filesDTO): void;
 }
