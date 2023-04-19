@@ -179,8 +179,7 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
                     $status = $this->lookupRepository->findByCodeWhereInAndType([
                         StatusCarRequestLookup::code(StatusCarRequestLookup::PROPOSAL),
                         StatusCarRequestLookup::code(StatusCarRequestLookup::APPROVED),
-                        StatusCarRequestLookup::code(StatusCarRequestLookup::TRANSFER),
-                        StatusCarRequestLookup::code(StatusCarRequestLookup::CANCELLED)
+                        StatusCarRequestLookup::code(StatusCarRequestLookup::TRANSFER)
                     ], TypeLookup::STATUS_CAR_REQUEST);
                     break;
                 case StatusCarRequestLookup::code(StatusCarRequestLookup::APPROVED):
