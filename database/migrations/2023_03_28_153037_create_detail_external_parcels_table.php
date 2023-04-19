@@ -19,6 +19,7 @@ class CreateDetailExternalParcelsTable extends Migration
                 ->references('id')
                 ->on('packages');
             $table->string('company_name', 75);
+            $table->float('weight', 7); // Peso KG
             $table->string('tracking_code', 50)
                 ->nullable();
             $table->string('url_tracking')

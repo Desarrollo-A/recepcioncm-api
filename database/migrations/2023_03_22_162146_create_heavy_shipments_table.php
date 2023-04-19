@@ -22,7 +22,6 @@ class CreateHeavyShipmentsTable extends Migration
             $table->float('high', 7); // Alto
             $table->float('long', 7); // Largo
             $table->float('width', 7); // Ancho
-            $table->float('weight', 7); // Peso KG
             $table->text('description');
             $table->timestamps();
         });

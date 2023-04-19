@@ -159,8 +159,9 @@ class RequestPackageService extends BaseService implements RequestPackageService
             foreach ($dto->heavyShipments as $heavyShipment) {
                 $heavyShipment->package_id = $package->id;
 
-                $heavyShipments[] = $heavyShipment->toArray(['package_id', 'high', 'long', 'width', 'weight',
-                    'description', 'created_at', 'updated_at']);
+                $heavyShipments[] = $heavyShipment->toArray([
+                    'package_id', 'high', 'long', 'width', 'description', 'created_at', 'updated_at'
+                ]);
             }
 
             $this->heavyShipmentRepository->bulkInsert($heavyShipments);
@@ -397,7 +398,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
                 ->fresh(['package', 'user']);
 
             $this->detailExternalParcelRepository->create($dto->detailExternalParcel->toArray([
-                'package_id', 'company_name', 'tracking_code', 'url_tracking'
+                'package_id', 'company_name', 'tracking_code', 'url_tracking', 'weight'
             ]));
 
             $packageUpdate = $this->packageRepository->findById($dto->id);

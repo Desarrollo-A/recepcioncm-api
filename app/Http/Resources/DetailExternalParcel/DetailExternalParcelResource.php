@@ -12,7 +12,8 @@ class DetailExternalParcelResource extends JsonResource
             'packageId' => $this->package_id,
             'companyName' => $this->company_name,
             'trackingCode' => $this->tracking_code,
-            'urlTracking' => $this->url_tracking
+            'urlTracking' => $this->url_tracking,
+            'weight' => $this->weight
         ];
     }
 }
