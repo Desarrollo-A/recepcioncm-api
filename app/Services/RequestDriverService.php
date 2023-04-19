@@ -177,8 +177,7 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
                     $status = $this->lookupRepository->findByCodeWhereInAndType([
                         StatusDriverRequestLookup::code(StatusDriverRequestLookup::PROPOSAL),
                         StatusDriverRequestLookup::code(StatusDriverRequestLookup::APPROVED),
-                        StatusDriverRequestLookup::code(StatusDriverRequestLookup::TRANSFER),
-                        StatusDriverRequestLookup::code(StatusDriverRequestLookup::CANCELLED)
+                        StatusDriverRequestLookup::code(StatusDriverRequestLookup::TRANSFER)
                     ], TypeLookup::STATUS_DRIVER_REQUEST);
                     break;
                 case StatusDriverRequestLookup::code(StatusDriverRequestLookup::APPROVED):
