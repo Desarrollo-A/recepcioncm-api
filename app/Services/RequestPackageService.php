@@ -221,8 +221,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
                     $status = $this->lookupRepository->findByCodeWhereInAndType([
                         StatusPackageRequestLookup::code(StatusPackageRequestLookup::PROPOSAL),
                         StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED),
-                        StatusPackageRequestLookup::code(StatusPackageRequestLookup::TRANSFER),
-                        StatusPackageRequestLookup::code(StatusPackageRequestLookup::CANCELLED)
+                        StatusPackageRequestLookup::code(StatusPackageRequestLookup::TRANSFER)
                     ], TypeLookup::STATUS_PACKAGE_REQUEST);
                     break;
                 case StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED):
