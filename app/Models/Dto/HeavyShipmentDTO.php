@@ -36,11 +36,6 @@ class HeavyShipmentDTO
     public $width;
 
     /**
-     * @var float
-     */
-    public $weight;
-
-    /**
      * @var string
      */
     public $description;
