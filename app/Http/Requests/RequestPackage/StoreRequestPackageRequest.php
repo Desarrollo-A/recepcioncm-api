@@ -75,7 +75,6 @@ class StoreRequestPackageRequest extends FormRequest implements ReturnDtoInterfa
                 'package.heavyShipments.*.high' => ['required', 'numeric', 'gt:0'],
                 'package.heavyShipments.*.long' => ['required', 'numeric', 'gt:0'],
                 'package.heavyShipments.*.width' => ['required', 'numeric', 'gt:0'],
-                'package.heavyShipments.*.weight' => ['required', 'numeric', 'gt:0'],
                 'package.heavyShipments.*.description' => ['required', 'string', 'min:3', 'max:2500']
             ]);
         }
@@ -122,7 +121,6 @@ class StoreRequestPackageRequest extends FormRequest implements ReturnDtoInterfa
             'package.heavyShipments.*.high' => 'Altura',
             'package.heavyShipments.*.long' => 'Largo',
             'package.heavyShipments.*.width' => 'Ancho',
-            'package.heavyShipments.*.weight' => 'Peso',
             'package.heavyShipments.*.description' => 'Descripción'
         ];
     }
@@ -167,7 +165,6 @@ class StoreRequestPackageRequest extends FormRequest implements ReturnDtoInterfa
                 'high' => $heavyShipment['high'],
                 'long' => $heavyShipment['long'],
                 'width' => $heavyShipment['width'],
-                'weight' => $heavyShipment['weight'],
                 'description' => $heavyShipment['description'],
                 'created_at' => $now,
                 'updated_at' => $now

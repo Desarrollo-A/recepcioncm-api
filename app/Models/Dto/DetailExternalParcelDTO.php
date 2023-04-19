@@ -30,6 +30,11 @@ class DetailExternalParcelDTO
     public $url_tracking;
 
     /**
+     * @var float
+     */
+    public $weight;
+
+    /**
      * @throws CustomErrorException
      */
     public function __construct(array $data = [])

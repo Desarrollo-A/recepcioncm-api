@@ -14,7 +14,6 @@ class HeavyShippingResource extends JsonResource
             'high' => $this->high,
             'long' => $this->long,
             'width' => $this->width,
-            'weight' => $this->weight,
             'description' => $this->description
         ];
     }
