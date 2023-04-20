@@ -1,11 +1,5 @@
 <?php
 
-use App\Models\Car;
-use App\Models\Lookup;
-use App\Models\Menu;
-use App\Models\Role;
-use App\Models\Submenu;
-use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
 
@@ -28,7 +22,6 @@ class DatabaseSeeder extends Seeder
         $this->call(UserManagerSeeder::class);
         // $this->call(UserSeeder::class);
         $this->call(MenuSeeder::class);
-        $this->call(SubmenuSeeder::class);
         $this->call(MenuUserSeeder::class);
         /*$this->call(RoomSeeder::class);
         $this->call(CarSeeder::class);

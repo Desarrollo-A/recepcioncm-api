@@ -32,11 +32,11 @@ class SubmenuRepository extends BaseRepository implements SubmenuRepositoryInter
             ->get();
     }
 
-    public function findByPathRouteAndMenuId(string $path, int $menuId): Submenu
+    public function findAllByRoleId(int $roleId): Collection
     {
         return $this->entity
-            ->where('path_route', $path)
-            ->where('menu_id', $menuId)
-            ->first();
+            ->where('role_id', $roleId)
+            ->where('status', true)
+            ->get();
     }
 }

@@ -14,7 +14,7 @@ class CreateSubmenuUserTable extends Migration
     public function up()
     {
         Schema::create('submenu_user', function (Blueprint $table) {
-            $table->unsignedInteger('submenu_id');
+            $table->unsignedBigInteger('submenu_id');
             $table->foreign('submenu_id')
                 ->references('id')
                 ->on('submenus');

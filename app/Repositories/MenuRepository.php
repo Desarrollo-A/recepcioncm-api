@@ -32,8 +32,11 @@ class MenuRepository extends BaseRepository implements MenuRepositoryInterface
             ->get();
     }
 
-    public function findByPathRoute(string $path): Menu
+    public function findAllByRoleId(int $roleId): Collection
     {
-        return $this->entity->where('path_route', $path)->firstOrFail();
+        return $this->entity
+            ->where('role_id', $roleId)
+            ->where('status', true)
+            ->get();
     }
 }

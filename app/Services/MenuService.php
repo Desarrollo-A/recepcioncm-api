@@ -3,26 +3,30 @@
 namespace App\Services;
 
 use App\Contracts\Repositories\MenuRepositoryInterface;
+use App\Contracts\Repositories\RoleRepositoryInterface;
 use App\Contracts\Repositories\SubmenuRepositoryInterface;
 use App\Contracts\Repositories\UserRepositoryInterface;
 use App\Contracts\Services\MenuServiceInterface;
 use App\Core\BaseService;
-use App\Models\Enums\NameRole;
-use App\Models\Enums\ViewsDefault;
 
 class MenuService extends BaseService implements MenuServiceInterface
 {
     protected $entityRepository;
     protected $submenuRepository;
     protected $userRepository;
+    protected $roleRepository;
 
-    public function __construct(MenuRepositoryInterface $menuRepository,
-                                SubmenuRepositoryInterface $submenuRepository,
-                                UserRepositoryInterface $userRepository)
+    public function __construct(
+        MenuRepositoryInterface $menuRepository,
+        SubmenuRepositoryInterface $submenuRepository,
+        UserRepositoryInterface $userRepository,
+        RoleRepositoryInterface $roleRepository
+    )
     {
         $this->entityRepository = $menuRepository;
         $this->submenuRepository = $submenuRepository;
         $this->userRepository = $userRepository;
+        $this->roleRepository = $roleRepository;
     }
 
     /**
@@ -30,36 +34,26 @@ class MenuService extends BaseService implements MenuServiceInterface
      */
     public function createDefaultMenu(int $userId, string $role)
     {
-        if ($role === NameRole::RECEPCIONIST) {
-            $data = $this->createMenuAndSubmenuByRol(ViewsDefault::VIEWS_DEFAULT_RECEPCIONIST);
-        } else if ($role === NameRole::APPLICANT) {
-            $data = $this->createMenuAndSubmenuByRol(ViewsDefault::VIEWS_DEFAULT_APPLICANT);
-        } else if ($role === NameRole::DRIVER) {
-            $data = $this->createMenuAndSubmenuByRol(ViewsDefault::VIEWS_DEFAULT_DRIVER);
-        }
+        $data = $this->createMenuAndSubmenuByRol($role);
 
         $user = $this->userRepository->findById($userId);
         $user->menus()->attach($data['menus']);
         $user->submenus()->attach($data['submenus']);
     }
 
-    private function createMenuAndSubmenuByRol(array $views): array
+    private function createMenuAndSubmenuByRol(string $roleName): array
     {
-        $menus = collect($views)
-            ->map(function ($menu) {
-                return $this->entityRepository->findByPathRoute($menu['path'])->id;
-            })
-            ->values();
+        $roleId = $this->roleRepository->findByName($roleName)->id;
 
-        $submenus = collect($views)
-            ->flatMap(function ($menu) {
-                $menuId = $this->entityRepository->findByPathRoute($menu['path'])->id;
-                return collect($menu['submenus'])
-                    ->map(function ($submenu) use ($menuId) {
-                        return $this->submenuRepository->findByPathRouteAndMenuId($submenu['path'], $menuId)->id;
-                    });
-            })
-            ->values();
+        $menus = $this->entityRepository
+            ->findAllByRoleId($roleId)
+            ->pluck('id')
+            ->toArray();
+
+        $submenus = $this->submenuRepository
+            ->findAllByRoleId($roleId)
+            ->pluck('id')
+            ->toArray();
 
         return [
             'menus' => $menus,
