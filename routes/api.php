@@ -234,6 +234,9 @@ Route::prefix('v1')->group(function () {
                 Route::get('/department-manager', 'UserController@findAllDepartmentManagers')
                     ->name('department-manager');
 
+                Route::get('/permission', 'UserController@findAllUserPermissionPaginated')
+                    ->name('permission');
+
                 Route::patch('/change-status/{id}', 'UserController@changeStatus')
                     ->name('change-status')
                     ->where('id', Validation::INTEGER_ID);
@@ -493,6 +496,14 @@ Route::prefix('v1')->group(function () {
                 Route::put('/upload-bill-files/{id}', 'PerDiemController@uploadBillFiles')
                     ->name('upload-bill-files')
                     ->where('id', validation::INTEGER_ID);
+            });
+
+        Route::prefix('navigation')
+            ->name('navigation.')
+            ->group(function () {
+                Route::get('/by-user/{userId}', 'MenuController@getNavigationByUserId')
+                    ->name('by-user')
+                    ->where('roleId', validation::INTEGER_ID);
             });
 
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');

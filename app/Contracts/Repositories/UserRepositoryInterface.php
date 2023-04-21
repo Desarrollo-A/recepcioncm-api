@@ -26,4 +26,10 @@ interface UserRepositoryInterface extends BaseRepositoryInterface
     public function findManagerWhereInNoEmployee(array $codes): User;
 
     public function findAllDepartmentManagers(): Collection;
+
+    public function findAllUserManagerPermissionPaginated(int $userId, array $filters, int $limit, string $sort = null,
+                                                          array $columns = ['*']): LengthAwarePaginator;
+
+    public function findAllUserPermissionPaginated(int $userId, array $filters, int $limit, string $sort = null,
+                                                          array $columns = ['*']): LengthAwarePaginator;
 }

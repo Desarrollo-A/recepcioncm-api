@@ -25,6 +25,7 @@ class MenuUserSeeder extends Seeder
         $roleManagerId = $roles->firstWhere('name', '=', NameRole::DEPARTMENT_MANAGER)->id;
 
         $menuAdmin = $this->getMenu($roleAdminId);
+        $submenuAdmin = $this->getSubmenu($roleAdminId);
 
         $menuRecepcionist = $this->getMenu($roleRecepcionistId);
         $submenuRecepcionist = $this->getSubmenu($roleRecepcionistId);
@@ -38,7 +39,7 @@ class MenuUserSeeder extends Seeder
         $menuManager = $this->getMenu($roleManagerId);
         $submenuManager = $this->getSubmenu($roleManagerId);
 
-        $this->attachMenuSubmenu(NameRole::ADMIN, $menuAdmin, []);
+        $this->attachMenuSubmenu(NameRole::ADMIN, $menuAdmin, $submenuAdmin);
         $this->attachMenuSubmenu(NameRole::RECEPCIONIST, $menuRecepcionist, $submenuRecepcionist);
         $this->attachMenuSubmenu(NameRole::APPLICANT, $menuApplicant, $submenuApplicant);
         $this->attachMenuSubmenu(NameRole::DRIVER, $menuDriver, $submenuDriver);

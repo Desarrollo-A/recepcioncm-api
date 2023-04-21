@@ -24,7 +24,9 @@ class MenuSeeder extends Seeder
 
         /***************************************************************************************/
 
-        $this->createMenu('/dashboard/usuarios','Usuarios','mat:groups',1, $roleAdminId);
+        $menu = $this->createMenu('/dashboard/usuarios','Usuarios','mat:groups',1, $roleAdminId);
+        $this->createSubmenu('/listado', 'Listado', '1', $menu->id, $roleAdminId);
+
         $this->createMenu('/dashboard/oficinas','Oficinas','mat:apartment',2, $roleAdminId);
 
         /***************************************************************************************/
@@ -50,7 +52,7 @@ class MenuSeeder extends Seeder
         $this->createSubmenu('/conductor','Chofer',3, $menu->id, $roleRecepcionistId);
         $this->createSubmenu('/vehiculo','Vehículo',4, $menu->id, $roleRecepcionistId);
         $this->createMenu('/dashboard/calendario','Calendario','mat:calendar_month',2, $roleRecepcionistId);
-        $this->createMenu('/dashboard/inventario','Inventario','mat:inventory_2',2, $roleRecepcionistId);
+        $this->createMenu('/dashboard/inventario','Inventario','mat:inventory_2',3, $roleRecepcionistId);
 
         $menu = $this->createMenu('/dashboard/reporte','Reportes','mat:auto_graph',4, $roleRecepcionistId);
         $this->createSubmenu('/entrada-salida','Entradas/Salidas Inventario',1, $menu->id, $roleRecepcionistId);
@@ -71,7 +73,10 @@ class MenuSeeder extends Seeder
 
         /***************************************************************************************/
 
-        $menu = $this->createMenu('/dashboard/director/solicitudes','Solicitudes','mat:assignment_turned_in',1, $roleManagerId);
+        $menu = $this->createMenu('/dashboard/usuarios','Usuarios','mat:groups',1, $roleManagerId);
+        $this->createSubmenu('/permisos', 'Permisos', 1, $menu->id, $roleManagerId);
+
+        $menu = $this->createMenu('/dashboard/director/solicitudes','Solicitudes','mat:assignment_turned_in',2, $roleManagerId);
         $this->createSubmenu('/paqueteria', 'Paquetería', 1, $menu->id, $roleManagerId);
     }
 

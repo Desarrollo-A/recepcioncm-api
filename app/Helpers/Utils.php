@@ -9,10 +9,13 @@ use App\Models\Enums\Lookups\StatusDriverRequestLookup;
 use App\Models\Enums\Lookups\StatusPackageRequestLookup;
 use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\Enums\Lookups\TypeRequestLookup;
+use App\Models\Menu;
 use App\Models\Notification;
 use App\Models\Request;
+use App\Models\Submenu;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Collection as CollectionEloquent;
 
 class Utils
 {
@@ -261,5 +264,22 @@ class Utils
         }
 
         return collect($data);
+    }
+
+    public static function convertNavigationMenu(CollectionEloquent $menus, CollectionEloquent $submenus): Collection
+    {
+        return $menus->map(function (Menu $menu) use ($submenus) {
+            $submenusArr = $submenus
+                ->filter(function (Submenu $submenu) use ($menu) {
+                    return $submenu->menu_id === $menu->id;
+                })
+                ->map(function (Submenu $submenu) use ($menu) {
+                    $submenu['path_route'] = $menu['path_route'].$submenu['path_route'];
+                    return $submenu;
+                })
+                ->values();
+
+            return collect($menu)->put('submenu', $submenusArr);
+        });
     }
 }

@@ -29,6 +29,7 @@ class SubmenuRepository extends BaseRepository implements SubmenuRepositoryInter
             ->join('submenu_user', 'submenus.id', '=', 'submenu_user.submenu_id')
             ->where('submenu_user.user_id', $userId)
             ->where('status', true)
+            ->orderBy('order')
             ->get();
     }
 
@@ -37,6 +38,7 @@ class SubmenuRepository extends BaseRepository implements SubmenuRepositoryInter
         return $this->entity
             ->where('role_id', $roleId)
             ->where('status', true)
+            ->orderBy('order')
             ->get();
     }
 }

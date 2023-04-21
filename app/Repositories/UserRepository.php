@@ -111,4 +111,32 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
             })
             ->get();
     }
+
+    public function findAllUserManagerPermissionPaginated(int $userId, array $filters, int $limit, string $sort = null,
+                                                          array $columns = ['*']): LengthAwarePaginator
+    {
+        return $this->entity
+            ->whereHas('role', function (Builder $query) {
+                $query->where('name', NameRole::RECEPCIONIST);
+            })
+            ->whereHas('status', function(Builder $query) {
+                $query->where('code', StatusUserLookup::code(StatusUserLookup::ACTIVE));
+            })
+            ->where('department_manager_id', $userId)
+            ->filter($filters)
+            ->applySort($sort)
+            ->paginate($limit, $columns);
+    }
+
+    public function findAllUserPermissionPaginated(int $userId, array $filters, int $limit, string $sort = null, array $columns = ['*']): LengthAwarePaginator
+    {
+        return $this->entity
+            ->whereHas('status', function(Builder $query) {
+                $query->where('code', StatusUserLookup::code(StatusUserLookup::ACTIVE));
+            })
+            ->withoutUser($userId)
+            ->filter($filters)
+            ->applySort($sort)
+            ->paginate($limit, $columns);
+    }
 }
