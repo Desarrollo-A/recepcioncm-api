@@ -1,13 +1,12 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use App\Models\Enums\ViewsDefault;
 use App\Models\Menu;
 use App\Models\Submenu;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Enums\NameRole;
-use Illuminate\Support\Collection;
+use App\Models\Role;
 
 class MenuUserSeeder extends Seeder
 {
@@ -18,103 +17,65 @@ class MenuUserSeeder extends Seeder
      */
     public function run()
     {
-        $menuAdmin = $this->getMenu(ViewsDefault::VIEWS_DEFAULT_ADMIN);
+        $roles = Role::all();
+        $roleAdminId = $roles->firstWhere('name', '=', NameRole::ADMIN)->id;
+        $roleApplicantId = $roles->firstWhere('name', '=', NameRole::APPLICANT)->id;
+        $roleRecepcionistId = $roles->firstWhere('name', '=', NameRole::RECEPCIONIST)->id;
+        $roleDriverId = $roles->firstWhere('name', '=', NameRole::DRIVER)->id;
+        $roleManagerId = $roles->firstWhere('name', '=', NameRole::DEPARTMENT_MANAGER)->id;
 
-        $menuRecepcionist = $this->getMenu(ViewsDefault::VIEWS_DEFAULT_RECEPCIONIST);
-        $submenuRecepcionist = $this->getSubmenu(ViewsDefault::VIEWS_DEFAULT_RECEPCIONIST);
+        $menuAdmin = $this->getMenu($roleAdminId);
+        $submenuAdmin = $this->getSubmenu($roleAdminId);
 
-        $menuApplicant = $this->getMenu(ViewsDefault::VIEWS_DEFAULT_APPLICANT);
-        $submenuApplicant = $this->getSubmenu(ViewsDefault::VIEWS_DEFAULT_APPLICANT);
+        $menuRecepcionist = $this->getMenu($roleRecepcionistId);
+        $submenuRecepcionist = $this->getSubmenu($roleRecepcionistId);
 
-        $menuDriver = $this->getMenu(ViewsDefault::VIEWS_DEFAULT_DRIVER);
-        $submenuDriver = $this->getSubmenu(ViewsDefault::VIEWS_DEFAULT_DRIVER);
+        $menuApplicant = $this->getMenu($roleApplicantId);
+        $submenuApplicant = $this->getSubmenu($roleApplicantId);
 
-        $menuManager = $this->getMenu(ViewsDefault::VIEWS_DEFAULT_DEPARTMENT_MANAGER);
-        $submenuManager = $this->getSubmenu(ViewsDefault::VIEWS_DEFAULT_DEPARTMENT_MANAGER);
+        $menuDriver = $this->getMenu($roleDriverId);
+        $submenuDriver = $this->getSubmenu($roleDriverId);
 
+        $menuManager = $this->getMenu($roleManagerId);
+        $submenuManager = $this->getSubmenu($roleManagerId);
+
+        $this->attachMenuSubmenu(NameRole::ADMIN, $menuAdmin, $submenuAdmin);
+        $this->attachMenuSubmenu(NameRole::RECEPCIONIST, $menuRecepcionist, $submenuRecepcionist);
+        $this->attachMenuSubmenu(NameRole::APPLICANT, $menuApplicant, $submenuApplicant);
+        $this->attachMenuSubmenu(NameRole::DRIVER, $menuDriver, $submenuDriver);
+        $this->attachMenuSubmenu(NameRole::DEPARTMENT_MANAGER, $menuManager, $submenuManager);
+    }
+
+    /**
+     * @param int[] $menu
+     * @param int[] $submenu
+     */
+    private function attachMenuSubmenu(string $roleName, array $menu, array $submenu): void
+    {
         User::query()
-            ->with('menus')
-            ->whereHas('role', function (Builder $query) {
-                $query->where('name', NameRole::ADMIN);
+            ->whereHas('role', function (Builder $query) use ($roleName) {
+                $query->where('name', $roleName);
             })
             ->get()
-            ->map(function (User $user) use ($menuAdmin) {
-                $user->menus()->attach($menuAdmin);
-                return $user;
-            });
-
-        User::query()
-            ->with('menus')
-            ->whereHas('role', function (Builder $query) {
-                $query->where('name', NameRole::RECEPCIONIST);
-            })
-            ->get()
-            ->map(function (User $user) use ($menuRecepcionist, $submenuRecepcionist) {
-                $user->menus()->attach($menuRecepcionist);
-                $user->submenus()->attach($submenuRecepcionist);
-                return $user;
-            });
-
-        User::query()
-            ->with('menus')
-            ->whereHas('role', function (Builder $query) {
-                $query->where('name', NameRole::APPLICANT);
-            })
-            ->get()
-            ->map(function (User $user) use ($menuApplicant, $submenuApplicant) {
-                $user->menus()->attach($menuApplicant);
-                $user->submenus()->attach($submenuApplicant);
-                return $user;
-            });
-
-        User::query()
-            ->with('menus')
-            ->whereHas('role', function (Builder $query) {
-                $query->where('name', NameRole::DRIVER);
-            })
-            ->get()
-            ->map(function (User $user) use ($menuDriver, $submenuDriver) {
-                $user->menus()->attach($menuDriver);
-                $user->submenus()->attach($submenuDriver);
-                return $user;
-            });
-
-        User::query()
-            ->with('menus')
-            ->whereHas('role', function (Builder $query) {
-                $query->where('name', NameRole::DEPARTMENT_MANAGER);
-            })
-            ->get()
-            ->map(function (User $user) use ($menuManager, $submenuManager) {
-                $user->menus()->attach($menuManager);
-                $user->submenus()->attach($submenuManager);
-                return $user;
+            ->each(function (User $user) use ($menu, $submenu) {
+                $user->menus()->attach($menu);
+                $user->submenus()->attach($submenu);
             });
     }
 
-    private function getMenu(array $defaultMenu): Collection
+    private function getMenu(int $roleId)
     {
-        return collect($defaultMenu)
-            ->map(function ($menu) {
-                return Menu::query()->where('path_route', $menu['path'])->first()->id;
-            })
-            ->values();
+        return Menu::query()
+            ->where('role_id', $roleId)
+            ->pluck('id')
+            ->toArray();
     }
 
-    private function getSubmenu(array $defaultSubmenu): Collection
+    private function getSubmenu(int $roleId): array
     {
-        return collect($defaultSubmenu)
-            ->flatMap(function ($menu) {
-                $menuId = Menu::query()->where('path_route', $menu['path'])->first()->id;
-                return collect($menu['submenus'])
-                    ->map(function ($submenu) use ($menuId) {
-                        return Submenu::query()
-                            ->where('path_route', $submenu['path'])
-                            ->where('menu_id', $menuId)
-                            ->first()
-                            ->id;
-                    });
-            })
-            ->values();
+        return Submenu::query()
+            ->where('role_id', $roleId)
+            ->pluck('id')
+            ->toArray();
     }
 }

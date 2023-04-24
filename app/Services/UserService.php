@@ -30,6 +30,7 @@ use Box\Spout\Common\Exception\UnsupportedTypeException;
 use Box\Spout\Reader\Exception\ReaderNotOpenedException;
 use Box\Spout\Writer\Exception\WriterNotOpenedException;
 use Carbon\Carbon;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -376,5 +377,26 @@ class UserService extends BaseService implements UserServiceInterface
     public function findAllDepartmentManagers(): Collection
     {
         return $this->entityRepository->findAllDepartmentManagers();
+    }
+
+    /**
+     * @throws CustomErrorException
+     * @throws AuthorizationException
+     */
+    public function findAllUserPermissionPaginated(Request $request, User $user, array $columns = ['*']): LengthAwarePaginator
+    {
+        $filters = Validation::getFilters($request->get(QueryParam::FILTERS_KEY));
+        $perPage = Validation::getPerPage($request->get(QueryParam::PAGINATION_KEY));
+        $sort = $request->get(QueryParam::ORDER_BY_KEY);
+        $roleName = $user->role->name;
+
+        if ($roleName === NameRole::DEPARTMENT_MANAGER) {
+            return $this->entityRepository->findAllUserManagerPermissionPaginated($user->id, $filters, $perPage, $sort, $columns);
+        }
+        if ($roleName === NameRole::ADMIN) {
+            return $this->entityRepository->findAllUserPermissionPaginated($user->id, $filters, $perPage, $sort, $columns);
+        }
+
+        throw new AuthorizationException();
     }
 }

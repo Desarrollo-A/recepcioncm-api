@@ -38,6 +38,8 @@ class UserController extends BaseApiController
             ->only('index', 'show', 'changeStatus', 'update', 'findAllDepartmentManagers');
         $this->middleware('role.permission:'.NameRole::allRolesMiddleware())
             ->only('showProfile');
+        $this->middleware('role.permission:'.NameRole::DEPARTMENT_MANAGER.','.NameRole::ADMIN)
+            ->only('findAllUserPermissionPaginated');
 
         $this->userService = $userService;
         $this->menuService = $menuService;
@@ -134,5 +136,11 @@ class UserController extends BaseApiController
     {
         $users = $this->userService->findAllDepartmentManagers();
         return $this->showAll(new UserCollection($users));
+    }
+
+    public function findAllUserPermissionPaginated(Request $request): JsonResponse
+    {
+        $users = $this->userService->findAllUserPermissionPaginated($request, auth()->user());
+        return $this->showAll(new UserCollection($users, true));
     }
 }

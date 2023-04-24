@@ -234,6 +234,9 @@ Route::prefix('v1')->group(function () {
                 Route::get('/department-manager', 'UserController@findAllDepartmentManagers')
                     ->name('department-manager');
 
+                Route::get('/permission', 'UserController@findAllUserPermissionPaginated')
+                    ->name('permission');
+
                 Route::patch('/change-status/{id}', 'UserController@changeStatus')
                     ->name('change-status')
                     ->where('id', Validation::INTEGER_ID);
@@ -480,7 +483,7 @@ Route::prefix('v1')->group(function () {
 
                 Route::delete('/{requestId}', 'RequestCarController@deleteRequestCar')
                     ->name('delete')
-                    ->where('requestId', validation::INTEGER_ID);
+                    ->where('requestId', Validation::INTEGER_ID);
             });
 
         Route::prefix('per-diems')
@@ -488,11 +491,23 @@ Route::prefix('v1')->group(function () {
             ->group(function () {
                 Route::put('/spent/{id}', 'PerDiemController@updateSpent')
                     ->name('spent')
-                    ->where('id', validation::INTEGER_ID);
+                    ->where('id', Validation::INTEGER_ID);
 
                 Route::put('/upload-bill-files/{id}', 'PerDiemController@uploadBillFiles')
                     ->name('upload-bill-files')
-                    ->where('id', validation::INTEGER_ID);
+                    ->where('id', Validation::INTEGER_ID);
+            });
+
+        Route::prefix('navigation')
+            ->name('navigation.')
+            ->group(function () {
+                Route::get('/by-user/{userId}', 'MenuController@getNavigationByUserId')
+                    ->name('by-user')
+                    ->where('roleId', Validation::INTEGER_ID);
+
+                Route::put('/permission/{userId}', 'MenuController@syncNavigation')
+                    ->name('permission')
+                    ->where('userId', Validation::INTEGER_ID);
             });
 
         Route::apiResource('cars', 'CarController')->only('store', 'index', 'update', 'destroy');

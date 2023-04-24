@@ -105,7 +105,8 @@ class User extends Authenticatable
 
     public function menus(): BelongsToMany
     {
-        return $this->belongsToMany(Menu::class)->withTimestamps();
+        return $this->belongsToMany(Menu::class)
+            ->withTimestamps();
     }
 
     public function submenus(): BelongsToMany
