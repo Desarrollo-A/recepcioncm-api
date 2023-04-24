@@ -25,7 +25,8 @@ class UploadImagesFilesRequest extends FormRequest implements ReturnDtoInterface
     public function attributes(): array
     {
         return [
-            'files' => 'Archivos'
+            'files' => 'Archivos',
+            'files.*' => 'Archivo :position'
         ];
     }
 

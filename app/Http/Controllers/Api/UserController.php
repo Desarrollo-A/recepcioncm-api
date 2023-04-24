@@ -38,7 +38,7 @@ class UserController extends BaseApiController
             ->only('index', 'show', 'changeStatus', 'update', 'findAllDepartmentManagers');
         $this->middleware('role.permission:'.NameRole::allRolesMiddleware())
             ->only('showProfile');
-        $this->middleware('role.permission:'.NameRole::DEPARTMENT_MANAGER)
+        $this->middleware('role.permission:'.NameRole::DEPARTMENT_MANAGER.','.NameRole::ADMIN)
             ->only('findAllUserPermissionPaginated');
 
         $this->userService = $userService;

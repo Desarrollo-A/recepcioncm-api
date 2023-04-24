@@ -10,4 +10,6 @@ interface MenuServiceInterface extends BaseServiceInterface
     public function createDefaultMenu(int $userId, string $role): void;
 
     public function getNavigationByUserId(int $userId): Collection;
+
+    public function syncNavigation(int $userId, array $menuIds, array $submenuIds): void;
 }

@@ -8,7 +8,6 @@ use App\Contracts\Repositories\SubmenuRepositoryInterface;
 use App\Contracts\Repositories\UserRepositoryInterface;
 use App\Contracts\Services\MenuServiceInterface;
 use App\Core\BaseService;
-use App\Helpers\Utils;
 use App\Models\Menu;
 use App\Models\Submenu;
 use Illuminate\Support\Collection;
@@ -88,6 +87,17 @@ class MenuService extends BaseService implements MenuServiceInterface
 
             $menu['is_selected'] = $menusUser->where('id', '=', $menu->id)->count() === 1;
             return collect($menu)->put('submenu', $submenusArr);
+        });
+    }
+
+    public function syncNavigation(int $userId, array $menuIds, array $submenuIds): void
+    {
+        $this->userRepository->sync($userId, 'menus', $menuIds);
+        $this->userRepository->sync($userId, 'submenus', $submenuIds);
+
+        $user = $this->userRepository->findById($userId);
+        $user->tokens->each(function ($token) {
+            $token->delete();
         });
     }
 }

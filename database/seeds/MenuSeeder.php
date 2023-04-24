@@ -25,7 +25,8 @@ class MenuSeeder extends Seeder
         /***************************************************************************************/
 
         $menu = $this->createMenu('/dashboard/usuarios','Usuarios','mat:groups',1, $roleAdminId);
-        $this->createSubmenu('/listado', 'Listado', '1', $menu->id, $roleAdminId);
+        $this->createSubmenu('/listado', 'Listado', 1, $menu->id, $roleAdminId);
+        $this->createSubmenu('/permisos', 'Permisos', 2, $menu->id, $roleAdminId);
 
         $this->createMenu('/dashboard/oficinas','Oficinas','mat:apartment',2, $roleAdminId);
 
