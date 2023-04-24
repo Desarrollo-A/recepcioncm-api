@@ -19,8 +19,9 @@ class RolePermission
     public function handle($request, Closure $next, ...$roles)
     {
         $hasPermission = false;
+        $roleName = auth()->user()->role->name;
         foreach ($roles as $rol) {
-            if (auth()->user()->role->name === $rol) {
+            if ($roleName === $rol) {
                 $hasPermission = true;
                 break;
             }

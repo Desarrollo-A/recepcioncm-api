@@ -29,14 +29,16 @@ class SubmenuRepository extends BaseRepository implements SubmenuRepositoryInter
             ->join('submenu_user', 'submenus.id', '=', 'submenu_user.submenu_id')
             ->where('submenu_user.user_id', $userId)
             ->where('status', true)
+            ->orderBy('order')
             ->get();
     }
 
-    public function findByPathRouteAndMenuId(string $path, int $menuId): Submenu
+    public function findAllByRoleId(int $roleId): Collection
     {
         return $this->entity
-            ->where('path_route', $path)
-            ->where('menu_id', $menuId)
-            ->first();
+            ->where('role_id', $roleId)
+            ->where('status', true)
+            ->orderBy('order')
+            ->get();
     }
 }

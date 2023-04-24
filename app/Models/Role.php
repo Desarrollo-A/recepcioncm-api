@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Contracts\ScopeFilterInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Role extends Model implements ScopeFilterInterface
 {
@@ -28,5 +29,15 @@ class Role extends Model implements ScopeFilterInterface
         }
 
         return $query;
+    }
+
+    public function menus(): MorphToMany
+    {
+        return $this->morphedByMany(Menu::class, 'roleable');
+    }
+
+    public function submenus(): MorphToMany
+    {
+        return $this->morphedByMany(Submenu::class, 'roleable');
     }
 }

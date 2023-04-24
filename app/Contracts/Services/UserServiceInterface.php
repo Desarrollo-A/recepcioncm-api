@@ -6,6 +6,7 @@ use App\Core\Contracts\BaseServiceInterface;
 use App\Models\Dto\BulkLoadFileDTO;
 use App\Models\Dto\UserDTO;
 use App\Models\User;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -41,4 +42,9 @@ interface UserServiceInterface extends BaseServiceInterface
     public function updateUser(string $noEmployee, UserDTO $dto): void;
 
     public function findAllDepartmentManagers(): Collection;
+
+    /**
+     * @param User|Authenticatable $user
+     */
+    public function findAllUserPermissionPaginated(Request $request, User $user, array $columns = ['*']): LengthAwarePaginator;
 }

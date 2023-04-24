@@ -9,6 +9,7 @@ use App\Contracts\Services\AuthServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
 use App\Helpers\Enum\Message;
+use App\Helpers\Utils;
 use App\Mail\Auth\RestorePasswordMail;
 use App\Models\Dto\UserDTO;
 use App\Models\Enums\Lookups\StatusUserLookup;
@@ -53,18 +54,7 @@ class AuthService extends BaseService implements AuthServiceInterface
         $menus = $this->menuRepository->findByUserId($userId);
         $submenus = $this->submenuRepository->findByUserId($userId);
 
-        return $menus->map(function ($menu) use ($submenus) {
-            $submenusArr = $submenus->filter(function ($submenu) use ($menu) {
-                return $submenu->menu_id === $menu->id;
-            })
-                ->map(function ($submenu) use ($menu) {
-                    $submenu['path_route'] = $menu['path_route'].$submenu['path_route'];
-                    return $submenu;
-                })
-                ->values();
-
-            return collect($menu)->put('submenu', $submenusArr);
-        });
+        return Utils::convertNavigationMenu($menus, $submenus);
     }
 
     public function getUser(int $id): User
