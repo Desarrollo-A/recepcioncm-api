@@ -12,4 +12,6 @@ interface MenuServiceInterface extends BaseServiceInterface
     public function getNavigationByUserId(int $userId): Collection;
 
     public function syncNavigation(int $userId, array $menuIds, array $submenuIds): void;
+
+    public function hasPermissionToUrl(int $userId, string $pathUrl): bool;
 }
