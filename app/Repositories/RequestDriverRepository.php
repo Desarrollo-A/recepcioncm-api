@@ -38,6 +38,7 @@ class RequestDriverRepository extends BaseRepository implements RequestDriverRep
                 'request.cancelRequest.user',
                 'request.score',
                 'request.perDiem',
+                'request.perDiem.files',
                 'driverRequestSchedule',
                 'driverRequestSchedule.carSchedule',
                 'driverRequestSchedule.driverSchedule',
