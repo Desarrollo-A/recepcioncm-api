@@ -100,4 +100,11 @@ class MenuService extends BaseService implements MenuServiceInterface
             $token->delete();
         });
     }
+
+    public function hasPermissionToUrl(int $userId, string $pathUrl): bool
+    {
+        $paths = $this->entityRepository->getPathRouteNavigationByUserId($userId);
+
+        return $paths->where('path_route', '=', $pathUrl)->count() > 0;
+    }
 }

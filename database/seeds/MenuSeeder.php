@@ -47,7 +47,7 @@ class MenuSeeder extends Seeder
 
         /***************************************************************************************/
 
-        $menu = $this->createMenu('/dashboard/solicitudes','Solicitudes','mat:history',1, $roleRecepcionistId);
+        $menu = $this->createMenu('/dashboard/historial','Solicitudes','mat:history',1, $roleRecepcionistId);
         $this->createSubmenu('/sala','Salas de Junta',1, $menu->id, $roleRecepcionistId);
         $this->createSubmenu('/paqueteria','Paquetería',2, $menu->id, $roleRecepcionistId);
         $this->createSubmenu('/conductor','Chofer',3, $menu->id, $roleRecepcionistId);
@@ -60,7 +60,7 @@ class MenuSeeder extends Seeder
 
         $menu = $this->createMenu('/dashboard/mantenimiento','Mantenimiento','mat:engineering',5, $roleRecepcionistId);
         $this->createSubmenu('/sala','Salas de Junta',1, $menu->id, $roleRecepcionistId);
-        $this->createSubmenu('/auto','Vehículo',2, $menu->id, $roleRecepcionistId);
+        $this->createSubmenu('/vehiculo','Vehículo',2, $menu->id, $roleRecepcionistId);
         $this->createSubmenu('/conductor','Chofer',3, $menu->id, $roleRecepcionistId);
 
         /***************************************************************************************/
