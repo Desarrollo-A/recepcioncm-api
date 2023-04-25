@@ -10,4 +10,6 @@ interface MenuRepositoryInterface extends BaseRepositoryInterface
     public function findByUserId(int $userId): Collection;
 
     public function findAllByRoleId(int $roleId): Collection;
+
+    public function getPathRouteNavigationByUserId(int $userId): Collection;
 }

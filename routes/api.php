@@ -503,7 +503,11 @@ Route::prefix('v1')->group(function () {
             ->group(function () {
                 Route::get('/by-user/{userId}', 'MenuController@getNavigationByUserId')
                     ->name('by-user')
-                    ->where('roleId', Validation::INTEGER_ID);
+                    ->where('userId', Validation::INTEGER_ID);
+
+                Route::get('/has-permission', 'MenuController@hasPermissionToUrl')
+                    ->name('has-permission')
+                    ->where('userId', Validation::INTEGER_ID);
 
                 Route::put('/permission/{userId}', 'MenuController@syncNavigation')
                     ->name('permission')
