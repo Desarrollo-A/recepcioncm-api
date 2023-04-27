@@ -10,6 +10,7 @@ use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Contracts\Repositories\UserRepositoryInterface;
 use App\Contracts\Services\NotificationServiceInterface;
 use App\Contracts\Services\RequestNotificationServiceInterface;
+use App\Contracts\Services\UserServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
 use App\Helpers\Utils;
@@ -26,6 +27,7 @@ use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\Enums\Lookups\TypeNotificationsLookup;
 use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Enums\NameRole;
+use App\Models\Enums\PathRouteRecepcionist;
 use App\Models\Enums\TypeLookup;
 use App\Models\Inventory;
 use App\Models\Notification;
@@ -47,14 +49,18 @@ class NotificationService extends BaseService implements NotificationServiceInte
     protected $userRepository;
 
     private $requestNotificationService;
+    private $userService;
 
-    public function __construct(NotificationRepositoryInterface              $notificationRepository,
-                                LookupRepositoryInterface                    $lookupRepository,
-                                RequestRepositoryInterface                   $requestRepository,
-                                ActionRequestNotificationRepositoryInterface $actionRequestNotificationRepository,
-                                RequestNotificationRepositoryInterface       $requestNotificationRepository,
-                                UserRepositoryInterface                      $userRepository,
-                                RequestNotificationServiceInterface          $requestNotificationService)
+    public function __construct(
+        NotificationRepositoryInterface              $notificationRepository,
+        LookupRepositoryInterface                    $lookupRepository,
+        RequestRepositoryInterface                   $requestRepository,
+        ActionRequestNotificationRepositoryInterface $actionRequestNotificationRepository,
+        RequestNotificationRepositoryInterface       $requestNotificationRepository,
+        UserRepositoryInterface                      $userRepository,
+        RequestNotificationServiceInterface          $requestNotificationService,
+        UserServiceInterface                         $userService
+    )
     {
         $this->entityRepository = $notificationRepository;
         $this->lookupRepository = $lookupRepository;
@@ -63,6 +69,7 @@ class NotificationService extends BaseService implements NotificationServiceInte
         $this->requestNotificationRepository = $requestNotificationRepository;
         $this->userRepository = $userRepository;
         $this->requestNotificationService = $requestNotificationService;
+        $this->userService = $userService;
     }
 
     /**
@@ -70,11 +77,19 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function createRequestRoomNotification(RequestRoom $requestRoom): void
     {
-        $notification = $this->createRow("Nueva solicitud de sala {$requestRoom->request->code}",
-            $requestRoom->room->recepcionist_id,TypeNotificationsLookup::ROOM, NotificationColorLookup::BLUE,
-            NotificationIconLookup::ROOM);
-        $this->requestNotificationService->create($requestRoom->request_id, $notification->id);
-        Utils::eventAlertNotification($notification);
+        $ids = $this->getRecepcionistIds($requestRoom->room->office_id, PathRouteRecepcionist::fullPathHistory(PathRouteRecepcionist::ROOM));
+
+        foreach ($ids as $id) {
+            $notification = $this->createNotification(
+                "Nueva solicitud de sala {$requestRoom->request->code}",
+                $id,
+                TypeNotificationsLookup::ROOM,
+                NotificationColorLookup::BLUE,
+                NotificationIconLookup::ROOM
+            );
+            $this->requestNotificationService->create($requestRoom->request_id, $notification->id);
+            Utils::eventAlertNotification($notification);
+        }
     }
 
     public function getAllNotificationLast5Days(int $userId): Collection
@@ -87,8 +102,14 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function newOrResponseToApprovedRequestRoomNotification(Request $request): void
     {
-        $notification = $this->createRow("La solicitud de sala $request->code fue aprobada", $request->user_id,
-            TypeNotificationsLookup::ROOM, NotificationColorLookup::GREEN, NotificationIconLookup::ROOM);
+        $notification = $this->createNotification(
+            "La solicitud de sala $request->code fue aprobada",
+            $request->user_id,
+            TypeNotificationsLookup::ROOM,
+            NotificationColorLookup::GREEN,
+            NotificationIconLookup::ROOM
+        );
+
         $this->requestNotificationService->create($request->id, $notification->id);
         Utils::eventAlertNotification($notification);
     }
@@ -98,8 +119,14 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function newToProposalRequestRoomNotification(Request $request): void
     {
-        $notification = $this->createRow("Propuesta de la solicitud de sala $request->code", $request->user_id,
-            TypeNotificationsLookup::ROOM, NotificationColorLookup::ORANGE, NotificationIconLookup::ROOM);
+        $notification = $this->createNotification(
+            "Propuesta de la solicitud de sala $request->code",
+            $request->user_id,
+            TypeNotificationsLookup::ROOM,
+            NotificationColorLookup::ORANGE,
+            NotificationIconLookup::ROOM
+        );
+
         $this->requestNotificationService->create($request->id, $notification->id);
         Utils::eventAlertNotification($notification);
     }
@@ -109,10 +136,18 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function newToDeletedRequestRoomNotification(Request $request): void
     {
-        $notification = $this->createRow("La solicitud de sala $request->code fue eliminada",
-            $request->requestRoom->room->recepcionist_id,TypeNotificationsLookup::ROOM,
-            NotificationColorLookup::RED, NotificationIconLookup::ROOM);
-        Utils::eventAlertNotification($notification);
+        $ids = $this->getRecepcionistIds($request->requestRoom->room->office_id, PathRouteRecepcionist::fullPathHistory(PathRouteRecepcionist::ROOM));
+
+        foreach($ids as $id) {
+            $notification = $this->createNotification(
+                "La solicitud de sala $request->code fue eliminada",
+                $id,
+                TypeNotificationsLookup::ROOM,
+                NotificationColorLookup::RED, NotificationIconLookup::ROOM
+            );
+
+            Utils::eventAlertNotification($notification);
+        }
     }
 
     /**
@@ -120,13 +155,33 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function approvedToCancelledRequestRoomNotification(Request $request, User $user): void
     {
-        $userId = ($user->role->name === NameRole::RECEPCIONIST)
-            ? $request->user_id
-            : $request->requestRoom->room->recepcionist_id;
-        $notification = $this->createRow("La solicitud de sala $request->code fue cancelada", $userId,
-            TypeNotificationsLookup::ROOM, NotificationColorLookup::RED, NotificationIconLookup::ROOM);
-        $this->requestNotificationService->create($request->id, $notification->id);
-        Utils::eventAlertNotification($notification);
+        if ($user->role->name === NameRole::RECEPCIONIST) {
+            $notification = $this->createNotification(
+                "La solicitud de sala $request->code fue cancelada",
+                $request->user_id,
+                TypeNotificationsLookup::ROOM,
+                NotificationColorLookup::RED,
+                NotificationIconLookup::ROOM
+            );
+            $this->requestNotificationService->create($request->id, $notification->id);
+            Utils::eventAlertNotification($notification);
+        }
+
+        if ($user->role->name === NameRole::APPLICANT) {
+            $ids = $this->getRecepcionistIds($request->requestRoom->room->office_id, PathRouteRecepcionist::fullPathHistory(PathRouteRecepcionist::ROOM));
+
+            foreach($ids as $id) {
+                $notification = $this->createNotification(
+                    "La solicitud de sala $request->code fue cancelada",
+                    $id,
+                    TypeNotificationsLookup::ROOM,
+                    NotificationColorLookup::RED,
+                    NotificationIconLookup::ROOM
+                );
+                $this->requestNotificationService->create($request->id, $notification->id);
+                Utils::eventAlertNotification($notification);
+            }
+        }
     }
 
     /**
@@ -135,7 +190,7 @@ class NotificationService extends BaseService implements NotificationServiceInte
     public function proposalToRejectedOrResponseRequestRoomNotification(Request $request): void
     {
         $message = '';
-        $colorId = null;
+        $color = '';
         if ($request->status->code === StatusRoomRequestLookup::code(StatusRoomRequestLookup::REJECTED)) {
             $message = "Propuesta de la solicitud de sala $request->code fue rechazada";
             $color = NotificationColorLookup::RED;
@@ -144,10 +199,18 @@ class NotificationService extends BaseService implements NotificationServiceInte
             $color = NotificationColorLookup::GREEN;
         }
 
-        $notification = $this->createRow($message, $request->requestRoom->room->recepcionist_id, TypeNotificationsLookup::ROOM,
-            $color, NotificationIconLookup::ROOM);
-        $this->requestNotificationService->create($request->id, $notification->id);
-        Utils::eventAlertNotification($notification);
+        $ids = $this->getRecepcionistIds($request->requestRoom->room->office_id, PathRouteRecepcionist::fullPathHistory(PathRouteRecepcionist::ROOM));
+        foreach($ids as $id) {
+            $notification = $this->createNotification(
+                $message, 
+                $id, 
+                TypeNotificationsLookup::ROOM,
+                $color, 
+                NotificationIconLookup::ROOM
+            );
+            $this->requestNotificationService->create($request->id, $notification->id);
+            Utils::eventAlertNotification($notification);
+        }
     }
 
     /**
@@ -196,7 +259,7 @@ class NotificationService extends BaseService implements NotificationServiceInte
                     $typeRequest = '';
             }
 
-            $notification = $this->createRow("Confirmación de solicitud de $typeRequest $request->code", $request->user_id,
+            $notification = $this->createNotification("Confirmación de solicitud de $typeRequest $request->code", $request->user_id,
                 $typeNotification, NotificationColorLookup::BLUE, NotificationIconLookup::CONFIRM);
             $this->createActionNotification($notification, $request, ActionRequestNotificationLookup::CONFIRM);
         });
@@ -228,7 +291,7 @@ class NotificationService extends BaseService implements NotificationServiceInte
                     $typeRequest = '';
             }
 
-            $notification = $this->createRow("Calificar solicitud de $typeRequest $request->code", $request->user_id,
+            $notification = $this->createNotification("Calificar solicitud de $typeRequest $request->code", $request->user_id,
                 $typeNotification, NotificationColorLookup::BLUE, NotificationIconLookup::STAR);
             $this->createActionNotification($notification, $request, ActionRequestNotificationLookup::SCORE);
         });
@@ -239,10 +302,18 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function minimumStockNotification(Inventory $inventory): void
     {
-        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($inventory->office_id)->id;
-        $notification = $this->createRow("El inventario $inventory->code se encuentra al mínimo", $userId,
-            TypeNotificationsLookup::INVENTORY, NotificationColorLookup::YELLOW, NotificationIconLookup::WARNING);
-        Utils::eventAlertNotification($notification);
+        $ids = $this->getRecepcionistIds($inventory->office_id, PathRouteRecepcionist::INVENTORY);
+
+        foreach($ids as $id) {
+            $notification = $this->createNotification(
+                "El inventario $inventory->code se encuentra al mínimo",
+                $id,
+                TypeNotificationsLookup::INVENTORY,
+                NotificationColorLookup::YELLOW,
+                NotificationIconLookup::WARNING
+            );
+            Utils::eventAlertNotification($notification);
+        }
     }
 
     /**
@@ -250,9 +321,13 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function createRequestPackageNotification(Package $package): void
     {
-        $notification = $this->createRow("Solicitud de paquetería {$package->request->code} para revisión",
+        $notification = $this->createNotification(
+            "Solicitud de paquetería {$package->request->code} para revisión",
             $package->request->user->department_manager_id,
-            TypeNotificationsLookup::PARCEL, NotificationColorLookup::BLUE, NotificationIconLookup::TRUCK);
+            TypeNotificationsLookup::PARCEL,
+            NotificationColorLookup::BLUE,
+            NotificationIconLookup::TRUCK
+        );
         $this->requestNotificationService->create($package->request_id, $notification->id);
         Utils::eventAlertNotification($notification);
     }
@@ -262,16 +337,31 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function deleteRequestPackageNotification (Package $package): void
     {
-        $userId = null;
         if ($package->request->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::IN_REVIEW_MANAGER)) {
-            $userId = $package->request->user->department_manager_id;
-        } else if ($package->request->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW)) {
-            $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($package->office_id)->id;
+            $notificationDelete = $this->createNotification(
+                "La solicitud de paquetería {$package->request->code} fue eliminada",
+                $package->request->user->department_manager_id,
+                TypeNotificationsLookup::PARCEL,
+                NotificationColorLookup::RED,
+                NotificationIconLookup::TRUCK
+            );
+            Utils::eventAlertNotification($notificationDelete);
         }
 
-        $notificationDelete = $this->createRow("La solicitud de paquetería {$package->request->code} fue eliminada",
-            $userId, TypeNotificationsLookup::PARCEL, NotificationColorLookup::RED, NotificationIconLookup::TRUCK);
-        Utils::eventAlertNotification($notificationDelete);
+        if ($package->request->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW)) {
+            $ids = $this->getRecepcionistIds($package->office_id, PathRouteRecepcionist::fullPathHistory(PathRouteRecepcionist::PARCEL));
+
+            foreach($ids as $id) {
+                $notificationDelete = $this->createNotification(
+                    "La solicitud de paquetería {$package->request->code} fue eliminada",
+                    $id,
+                    TypeNotificationsLookup::PARCEL,
+                    NotificationColorLookup::RED,
+                    NotificationIconLookup::TRUCK
+                );
+                Utils::eventAlertNotification($notificationDelete);
+            }
+        }
     }
 
     /**
@@ -279,17 +369,42 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function cancelRequestPackageNotification(Request $request, User $user, int $driverId = null): void
     {
-        $userId = ($user->role->name === NameRole::RECEPCIONIST)
-            ? $request->user_id
-            : $this->userRepository->findByOfficeIdAndRoleRecepcionist($request->package->office_id)->id;
-        $notification = $this->createRow("La solicitud de paquetería $request->code fue cancelada", $userId,
-            TypeNotificationsLookup::PARCEL, NotificationColorLookup::RED, NotificationIconLookup::TRUCK);
-        $this->requestNotificationService->create($request->id, $notification->id);
-        Utils::eventAlertNotification($notification);
+        if ($user->role->name === NameRole::RECEPCIONIST || $user->role->name === NameRole::DEPARTMENT_MANAGER) {
+            $notification = $this->createNotification(
+                "La solicitud de paquetería $request->code fue cancelada",
+                $request->user_id,
+                TypeNotificationsLookup::PARCEL,
+                NotificationColorLookup::RED,
+                NotificationIconLookup::TRUCK
+            );
+            $this->requestNotificationService->create($request->id, $notification->id);
+            Utils::eventAlertNotification($notification);
+        }
+
+        if ($user->role->name === NameRole::APPLICANT) {
+            $ids = $this->getRecepcionistIds($request->package->office_id, PathRouteRecepcionist::fullPathHistory(PathRouteRecepcionist::PARCEL));
+
+            foreach($ids as $id) {
+                $notification = $this->createNotification(
+                    "La solicitud de paquetería $request->code fue cancelada",
+                    $id,
+                    TypeNotificationsLookup::PARCEL,
+                    NotificationColorLookup::RED,
+                    NotificationIconLookup::TRUCK
+                );
+                $this->requestNotificationService->create($request->id, $notification->id);
+                Utils::eventAlertNotification($notification);
+            }
+        }
 
         if (!is_null($driverId)) {
-            $notification = $this->createRow("La solicitud de paquetería $request->code fue cancelada", $driverId,
-                TypeNotificationsLookup::PARCEL, NotificationColorLookup::RED, NotificationIconLookup::TRUCK);
+            $notification = $this->createNotification(
+                "La solicitud de paquetería $request->code fue cancelada",
+                $driverId,
+                TypeNotificationsLookup::PARCEL,
+                NotificationColorLookup::RED,
+                NotificationIconLookup::TRUCK
+            );
             Utils::eventAlertNotification($notification);
         }
     }
@@ -299,11 +414,20 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function transferPackageRequestNotification(Package $package): void
     {
-        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($package->office_id)->id;
-        $notification = $this->createRow("La solicitud de paquetería {$package->request->code} fue transferida",
-            $userId, TypeNotificationsLookup::PARCEL, NotificationColorLookup::BLUE, NotificationIconLookup::TRUCK);
-        $this->requestNotificationService->create($package->request->id, $notification->id);
-        Utils::eventAlertNotification($notification);
+        $ids = $this->getRecepcionistIds($package->office_id, PathRouteRecepcionist::fullPathHistory(PathRouteRecepcionist::PARCEL));
+
+        foreach($ids as $id) {
+            $notification = $this->createNotification(
+                "La solicitud de paquetería {$package->request->code} fue transferida",
+                $id,
+                TypeNotificationsLookup::PARCEL,
+                NotificationColorLookup::BLUE,
+                NotificationIconLookup::TRUCK
+            );
+
+            $this->requestNotificationService->create($package->request->id, $notification->id);
+            Utils::eventAlertNotification($notification);
+        }
     }
 
     /**
@@ -311,14 +435,18 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function approvedPackageRequestNotification(Package $package, int $driverId = null): void
     {
-        $notification = $this->createRow("La solicitud de paquetería {$package->request->code} fue aprobada",
-            $package->request->user_id, TypeNotificationsLookup::PARCEL, NotificationColorLookup::GREEN,
-            NotificationIconLookup::TRUCK);
+        $notification = $this->createNotification(
+            "La solicitud de paquetería {$package->request->code} fue aprobada",
+            $package->request->user_id,
+            TypeNotificationsLookup::PARCEL,
+            NotificationColorLookup::GREEN,
+            NotificationIconLookup::TRUCK
+        );
         $this->requestNotificationService->create($package->request->id, $notification->id);
         Utils::eventAlertNotification($notification);
 
         if (!is_null($driverId)) {
-            $notification = $this->createRow("La solicitud de paquetería {$package->request->code} fue aprobada",
+            $notification = $this->createNotification("La solicitud de paquetería {$package->request->code} fue aprobada",
                 $driverId, TypeNotificationsLookup::PARCEL, NotificationColorLookup::GREEN, NotificationIconLookup::TRUCK);
             $this->requestNotificationService->create($package->request->id, $notification->id);
             Utils::eventAlertNotification($notification);
@@ -330,9 +458,13 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function onRoadPackageRequestNotification(Request $request): void
     {
-        $notification = $this->createRow("El paquete de la solicitud $request->code está en camino",
-            $request->user_id, TypeNotificationsLookup::PARCEL, NotificationColorLookup::BLUE,
-            NotificationIconLookup::TRUCK);
+        $notification = $this->createNotification(
+            "El paquete de la solicitud $request->code está en camino",
+            $request->user_id,
+            TypeNotificationsLookup::PARCEL,
+            NotificationColorLookup::BLUE,
+            NotificationIconLookup::TRUCK
+        );
         $this->requestNotificationService->create($request->id, $notification->id);
         Utils::eventAlertNotification($notification);
     }
@@ -342,39 +474,61 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function deliveredPackageRequestNotification(Request $request): void
     {
-        $notification = $this->createRow("El paquete de la solicitud $request->code fue entregado", $request->user_id,
-            TypeNotificationsLookup::PARCEL, NotificationColorLookup::GREEN, NotificationIconLookup::BOX);
+        $notification = $this->createNotification(
+            "El paquete de la solicitud $request->code fue entregado",
+            $request->user_id,
+            TypeNotificationsLookup::PARCEL,
+            NotificationColorLookup::GREEN,
+            NotificationIconLookup::BOX
+        );
         $this->requestNotificationService->create($request->id, $notification->id);
         Utils::eventAlertNotification($notification);
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function proposalPackageRequestNotification(Request $requestPackageProposal): void
     {
-        $notification = $this->createRow("Propuesta de la solicitud de paquetería $requestPackageProposal->code",
-            $requestPackageProposal->user_id, TypeNotificationsLookup::PARCEL, NotificationColorLookup::ORANGE,
-            NotificationIconLookup::BOX);
+        $notification = $this->createNotification(
+            "Propuesta de la solicitud de paquetería $requestPackageProposal->code",
+            $requestPackageProposal->user_id,
+            TypeNotificationsLookup::PARCEL,
+            NotificationColorLookup::ORANGE,
+            NotificationIconLookup::BOX
+        );
         $this->requestNotificationService->create($requestPackageProposal->id, $notification->id);
         Utils::eventAlertNotification($notification);
     }
 
-    public function responseRejectRequestNotification(Request $requestResponseReject): void
+    /**
+     * @throws CustomErrorException
+     */
+    public function responseRejectPackageRequestNotification(Request $request): void
     {
         $messageNotification = '';
         $colorNotification = '';
-        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($requestResponseReject->package->office_id)->id;
-        if ($requestResponseReject->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::IN_REVIEW) ||
-            $requestResponseReject->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED)) {
-            $messageNotification = "Propuesta de la solicitud de paquetería $requestResponseReject->code fue aceptada";
+        $ids = $this->getRecepcionistIds($request->package->office_id, PathRouteRecepcionist::fullPathHistory(PathRouteRecepcionist::PARCEL));
+        if ($request->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::IN_REVIEW) ||
+            $request->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED)) {
+            $messageNotification = "Propuesta de la solicitud de paquetería $request->code fue aceptada";
             $colorNotification = NotificationColorLookup::GREEN;
-        } else if ($requestResponseReject->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::REJECTED)) {
-            $messageNotification = "Propuesta de la solicitud de paquetería $requestResponseReject->code fue rechazada";
+        } else if ($request->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::REJECTED)) {
+            $messageNotification = "Propuesta de la solicitud de paquetería $request->code fue rechazada";
             $colorNotification = NotificationColorLookup::RED;
         }
 
-        $notification = $this->createRow($messageNotification, $userId, TypeNotificationsLookup::PARCEL,
-            $colorNotification, NotificationIconLookup::BOX);
-        $this->requestNotificationService->create($requestResponseReject->id, $notification->id);
-        Utils::eventAlertNotification($notification);
+        foreach($ids as $id) {
+            $notification = $this->createNotification(
+                $messageNotification,
+                $id,
+                TypeNotificationsLookup::PARCEL,
+                $colorNotification,
+                NotificationIconLookup::BOX
+            );
+            $this->requestNotificationService->create($request->id, $notification->id);
+            Utils::eventAlertNotification($notification);
+        }
     }
 
     /**
@@ -382,11 +536,19 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function createRequestDriverNotification(RequestDriver $requestDriver): void
     {
-        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($requestDriver->office_id)->id;
-        $notification = $this->createRow("Nueva solicitud de chofer {$requestDriver->request->code}", $userId,
-            TypeNotificationsLookup::DRIVER, NotificationColorLookup::BLUE, NotificationIconLookup::DRIVER);
-        $this->requestNotificationService->create($requestDriver->request_id, $notification->id);
-        Utils::eventAlertNotification($notification);
+        $ids = $this->getRecepcionistIds($requestDriver->office_id, PathRouteRecepcionist::fullPathHistory(PathRouteRecepcionist::DRIVER));
+
+        foreach($ids as $id) {
+            $notification = $this->createNotification(
+                "Nueva solicitud de chofer {$requestDriver->request->code}",
+                $id,
+                TypeNotificationsLookup::DRIVER,
+                NotificationColorLookup::BLUE,
+                NotificationIconLookup::DRIVER
+            );
+            $this->requestNotificationService->create($requestDriver->request_id, $notification->id);
+            Utils::eventAlertNotification($notification);
+        }
     }
 
     /**
@@ -394,27 +556,55 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function deleteRequestDriverNotification(RequestDriver $requestDriver): void
     {
-        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($requestDriver->office_id)->id;
-        $notificationDelete = $this->createRow("La solicitud de chofer {$requestDriver->request->code} fue eliminada",
-            $userId, TypeNotificationsLookup::DRIVER, NotificationColorLookup::RED, NotificationIconLookup::DRIVER);
-        Utils::eventAlertNotification($notificationDelete);
+        $ids = $this->getRecepcionistIds($requestDriver->office_id, PathRouteRecepcionist::fullPathHistory(PathRouteRecepcionist::DRIVER));
+
+        foreach($ids as $id) {
+            $notificationDelete = $this->createNotification(
+                "La solicitud de chofer {$requestDriver->request->code} fue eliminada",
+                $id,
+                TypeNotificationsLookup::DRIVER,
+                NotificationColorLookup::RED,
+                NotificationIconLookup::DRIVER
+            );
+            Utils::eventAlertNotification($notificationDelete);
+        }
     }
 
     /**
      * @throws CustomErrorException
      */
-    public function cancelRequestDriverNotification(Request $request, User $user, int $driverId = null): void
+    public function cancelRequestDriverNotification(RequestDriver $requestDriver, User $user, int $driverId = null): void
     {
-        $userId = ($user->role->name === NameRole::RECEPCIONIST)
-                ? $request->user_id
-                : $this->userRepository->findByOfficeIdAndRoleRecepcionist($request->requestDriver->office_id)->id;
-        $notification = $this->createRow("La solicitud de chofer $request->code fue cancelada", $userId,
-            TypeNotificationsLookup::DRIVER, NotificationColorLookup::RED, NotificationIconLookup::DRIVER);
-        $this->requestNotificationService->create($request->id, $notification->id);
-        Utils::eventAlertNotification($notification);
+        if ($user->role->name === NameRole::RECEPCIONIST) {
+            $notification = $this->createNotification(
+                "La solicitud de chofer $requestDriver->request->code fue cancelada",
+                $requestDriver->request->user_id,
+                TypeNotificationsLookup::DRIVER,
+                NotificationColorLookup::RED,
+                NotificationIconLookup::DRIVER
+            );
+            $this->requestNotificationService->create($requestDriver->request->id, $notification->id);
+            Utils::eventAlertNotification($notification);
+        }
+
+        if ($user->role->name === NameRole::APPLICANT) {
+            $ids = $this->getRecepcionistIds($requestDriver->office_id, PathRouteRecepcionist::fullPathHistory(PathRouteRecepcionist::DRIVER));
+
+            foreach($ids as $id) {
+                $notification = $this->createNotification(
+                    "La solicitud de chofer $requestDriver->request->code fue cancelada",
+                    $id,
+                    TypeNotificationsLookup::DRIVER,
+                    NotificationColorLookup::RED,
+                    NotificationIconLookup::DRIVER
+                );
+                $this->requestNotificationService->create($requestDriver->request->id, $notification->id);
+                Utils::eventAlertNotification($notification);
+            }
+        }
 
         if (!is_null($driverId)) {
-            $notification = $this->createRow("La solicitud de chofer $request->code fue cancelada", $driverId,
+            $notification = $this->createNotification("La solicitud de chofer {$requestDriver->request->code} fue cancelada", $driverId,
                 TypeNotificationsLookup::DRIVER, NotificationColorLookup::RED, NotificationIconLookup::DRIVER);
             Utils::eventAlertNotification($notification);
         }
@@ -425,11 +615,19 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function transferRequestDriverNotification(RequestDriver $requestDriver): void
     {
-        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($requestDriver->office_id)->id;
-        $notification = $this->createRow("La solicitud de chofer {$requestDriver->request->code} fue transferida",
-            $userId, TypeNotificationsLookup::DRIVER, NotificationColorLookup::BLUE, NotificationIconLookup::DRIVER);
-        $this->requestNotificationService->create($requestDriver->request_id, $notification->id);
-        Utils::eventAlertNotification($notification);
+        $ids = $this->getRecepcionistIds($requestDriver->office_id, PathRouteRecepcionist::fullPathHistory(PathRouteRecepcionist::DRIVER));
+
+        foreach($ids as $id) {
+            $notification = $this->createNotification(
+                "La solicitud de chofer {$requestDriver->request->code} fue transferida",
+                $id,
+                TypeNotificationsLookup::DRIVER,
+                NotificationColorLookup::BLUE,
+                NotificationIconLookup::DRIVER
+            );
+            $this->requestNotificationService->create($requestDriver->request_id, $notification->id);
+            Utils::eventAlertNotification($notification);
+        }
     }
 
     /**
@@ -437,44 +635,77 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function approvedRequestDriverNotification(Request $request, int $driverId = null): void
     {
-        $notification = $this->createRow("La solicitud de chofer $request->code fue aprobada", $request->user_id,
-            TypeNotificationsLookup::DRIVER, NotificationColorLookup::GREEN, NotificationIconLookup::DRIVER);
+        $notification = $this->createNotification(
+            "La solicitud de chofer $request->code fue aprobada",
+            $request->user_id,
+            TypeNotificationsLookup::DRIVER,
+            NotificationColorLookup::GREEN,
+            NotificationIconLookup::DRIVER
+        );
         $this->requestNotificationService->create($request->id, $notification->id);
         Utils::eventAlertNotification($notification);
 
         if (!is_null($driverId)) {
-            $notification = $this->createRow("La solicitud de chofer $request->code fue aprobada", $driverId,
-                TypeNotificationsLookup::DRIVER, NotificationColorLookup::GREEN, NotificationIconLookup::DRIVER);
+            $notification = $this->createNotification(
+                "La solicitud de chofer $request->code fue aprobada",
+                $driverId,
+                TypeNotificationsLookup::DRIVER,
+                NotificationColorLookup::GREEN,
+                NotificationIconLookup::DRIVER
+            );
             $this->requestNotificationService->create($request->id, $notification->id);
             Utils::eventAlertNotification($notification);
         }
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function proposalDriverRequestNotification(Request $proposalDriverRequest): void
     {
-        $notification = $this->createRow("Propuesta de solicitud de chofer $proposalDriverRequest->code",
-            $proposalDriverRequest->user_id, TypeNotificationsLookup::DRIVER, NotificationColorLookup::ORANGE,
-            NotificationIconLookup::DRIVER);
+        $notification = $this->createNotification(
+            "Propuesta de solicitud de chofer $proposalDriverRequest->code",
+            $proposalDriverRequest->user_id,
+            TypeNotificationsLookup::DRIVER,
+            NotificationColorLookup::ORANGE,
+            NotificationIconLookup::DRIVER
+        );
         $this->requestNotificationService->create($proposalDriverRequest->id, $notification->id);
         Utils::eventAlertNotification($notification);
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function responseRejectRequestDriverNotification(Request $requestDriverResponseReject):void
     {
         $messageNotification = '';
         $colorNotification = '';
-        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($requestDriverResponseReject->requestDriver->office_id)->id;
+        $ids = $this->getRecepcionistIds(
+            $requestDriverResponseReject->requestDriver->office_id,
+            PathRouteRecepcionist::fullPathHistory(PathRouteRecepcionist::DRIVER)
+        );
+
         if($requestDriverResponseReject->status->code === StatusDriverRequestLookup::code(StatusDriverRequestLookup::APPROVED)){
             $messageNotification = "Propuesta de solicitud de chofer $requestDriverResponseReject->code fue aceptada";
             $colorNotification = NotificationColorLookup::GREEN;
-        }else if($requestDriverResponseReject->status->code === StatusDriverRequestLookup::code(StatusDriverRequestLookup::REJECTED)) {
+        }
+        if($requestDriverResponseReject->status->code === StatusDriverRequestLookup::code(StatusDriverRequestLookup::REJECTED)) {
             $messageNotification = "Propuesta de solicitud de chofer $requestDriverResponseReject->code fue rechazada";
             $colorNotification = NotificationColorLookup::RED;
         }
-        $notification = $this->createRow($messageNotification, $userId, TypeNotificationsLookup::DRIVER,
-            $colorNotification, NotificationIconLookup::DRIVER);
-        $this->requestNotificationService->create($requestDriverResponseReject->id, $notification->id);
-        Utils::eventAlertNotification($notification);
+
+        foreach($ids as $id) {
+            $notification = $this->createNotification(
+                $messageNotification,
+                $id,
+                TypeNotificationsLookup::DRIVER,
+                $colorNotification,
+                NotificationIconLookup::DRIVER
+            );
+            $this->requestNotificationService->create($requestDriverResponseReject->id, $notification->id);
+            Utils::eventAlertNotification($notification);
+        }
     }
 
     /**
@@ -482,11 +713,19 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function createRequestCarNotification(RequestCar $requestCar): void
     {
-        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($requestCar->office_id)->id;
-        $notification = $this->createRow("Nueva solicitud de vehículo {$requestCar->request->code}", $userId,
-            TypeNotificationsLookup::CAR, NotificationColorLookup::BLUE, NotificationIconLookup::CAR);
-        $this->requestNotificationService->create($requestCar->request_id, $notification->id);
-        Utils::eventAlertNotification($notification);
+        $ids = $this->getRecepcionistIds($requestCar->office_id, PathRouteRecepcionist::fullPathHistory(PathRouteRecepcionist::CAR));
+
+        foreach($ids as $id) {
+            $notification = $this->createNotification(
+                "Nueva solicitud de vehículo {$requestCar->request->code}",
+                $id,
+                TypeNotificationsLookup::CAR,
+                NotificationColorLookup::BLUE,
+                NotificationIconLookup::CAR
+            );
+            $this->requestNotificationService->create($requestCar->request_id, $notification->id);
+            Utils::eventAlertNotification($notification);
+        }
     }
 
     /**
@@ -494,10 +733,18 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function deleteRequestCarNotification(RequestCar $requestCar): void
     {
-        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($requestCar->office_id)->id;
-        $notificationDelete = $this->createRow("La solicitud del vehículo {$requestCar->request->code} fue eliminada",
-            $userId, TypeNotificationsLookup::CAR, NotificationColorLookup::RED, NotificationIconLookup::CAR);
-        Utils::eventAlertNotification($notificationDelete);
+        $ids = $this->getRecepcionistIds($requestCar->office_id, PathRouteRecepcionist::fullPathHistory(PathRouteRecepcionist::CAR));
+
+        foreach($ids as $id) {
+            $notificationDelete = $this->createNotification(
+                "La solicitud del vehículo {$requestCar->request->code} fue eliminada",
+                $id,
+                TypeNotificationsLookup::CAR,
+                NotificationColorLookup::RED,
+                NotificationIconLookup::CAR
+            );
+            Utils::eventAlertNotification($notificationDelete);
+        }
     }
 
     /**
@@ -505,11 +752,19 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function transferRequestCarNotification(RequestCar $requestCar): void
     {
-        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($requestCar->office_id)->id;
-        $notification = $this->createRow("La solicitud del vehículo {$requestCar->request->code} fue transferida",
-            $userId,TypeNotificationsLookup::CAR, NotificationColorLookup::BLUE, NotificationIconLookup::CAR);
-        $this->requestNotificationService->create($requestCar->request_id, $notification->id);
-        Utils::eventAlertNotification($notification);
+        $ids = $this->getRecepcionistIds($requestCar->office_id, PathRouteRecepcionist::fullPathHistory(PathRouteRecepcionist::CAR));
+
+        foreach($ids as $id) {
+            $notification = $this->createNotification(
+                "La solicitud del vehículo {$requestCar->request->code} fue transferida",
+                $id,
+                TypeNotificationsLookup::CAR,
+                NotificationColorLookup::BLUE,
+                NotificationIconLookup::CAR
+            );
+            $this->requestNotificationService->create($requestCar->request_id, $notification->id);
+            Utils::eventAlertNotification($notification);
+        }
     }
 
     /**
@@ -517,13 +772,33 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function cancelRequestCarNotification(Request $request, User $user): void
     {
-        $userId = ($user->role->name === NameRole::RECEPCIONIST)
-                ? $request->user_id
-                : $this->userRepository->findByOfficeIdAndRoleRecepcionist($request->requestCar->office_id)->id;
-        $notification = $this->createRow("La solicitud del vehículo $request->code fue cancelada", $userId,
-            TypeNotificationsLookup::CAR, NotificationColorLookup::RED, NotificationIconLookup::CAR);
-        $this->requestNotificationService->create($request->id, $notification->id);
-        Utils::eventAlertNotification($notification);
+        if ($user->role->name === NameRole::RECEPCIONIST) {
+            $notification = $this->createNotification(
+                "La solicitud del vehículo $request->code fue cancelada",
+                $request->user_id,
+                TypeNotificationsLookup::CAR,
+                NotificationColorLookup::RED,
+                NotificationIconLookup::CAR
+            );
+            $this->requestNotificationService->create($request->id, $notification->id);
+            Utils::eventAlertNotification($notification);
+        }
+
+        if ($user->role->name === NameRole::APPLICANT) {
+            $ids = $this->getRecepcionistIds($request->requestCar->office_id, PathRouteRecepcionist::fullPathHistory(PathRouteRecepcionist::CAR));
+
+            foreach($ids as $id) {
+                $notification = $this->createNotification(
+                    "La solicitud del vehículo $request->code fue cancelada",
+                    $id,
+                    TypeNotificationsLookup::CAR,
+                    NotificationColorLookup::RED,
+                    NotificationIconLookup::CAR
+                );
+                $this->requestNotificationService->create($request->id, $notification->id);
+                Utils::eventAlertNotification($notification);
+            }
+        }
     }
 
     /**
@@ -531,8 +806,13 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function approvedRequestCarNotification(Request $request): void
     {
-        $notification = $this->createRow("La solicitud del vehículo $request->code fue aprobada", $request->user_id,
-            TypeNotificationsLookup::CAR, NotificationColorLookup::GREEN, NotificationIconLookup::CAR);
+        $notification = $this->createNotification(
+            "La solicitud del vehículo $request->code fue aprobada",
+            $request->user_id,
+            TypeNotificationsLookup::CAR,
+            NotificationColorLookup::GREEN,
+            NotificationIconLookup::CAR
+        );
         $this->requestNotificationService->create($request->id, $notification->id);
         Utils::eventAlertNotification($notification);
     }
@@ -542,8 +822,13 @@ class NotificationService extends BaseService implements NotificationServiceInte
     */
     public function proposalCarRequestNotification(Request $request): void
     {
-        $notification = $this->createRow("Propuesta de la solicitud de vehículo $request->code", $request->user_id,
-            TypeNotificationsLookup::CAR, NotificationColorLookup::ORANGE, NotificationIconLookup::CAR);
+        $notification = $this->createNotification(
+            "Propuesta de la solicitud de vehículo $request->code",
+            $request->user_id,
+            TypeNotificationsLookup::CAR,
+            NotificationColorLookup::ORANGE,
+            NotificationIconLookup::CAR
+        );
         $this->requestNotificationService->create($request->id, $notification->id);
         Utils::eventAlertNotification($notification);
     }
@@ -555,7 +840,8 @@ class NotificationService extends BaseService implements NotificationServiceInte
     {
         $messageNotification = '';
         $colorNotification = '';
-        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($request->requestCar->office_id)->id;
+        $ids = $this->getRecepcionistIds($request->requestCar->office_id, PathRouteRecepcionist::fullPathHistory(PathRouteRecepcionist::CAR));
+
         if($request->status->code === StatusCarRequestLookup::code(StatusCarRequestLookup::APPROVED)){
             $messageNotification = "Propuesta de la solicitud de vehículo $request->code fue aceptada";
             $colorNotification = NotificationColorLookup::GREEN;
@@ -563,10 +849,18 @@ class NotificationService extends BaseService implements NotificationServiceInte
             $messageNotification = "Propuesta de la solicitud de vehículo $request->code fue rechazada";
             $colorNotification = NotificationColorLookup::RED;
         }
-        $notification = $this->createRow($messageNotification, $userId, TypeNotificationsLookup::CAR,
-            $colorNotification, NotificationIconLookup::CAR);
-        $this->requestNotificationService->create($request->id, $notification->id);
-        Utils::eventAlertNotification($notification);
+
+        foreach($ids as $id) {
+            $notification = $this->createNotification(
+                $messageNotification,
+                $id,
+                TypeNotificationsLookup::CAR,
+                $colorNotification,
+                NotificationIconLookup::CAR
+            );
+            $this->requestNotificationService->create($request->id, $notification->id);
+            Utils::eventAlertNotification($notification);
+        }
     }
 
     /**
@@ -574,23 +868,38 @@ class NotificationService extends BaseService implements NotificationServiceInte
      */
     public function acceptOrCancelPackageRequestNotification(Request $request): void
     {
-        $message = '';
-        $colorNotification = '';
-        $userId = null;
         if ($request->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW)) {
             $message = "Nueva solicitud de paquetería $request->code";
             $colorNotification = NotificationColorLookup::BLUE;
-            $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($request->package->office_id)->id;
-        } else if ($request->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::CANCELLED)) {
-            $message = "La solicitud de paquetería $request->code fue cancelada";
-            $colorNotification = NotificationColorLookup::RED;
-            $userId = $request->user_id;
+            $ids = $this->getRecepcionistIds($request->package->office_id, PathRouteRecepcionist::fullPathHistory(PathRouteRecepcionist::PARCEL));
+
+            foreach($ids as $id) {
+                $notification = $this->createNotification(
+                    $message,
+                    $id,
+                    TypeNotificationsLookup::PARCEL,
+                    $colorNotification,
+                    NotificationIconLookup::TRUCK
+                );
+                $this->requestNotificationService->create($request->id, $notification->id);
+                Utils::eventAlertNotification($notification);
+            }
         }
 
-        $notification = $this->createRow($message, $userId,
-            TypeNotificationsLookup::PARCEL, $colorNotification, NotificationIconLookup::TRUCK);
-        $this->requestNotificationService->create($request->id, $notification->id);
-        Utils::eventAlertNotification($notification);
+        if ($request->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::CANCELLED)) {
+            $message = "La solicitud de paquetería $request->code fue cancelada";
+            $colorNotification = NotificationColorLookup::RED;
+
+            $notification = $this->createNotification(
+                $message,
+                $request->user_id,
+                TypeNotificationsLookup::PARCEL,
+                $colorNotification,
+                NotificationIconLookup::TRUCK
+            );
+            $this->requestNotificationService->create($request->id, $notification->id);
+            Utils::eventAlertNotification($notification);
+        }
     }
 
     /**
@@ -618,10 +927,17 @@ class NotificationService extends BaseService implements NotificationServiceInte
         Utils::eventAlertNotification($notification);
     }
 
+    private function getRecepcionistIds(int $officeId, string $pathUrl): array
+    {
+        return $this->userService->getRecepcionistByPermission($officeId, $pathUrl)
+            ->pluck('id')
+            ->toArray();
+    }
+
     /**
      * @throws CustomErrorException
      */
-    private function createRow(string $message, int $userId, string $type, string $color, string $icon): Notification
+    private function createNotification(string $message, int $userId, string $type, string $color, string $icon): Notification
     {
         $dto = new NotificationDTO([
             'message' => $message,

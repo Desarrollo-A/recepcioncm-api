@@ -135,9 +135,15 @@ class Utils
      */
     public static function eventAlertNotification(Notification $notification)
     {
-        $newNotification = $notification->fresh(['type', 'color', 'icon', 'requestNotification',
-            'requestNotification.request', 'requestNotification.actionRequestNotification',
-            'requestNotification.actionRequestNotification.type']);
+        $newNotification = $notification->fresh([
+            'type',
+            'color',
+            'icon',
+            'requestNotification',
+            'requestNotification.request',
+            'requestNotification.actionRequestNotification',
+            'requestNotification.actionRequestNotification.type'
+        ]);
         broadcast(new AlertNotification($notification->user_id, new NotificationResource($newNotification)));
     }
 

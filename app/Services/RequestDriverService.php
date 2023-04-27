@@ -16,6 +16,7 @@ use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Contracts\Repositories\UserRepositoryInterface;
 use App\Contracts\Services\CalendarServiceInterface;
 use App\Contracts\Services\RequestDriverServiceInterface;
+use App\Contracts\Services\UserServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
 use App\Helpers\Enum\QueryParam;
@@ -29,6 +30,7 @@ use App\Models\Dto\RequestDTO;
 use App\Models\Enums\Lookups\StatusDriverRequestLookup;
 use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Enums\NameRole;
+use App\Models\Enums\PathRouteRecepcionist;
 use App\Models\Enums\TypeLookup;
 use App\Models\Lookup;
 use App\Models\Request;
@@ -57,6 +59,7 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
     protected $requestEmailRepository;
 
     protected $calendarService;
+    protected $userService;
 
     public function __construct(
         RequestDriverRepositoryInterface $requestDriverRepository,
@@ -71,7 +74,8 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
         CalendarServiceInterface $calendarService,
         ProposalRequestRepositoryInterface $proposalRequestRepository,
         RequestEmailRepositoryInterface $requestEmailRepository,
-        UserRepositoryInterface $userRepository
+        UserRepositoryInterface $userRepository,
+        UserServiceInterface $userService
     )
     {
         $this->entityRepository = $requestDriverRepository;
@@ -87,6 +91,7 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
         $this->proposalRequestRepository = $proposalRequestRepository;
         $this->requestEmailRepository = $requestEmailRepository;
         $this->userRepository = $userRepository;
+        $this->userService = $userService;
     }
 
     /**
@@ -316,9 +321,8 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
 
         if (config('app.enable_google_calendar', false)) {
             $emails[] = $emailDriver;
-            $emails[] = $this->userRepository
-                ->findByOfficeIdAndRoleRecepcionist($request->requestDriver->office_id)
-                ->email;
+
+            $emails = array_merge($emails, $this->getRecepcionistEmails($request->requestDriver->office_id));
 
             if ($request->add_google_calendar) {
                 $emails[] = $request->user->email;
@@ -435,5 +439,12 @@ class RequestDriverService extends BaseService implements RequestDriverServiceIn
         }
 
         return $request;
+    }
+
+    private function getRecepcionistEmails(int $officeId): array
+    {
+        return $this->userService->getRecepcionistByPermission($officeId, PathRouteRecepcionist::fullPathHistory(PathRouteRecepcionist::DRIVER))
+            ->pluck('email')
+            ->toArray();
     }
 }
