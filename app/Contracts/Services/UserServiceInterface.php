@@ -47,4 +47,6 @@ interface UserServiceInterface extends BaseServiceInterface
      * @param User|Authenticatable $user
      */
     public function findAllUserPermissionPaginated(Request $request, User $user, array $columns = ['*']): LengthAwarePaginator;
+
+    public function getRecepcionistByPermission(int $officeId, string $pathUrl): Collection;
 }

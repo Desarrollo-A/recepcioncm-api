@@ -15,6 +15,7 @@ use App\Contracts\Repositories\RequestRepositoryInterface;
 use App\Contracts\Repositories\UserRepositoryInterface;
 use App\Contracts\Services\CalendarServiceInterface;
 use App\Contracts\Services\RequestCarServiceInterface;
+use App\Contracts\Services\UserServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
 use App\Helpers\Enum\Path;
@@ -28,6 +29,7 @@ use App\Models\Dto\RequestDTO;
 use App\Models\Enums\Lookups\StatusCarRequestLookup;
 use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Enums\NameRole;
+use App\Models\Enums\PathRouteRecepcionist;
 use App\Models\Enums\TypeLookup;
 use App\Models\File;
 use App\Models\Lookup;
@@ -54,6 +56,7 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
     protected $requestEmailRepository;
     protected $calendarService;
     protected $fileRepository;
+    protected $userService;
 
     public function __construct(
         RequestCarRepositoryInterface $requestCarRepository,
@@ -67,7 +70,8 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         CalendarServiceInterface $calendarService,
         UserRepositoryInterface $userRepository,
         RequestEmailRepositoryInterface $requestEmailRepository,
-        FileRepositoryInterface $fileRepository
+        FileRepositoryInterface $fileRepository,
+        UserServiceInterface $userService
     )
     {
         $this->entityRepository = $requestCarRepository;
@@ -82,6 +86,7 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         $this->userRepository = $userRepository;
         $this->requestEmailRepository = $requestEmailRepository;
         $this->fileRepository = $fileRepository;
+        $this->userService = $userService;
     }
 
     /**
@@ -299,9 +304,7 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
                 $emails[] = $request->user->email;
             }
 
-            $emails[] = $this->userRepository
-                ->findByOfficeIdAndRoleRecepcionist($request->requestCar->office_id)
-                ->email;
+            $emails = array_merge($emails, $this->getRecepcionistEmails($request->requestCar->office_id));
             
             $event = $this->calendarService->createEvent($request->title, $request->start_date, $request->end_date, $emails);
 
@@ -429,5 +432,12 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
         }
 
         $this->fileRepository->saveManyFiles($requestCar, $files);
+    }
+
+    private function getRecepcionistEmails(int $officeId): array
+    {
+        return $this->userService->getRecepcionistByPermission($officeId, PathRouteRecepcionist::fullPathHistory(PathRouteRecepcionist::CAR))
+            ->pluck('email')
+            ->toArray();
     }
 }

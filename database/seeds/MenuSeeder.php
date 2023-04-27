@@ -5,6 +5,7 @@ use App\Models\Menu;
 use App\Models\Role;
 use App\Models\Enums\NameRole;
 use App\Models\Submenu;
+use App\Models\Enums\PathRouteRecepcionist;
 
 class MenuSeeder extends Seeder
 {
@@ -38,20 +39,20 @@ class MenuSeeder extends Seeder
         $this->createSubmenu('/conductor', 'Chofer', 3, $menu->id, $roleApplicantId);
         $this->createSubmenu('/vehiculo', 'Vehículo', 4, $menu->id, $roleApplicantId);
 
-        $menu = $this->createMenu('/dashboard/historial','Historial','mat:history',2, $roleApplicantId);
-        $this->createSubmenu('/sala','Salas de Junta',1, $menu->id, $roleApplicantId);
-        $this->createSubmenu('/paqueteria','Paquetería',2, $menu->id, $roleApplicantId);
-        $this->createSubmenu('/conductor','Chofer',3, $menu->id, $roleApplicantId);
-        $this->createSubmenu('/vehiculo', 'Vehículo', 4, $menu->id, $roleApplicantId);
+        $menu = $this->createMenu(PathRouteRecepcionist::PATH_ROUTE_HISTORY_BASE,'Historial','mat:history',2, $roleApplicantId);
+        $this->createSubmenu(PathRouteRecepcionist::ROOM,'Salas de Junta',1, $menu->id, $roleApplicantId);
+        $this->createSubmenu(PathRouteRecepcionist::PARCEL,'Paquetería',2, $menu->id, $roleApplicantId);
+        $this->createSubmenu(PathRouteRecepcionist::DRIVER,'Chofer',3, $menu->id, $roleApplicantId);
+        $this->createSubmenu(PathRouteRecepcionist::CAR, 'Vehículo', 4, $menu->id, $roleApplicantId);
         $this->createMenu('/dashboard/calendario','Calendario','mat:calendar_month',3, $roleApplicantId);
 
         /***************************************************************************************/
 
-        $menu = $this->createMenu('/dashboard/historial','Solicitudes','mat:history',1, $roleRecepcionistId);
-        $this->createSubmenu('/sala','Salas de Junta',1, $menu->id, $roleRecepcionistId);
-        $this->createSubmenu('/paqueteria','Paquetería',2, $menu->id, $roleRecepcionistId);
-        $this->createSubmenu('/conductor','Chofer',3, $menu->id, $roleRecepcionistId);
-        $this->createSubmenu('/vehiculo','Vehículo',4, $menu->id, $roleRecepcionistId);
+        $menu = $this->createMenu(PathRouteRecepcionist::PATH_ROUTE_HISTORY_BASE,'Solicitudes','mat:history',1, $roleRecepcionistId);
+        $this->createSubmenu(PathRouteRecepcionist::ROOM,'Salas de Junta',1, $menu->id, $roleRecepcionistId);
+        $this->createSubmenu(PathRouteRecepcionist::PARCEL,'Paquetería',2, $menu->id, $roleRecepcionistId);
+        $this->createSubmenu(PathRouteRecepcionist::DRIVER,'Chofer',3, $menu->id, $roleRecepcionistId);
+        $this->createSubmenu(PathRouteRecepcionist::CAR,'Vehículo',4, $menu->id, $roleRecepcionistId);
         $this->createMenu('/dashboard/calendario','Calendario','mat:calendar_month',2, $roleRecepcionistId);
         $this->createMenu('/dashboard/inventario','Inventario','mat:inventory_2',3, $roleRecepcionistId);
 

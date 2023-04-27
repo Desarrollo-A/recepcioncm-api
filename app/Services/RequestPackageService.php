@@ -20,6 +20,7 @@ use App\Contracts\Repositories\ScoreRepositoryInterface;
 use App\Contracts\Repositories\UserRepositoryInterface;
 use App\Contracts\Services\CalendarServiceInterface;
 use App\Contracts\Services\RequestPackageServiceInterface;
+use App\Contracts\Services\UserServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
 use App\Helpers\Enum\Path;
@@ -37,6 +38,7 @@ use App\Models\Dto\ScoreDTO;
 use App\Models\Enums\Lookups\StatusPackageRequestLookup;
 use App\Models\Enums\Lookups\TypeRequestLookup;
 use App\Models\Enums\NameRole;
+use App\Models\Enums\PathRouteRecepcionist;
 use App\Models\Enums\TypeLookup;
 use App\Models\Lookup;
 use App\Models\Package;
@@ -80,6 +82,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
     protected $proposalPackageRepository;
     protected $heavyShipmentRepository;
     protected $detailExternalParcelRepository;
+    protected $userService;
 
     public function __construct(
         RequestRepositoryInterface $requestRepository,
@@ -98,7 +101,8 @@ class RequestPackageService extends BaseService implements RequestPackageService
         UserRepositoryInterface $userRepository,
         ProposalPackageRepositoryInterface $proposalPackageRepository,
         HeavyShipmentRepositoryInterface $heavyShipmentRepository,
-        DetailExternalParcelRepositoryInterface $detailExternalParcelRepository
+        DetailExternalParcelRepositoryInterface $detailExternalParcelRepository,
+        UserServiceInterface $userService
     )
     {
         $this->requestRepository = $requestRepository;
@@ -118,6 +122,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $this->proposalPackageRepository = $proposalPackageRepository;
         $this->heavyShipmentRepository = $heavyShipmentRepository;
         $this->detailExternalParcelRepository = $detailExternalParcelRepository;
+        $this->userService = $userService;
     }
 
     /**
@@ -408,7 +413,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
             if($request->add_google_calendar){
                 $emails[] = $request->user->email;
             }
-            $emails[] = $this->userRepository->findByOfficeIdAndRoleRecepcionist($request->package->office_id)->email;
+            $emails = array_merge($emails, $this->getRecepcionistEmails($request->package->office_id));
 
             $event = $this->calendarService->createEventAllDay($request->title, Carbon::make($dateGoogleCalendar), $emails);
 
@@ -609,9 +614,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
                     if($package->request->add_google_calendar) {
                         $emails[] = $package->request->user->email;
                     }
-                    $emails[] = $this->userRepository
-                        ->findByOfficeIdAndRoleRecepcionist($package->office_id)
-                        ->email;
+                    $emails = array_merge($emails, $this->getRecepcionistEmails($package->office_id));
 
                     $event = $this->calendarService->createEventAllDay($package->request->title, $proposalData->start_date, $emails);
 
@@ -775,5 +778,12 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $perPage = Validation::getPerPage($request->get(QueryParam::PAGINATION_KEY));
         $sort = $request->get(QueryParam::ORDER_BY_KEY);
         return $this->requestPackageViewRepository->findAllPackagesByManagerIdPaginated($filters, $perPage, $departmentManagerId, $sort);
+    }
+
+    private function getRecepcionistEmails(int $officeId): array
+    {
+        return $this->userService->getRecepcionistByPermission($officeId, PathRouteRecepcionist::fullPathHistory(PathRouteRecepcionist::PARCEL))
+            ->pluck('email')
+            ->toArray();
     }
 }
