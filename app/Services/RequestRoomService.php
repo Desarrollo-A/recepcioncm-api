@@ -359,7 +359,7 @@ class RequestRoomService extends BaseService implements RequestRoomServiceInterf
         $dto->status_id = $statusProposalId;
 
         $request = $this->requestRepository->update($requestId, $dto->toArray(['status_id']))
-            ->fresh(['requestRoom']);
+            ->fresh(['requestRoom', 'requestRoom.room']);
 
         foreach ($dto->proposalRequest as $proposal) {
             $proposal->request_id = $requestId;

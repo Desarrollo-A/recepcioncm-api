@@ -51,7 +51,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
             ->firstOrFail();
     }
 
-    public function findByOfficeIdAndRoleRecepcionist(int $officeId): User
+    public function findByOfficeIdAndRoleRecepcionist(int $officeId): Collection
     {
         return $this->entity
             ->whereHas('role', function (Builder $query) {
@@ -61,10 +61,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
                 $query->where('code', StatusUserLookup::code(StatusUserLookup::ACTIVE));
             })
             ->where('office_id', $officeId)
-            ->firstOr(function () {
-                throw new CustomErrorException('No hay una recepcionista asignada en esta oficina.',
-                    Response::HTTP_BAD_REQUEST);
-            });
+            ->get();
     }
 
     public function findAllPaginatedWithoutUser(int $userId, array $filters, int $limit, string $sort = null,

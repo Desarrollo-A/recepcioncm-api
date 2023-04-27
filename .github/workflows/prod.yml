@@ -1,9 +1,9 @@
-name:  Deploy website on push!
+name:  Deploy website on push MASTER!
 
 on:
   push:
     branches:
-      - test
+      - master
 
 jobs:
   deploy:
@@ -33,8 +33,7 @@ jobs:
 
       - name: Copy dotenv file
         run: |
-          echo '${{ secrets.DOT_ENV_TEST }}' > .env
-
+          echo '${{ secrets.DOT_ENV_PROD }}' > .env
       - name: Generate key
         run: php artisan key:generate
 
@@ -44,14 +43,12 @@ jobs:
           echo -e "${{ secrets.GOOGLE_CALENDAR }}" > GoogleCalendar.php
           rsync -a GoogleCalendar.php ./vendor/spatie/laravel-google-calendar/src/GoogleCalendar.php
           rm GoogleCalendar.php
-
       - name: Rsync files of Spatie's Google Calendar Factory
         run: |
           touch GoogleCalendarFactory.php
           echo -e "${{ secrets.GOOGLE_CALENDAR_FACTORY }}" > GoogleCalendarFactory.php
           rsync -a GoogleCalendarFactory.php ./vendor/spatie/laravel-google-calendar/src/GoogleCalendarFactory.php
           rm GoogleCalendarFactory.php
-
       - name: Execute .sh to deploy
         uses: appleboy/ssh-action@master
         with:
@@ -59,18 +56,17 @@ jobs:
           username: ${{ secrets.USERNAME_TEST }}
           key: ${{ secrets.SFTP_SSH_PRIVATE_KEY }}
           script: |
-            rm -rf ${{ secrets.URL_FOLDER_TEST }}.git
-            rm -rf ${{ secrets.URL_FOLDER_TEST }}app
-            rm -rf ${{ secrets.URL_FOLDER_TEST }}bootstrap
-            rm -rf ${{ secrets.URL_FOLDER_TEST }}config
-            rm -rf ${{ secrets.URL_FOLDER_TEST }}database
-            rm -rf ${{ secrets.URL_FOLDER_TEST }}public/css
-            rm -rf ${{ secrets.URL_FOLDER_TEST }}public/js
-            rm -rf ${{ secrets.URL_FOLDER_TEST }}resources
-            rm -rf ${{ secrets.URL_FOLDER_TEST }}routes
-            rm -rf ${{ secrets.URL_FOLDER_TEST }}tests
-            rm -rf ${{ secrets.URL_FOLDER_TEST }}vendor
-
+            rm -rf ${{ secrets.URL_FOLFER_PROD }}.git
+            rm -rf ${{ secrets.URL_FOLFER_PROD }}app
+            rm -rf ${{ secrets.URL_FOLFER_PROD }}bootstrap
+            rm -rf ${{ secrets.URL_FOLFER_PROD }}config
+            rm -rf ${{ secrets.URL_FOLFER_PROD }}database
+            rm -rf ${{ secrets.URL_FOLFER_PROD }}public/css
+            rm -rf ${{ secrets.URL_FOLFER_PROD }}public/js
+            rm -rf ${{ secrets.URL_FOLFER_PROD }}resources
+            rm -rf ${{ secrets.URL_FOLFER_PROD }}routes
+            rm -rf ${{ secrets.URL_FOLFER_PROD }}tests
+            rm -rf ${{ secrets.URL_FOLFER_PROD }}vendor
       - name: Copy files via SSH key
         uses: appleboy/scp-action@master
         with:
@@ -78,13 +74,5 @@ jobs:
           username: ${{secrets.USERNAME_TEST}}
           key: ${{ secrets.SFTP_SSH_PRIVATE_KEY }}
           source: "./"
-          target: ${{ secrets.URL_FOLDER_TEST }}
+          target: ${{ secrets.URL_FOLDER_PROD }}
           overwrite: true
-
-      - name: Execute .sh to deploy
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.IP_HOST_TEST }}
-          username: ${{ secrets.USERNAME_TEST }}
-          key: ${{ secrets.SFTP_SSH_PRIVATE_KEY }}
-          script: ${{ secrets.FILE_PERMISSIONS_TEST }}

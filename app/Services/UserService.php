@@ -399,4 +399,12 @@ class UserService extends BaseService implements UserServiceInterface
 
         throw new AuthorizationException();
     }
+
+    public function getRecepcionistByPermission(int $officeId, string $pathUrl): Collection
+    {
+        return $this->entityRepository->findByOfficeIdAndRoleRecepcionist($officeId)
+            ->reject(function (User $user) use ($pathUrl) {
+                return !$this->menuService->hasPermissionToUrl($user->id, $pathUrl);
+            });
+    }
 }

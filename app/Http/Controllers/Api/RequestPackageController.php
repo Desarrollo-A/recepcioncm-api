@@ -194,7 +194,7 @@ class RequestPackageController extends BaseApiController
     {
         $dto = $request->toDTO();
         $request = $this->requestPackageService->responseRejectRequest($requestId, $dto);
-        $this->notificationService->responseRejectRequestNotification($request);
+        $this->notificationService->responseRejectPackageRequestNotification($request);
         return $this->noContentResponse();
     }
 
