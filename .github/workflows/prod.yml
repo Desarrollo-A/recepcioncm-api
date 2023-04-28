@@ -52,7 +52,7 @@ jobs:
           rsync -a GoogleCalendarFactory.php ./vendor/spatie/laravel-google-calendar/src/GoogleCalendarFactory.php
           rm GoogleCalendarFactory.php
 
-      - name: Execute .sh to deploy
+      - name: Eliminar carpetas que son editadas con mayor frecuencia
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.IP_HOST_TEST }}
