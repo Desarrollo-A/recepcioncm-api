@@ -38,9 +38,6 @@ jobs:
       - name: Generate key
         run: php artisan key:generate
 
-      - name: Generate keys passport
-        run: php artisan passport:keys
-
       - name: Rsync files of Spatie's Google Calendar
         run: |
           touch GoogleCalendar.php
