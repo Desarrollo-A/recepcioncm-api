@@ -6,7 +6,7 @@ class PathRouteRecepcionist
 {
     const PATH_ROUTE_HISTORY_BASE = '/dashboard/historial';
     const ROOM = '/sala';
-    const DRIVER = '/chofer';
+    const DRIVER = '/conductor';
     const CAR = '/vehiculo';
     const PARCEL = '/paqueteria';
     const INVENTORY = '/dashboard/inventario';
