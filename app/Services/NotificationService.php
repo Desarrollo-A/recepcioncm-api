@@ -577,7 +577,7 @@ class NotificationService extends BaseService implements NotificationServiceInte
     {
         if ($user->role->name === NameRole::RECEPCIONIST) {
             $notification = $this->createNotification(
-                "La solicitud de chofer $requestDriver->request->code fue cancelada",
+                "La solicitud de chofer {$requestDriver->request->code} fue cancelada",
                 $requestDriver->request->user_id,
                 TypeNotificationsLookup::DRIVER,
                 NotificationColorLookup::RED,
@@ -592,7 +592,7 @@ class NotificationService extends BaseService implements NotificationServiceInte
 
             foreach($ids as $id) {
                 $notification = $this->createNotification(
-                    "La solicitud de chofer $requestDriver->request->code fue cancelada",
+                    "La solicitud de chofer {$requestDriver->request->code} fue cancelada",
                     $id,
                     TypeNotificationsLookup::DRIVER,
                     NotificationColorLookup::RED,
