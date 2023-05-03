@@ -18,7 +18,7 @@ interface UserRepositoryInterface extends BaseRepositoryInterface
 
     public function findByNoEmployee(string $noEmployee): User;
 
-    public function findByOfficeIdAndRoleRecepcionist(int $officeId): User;
+    public function findByOfficeIdAndRoleRecepcionist(int $officeId): Collection;
 
     public function findAllPaginatedWithoutUser(int $userId, array $filters, int $limit, string $sort = null,
                                                 array $columns = ['*']): LengthAwarePaginator;

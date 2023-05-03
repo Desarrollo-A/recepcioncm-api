@@ -13,7 +13,6 @@ class UserManagerSeeder extends Seeder
 {
     private $statusId;
     private $roleId;
-    private $stateId;
 
     public function run(): void
     {
@@ -25,11 +24,6 @@ class UserManagerSeeder extends Seeder
 
         $this->roleId = Role::query()
             ->where('name', NameRole::DEPARTMENT_MANAGER)
-            ->first()
-            ->id;
-
-        $this->stateId = State::query()
-            ->where('name', 'QRO')
             ->first()
             ->id;
 
@@ -265,7 +259,7 @@ class UserManagerSeeder extends Seeder
             'area' => $area,
             'status_id' => $this->statusId,
             'role_id' => $this->roleId,
-            'office_id' => $this->stateId
+            'office_id' => null
         ]);
     }
 }

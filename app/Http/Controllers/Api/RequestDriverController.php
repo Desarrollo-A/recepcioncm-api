@@ -84,7 +84,7 @@ class RequestDriverController extends BaseApiController
         $dto = $request->toDTO();
         $dto->request_id = $requestId;
         $data = $this->requestDriverService->cancelRequest($dto);
-        $this->notificationService->cancelRequestDriverNotification($data->request, auth()->user(), $data->driverId);
+        $this->notificationService->cancelRequestDriverNotification($data->request->requestDriver, auth()->user(), $data->driverId);
         if (!is_null($data->driverId)) {
             $this->requestEmailService->sendCancelledRequestDriverMail($data->request);
         }
