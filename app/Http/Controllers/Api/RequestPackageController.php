@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Contracts\Services\MovementRequestServiceInterface;
 use App\Contracts\Services\NotificationServiceInterface;
 use App\Contracts\Services\RequestPackageServiceInterface;
 use App\Core\BaseApiController;
@@ -21,6 +22,7 @@ use App\Http\Resources\Package\PackageExposedResource;
 use App\Http\Resources\Package\PackageResource;
 use App\Http\Resources\RequestPackage\RequestPackageViewCollection;
 use App\Http\Resources\Util\StartDateEndDateResource;
+use App\Models\Enums\Lookups\StatusPackageRequestLookup;
 use App\Models\Enums\NameRole;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -33,10 +35,12 @@ class RequestPackageController extends BaseApiController
 {
     private $requestPackageService;
     private $notificationService;
+    private $movementRequestService;
 
     public function __construct(
         RequestPackageServiceInterface $requestPackageService,
-        NotificationServiceInterface $notificationService
+        NotificationServiceInterface $notificationService,
+        MovementRequestServiceInterface $movementRequestService
     )
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
@@ -57,6 +61,7 @@ class RequestPackageController extends BaseApiController
         
         $this->requestPackageService = $requestPackageService;
         $this->notificationService = $notificationService;
+        $this->movementRequestService = $movementRequestService;
     }
 
     /**
@@ -97,6 +102,7 @@ class RequestPackageController extends BaseApiController
         $dto->request_id = $requestId;
         $data = $this->requestPackageService->cancelRequest($dto);
         $this->notificationService->cancelRequestPackageNotification($data->request, auth()->user(), $data->driverId);
+        $this->movementRequestService->create($data->request->id, auth()->id(), 'Cancelación de solicitud');
         return $this->noContentResponse();
     }
 
@@ -107,6 +113,7 @@ class RequestPackageController extends BaseApiController
     {
         $packageTransfer = $this->requestPackageService->transferRequest($packageId, $request->toDTO());
         $this->notificationService->transferPackageRequestNotification($packageTransfer);
+        $this->movementRequestService->create($packageTransfer->request_id, auth()->id(), 'Transferencia de solicitud');
         return $this->noContentResponse();
     }
 
@@ -131,6 +138,7 @@ class RequestPackageController extends BaseApiController
         $packageApproved = $this->requestPackageService->approvedRequest($dto);
         $driverId = isset($dto->driverPackageSchedule->driverSchedule->driver_id) ?: null;
         $this->notificationService->approvedPackageRequestNotification($packageApproved, $driverId);
+        $this->movementRequestService->create($packageApproved->request_id, auth()->id(), 'Solicitud aprobada');
         return $this->noContentResponse();
     }
 
@@ -166,6 +174,7 @@ class RequestPackageController extends BaseApiController
     {
         $requestPackageOnRoad = $this->requestPackageService->onRoad($requestId);
         $this->notificationService->onRoadPackageRequestNotification($requestPackageOnRoad);
+        $this->movementRequestService->create($requestPackageOnRoad->id, auth()->id(), 'Paquete en camino');
         return $this->noContentResponse();
     }
 
@@ -182,6 +191,7 @@ class RequestPackageController extends BaseApiController
     {
         $requestPackageProposal = $this->requestPackageService->proposalRequest($request->toDTO());
         $this->notificationService->proposalPackageRequestNotification($requestPackageProposal);
+        $this->movementRequestService->create($requestPackageProposal->id, auth()->id(), 'Propuesta de solicitud');
         return $this->noContentResponse();
     }
 
@@ -193,6 +203,14 @@ class RequestPackageController extends BaseApiController
         $dto = $request->toDTO();
         $request = $this->requestPackageService->responseRejectRequest($requestId, $dto);
         $this->notificationService->responseRejectPackageRequestNotification($request);
+
+        if ($request->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::IN_REVIEW) ||
+            $request->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED)) {
+            $this->movementRequestService->create($requestId, auth()->id(), 'Solicitud aceptada');
+        } else if ($request->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::REJECTED)) {
+            $this->movementRequestService->create($requestId, auth()->id(), 'Solicitud rechazada');
+        }
+
         return $this->noContentResponse();
     }
 
@@ -216,6 +234,7 @@ class RequestPackageController extends BaseApiController
         $dto = $request->toDTO();
         $packageDelivered = $this->requestPackageService->deliveredPackage($dto);
         $this->notificationService->deliveredPackageRequestNotification($packageDelivered);
+        $this->movementRequestService->create($packageDelivered->id, auth()->id(), 'Paquete entregado');
         return $this->noContentResponse();
     }
 
@@ -245,6 +264,13 @@ class RequestPackageController extends BaseApiController
     {
         $request = $this->requestPackageService->acceptCancelPackage($requestId, $request->toDTO());
         $this->notificationService->acceptOrCancelPackageRequestNotification($request);
+
+        if ($request->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW)) {
+            $this->movementRequestService->create($request->id, auth()->id(), 'Solicitud enviada a recepción');
+        } else if ($request->status->code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::CANCELLED)) {
+            $this->movementRequestService->create($request->id, auth()->id(), 'Solicitud cancelada');
+        }
+
         return $this->noContentResponse();
     }
 

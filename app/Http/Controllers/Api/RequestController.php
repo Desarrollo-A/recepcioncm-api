@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Contracts\Services\MovementRequestServiceInterface;
 use App\Contracts\Services\NotificationServiceInterface;
 use App\Contracts\Services\RequestServiceInterface;
 use App\Contracts\Services\ScoreServiceInterface;
@@ -18,10 +19,14 @@ class RequestController extends BaseApiController
     private $requestService;
     private $notificationService;
     private $scoreService;
+    private $movementRequestService;
 
-    public function __construct(RequestServiceInterface $requestService,
-                                NotificationServiceInterface $notificationService,
-                                ScoreServiceInterface $scoreService)
+    public function __construct(
+        RequestServiceInterface $requestService,
+        NotificationServiceInterface $notificationService,
+        ScoreServiceInterface $scoreService,
+        MovementRequestServiceInterface $movementRequestService
+    )
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
             ->only('deleteRequestRoom', 'starRatingRequest', 'deleteRequestPackage', 'deleteRequestDriver');
@@ -31,6 +36,7 @@ class RequestController extends BaseApiController
         $this->requestService = $requestService;
         $this->notificationService = $notificationService;
         $this->scoreService = $scoreService;
+        $this->movementRequestService = $movementRequestService;
     }
 
     public function show(int $id): JsonResponse
@@ -67,6 +73,7 @@ class RequestController extends BaseApiController
     {
         $dto = $request->toDTO();
         $this->scoreService->create($dto);
+        $this->movementRequestService->create($dto->request_id, auth()->id(), 'Solicitud calificada');
         return $this->noContentResponse();
     }
 }

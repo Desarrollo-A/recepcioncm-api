@@ -40,6 +40,7 @@ class ServiceLogicServiceProvider extends ServiceProvider
         'RequestDriverServiceInterface' => 'RequestDriverService',
         'RequestCarServiceInterface' => 'RequestCarService',
         'PerDiemServiceInterface' => 'PerDiemService',
+        'MovementRequestServiceInterface' => 'MovementRequestService',
     ];
 
     public function register()

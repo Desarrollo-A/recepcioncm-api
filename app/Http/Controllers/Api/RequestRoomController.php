@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Contracts\Services\InventoryRequestServiceInterface;
 use App\Contracts\Services\InventoryServiceInterface;
 use App\Contracts\Services\LookupServiceInterface;
+use App\Contracts\Services\MovementRequestServiceInterface;
 use App\Contracts\Services\NotificationServiceInterface;
 use App\Contracts\Services\RequestEmailServiceInterface;
 use App\Contracts\Services\RequestRoomServiceInterface;
@@ -19,6 +20,7 @@ use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\Request\AvailableScheduleResource;
 use App\Http\Resources\RequestRoom\RequestRoomResource;
 use App\Http\Resources\RequestRoom\RequestRoomViewCollection;
+use App\Models\Enums\Lookups\StatusRoomRequestLookup;
 use App\Models\Enums\NameRole;
 use App\Models\Enums\TypeLookup;
 use Carbon\Carbon;
@@ -34,13 +36,17 @@ class RequestRoomController extends BaseApiController
     private $inventoryRequestService;
     private $notificationService;
     private $requestEmailService;
+    private $movementRequestService;
 
-    public function __construct(RequestRoomServiceInterface $requestRoomService,
-                                LookupServiceInterface $lookupService,
-                                InventoryServiceInterface $inventoryService,
-                                InventoryRequestServiceInterface $inventoryRequestService,
-                                NotificationServiceInterface $notificationService,
-                                RequestEmailServiceInterface $requestEmailService)
+    public function __construct(
+        RequestRoomServiceInterface $requestRoomService,
+        LookupServiceInterface $lookupService,
+        InventoryServiceInterface $inventoryService,
+        InventoryRequestServiceInterface $inventoryRequestService,
+        NotificationServiceInterface $notificationService,
+        RequestEmailServiceInterface $requestEmailService,
+        MovementRequestServiceInterface $movementRequestService
+    )
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
             ->only('store', 'responseRejectRequest');
@@ -55,6 +61,7 @@ class RequestRoomController extends BaseApiController
         $this->inventoryRequestService = $inventoryRequestService;
         $this->notificationService = $notificationService;
         $this->requestEmailService = $requestEmailService;
+        $this->movementRequestService = $movementRequestService;
     }
 
     public function index(Request $request): JsonResponse
@@ -92,6 +99,7 @@ class RequestRoomController extends BaseApiController
         $this->requestRoomService->checkRequestsByDay($requestModel, auth()->id());
         $this->notificationService->newOrResponseToApprovedRequestRoomNotification($requestModel);
         $this->requestEmailService->sendApprovedRequestRoomMail($requestModel);
+        $this->movementRequestService->create($requestModel->id, auth()->id(), 'Aprobación de solicitud');
         return $this->noContentResponse();
     }
 
@@ -114,6 +122,7 @@ class RequestRoomController extends BaseApiController
         $this->inventoryService->restoreStockAfterInventoriesRequestDeleted($snacks);
         $this->requestEmailService->sendCancelledRequestRoomMail($requestModel);
         $this->notificationService->approvedToCancelledRequestRoomNotification($requestModel, auth()->user());
+        $this->movementRequestService->create($requestId, auth()->id(), 'Cancelación de solicitud');
         return $this->noContentResponse();
     }
 
@@ -132,6 +141,7 @@ class RequestRoomController extends BaseApiController
         $requestModel = $this->requestRoomService->proposalRequest($requestId, $dto);
         $this->requestRoomService->checkRequestsByDay($requestModel, auth()->id());
         $this->notificationService->newToProposalRequestRoomNotification($requestModel);
+        $this->movementRequestService->create($requestId, auth()->id(), 'Propuesta de solicitud mandada');
         return $this->noContentResponse();
     }
 
@@ -151,6 +161,13 @@ class RequestRoomController extends BaseApiController
         $dto = $request->toDTO();
         $requestModel = $this->requestRoomService->responseRejectRequest($id, $dto);
         $this->notificationService->proposalToRejectedOrResponseRequestRoomNotification($requestModel);
+
+        if ($requestModel->status->code === StatusRoomRequestLookup::code(StatusRoomRequestLookup::REJECTED)) {
+            $this->movementRequestService->create($requestModel->id, auth()->id(), 'Propuesta de solicitud rechazada');
+        } else if ($requestModel->status->code === StatusRoomRequestLookup::code(StatusRoomRequestLookup::IN_REVIEW)) {
+            $this->movementRequestService->create($requestModel->id, auth()->id(), 'Propuesta de solicitud aceptada');
+        }
+
         return $this->noContentResponse();
     }
 }

@@ -2,26 +2,34 @@
 
 namespace App\Observers;
 
+use App\Contracts\Services\MovementRequestServiceInterface;
 use App\Contracts\Services\NotificationServiceInterface;
 use App\Models\RequestRoom;
 
 class RequestRoomObserver
 {
     private $notificationService;
+    private $movementRequestService;
 
-    public function __construct(NotificationServiceInterface $notificationService)
+    public function __construct(
+        NotificationServiceInterface $notificationService,
+        MovementRequestServiceInterface $movementRequestService
+    )
     {
         $this->notificationService = $notificationService;
+        $this->movementRequestService = $movementRequestService;
     }
 
     /**
      * Handle the RequestRoom "created" event.
      *
-     * @param \App\Models\RequestRoom $requestRoom
+     * @param RequestRoom $requestRoom
      * @return void
      */
     public function created(RequestRoom $requestRoom)
     {
-        $this->notificationService->createRequestRoomNotification($requestRoom->fresh(['request', 'room']));
+        $data = $requestRoom->fresh(['request', 'room']);
+        $this->notificationService->createRequestRoomNotification($data);
+        $this->movementRequestService->create($data->request_id, $data->request->user_id, 'Creación de solicitud');
     }
 }

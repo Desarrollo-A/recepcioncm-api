@@ -57,6 +57,7 @@ class RepositoryServiceProvider extends ServiceProvider
         'HeavyShipmentRepositoryInterface' => 'HeavyShipmentRepository',
         'DetailExternalParcelRepositoryInterface' => 'DetailExternalParcelRepository',
         'FileRepositoryInterface' => 'FileRepository',
+        'MovementRequestRepositoryInterface' => 'MovementRequestRepository'
     ];
 
     public function register()

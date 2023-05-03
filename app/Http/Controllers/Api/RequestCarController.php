@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Contracts\Services\MovementRequestServiceInterface;
 use App\Contracts\Services\NotificationServiceInterface;
 use App\Contracts\Services\RequestCarServiceInterface;
 use App\Contracts\Services\RequestEmailServiceInterface;
@@ -19,6 +20,7 @@ use App\Http\Requests\RequestCar\UploadZipImagesCarRequest;
 use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\RequestCar\RequestCarResource;
 use App\Http\Resources\RequestCar\RequestCarViewCollection;
+use App\Models\Enums\Lookups\StatusCarRequestLookup;
 use App\Models\Enums\NameRole;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -29,10 +31,14 @@ class RequestCarController extends BaseApiController
     private $requestCarService;
     private $notificationService;
     private $requestEmailService;
+    private $movementRequestService;
 
-    public function __construct(RequestCarServiceInterface $requestCarService,
-                                NotificationServiceInterface $notificationService,
-                                RequestEmailServiceInterface $requestEmailService)
+    public function __construct(
+        RequestCarServiceInterface $requestCarService,
+        NotificationServiceInterface $notificationService,
+        RequestEmailServiceInterface $requestEmailService,
+        MovementRequestServiceInterface $movementRequestService
+    )
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
             ->only('store', 'deleteRequestCar', 'responseRejectRequest');
@@ -45,6 +51,7 @@ class RequestCarController extends BaseApiController
         $this->requestCarService = $requestCarService;
         $this->notificationService = $notificationService;
         $this->requestEmailService = $requestEmailService;
+        $this->movementRequestService = $movementRequestService;
     }
 
     public function index(Request $request): JsonResponse
@@ -84,10 +91,14 @@ class RequestCarController extends BaseApiController
         return $this->showAll(LookupResource::collection($status));
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function transferRequest(int $requestCarId, TransferCarRequest $request): Response
     {
         $requestCar = $this->requestCarService->transferRequest($requestCarId, $request->toDTO());
         $this->notificationService->transferRequestCarNotification($requestCar);
+        $this->movementRequestService->create($requestCar->request_id, auth()->id(), 'Transferencia de solicitud');
         return $this->noContentResponse();
     }
 
@@ -103,6 +114,7 @@ class RequestCarController extends BaseApiController
         if ($data->previouslyApproved) {
             $this->requestEmailService->sendCancelledRequestCarMail($data->request);
         }
+        $this->movementRequestService->create($requestId, auth()->id(), 'Solicitud cancelada');
         return $this->noContentResponse();
     }
 
@@ -112,9 +124,10 @@ class RequestCarController extends BaseApiController
     public function approvedRequest(ApprovedCarRequest $request): Response
     {
         $dto = $request->toDTO();
-        $request = $this->requestCarService->approvedRequest($dto);
-        $this->notificationService->approvedRequestCarNotification($request);
-        $this->requestEmailService->sendApprovedRequestCarMail($request);
+        $requestModel = $this->requestCarService->approvedRequest($dto);
+        $this->notificationService->approvedRequestCarNotification($requestModel);
+        $this->requestEmailService->sendApprovedRequestCarMail($requestModel);
+        $this->movementRequestService->create($requestModel->id, auth()->id(), 'Solicitud aprobada');
         return $this->noContentResponse();
     }
 
@@ -130,8 +143,9 @@ class RequestCarController extends BaseApiController
     public function proposalRequest(ProposalCarRequest $request): Response
     {
         $dto = $request->toDTO();
-        $request = $this->requestCarService->proposalRequest($dto);
-        $this->notificationService->proposalCarRequestNotification($request);
+        $requestModel = $this->requestCarService->proposalRequest($dto);
+        $this->notificationService->proposalCarRequestNotification($requestModel);
+        $this->movementRequestService->create($requestModel->id, auth()->id(), 'Propuesta de solicitud');
         return $this->noContentResponse();
     }
 
@@ -141,8 +155,15 @@ class RequestCarController extends BaseApiController
     public function responseRejectRequest(int $requestId, ResponseRejectRequest $request): Response
     {
         $dto = $request->toDTO();
-        $request = $this->requestCarService->responseRejectRequest($requestId, $dto);
-        $this->notificationService->responseRejectCarRequestNotification($request);
+        $requestModel = $this->requestCarService->responseRejectRequest($requestId, $dto);
+        $this->notificationService->responseRejectCarRequestNotification($requestModel);
+
+        if ($request->status->code === StatusCarRequestLookup::code(StatusCarRequestLookup::APPROVED)) {
+            $this->movementRequestService->create($requestModel->id, auth()->id(), 'Solicitud aprobada');
+        } else if($request->status->code === StatusCarRequestLookup::code(StatusCarRequestLookup::REJECTED)) {
+            $this->movementRequestService->create($requestModel->id, auth()->id(), 'Solicitud rechazada');
+        }
+
         return $this->noContentResponse();
     }
 
@@ -152,7 +173,8 @@ class RequestCarController extends BaseApiController
     public function addExtraCarInformation(int $id, AddExtraInformationCarRequest $request): Response
     {
         $dto = $request->toDTO();
-        $this->requestCarService->addExtraCarInformation($id, $dto);
+        $requestCar = $this->requestCarService->addExtraCarInformation($id, $dto);
+        $this->movementRequestService->create($requestCar->request_id, auth()->id(), 'Se agrega información extra a la solicitud');
         return $this->noContentResponse();
     }
 
@@ -163,6 +185,8 @@ class RequestCarController extends BaseApiController
     {
         $dto = $request->toDTO();
         $this->requestCarService->uploadImagesFiles($id, $dto);
+        $requestCar = $this->requestCarService->findById($id);
+        $this->movementRequestService->create($requestCar->request_id, auth()->id(), 'Se suben imágenes del vehículo');
         return $this->noContentResponse();
     }
 }

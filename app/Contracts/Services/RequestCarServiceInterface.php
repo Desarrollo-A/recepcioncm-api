@@ -15,6 +15,9 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
 
+/**
+ * @method RequestCar findById(int $id)
+ */
 interface RequestCarServiceInterface extends BaseServiceInterface
 {
     public function create(RequestCarDTO $dto): RequestCar;
@@ -48,7 +51,7 @@ interface RequestCarServiceInterface extends BaseServiceInterface
 
     public function responseRejectRequest(int $requestId, RequestDTO $dto): Request;
 
-    public function addExtraCarInformation(int $id, RequestCarDTO $dto): void;
+    public function addExtraCarInformation(int $id, RequestCarDTO $dto): RequestCar;
 
     /**
      * @param FileDTO[] $filesDTO

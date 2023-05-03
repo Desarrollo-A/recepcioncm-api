@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Contracts\Services\MovementRequestServiceInterface;
 use App\Contracts\Services\NotificationServiceInterface;
 use App\Contracts\Services\RequestDriverServiceInterface;
 use App\Contracts\Services\RequestEmailServiceInterface;
@@ -16,6 +17,7 @@ use App\Http\Requests\RequestDriver\TransferDriverRequest;
 use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\RequestDriver\RequestDriverResource;
 use App\Http\Resources\RequestDriver\RequestDriverViewCollection;
+use App\Models\Enums\Lookups\StatusDriverRequestLookup;
 use App\Models\Enums\NameRole;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -26,10 +28,14 @@ class RequestDriverController extends BaseApiController
     private $requestDriverService;
     private $notificationService;
     private $requestEmailService;
+    private $movementRequestService;
     
-    public function __construct(RequestDriverServiceInterface $requestDriverService,
-                                NotificationServiceInterface $notificationService,
-                                RequestEmailServiceInterface $requestEmailService)
+    public function __construct(
+        RequestDriverServiceInterface $requestDriverService,
+        NotificationServiceInterface $notificationService,
+        RequestEmailServiceInterface $requestEmailService,
+        MovementRequestServiceInterface $movementRequestService
+    )
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
             ->only('store', 'responseRejectRequest');
@@ -45,6 +51,7 @@ class RequestDriverController extends BaseApiController
         $this->requestDriverService = $requestDriverService;
         $this->notificationService = $notificationService;
         $this->requestEmailService = $requestEmailService;
+        $this->movementRequestService = $movementRequestService;
     }
 
     /**
@@ -88,6 +95,7 @@ class RequestDriverController extends BaseApiController
         if (!is_null($data->driverId)) {
             $this->requestEmailService->sendCancelledRequestDriverMail($data->request);
         }
+        $this->movementRequestService->create($data->request->id, auth()->id(), 'Solicitud cancelada');
         return $this->noContentResponse();
     }
 
@@ -98,6 +106,7 @@ class RequestDriverController extends BaseApiController
     {
         $requestDriver = $this->requestDriverService->transferRequest($requestDriverId, $request->toDTO());
         $this->notificationService->transferRequestDriverNotification($requestDriver);
+        $this->movementRequestService->create($requestDriver->request_id, auth()->id(), 'Solicitud transferida');
         return $this->noContentResponse();
     }
 
@@ -110,6 +119,7 @@ class RequestDriverController extends BaseApiController
         $request = $this->requestDriverService->approvedRequest($dto);
         $this->notificationService->approvedRequestDriverNotification($request, $dto->driverRequestSchedule->driverSchedule->driver_id);
         $this->requestEmailService->sendApprovedRequestDriverMail($request);
+        $this->movementRequestService->create($request->id, auth()->id(), 'Solicitud aprobada');
         return $this->noContentResponse();
     }
 
@@ -131,8 +141,9 @@ class RequestDriverController extends BaseApiController
     public function proposalRequest(ProposalDriverRequest $request): Response
     {
         $dto = $request->toDTO();
-        $proposalDriverRequest = $this->requestDriverService->proposalRequest($dto);
-        $this->notificationService->proposalDriverRequestNotification($proposalDriverRequest);
+        $request = $this->requestDriverService->proposalRequest($dto);
+        $this->notificationService->proposalDriverRequestNotification($request);
+        $this->movementRequestService->create($request->id, auth()->id(), 'Propuesta de solicitud');
         return $this->noContentResponse();
     }
 
@@ -142,8 +153,16 @@ class RequestDriverController extends BaseApiController
     public function responseRejectRequest(int $requestId, ResponseRejectRequest $request): Response
     {
         $dto = $request->toDTO();
-        $requestDriverResponseReject = $this->requestDriverService->responseRejectRequest($requestId, $dto);
-        $this->notificationService->responseRejectRequestDriverNotification($requestDriverResponseReject);
+        $requestModel = $this->requestDriverService->responseRejectRequest($requestId, $dto);
+        $this->notificationService->responseRejectRequestDriverNotification($requestModel);
+
+        if($requestModel->status->code === StatusDriverRequestLookup::code(StatusDriverRequestLookup::APPROVED)) {
+            $this->movementRequestService->create($requestModel->id, auth()->id(), 'Solicitud aprobada');
+        }
+        if($requestModel->status->code === StatusDriverRequestLookup::code(StatusDriverRequestLookup::REJECTED)) {
+            $this->movementRequestService->create($requestModel->id, auth()->id(), 'Solicitud rechazada');
+        }
+
         return $this->noContentResponse();
     }
 }

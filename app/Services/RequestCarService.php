@@ -405,7 +405,7 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
     /**
      * @throws CustomErrorException
      */
-    public function addExtraCarInformation(int $id, RequestCarDTO $dto): void
+    public function addExtraCarInformation(int $id, RequestCarDTO $dto): RequestCar
     {
         $fields = array();
         if (!is_null($dto->initial_km)) {
@@ -418,7 +418,7 @@ class RequestCarService extends BaseService implements RequestCarServiceInterfac
             $fields = array_merge($fields, ['delivery_condition']);
         }
 
-        $this->entityRepository->update($id, $dto->toArray($fields));
+        return $this->entityRepository->update($id, $dto->toArray($fields));
     }
 
     public function uploadImagesFiles(int $id, array $filesDTO): void

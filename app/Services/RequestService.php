@@ -13,12 +13,14 @@ use App\Contracts\Repositories\PackageRepositoryInterface;
 use App\Contracts\Repositories\ProposalRequestRepositoryInterface;
 use App\Contracts\Repositories\RequestDriverRepositoryInterface;
 use App\Contracts\Repositories\RequestRepositoryInterface;
+use App\Contracts\Services\MovementRequestServiceInterface;
 use App\Contracts\Services\RequestServiceInterface;
 use App\Core\BaseService;
 use App\Exceptions\CustomErrorException;
 use App\Helpers\Enum\Message;
 use App\Helpers\Enum\Path;
 use App\Helpers\File;
+use App\Models\Dto\MovementRequestDTO;
 use App\Models\Dto\RequestDTO;
 use App\Models\Enums\Lookups\StatusCarRequestLookup;
 use App\Models\Enums\Lookups\StatusDriverRequestLookup;
@@ -46,18 +48,22 @@ class RequestService extends BaseService implements RequestServiceInterface
     protected $carRequestScheduleRepository;
     protected $driverScheduleRepository;
     protected $carScheduleRepository;
+    protected $movementRequestService;
 
-    public function __construct(RequestRepositoryInterface $requestRepository,
-                                LookupRepositoryInterface $lookupRepository,
-                                NotificationRepositoryInterface $notificationRepository,
-                                ProposalRequestRepositoryInterface $proposalRequestRepository,
-                                PackageRepositoryInterface $packageRepository,
-                                AddressRepositoryInterface $addressRepository,
-                                RequestDriverRepositoryInterface $requestDriverRepository,
-                                DriverRequestScheduleRepositoryInterface $driverRequestScheduleRepository,
-                                CarRequestScheduleRepositoryInterface $carRequestScheduleRepository,
-                                DriverScheduleRepositoryInterface $driverScheduleRepository,
-                                CarScheduleRepositoryInterface $carScheduleRepository)
+    public function __construct(
+        RequestRepositoryInterface $requestRepository,
+        LookupRepositoryInterface $lookupRepository,
+        NotificationRepositoryInterface $notificationRepository,
+        ProposalRequestRepositoryInterface $proposalRequestRepository,
+        PackageRepositoryInterface $packageRepository,
+        AddressRepositoryInterface $addressRepository,
+        RequestDriverRepositoryInterface $requestDriverRepository,
+        DriverRequestScheduleRepositoryInterface $driverRequestScheduleRepository,
+        CarRequestScheduleRepositoryInterface $carRequestScheduleRepository,
+        DriverScheduleRepositoryInterface $driverScheduleRepository,
+        CarScheduleRepositoryInterface $carScheduleRepository,
+        MovementRequestServiceInterface $movementRequestService
+    )
     {
         $this->entityRepository = $requestRepository;
         $this->lookupRepository = $lookupRepository;
@@ -70,6 +76,7 @@ class RequestService extends BaseService implements RequestServiceInterface
         $this->carRequestScheduleRepository = $carRequestScheduleRepository;
         $this->driverScheduleRepository = $driverScheduleRepository;
         $this->carScheduleRepository = $carScheduleRepository;
+        $this->movementRequestService = $movementRequestService;
     }
 
     /**
@@ -105,6 +112,9 @@ class RequestService extends BaseService implements RequestServiceInterface
         $this->entityRepository->update($request->id, $requestDTO->toArray(['code']));
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function changeToFinished(): Collection
     {
         $requests = $this->entityRepository
@@ -122,11 +132,16 @@ class RequestService extends BaseService implements RequestServiceInterface
             return $value->type_code === TypeRequestLookup::code(TypeRequestLookup::CAR);
         });
 
+        $ids = [];
+
         if ($filteredRoomRequests->count() > 0) {
             $statusId = $this->lookupRepository
-                ->findByCodeAndType(StatusRoomRequestLookup::code(StatusRoomRequestLookup::FINISHED),
-                    TypeLookup::STATUS_ROOM_REQUEST)->id;
+                ->findByCodeAndType(
+                    StatusRoomRequestLookup::code(StatusRoomRequestLookup::FINISHED),
+                    TypeLookup::STATUS_ROOM_REQUEST)
+                ->id;
             $this->entityRepository->bulkStatusUpdate($filteredRoomRequests->pluck('id')->values()->toArray(), $statusId);
+            $ids = array_merge($ids, $filteredRoomRequests->pluck('id')->values()->toArray());
         }
 
         if ($filteredDriverRequests->count() > 0) {
@@ -134,6 +149,7 @@ class RequestService extends BaseService implements RequestServiceInterface
                 ->findByCodeAndType(StatusDriverRequestLookup::code(StatusDriverRequestLookup::FINISHED),
                     TypeLookup::STATUS_DRIVER_REQUEST)->id;
             $this->entityRepository->bulkStatusUpdate($filteredDriverRequests->pluck('id')->values()->toArray(), $statusId);
+            $ids = array_merge($ids, $filteredDriverRequests->pluck('id')->values()->toArray());
         }
         
         if ($filteredCarRequests->count() > 0) {
@@ -141,15 +157,24 @@ class RequestService extends BaseService implements RequestServiceInterface
                 ->findByCodeAndType(StatusCarRequestLookup::code(StatusCarRequestLookup::FINISHED),
                     TypeLookup::STATUS_CAR_REQUEST)->id;
             $this->entityRepository->bulkStatusUpdate($filteredCarRequests->pluck('id')->values()->toArray(), $statusId);
+            $ids = array_merge($ids, $filteredCarRequests->pluck('id')->values()->toArray());
+        }
+
+        if (count($ids) > 0) {
+            $this->bulkInsertMovementRequest($ids, 'Solicitud terminada', 1);
         }
 
         return $requests;
     }
 
+    /**
+     * @throws CustomErrorException
+     */
     public function changeToExpired(): void
     {
         $carSchedulesIds = [];
         $expired = $this->entityRepository->getExpired();
+        $ids = [];
 
         $expiredRequestRoom = $expired->filter(function ($request) {
             return $request->type_code === TypeRequestLookup::code(TypeRequestLookup::ROOM);
@@ -161,10 +186,7 @@ class RequestService extends BaseService implements RequestServiceInterface
                 TypeLookup::STATUS_ROOM_REQUEST)
                 ->id;
             $this->entityRepository->bulkStatusUpdate($expiredRequestRoom->pluck('id')->values()->toArray(), $statusId);
-
-            $proposalRequestRoom = $expiredRequestRoom->filter(function ($request) {
-                return $request->status_code === StatusRoomRequestLookup::code(StatusRoomRequestLookup::PROPOSAL);
-            });
+            $ids = array_merge($ids, $expiredRequestRoom->pluck('id')->values()->toArray());
         }
 
         $expiredRequestPackage = $expired->filter(function ($request) {
@@ -177,10 +199,7 @@ class RequestService extends BaseService implements RequestServiceInterface
                 TypeLookup::STATUS_PACKAGE_REQUEST)
                 ->id;
             $this->entityRepository->bulkStatusUpdate($expiredRequestPackage->pluck('id')->values()->toArray(), $statusId);
-
-            $proposalRequestPackage = $expiredRequestPackage->filter(function ($request) {
-                return $request->status_code === StatusPackageRequestLookup::code(StatusPackageRequestLookup::PROPOSAL);
-            });
+            $ids = array_merge($expiredRequestPackage->pluck('id')->values()->toArray());
         }
 
         $expiredRequestDriver = $expired->filter(function ($request) {
@@ -193,10 +212,7 @@ class RequestService extends BaseService implements RequestServiceInterface
                 TypeLookup::STATUS_DRIVER_REQUEST)
                 ->id;
             $this->entityRepository->bulkStatusUpdate($expiredRequestDriver->pluck('id')->values()->toArray(), $statusId);
-
-            $proposalRequestDriver = $expiredRequestDriver->filter(function ($request) {
-                return $request->status_code === StatusDriverRequestLookup::code(StatusDriverRequestLookup::PROPOSAL);
-            });
+            $ids = array_merge($expiredRequestDriver->pluck('id')->values()->toArray());
         }
 
         $expiredRequestCar = $expired->filter(function ($request) {
@@ -209,10 +225,7 @@ class RequestService extends BaseService implements RequestServiceInterface
                 TypeLookup::STATUS_CAR_REQUEST)
                 ->id;
             $this->entityRepository->bulkStatusUpdate($expiredRequestCar->pluck('id')->values()->toArray(), $statusId);
-
-            $proposalRequestCar = $expiredRequestCar->filter(function ($request) {
-                return $request->status_code === StatusCarRequestLookup::code(StatusCarRequestLookup::PROPOSAL);
-            });
+            $ids = array_merge($ids, $expiredRequestCar->pluck('id')->values()->toArray());
         }
 
         $assignRequestDriver = $expired->filter(function ($request) {
@@ -248,6 +261,10 @@ class RequestService extends BaseService implements RequestServiceInterface
 
         if (count($carSchedulesIds) > 0) {
             $this->carScheduleRepository->bulkDelete($carSchedulesIds);
+        }
+
+        if (count($ids) > 0) {
+            $this->bulkInsertMovementRequest($ids, 'Solicitud expirada', 1);
         }
     }
 
@@ -295,5 +312,23 @@ class RequestService extends BaseService implements RequestServiceInterface
         }
 
         return $requestDriver;
+    }
+
+    /**
+     * @param int[] $requestIds
+     * @throws CustomErrorException
+     */
+    private function bulkInsertMovementRequest(array $requestIds, string $description, int $userId): void
+    {
+        $data = [];
+        foreach ($requestIds as $requestId) {
+            $data[] = new MovementRequestDTO([
+                'request_id' => $requestId,
+                'user_id' => $userId,
+                'description' => $description
+            ]);
+        }
+
+        $this->movementRequestService->bulkInsert($data);
     }
 }
