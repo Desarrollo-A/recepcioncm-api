@@ -130,9 +130,9 @@ class InventoryService extends BaseService implements InventoryServiceInterface
      */
     public function restoreStockAfterInventoriesRequestDeleted(Collection $inventoriesRequest)
     {
-        $inventoriesRequest->each( function ($snack) {
+        $inventoriesRequest->each( function (InventoryRequest $snack) {
             if (!is_null($snack->quantity)) {
-                $this->entityRepository->incrementStock($snack->id, $snack->quantity);
+                $this->entityRepository->incrementStock($snack->inventory_id, $snack->quantity);
             }
         });
     }

@@ -81,7 +81,7 @@ class InventoryRepository extends BaseRepository implements InventoryRepositoryI
      */
     public function incrementStock(int $id, int $increment): void
     {
-        $inventory = $this->findById($id, ['stock']);
+        $inventory = $this->findById($id);
         $inventory->stock = $inventory->stock + $increment;
         $inventory->saveOrFail();
     }
