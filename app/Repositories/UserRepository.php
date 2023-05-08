@@ -31,7 +31,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     public function findById(int $id, array $columns = ['*']): User
     {
         return $this->entity
-            ->with(['status', 'role', 'office'])
+            ->with(['status', 'role', 'office', 'officeManager'])
             ->findOrFail($id, $columns);
     }
 
@@ -84,6 +84,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     public function findManagerWhereInNoEmployee(array $codes): User
     {
         return $this->entity
+            ->with('officeManager')
             ->whereHas('role', function (Builder $query) {
                 $query->where('name', NameRole::DEPARTMENT_MANAGER);
             })

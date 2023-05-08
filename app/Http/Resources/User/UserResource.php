@@ -4,6 +4,7 @@ namespace App\Http\Resources\User;
 
 use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\Office\OfficeResource;
+use App\Http\Resources\OfficeManager\OfficeManagerResource;
 use App\Http\Resources\Role\RoleResource;
 use Illuminate\Http\Resources\Json\Resource;
 
@@ -38,7 +39,8 @@ class UserResource extends Resource
             'status' => LookupResource::make($this->whenLoaded('status')),
             'office' => OfficeResource::make($this->whenLoaded('office')),
             'token' => $this->when( !empty($this->token), $this->token),
-            'departmentManagerId' => $this->department_manager_id
+            'departmentManagerId' => $this->department_manager_id,
+            'officeManager' => OfficeManagerResource::make($this->whenLoaded('officeManager'))
         ];
     }
 }
