@@ -96,6 +96,11 @@ class UserDTO
     public $managers;
 
     /**
+     * @var bool
+     */
+    public $is_office_manager;
+
+    /**
      * @throws CustomErrorException
      */
     public function __construct(array $data = [])

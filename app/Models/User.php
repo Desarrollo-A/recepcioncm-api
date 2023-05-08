@@ -7,6 +7,7 @@ use App\Models\Traits\Sortable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Passport\HasApiTokens;
@@ -118,5 +119,10 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Car::class, 'car_driver', 'driver_id')
             ->withTimestamps();
+    }
+
+    public function officeManager(): HasOne
+    {
+        return $this->hasOne(OfficeManager::class, 'manager_id', 'id');
     }
 }

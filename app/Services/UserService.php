@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Contracts\Repositories\LookupRepositoryInterface;
+use App\Contracts\Repositories\OfficeManagerRepositoryInterface;
 use App\Contracts\Repositories\OfficeRepositoryInterface;
 use App\Contracts\Repositories\RoleRepositoryInterface;
 use App\Contracts\Repositories\UserRepositoryInterface;
@@ -18,6 +19,7 @@ use App\Helpers\Validation;
 use App\Mail\User\NewDriverMail;
 use App\Models\Dto\BulkLoadFileDTO;
 use App\Models\Dto\OfficeDTO;
+use App\Models\Dto\OfficeManagerDTO;
 use App\Models\Dto\RoleDTO;
 use App\Models\Dto\UserDTO;
 use App\Models\Enums\Lookups\StatusUserLookup;
@@ -48,6 +50,7 @@ class UserService extends BaseService implements UserServiceInterface
     protected $roleRepository;
     protected $lookupRepository;
     protected $officeRepository;
+    protected $officeManagerRepository;
 
     protected $menuService;
 
@@ -56,7 +59,8 @@ class UserService extends BaseService implements UserServiceInterface
         RoleRepositoryInterface $roleRepository,
         LookupRepositoryInterface $lookupRepository,
         OfficeRepositoryInterface $officeRepository,
-        MenuServiceInterface $menuService
+        MenuServiceInterface $menuService,
+        OfficeManagerRepositoryInterface $officeManagerRepository
     )
     {
         $this->entityRepository = $userRepository;
@@ -64,6 +68,7 @@ class UserService extends BaseService implements UserServiceInterface
         $this->lookupRepository = $lookupRepository;
         $this->officeRepository = $officeRepository;
         $this->menuService = $menuService;
+        $this->officeManagerRepository = $officeManagerRepository;
     }
 
     /**
@@ -75,15 +80,17 @@ class UserService extends BaseService implements UserServiceInterface
             ->findByCodeAndType(StatusUserLookup::code(StatusUserLookup::ACTIVE),TypeLookup::STATUS_USER)
             ->id;
 
-        $dto->department_manager_id = $this->entityRepository
-            ->findManagerWhereInNoEmployee($dto->managers)
-            ->id;
+        $userManager = $this->entityRepository
+            ->findManagerWhereInNoEmployee($dto->managers);
 
-        if ($dto->role->name === NameRole::RECEPCIONIST) {
+        $dto->department_manager_id = $userManager->id;
+
+        if ($dto->role->name === NameRole::RECEPCIONIST && !is_null($userManager->officeManager)) {
             $dto->role_id = $this->roleRepository
                 ->findByName(NameRole::RECEPCIONIST)
                 ->id;
         } else {
+            $dto->role->name = NameRole::APPLICANT;
             $dto->role_id = $this->roleRepository
                 ->findByName(NameRole::APPLICANT)
                 ->id;
@@ -173,6 +180,15 @@ class UserService extends BaseService implements UserServiceInterface
         }
 
         $user = $this->entityRepository->update($id, $dto->toArray($fields));
+
+        if ($user->role->name === NameRole::DEPARTMENT_MANAGER) {
+            if ($dto->is_office_manager) {
+                $officeManagerDTO = new OfficeManagerDTO(['manager_id' => $user->id]);
+                $this->officeManagerRepository->create($officeManagerDTO->toArray());
+            } else {
+                $this->officeManagerRepository->delete($user->id);
+            }
+        }
 
         $status = $this->lookupRepository->findById($dto->status_id);
         if ($status->code === StatusUserLookup::code(StatusUserLookup::INACTIVE)) {
