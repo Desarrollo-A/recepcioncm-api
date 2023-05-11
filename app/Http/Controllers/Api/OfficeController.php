@@ -73,7 +73,7 @@ class OfficeController extends BaseApiController
 
     public function getAll(): JsonResponse
     {
-        $offices = $this->officeService->findAll();
+        $offices = $this->officeService->findAllActive();
         return $this->showAll(OfficeResource::collection($offices));
     }
 
