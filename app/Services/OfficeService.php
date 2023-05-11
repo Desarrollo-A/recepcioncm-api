@@ -86,4 +86,9 @@ class OfficeService extends BaseService implements OfficeServiceInterface
         $this->entityRepository->delete($id);
         $this->addressRepository->delete($office->address_id);
     }
+
+    public function findAllActive(): Collection
+    {
+        return $this->entityRepository->findAllActive();
+    }
 }
