@@ -20,4 +20,11 @@ class OfficeManagerRepository extends BaseRepository implements OfficeManagerRep
     {
         $this->entity = $officeManager;
     }
+
+    public function deleteByManagerId(int $userId): bool
+    {
+        return $this->entity
+            ->where('manager_id', $userId)
+            ->delete();
+    }
 }

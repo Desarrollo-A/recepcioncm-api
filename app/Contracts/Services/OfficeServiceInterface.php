@@ -23,4 +23,6 @@ interface OfficeServiceInterface extends BaseServiceInterface
     public function store(OfficeDTO $dto): Office;
 
     public function update(int $id, OfficeDTO $dto): Office;
+
+    public function findAllActive(): Collection;
 }

@@ -10,5 +10,5 @@ use App\Models\OfficeManager;
  */
 interface OfficeManagerRepositoryInterface extends BaseRepositoryInterface
 {
-    //
+    public function deleteByManagerId(int $userId): bool;
 }

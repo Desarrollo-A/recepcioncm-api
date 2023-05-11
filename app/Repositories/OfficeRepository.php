@@ -151,15 +151,6 @@ class OfficeRepository extends BaseRepository implements OfficeRepositoryInterfa
             ->get();
     }
 
-    public function findAll(array $filter = [], string $sort = null, array $columns = ['*']): Collection
-    {
-        return $this->entity
-            ->with(['state', 'address'])
-            ->filter($filter)
-            ->applySort($sort)
-            ->get($columns);
-    }
-
     public function findAllPaginated(array $filters, int $limit, string $sort = null, array $columns = ['*']): LengthAwarePaginator
     {
         return $this->entity
@@ -179,7 +170,9 @@ class OfficeRepository extends BaseRepository implements OfficeRepositoryInterfa
     public function findAllActive(): Collection
     {
         return $this->entity
+            ->with(['state', 'address'])
             ->where('status', true)
+            ->orderBy('name')
             ->get();
     }
 }
