@@ -40,7 +40,7 @@ class RequestPackageController extends BaseApiController
     )
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
-            ->only('store', 'uploadAuthorizationFile', 'responseRejectRequest');
+            ->only('uploadAuthorizationFile', 'responseRejectRequest');
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
             ->only('index', 'cancelRequest');
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST.','.NameRole::DRIVER.
@@ -48,7 +48,7 @@ class RequestPackageController extends BaseApiController
             ->only('show', 'getStatusByStatusCurrent');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
             ->only('transferRequest', 'getDriverSchedule', 'getPackagesByDriverId', 'onReadRequest',
-                'findAllByDateAndOffice', 'proposalRequest', 'approvedRequest');
+                'findAllByDateAndOffice', 'proposalRequest', 'approvedRequest', 'store');
         $this->middleware('role.permission:'.NameRole::DRIVER)
             ->only('findAllByDriverIdPaginated', 'onRoad', 'deliveredRequest', 'deliveredRequestSignature', 'findAllDeliveredByDriverIdPaginated', 
                 'getRequestPackageReportPdf', 'getRequestPackageReportExcel');

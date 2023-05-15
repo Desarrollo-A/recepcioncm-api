@@ -239,19 +239,6 @@ class RequestPackageService extends BaseService implements RequestPackageService
                         StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED)
                     ], TypeLookup::STATUS_PACKAGE_REQUEST);
             }
-        } else if ($roleName === NameRole::APPLICANT) {
-            switch ($code) {
-                case StatusPackageRequestLookup::code(StatusPackageRequestLookup::PROPOSAL):
-                    $status = $this->lookupRepository->findByCodeWhereInAndType([
-                        StatusPackageRequestLookup::code(StatusPackageRequestLookup::REJECTED)
-                    ], TypeLookup::STATUS_PACKAGE_REQUEST);
-                    break;
-                case StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED):
-                    $status = $this->lookupRepository->findByCodeWhereInAndType([
-                        StatusPackageRequestLookup::code(StatusPackageRequestLookup::CANCELLED)
-                    ], TypeLookup::STATUS_PACKAGE_REQUEST);
-                    break;
-            }
         } else if ($roleName === NameRole::DEPARTMENT_MANAGER) {
             switch ($code) {
                 case StatusPackageRequestLookup::code(StatusPackageRequestLookup::IN_REVIEW_MANAGER):
@@ -410,10 +397,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
         }
 
         if (config('app.enable_google_calendar', false)) {
-            if($request->add_google_calendar){
-                $emails[] = $request->user->email;
-            }
-            $emails = array_merge($emails, $this->getRecepcionistEmails($request->package->office_id));
+            $emails = $this->getRecepcionistEmails($request->package->office_id);
 
             $event = $this->calendarService->createEventAllDay($request->title, Carbon::make($dateGoogleCalendar), $emails);
 

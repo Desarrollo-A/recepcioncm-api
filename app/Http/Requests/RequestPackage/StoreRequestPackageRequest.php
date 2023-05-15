@@ -32,7 +32,6 @@ class StoreRequestPackageRequest extends FormRequest implements ReturnDtoInterfa
             'package.nameReceive' => ['required', 'min:3', 'max:150'],
             'package.emailReceive' => ['required', 'min:3', 'max:150'],
             'package.commentReceive' => ['min:3', 'max:2500'],
-            'package.officeId' => ['required', 'integer'],
             'package.isUrgent' =>  ['boolean'],
             'package.isHeavyShipping' => ['required', 'boolean'],
         ];
@@ -111,7 +110,6 @@ class StoreRequestPackageRequest extends FormRequest implements ReturnDtoInterfa
 
             'package.nameReceive' => 'Nombre de quien recibe',
             'package.emailReceive' => 'Correo electrónico de quien recibe',
-            'package.officeId' => 'Oficina',
             
             'package.pickupAddressId' =>  'ID dirección de salida',
             'package.arrivalAddressId' =>  'ID dirección llegada',
@@ -177,7 +175,7 @@ class StoreRequestPackageRequest extends FormRequest implements ReturnDtoInterfa
             'request' => $requestDTO,
             'pickupAddress' => $pickupAddressDTO,
             'arrivalAddress' => $arrivalAddressDTO,
-            'office_id' => $this->package['officeId'],
+            'office_id' => auth()->user()->office_id,
             'is_urgent' => $this->package['isUrgent'],
             'pickup_address_id' => $this->package['pickupAddressId'],
             'arrival_address_id' => $this->package['arrivalAddressId'],
