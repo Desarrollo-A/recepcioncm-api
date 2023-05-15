@@ -101,6 +101,16 @@ class UserDTO
     public $is_office_manager;
 
     /**
+     * @var DriverParcelDayDTO[]
+     */
+    public $driverParcelDays;
+
+    /**
+     * @var bool
+     */
+    public $isAssistant;
+
+    /**
      * @throws CustomErrorException
      */
     public function __construct(array $data = [])

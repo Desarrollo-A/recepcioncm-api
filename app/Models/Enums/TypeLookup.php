@@ -21,4 +21,5 @@ class TypeLookup
     const STATUS_DRIVER_REQUEST = 15; // Estatus de solicitudes de chofer
     const STATUS_CAR_REQUEST = 16; // Estatus de solicitudes de vehiculo
     const HEAVY_SHIPPING = 17; // KG permitidos por paquetería antes de mencionar las dimensiones y peso
+    const WEEK_DAYS = 18; // Días de la semana
 }

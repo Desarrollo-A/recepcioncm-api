@@ -29,6 +29,7 @@ class StoreUserRequest extends FormRequest implements ReturnDtoInterface
             'position' => ['required', 'max:100'],
             'area' => ['required', 'max:100'],
             'isRecepcionist' => ['required', 'bail', 'boolean'],
+            'isAssistant' => ['required', 'bail', 'boolean'],
             'office.name' => ['required', 'min:3', 'max:150'],
             'managers' => ['required', 'array']
         ];
@@ -44,6 +45,7 @@ class StoreUserRequest extends FormRequest implements ReturnDtoInterface
             'position' => 'Puesto',
             'area' => 'Área / Departamento',
             'isRecepcionist' => 'Recepcionista',
+            'isAssistant' => 'Asistente',
             'office.name' => 'Oficina',
             'managers' => 'Director'
         ];
@@ -55,7 +57,7 @@ class StoreUserRequest extends FormRequest implements ReturnDtoInterface
     public function toDTO(): UserDTO
     {
         $office = new OfficeDTO(['name' => trim($this->office['name'])]);
-        $role = new RoleDTO(['name' => ($this->isRecepcionist) ? NameRole::RECEPCIONIST : NameRole::APPLICANT]);
+        $role = new RoleDTO(['name' => ($this->isRecepcionist || $this->isAssistant) ? NameRole::RECEPCIONIST : NameRole::APPLICANT]);
 
         return new UserDTO([
             'no_employee' => trim($this->noEmployee),
@@ -68,7 +70,8 @@ class StoreUserRequest extends FormRequest implements ReturnDtoInterface
             'area' => trim($this->area),
             'role' => $role,
             'office' => $office,
-            'managers' => $this->managers
+            'managers' => $this->managers,
+            'isAssistant' => $this->isAssistant
         ]);
     }
 }

@@ -338,6 +338,9 @@ Route::prefix('v1')->group(function () {
 
                 Route::post('/car', 'DriverController@insertDriverCar')
                     ->name('car');
+
+                Route::put('/parcel-days/{id}', 'DriverController@updateParcelDays')
+                    ->name('parcel-days');
         });
 
         Route::prefix('request-packages')

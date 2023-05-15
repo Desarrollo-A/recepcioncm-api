@@ -3,6 +3,7 @@ namespace App\Repositories;
 
 use App\Contracts\Repositories\DriverRepositoryInterface;
 use App\Core\BaseRepository;
+use App\Models\DriverParcelDay;
 use App\Models\Enums\Lookups\StatusCarLookup;
 use App\Models\Enums\Lookups\StatusUserLookup;
 use App\Models\Enums\NameRole;
@@ -41,7 +42,7 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
     public function findById(int $id, array $columns = ['*'])
     {
         return $this->entity
-            ->with(['cars', 'office', 'role'])
+            ->with(['cars', 'office', 'role', 'driverParcelDays', 'driverParcelDays.day'])
             ->findOrFail($id, $columns);
     }
 
@@ -225,5 +226,16 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
             ->orderBy('dd.start_date', 'ASC')
             ->orderBy('users.id', 'ASC')
             ->get();
+    }
+
+    /**
+     * @param DriverParcelDay[] $data
+     * @throws \Throwable
+     */
+    public function syncParcelDays(int $id, array $data): void
+    {
+        $driver = $this->findById($id);
+        $driver->driverParcelDays()->delete();
+        $driver->driverParcelDays()->saveMany($data);
     }
 }

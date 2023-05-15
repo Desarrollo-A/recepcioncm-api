@@ -85,14 +85,14 @@ class UserService extends BaseService implements UserServiceInterface
 
         $dto->department_manager_id = $userManager->id;
 
-        if ($dto->role->name === NameRole::RECEPCIONIST && !is_null($userManager->officeManager)) {
+        if ($dto->isAssistant) {
+            $roleName = !is_null($userManager->officeManager)
+                ? NameRole::RECEPCIONIST
+                : NameRole::APPLICANT;
+
+            $dto->role->name = $roleName;
             $dto->role_id = $this->roleRepository
-                ->findByName(NameRole::RECEPCIONIST)
-                ->id;
-        } else {
-            $dto->role->name = NameRole::APPLICANT;
-            $dto->role_id = $this->roleRepository
-                ->findByName(NameRole::APPLICANT)
+                ->findByName($roleName)
                 ->id;
         }
 

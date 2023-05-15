@@ -22,4 +22,6 @@ interface DriverRepositoryInterface extends BaseRepositoryInterface
     public function getAvailableDriversRequest(int $officeId, Carbon $startDate, Carbon $endDate, int $people): Collection;
 
     public function getAvailableDriverProposal(int $officeId, Carbon $startDate, Carbon $endDate): Collection;
+
+    public function syncParcelDays(int $id, array $data): void;
 }
