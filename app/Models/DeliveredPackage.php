@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DeliveredPackage extends Model
 {
-    protected $fillable = ['package_id', 'signature', 'name_receive'];
+    protected $fillable = ['package_id', 'signature', 'name_receive', 'observations'];
 
     protected $primaryKey = 'package_id';
 

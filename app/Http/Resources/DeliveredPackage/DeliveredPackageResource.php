@@ -12,7 +12,8 @@ class DeliveredPackageResource extends JsonResource
     {
         return [
             'packageId' => $this->package_id,
-            'signature' => File::getExposedPath($this->signature, Path::PACKAGE_SIGNATURES)
+            'signature' => File::getExposedPath($this->signature, Path::PACKAGE_SIGNATURES),
+            'observations' => $this->observations
         ];
     }
 }

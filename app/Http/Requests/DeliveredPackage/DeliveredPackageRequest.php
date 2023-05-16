@@ -18,7 +18,8 @@ class DeliveredPackageRequest extends FormRequest implements ReturnDtoInterface
     {
         return [
             'packageId' => ['required', 'integer'],
-            'nameReceive' => ['required', 'string', 'min:3', 'max:150']
+            'nameReceive' => ['required', 'string', 'min:3', 'max:150'],
+            'observations' => ['required', 'string', 'min:3', 'max:2500']
         ];
     }
 
@@ -26,7 +27,8 @@ class DeliveredPackageRequest extends FormRequest implements ReturnDtoInterface
     {
         return [
             'packageId' => 'ID de paquetería',
-            'nameReceive' => 'Nombre de quien recibe'
+            'nameReceive' => 'Nombre de quien recibe',
+            'observations' => 'Observaciones'
         ];
     }
 
@@ -37,7 +39,8 @@ class DeliveredPackageRequest extends FormRequest implements ReturnDtoInterface
     {
         return new DeliveredPackageDTO([
             'package_id' => $this->packageId,
-            'name_receive' => trim($this->nameReceive)
+            'name_receive' => trim($this->nameReceive),
+            'observations' => trim($this->observations)
         ]);
     }
 }

@@ -667,7 +667,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $requestDTO = new RequestDTO(['status_id' => $statusId, 'end_date' => now()]);
         $request = $this->requestRepository->update($package->request_id, $requestDTO->toArray(['status_id', 'end_date']));
 
-        $this->deliveredPackageRepository->create($dto->toArray(['package_id', 'name_receive']));
+        $this->deliveredPackageRepository->create($dto->toArray(['package_id', 'name_receive', 'observations']));
 
         $codePackage = Str::random(40);
         $packageUpdate = $this->packageRepository->update($dto->package_id, ['auth_code' => $codePackage]);
