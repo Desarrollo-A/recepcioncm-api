@@ -22,7 +22,7 @@ class CancelledRequestPackageInformationMail extends Mailable
 
     public function build()
     {
-        $status = strtoupper($this->request->status->name);
+        $status = strtoupper($this->request->status->value);
         $code = $this->request->code;
         $date = $this->request->start_date;
         $car = $this->request->package->driverPackageSchedule->carSchedule->car;

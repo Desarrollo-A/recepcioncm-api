@@ -22,7 +22,7 @@ class CancelledRequestDriverInformationMail extends Mailable
 
     public function build()
     {
-        $status = strtoupper($this->request->status->name);
+        $status = strtoupper($this->request->status->value);
         $code = $this->request->code;
         $startDate = $this->request->start_date;
         $endDate = $this->request->end_date;

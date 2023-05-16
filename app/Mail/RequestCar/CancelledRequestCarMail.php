@@ -22,7 +22,7 @@ class CancelledRequestCarMail extends Mailable
 
     public function build(): CancelledRequestCarMail
     {
-        $status = strtoupper($this->request->status->name);
+        $status = strtoupper($this->request->status->value);
         $code = $this->request->code;
 
         return $this

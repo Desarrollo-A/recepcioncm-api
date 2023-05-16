@@ -22,7 +22,7 @@ class ApprovedRequestDriverInformationMail extends Mailable
 
     public function build()
     {
-        $status = strtoupper($this->request->status->name);
+        $status = strtoupper($this->request->status->value);
         $code = $this->request->code;
         $arrivalState = $this->request->requestDriver->arrivalAddress->state;
         $pickupState = $this->request->requestDriver->arrivalAddress->state;
