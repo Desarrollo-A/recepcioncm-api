@@ -35,6 +35,11 @@ class DetailExternalParcelDTO
     public $weight;
 
     /**
+     * @var float
+     */
+    public $cost;
+
+    /**
      * @throws CustomErrorException
      */
     public function __construct(array $data = [])

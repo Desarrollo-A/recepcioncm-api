@@ -224,7 +224,6 @@ class RequestPackageService extends BaseService implements RequestPackageService
             switch ($code) {
                 case StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW):
                     $status = $this->lookupRepository->findByCodeWhereInAndType([
-                        StatusPackageRequestLookup::code(StatusPackageRequestLookup::PROPOSAL),
                         StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED),
                         StatusPackageRequestLookup::code(StatusPackageRequestLookup::TRANSFER)
                     ], TypeLookup::STATUS_PACKAGE_REQUEST);
@@ -389,7 +388,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
                 ->fresh(['package', 'user']);
 
             $this->detailExternalParcelRepository->create($dto->detailExternalParcel->toArray([
-                'package_id', 'company_name', 'tracking_code', 'url_tracking', 'weight'
+                'package_id', 'company_name', 'tracking_code', 'url_tracking', 'weight', 'cost'
             ]));
 
             $packageUpdate = $this->packageRepository->findById($dto->id);
