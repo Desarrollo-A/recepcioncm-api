@@ -28,6 +28,9 @@ use App\Helpers\Enum\QueryParam;
 use App\Helpers\File;
 use App\Helpers\Validation;
 use App\Mail\RequestPackage\ApprovedPackageMail;
+use App\Mail\RequestPackage\CancelledPackageMail;
+use App\Mail\RequestPackage\OnRoadPackageMail;
+use App\Mail\RequestPackage\QualifyParcelMail;
 use App\Mail\RequestPackage\ApprovedRequestPackageInformationMail;
 use App\Mail\RequestPackage\CancelledRequestPackageInformationMail;
 use App\Models\Dto\CancelRequestDTO;
@@ -312,6 +315,8 @@ class RequestPackageService extends BaseService implements RequestPackageService
             }
 
             $this->detailExternalParcelRepository->deleteByPackageId($package->id);
+
+            Mail::send(new CancelledPackageMail($request->code, $request->package->email_receive));
         }
         
         return (object)[
@@ -406,6 +411,8 @@ class RequestPackageService extends BaseService implements RequestPackageService
             $this->requestRepository->update($request->id, $dto->toArray(['event_google_calendar_id']));
         }
 
+        Mail::send(new ApprovedPackageMail($packageUpdate));
+
         return $packageUpdate;
     }
 
@@ -499,7 +506,12 @@ class RequestPackageService extends BaseService implements RequestPackageService
                 TypeLookup::STATUS_PACKAGE_REQUEST)->id;
 
         $requestDTO = new RequestDTO(['status_id' => $onReadId]);
-        return $this->requestRepository->update($requestId, $requestDTO->toArray(['status_id']));
+
+        $requestUpdated = $this->requestRepository->update($requestId, $requestDTO->toArray(['status_id']));
+
+        Mail::send(new OnRoadPackageMail($request->code, $request->package->email_receive));
+
+        return $requestUpdated;
     }
 
     public function findAllByDateAndOffice(int $officeId, Carbon $date): Collection
@@ -671,7 +683,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
 
         $codePackage = Str::random(40);
         $packageUpdate = $this->packageRepository->update($dto->package_id, ['auth_code' => $codePackage]);
-        Mail::to($packageUpdate->email_receive)->send(new ApprovedPackageMail($packageUpdate, $request->code));
+        Mail::to($packageUpdate->email_receive)->send(new QualifyParcelMail($packageUpdate, $request->code));
 
         return $request;
     }

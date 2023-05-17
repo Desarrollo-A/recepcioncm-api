@@ -20,7 +20,7 @@ class CancelledRequestPackageInformationMail extends Mailable
         $this->email = $email;
     }
 
-    public function build()
+    public function build(): CancelledRequestPackageInformationMail
     {
         $status = strtoupper($this->request->status->value);
         $code = $this->request->code;
