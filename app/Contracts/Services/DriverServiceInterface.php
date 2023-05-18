@@ -3,6 +3,7 @@
 namespace App\Contracts\Services;
 
 use App\Core\Contracts\BaseServiceInterface;
+use App\Models\Dto\UserDTO;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
@@ -27,4 +28,6 @@ interface DriverServiceInterface extends BaseServiceInterface
     public function getAvailableDriversProposalRequest(int $requestId, Carbon $dateSelected, int $people): \Illuminate\Support\Collection;
 
     public function clearRelationWithCar(int $driverId, int $statusId): void;
+
+    public function updateParcelDays(int $id, UserDTO $dto): void;
 }

@@ -338,6 +338,9 @@ Route::prefix('v1')->group(function () {
 
                 Route::post('/car', 'DriverController@insertDriverCar')
                     ->name('car');
+
+                Route::put('/parcel-days/{id}', 'DriverController@updateParcelDays')
+                    ->name('parcel-days');
         });
 
         Route::prefix('request-packages')
@@ -394,9 +397,6 @@ Route::prefix('v1')->group(function () {
                 Route::patch('/road/{requestId}', 'RequestPackageController@onRoad')
                     ->name('road')
                     ->where('requestId', Validation::INTEGER_ID);
-
-                Route::patch('/proposal', 'RequestPackageController@proposalRequest')
-                    ->name('proposal');
 
                 Route::patch('/response-reject/{requestId}', 'RequestPackageController@responseRejectRequest')
                     ->name('response-reject')

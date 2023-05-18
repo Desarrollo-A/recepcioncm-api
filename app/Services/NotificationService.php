@@ -488,22 +488,6 @@ class NotificationService extends BaseService implements NotificationServiceInte
     /**
      * @throws CustomErrorException
      */
-    public function proposalPackageRequestNotification(Request $requestPackageProposal): void
-    {
-        $notification = $this->createNotification(
-            "Propuesta de la solicitud de paquetería $requestPackageProposal->code",
-            $requestPackageProposal->user_id,
-            TypeNotificationsLookup::PARCEL,
-            NotificationColorLookup::ORANGE,
-            NotificationIconLookup::BOX
-        );
-        $this->requestNotificationService->create($requestPackageProposal->id, $notification->id);
-        Utils::eventAlertNotification($notification);
-    }
-
-    /**
-     * @throws CustomErrorException
-     */
     public function responseRejectPackageRequestNotification(Request $request): void
     {
         $messageNotification = '';

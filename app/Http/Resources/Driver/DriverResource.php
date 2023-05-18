@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Driver;
 
 use App\Http\Resources\Car\CarCollection;
+use App\Http\Resources\DriverParcelDay\DriverParcelDayResource;
 use App\Http\Resources\Lookup\LookupResource;
 use App\Http\Resources\Office\OfficeResource;
 use Illuminate\Http\Resources\Json\Resource;
@@ -23,7 +24,8 @@ class DriverResource extends Resource
             'area'          =>  $this->area,
             'status'        =>  LookupResource::make($this->whenLoaded('status')),
             'office'        =>  OfficeResource::make($this->whenLoaded('office')),
-            'cars'          =>  CarCollection::make($this->whenLoaded('cars'))
+            'cars'          =>  CarCollection::make($this->whenLoaded('cars')),
+            'driverParcelDays' => DriverParcelDayResource::collection($this->whenLoaded('driverParcelDays'))
         ];
     }
 }

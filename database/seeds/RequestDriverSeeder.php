@@ -15,8 +15,8 @@ use App\Models\RequestDriver;
 
 class RequestDriverSeeder extends Seeder
 {
-    const START_TIME_DAY = '09:00:00.000';
-    const END_TIME_DAY = '14:00:00.000';
+    const START_TIME_DAY = '09:00:00.0';
+    const END_TIME_DAY = '14:00:00.0';
 
     /**
      * Run the database seeds.

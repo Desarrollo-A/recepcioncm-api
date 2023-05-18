@@ -288,4 +288,22 @@ class Utils
             return collect($menu)->put('submenu', $submenusArr);
         });
     }
+
+    public static function generateDaysArray(Carbon $startDate, Carbon $endDate): array
+    {
+        $firstDate = Carbon::make($startDate->toDateString());
+        $lastDate = Carbon::make($endDate->toDateString());
+
+        if ($firstDate->eq($lastDate)) {
+            return [$firstDate->dayOfWeek];
+        }
+
+        $daysOfWeek = [];
+        while($firstDate->lessThanOrEqualTo($lastDate)) {
+            $daysOfWeek[] = $firstDate->dayOfWeek;
+            $firstDate->addDays(1);
+        }
+
+        return $daysOfWeek;
+    }
 }

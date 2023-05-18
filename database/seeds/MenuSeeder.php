@@ -35,7 +35,6 @@ class MenuSeeder extends Seeder
 
         $menu = $this->createMenu('/dashboard/solicitud','Reservaciones','mat:note_add',1, $roleApplicantId);
         $this->createSubmenu('/sala', 'Salas de Junta',1, $menu->id, $roleApplicantId);
-        $this->createSubmenu('/paqueteria', 'Paquetería', 2, $menu->id, $roleApplicantId);
         $this->createSubmenu('/conductor', 'Chofer', 3, $menu->id, $roleApplicantId);
         $this->createSubmenu('/vehiculo', 'Vehículo', 4, $menu->id, $roleApplicantId);
 

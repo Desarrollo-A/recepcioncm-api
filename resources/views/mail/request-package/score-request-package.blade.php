@@ -1,6 +1,7 @@
 @component('mail::message')
-Hola {{ $fullName }}
+Hola {{ $fullName }}.
 
+El paquete ha sido entregado.
 Califica el envío de tu paquete en el siguiente enlace.
 
 @component('mail::button', ['url' => $url])

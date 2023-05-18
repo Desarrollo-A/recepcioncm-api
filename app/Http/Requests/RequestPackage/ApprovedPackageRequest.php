@@ -31,6 +31,7 @@ class ApprovedPackageRequest extends FormRequest implements ReturnDtoInterface
             'trackingCode' => ['nullable', 'min:10', 'max:25'],
             'urlTracking' => ['nullable', 'min:10', 'max:255'],
             'weight' => ['nullable', 'numeric', 'gt:0'],
+            'cost' => ['nullable', 'numeric', 'gt:0']
         ];
     }
 
@@ -45,7 +46,8 @@ class ApprovedPackageRequest extends FormRequest implements ReturnDtoInterface
             'companyName' => 'Nombre de la paquetería',
             'trackingCode' => 'Código de rastreo',
             'urlTracking' => 'URL para consultar el código',
-            'weight' => 'Peso del paquete'
+            'weight' => 'Peso del paquete',
+            'cost' => 'Costo de paquetería'
         ];
     }
 
@@ -82,7 +84,8 @@ class ApprovedPackageRequest extends FormRequest implements ReturnDtoInterface
             'company_name' => $this->companyName,
             'tracking_code' => $this->trackingCode,
             'url_tracking' => $this->urlTracking,
-            'weight' => $this->weight
+            'weight' => $this->weight,
+            'cost' => $this->cost
         ]);
 
         return new PackageDTO([

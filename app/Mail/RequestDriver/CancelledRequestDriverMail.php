@@ -22,7 +22,7 @@ class CancelledRequestDriverMail extends Mailable
 
     public function build(): CancelledRequestDriverMail
     {
-        $status = strtoupper($this->request->status->name);
+        $status = strtoupper($this->request->status->value);
         $code = $this->request->code;
 
         return $this

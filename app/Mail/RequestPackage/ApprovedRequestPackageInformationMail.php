@@ -20,9 +20,9 @@ class ApprovedRequestPackageInformationMail extends Mailable
         $this->email = $email;
     }
 
-    public function build()
+    public function build(): ApprovedRequestPackageInformationMail
     {
-        $status = strtoupper($this->requestPackage->request->status->name);
+        $status = strtoupper($this->requestPackage->request->status->value);
         $code = $this->requestPackage->request->code;
         $arrivalState = $this->requestPackage->arrivalAddress->state;
         $pickupState = $this->requestPackage->arrivalAddress->state;

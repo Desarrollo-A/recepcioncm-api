@@ -40,7 +40,7 @@ class RequestPackageController extends BaseApiController
     )
     {
         $this->middleware('role.permission:'.NameRole::APPLICANT)
-            ->only('store', 'uploadAuthorizationFile', 'responseRejectRequest');
+            ->only('uploadAuthorizationFile', 'responseRejectRequest');
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST)
             ->only('index', 'cancelRequest');
         $this->middleware('role.permission:'.NameRole::APPLICANT.','.NameRole::RECEPCIONIST.','.NameRole::DRIVER.
@@ -48,7 +48,7 @@ class RequestPackageController extends BaseApiController
             ->only('show', 'getStatusByStatusCurrent');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
             ->only('transferRequest', 'getDriverSchedule', 'getPackagesByDriverId', 'onReadRequest',
-                'findAllByDateAndOffice', 'proposalRequest', 'approvedRequest');
+                'findAllByDateAndOffice', 'approvedRequest', 'store');
         $this->middleware('role.permission:'.NameRole::DRIVER)
             ->only('findAllByDriverIdPaginated', 'onRoad', 'deliveredRequest', 'deliveredRequestSignature', 'findAllDeliveredByDriverIdPaginated', 
                 'getRequestPackageReportPdf', 'getRequestPackageReportExcel');
@@ -129,7 +129,7 @@ class RequestPackageController extends BaseApiController
     {
         $dto = $request->toDTO();
         $packageApproved = $this->requestPackageService->approvedRequest($dto);
-        $driverId = isset($dto->driverPackageSchedule->driverSchedule->driver_id) ?: null;
+        $driverId = $dto->driverPackageSchedule->driverSchedule->driver_id ?? null;
         $this->notificationService->approvedPackageRequestNotification($packageApproved, $driverId);
         return $this->noContentResponse();
     }
@@ -173,16 +173,6 @@ class RequestPackageController extends BaseApiController
     {
         $packages = $this->requestPackageService->findAllByDateAndOffice($office, new Carbon($date));
         return $this->showAll(PackageResource::collection($packages));
-    }
-
-    /**
-     * @throws CustomErrorException
-     */
-    public function proposalRequest(ProposalPackageRequest $request): Response
-    {
-        $requestPackageProposal = $this->requestPackageService->proposalRequest($request->toDTO());
-        $this->notificationService->proposalPackageRequestNotification($requestPackageProposal);
-        return $this->noContentResponse();
     }
 
     /**

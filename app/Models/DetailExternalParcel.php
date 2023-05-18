@@ -8,10 +8,11 @@ class DetailExternalParcel extends Model
 {
     protected $primaryKey = 'package_id';
 
-    protected $fillable = ['package_id', 'company_name', 'tracking_code', 'url_tracking', 'weight'];
+    protected $fillable = ['package_id', 'company_name', 'tracking_code', 'url_tracking', 'weight', 'cost'];
 
     protected $casts = [
         'package_id' => 'integer',
-        'weight' => 'float'
+        'weight' => 'float',
+        'cost' => 'float'
     ];
 }

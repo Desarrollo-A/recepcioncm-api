@@ -22,7 +22,7 @@ class CancelledRequestRoomMail extends Mailable
 
     public function build(): CancelledRequestRoomMail
     {
-        $status = strtoupper($this->request->status->name);
+        $status = strtoupper($this->request->status->value);
         $code = $this->request->code;
         return $this
             ->to($this->emails)

@@ -22,7 +22,7 @@ class ApprovedRequestDriverMail extends Mailable
 
     public function build(): ApprovedRequestDriverMail
     {
-        $status = strtoupper($this->request->status->name);
+        $status = strtoupper($this->request->status->value);
         $code = $this->request->code;
         $car = $this->request->requestDriver->driverRequestSchedule->carSchedule->car;
         $carInformation = "$car->trademark $car->model Color $car->color, Placa $car->license_plate";

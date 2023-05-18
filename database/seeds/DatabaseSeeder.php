@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
         $this->call(RequestPackageSeeder::class);
         $this->call(RequestDriverSeeder::class);
         $this->call(RequestCarSeeder::class);*/
+        $this->call(WeekDaysSeeder::class);
 
         Schema::enableForeignKeyConstraints();
     }
