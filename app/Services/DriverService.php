@@ -13,6 +13,8 @@ use App\Exceptions\CustomErrorException;
 use App\Helpers\Enum\QueryParam;
 use App\Helpers\Utils;
 use App\Helpers\Validation;
+use App\Models\DriverParcelDay;
+use App\Models\Dto\UserDTO;
 use App\Models\Enums\Lookups\StatusUserLookup;
 use App\Models\Enums\NameRole;
 use App\Models\User;
@@ -210,5 +212,20 @@ class DriverService extends BaseService implements DriverServiceInterface
     {
         return (($time['start_time']->gte($startTime) && $time['start_time']->lt($endTime)) ||
             ($time['end_time']->gt($startTime) && $time['end_time']->lte($endTime)));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function updateParcelDays(int $id, UserDTO $dto): void
+    {
+        $data = [];
+        $now = now();
+        foreach($dto->driverParcelDays as $driverParcelDay) {
+            $values = array_merge($driverParcelDay->toArray(['day_id']), ['driver_id' => $id, 'created_at' => $now]);
+            $data[] = new DriverParcelDay($values);
+        }
+
+        $this->entityRepository->syncParcelDays($id, $data);
     }
 }

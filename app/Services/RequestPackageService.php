@@ -28,6 +28,9 @@ use App\Helpers\Enum\QueryParam;
 use App\Helpers\File;
 use App\Helpers\Validation;
 use App\Mail\RequestPackage\ApprovedPackageMail;
+use App\Mail\RequestPackage\CancelledPackageMail;
+use App\Mail\RequestPackage\OnRoadPackageMail;
+use App\Mail\RequestPackage\QualifyParcelMail;
 use App\Mail\RequestPackage\ApprovedRequestPackageInformationMail;
 use App\Mail\RequestPackage\CancelledRequestPackageInformationMail;
 use App\Models\Dto\CancelRequestDTO;
@@ -224,7 +227,6 @@ class RequestPackageService extends BaseService implements RequestPackageService
             switch ($code) {
                 case StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW):
                     $status = $this->lookupRepository->findByCodeWhereInAndType([
-                        StatusPackageRequestLookup::code(StatusPackageRequestLookup::PROPOSAL),
                         StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED),
                         StatusPackageRequestLookup::code(StatusPackageRequestLookup::TRANSFER)
                     ], TypeLookup::STATUS_PACKAGE_REQUEST);
@@ -238,19 +240,6 @@ class RequestPackageService extends BaseService implements RequestPackageService
                     $status = $this->lookupRepository->findByCodeWhereInAndType([
                         StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED)
                     ], TypeLookup::STATUS_PACKAGE_REQUEST);
-            }
-        } else if ($roleName === NameRole::APPLICANT) {
-            switch ($code) {
-                case StatusPackageRequestLookup::code(StatusPackageRequestLookup::PROPOSAL):
-                    $status = $this->lookupRepository->findByCodeWhereInAndType([
-                        StatusPackageRequestLookup::code(StatusPackageRequestLookup::REJECTED)
-                    ], TypeLookup::STATUS_PACKAGE_REQUEST);
-                    break;
-                case StatusPackageRequestLookup::code(StatusPackageRequestLookup::APPROVED):
-                    $status = $this->lookupRepository->findByCodeWhereInAndType([
-                        StatusPackageRequestLookup::code(StatusPackageRequestLookup::CANCELLED)
-                    ], TypeLookup::STATUS_PACKAGE_REQUEST);
-                    break;
             }
         } else if ($roleName === NameRole::DEPARTMENT_MANAGER) {
             switch ($code) {
@@ -326,6 +315,8 @@ class RequestPackageService extends BaseService implements RequestPackageService
             }
 
             $this->detailExternalParcelRepository->deleteByPackageId($package->id);
+
+            Mail::send(new CancelledPackageMail($request->code, $request->package->email_receive));
         }
         
         return (object)[
@@ -402,7 +393,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
                 ->fresh(['package', 'user']);
 
             $this->detailExternalParcelRepository->create($dto->detailExternalParcel->toArray([
-                'package_id', 'company_name', 'tracking_code', 'url_tracking', 'weight'
+                'package_id', 'company_name', 'tracking_code', 'url_tracking', 'weight', 'cost'
             ]));
 
             $packageUpdate = $this->packageRepository->findById($dto->id);
@@ -410,10 +401,7 @@ class RequestPackageService extends BaseService implements RequestPackageService
         }
 
         if (config('app.enable_google_calendar', false)) {
-            if($request->add_google_calendar){
-                $emails[] = $request->user->email;
-            }
-            $emails = array_merge($emails, $this->getRecepcionistEmails($request->package->office_id));
+            $emails = $this->getRecepcionistEmails($request->package->office_id);
 
             $event = $this->calendarService->createEventAllDay($request->title, Carbon::make($dateGoogleCalendar), $emails);
 
@@ -422,6 +410,8 @@ class RequestPackageService extends BaseService implements RequestPackageService
             ]);
             $this->requestRepository->update($request->id, $dto->toArray(['event_google_calendar_id']));
         }
+
+        Mail::send(new ApprovedPackageMail($packageUpdate));
 
         return $packageUpdate;
     }
@@ -516,61 +506,17 @@ class RequestPackageService extends BaseService implements RequestPackageService
                 TypeLookup::STATUS_PACKAGE_REQUEST)->id;
 
         $requestDTO = new RequestDTO(['status_id' => $onReadId]);
-        return $this->requestRepository->update($requestId, $requestDTO->toArray(['status_id']));
+
+        $requestUpdated = $this->requestRepository->update($requestId, $requestDTO->toArray(['status_id']));
+
+        Mail::send(new OnRoadPackageMail($request->code, $request->package->email_receive));
+
+        return $requestUpdated;
     }
 
     public function findAllByDateAndOffice(int $officeId, Carbon $date): Collection
     {
         return $this->packageRepository->findAllByDateAndOffice($officeId, $date);
-    }
-
-    /**
-     * @throws CustomErrorException
-     */
-    public function proposalRequest(PackageDTO $dto): Request
-    {
-        $statusNewId = $this->lookupRepository->findByCodeAndType(
-            StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW),
-            TypeLookup::STATUS_PACKAGE_REQUEST)->id;
-
-        $request = $this->requestRepository->findById($dto->request_id);
-
-        if ($request->status_id !== $statusNewId) {
-            throw new CustomErrorException('La solicitud debe estar en estatus '.StatusPackageRequestLookup::NEW,
-                HttpCodes::HTTP_BAD_REQUEST);
-        }
-
-        $statusProposalId = $this->lookupRepository->findByCodeAndType(
-            StatusPackageRequestLookup::code(StatusPackageRequestLookup::PROPOSAL),
-            TypeLookup::STATUS_PACKAGE_REQUEST)->id;
-        $dto->request->status_id = $statusProposalId;
-
-        $this->proposalRequestRepository->create($dto->proposalRequest->toArray(['request_id', 'start_date', 'end_date']));
-
-        $this->proposalPackageRepository->create($dto->proposalPackage->toArray(['package_id', 'is_driver_selected']));
-
-        if ($dto->proposalPackage->is_driver_selected) {
-            $startDate = "{$dto->proposalRequest->start_date->toDateString()} $this->START_TIME_WORKING";
-            $endDate = "{$dto->proposalRequest->start_date->toDateString()} $this->END_TIME_WORKING";
-
-            $dto->driverPackageSchedule->carSchedule->start_date = $startDate;
-            $dto->driverPackageSchedule->carSchedule->end_date = $endDate;
-            $carSchedule = $this->carScheduleRepository
-                ->create($dto->driverPackageSchedule->carSchedule->toArray(['car_id', 'start_date', 'end_date']));
-
-            $dto->driverPackageSchedule->driverSchedule->start_date = $startDate;
-            $dto->driverPackageSchedule->driverSchedule->end_date = $endDate;
-            $driverSchedule = $this->driverScheduleRepository
-                ->create($dto->driverPackageSchedule->driverSchedule->toArray(['driver_id', 'start_date', 'end_date']));
-
-            $dto->driverPackageSchedule->driver_schedule_id = $driverSchedule->id;
-            $dto->driverPackageSchedule->car_schedule_id = $carSchedule->id;
-            $this->driverPackageScheduleRepository
-                ->create($dto->driverPackageSchedule->toArray(['package_id', 'driver_schedule_id', 'car_schedule_id']));
-        }
-
-        return $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id']))
-            ->fresh(['package']);
     }
 
     /**
@@ -684,11 +630,11 @@ class RequestPackageService extends BaseService implements RequestPackageService
         $requestDTO = new RequestDTO(['status_id' => $statusId, 'end_date' => now()]);
         $request = $this->requestRepository->update($package->request_id, $requestDTO->toArray(['status_id', 'end_date']));
 
-        $this->deliveredPackageRepository->create($dto->toArray(['package_id', 'name_receive']));
+        $this->deliveredPackageRepository->create($dto->toArray(['package_id', 'name_receive', 'observations']));
 
         $codePackage = Str::random(40);
         $packageUpdate = $this->packageRepository->update($dto->package_id, ['auth_code' => $codePackage]);
-        Mail::to($packageUpdate->email_receive)->send(new ApprovedPackageMail($packageUpdate, $request->code));
+        Mail::to($packageUpdate->email_receive)->send(new QualifyParcelMail($packageUpdate, $request->code));
 
         return $request;
     }

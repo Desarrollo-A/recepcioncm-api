@@ -6,6 +6,7 @@ use App\Contracts\Services\DriverServiceInterface;
 use App\Core\BaseApiController;
 use App\Exceptions\CustomErrorException;
 use App\Helpers\Validation;
+use App\Http\Requests\Driver\UpdateParcelDaysRequest;
 use App\Http\Requests\DriverCar\DriverCarRequest;
 use App\Http\Resources\Driver\DriverCollection;
 use App\Http\Resources\Driver\DriverResource;
@@ -82,5 +83,14 @@ class DriverController extends BaseApiController
         $people = intval($request->get('people'));
         $drivers = $this->driverService->getAvailableDriversProposalRequest($requestId, $date, $people);
         return $this->showAll(ProposalRequestDriverResource::collection($drivers));
+    }
+
+    /**
+     * @throws CustomErrorException
+     */
+    public function updateParcelDays(int $id, UpdateParcelDaysRequest $request): Response
+    {
+        $this->driverService->updateParcelDays($id, $request->toDTO());
+        return $this->noContentResponse();
     }
 }

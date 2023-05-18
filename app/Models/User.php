@@ -7,9 +7,10 @@ use App\Models\Traits\Sortable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 
 class User extends Authenticatable
@@ -124,5 +125,10 @@ class User extends Authenticatable
     public function officeManager(): HasOne
     {
         return $this->hasOne(OfficeManager::class, 'manager_id', 'id');
+    }
+
+    public function driverParcelDays(): HasMany
+    {
+        return $this->hasMany(DriverParcelDay::class, 'driver_id');
     }
 }

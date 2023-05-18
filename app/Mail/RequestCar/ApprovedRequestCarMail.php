@@ -22,7 +22,7 @@ class ApprovedRequestCarMail extends Mailable
 
     public function build(): ApprovedRequestCarMail
     {
-        $status = strtoupper($this->request->status->name);
+        $status = strtoupper($this->request->status->value);
         $code = $this->request->code;
         $car = $this->request->requestCar->carRequestSchedule->carSchedule->car;
         $carInformation = "$car->trademark $car->model Color $car->color, Placa $car->license_plate";

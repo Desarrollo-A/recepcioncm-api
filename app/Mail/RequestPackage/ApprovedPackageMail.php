@@ -11,24 +11,27 @@ class ApprovedPackageMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    /**
+     * @var Package
+     */
     public $package;
-    public $codeRequest;
-    
-    public function __construct(Package $package, string $codeRequest)
+
+    public function __construct(Package $package)
     {
-        $this->package      =   $package;
-        $this->codeRequest  =   $codeRequest;
+        $this->package = $package;
     }
 
     public function build(): ApprovedPackageMail
-    {   
-        $url = config('app.url_front').'paqueteria/'.$this->package->request_id.'?code='.$this->package->auth_code;
+    {
+        $code = $this->package->request->code;
+        $endDate = $this->package->request->end_date->format('d-m-Y');
+
         return $this
-            ->subject('Solicitud de paquetería '.$this->codeRequest)
-            ->markdown('mail.request-package.score-request-package', [
-                'fullName'      =>  $this->package->name_receive,
-                'codeRequest'   =>  $this->codeRequest,
-                'url'           =>  $url
+            ->to($this->package->email_receive)
+            ->subject("Solicitud $code aprobada")
+            ->markdown('mail.request-package.approved-package', [
+                'code' => $code,
+                'deliveryDate' => $endDate
             ]);
     }
 }

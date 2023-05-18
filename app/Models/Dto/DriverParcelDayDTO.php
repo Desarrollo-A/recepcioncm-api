@@ -5,39 +5,19 @@ namespace App\Models\Dto;
 use App\Exceptions\CustomErrorException;
 use App\Models\Contracts\DataTransferObject;
 
-class DetailExternalParcelDTO
+class DriverParcelDayDTO
 {
     use DataTransferObject;
 
     /**
      * @var int
      */
-    public $package_id;
+    public $driver_id;
 
     /**
-     * @var string
+     * @var int
      */
-    public $company_name;
-
-    /**
-     * @var string
-     */
-    public $tracking_code;
-
-    /**
-     * @var string
-     */
-    public $url_tracking;
-
-    /**
-     * @var float
-     */
-    public $weight;
-
-    /**
-     * @var float
-     */
-    public $cost;
+    public $day_id;
 
     /**
      * @throws CustomErrorException

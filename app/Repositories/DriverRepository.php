@@ -3,6 +3,8 @@ namespace App\Repositories;
 
 use App\Contracts\Repositories\DriverRepositoryInterface;
 use App\Core\BaseRepository;
+use App\Helpers\Utils;
+use App\Models\DriverParcelDay;
 use App\Models\Enums\Lookups\StatusCarLookup;
 use App\Models\Enums\Lookups\StatusUserLookup;
 use App\Models\Enums\NameRole;
@@ -41,7 +43,7 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
     public function findById(int $id, array $columns = ['*'])
     {
         return $this->entity
-            ->with(['cars', 'office', 'role'])
+            ->with(['cars', 'office', 'role', 'driverParcelDays', 'driverParcelDays.day'])
             ->findOrFail($id, $columns);
     }
 
@@ -62,9 +64,12 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
             ->with('cars')
             ->join('roles', 'roles.id', '=', 'u.role_id')
             ->join('lookups', 'lookups.id', '=', 'u.status_id')
+            ->join('driver_parcel_days AS dpd', 'dpd.driver_id', '=', 'u.id')
+            ->join('lookups AS d', 'dpd.day_id', '=', 'd.id')
             ->where('roles.name', NameRole::DRIVER)
             ->where('lookups.code', StatusUserLookup::code(StatusUserLookup::ACTIVE))
             ->where('u.office_id', $officeId)
+            ->where('d.value', "$date->dayOfWeek")
             ->whereNotIn('u.id', function (QueryBuilder $query) use ($date) {
                 return $query
                     ->select(['driver_schedules.driver_id'])
@@ -112,6 +117,7 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
     {
         $startDateFormat = $startDate->toDateTimeString();
         $endDateFormat = $endDate->toDateTimeString();
+        $daysOfWeek = Utils::generateDaysArray($startDate, $endDate);
 
         return $this->entity
             ->from('users AS u')
@@ -120,6 +126,14 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
             ->where('roles.name', NameRole::DRIVER)
             ->where('lookups.code', StatusUserLookup::code(StatusUserLookup::ACTIVE))
             ->where('u.office_id', $officeId)
+            ->whereNotIn('u.id', function (QueryBuilder $query) use ($daysOfWeek) {
+                return $query
+                    ->select(['dpd.driver_id'])
+                    ->from('driver_parcel_days AS dpd')
+                    ->join('lookups AS d', 'dpd.day_id', '=', 'd.id')
+                    ->whereIn('d.value', $daysOfWeek)
+                    ->groupBy(['dpd.driver_id']);
+            })
             ->whereNotIn('u.id', function (QueryBuilder $query) use ($startDate, $endDate, $startDateFormat, $endDateFormat) {
                 return $query
                     ->select(['driver_id'])
@@ -194,6 +208,8 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
 
     public function getAvailableDriverProposal(int $officeId, Carbon $startDate, Carbon $endDate): Collection
     {
+        $daysOfWeek = Utils::generateDaysArray($startDate, $endDate);
+
         $subQuery = $this->entity
             ->selectRaw("drs.request_driver_id, ds.driver_id, ds.start_date, ds.end_date")
             ->from('driver_request_schedules AS drs')
@@ -211,6 +227,14 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
                 $join->on('users.id', '=', 'dd.driver_id');
             })
             ->where('users.office_id', $officeId)
+            ->whereNotIn('users.id', function (QueryBuilder $query) use ($daysOfWeek) {
+                return $query
+                    ->select(['dpd.driver_id'])
+                    ->from('driver_parcel_days AS dpd')
+                    ->join('lookups AS d', 'dpd.day_id', '=', 'd.id')
+                    ->whereIn('d.value', $daysOfWeek)
+                    ->groupBy(['dpd.driver_id']);
+            })
             ->whereNotIn('users.id', function (QueryBuilder $query) use ($startDate, $endDate) {
                 return $query
                     ->select('ds.driver_id')
@@ -225,5 +249,16 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
             ->orderBy('dd.start_date', 'ASC')
             ->orderBy('users.id', 'ASC')
             ->get();
+    }
+
+    /**
+     * @param DriverParcelDay[] $data
+     * @throws \Throwable
+     */
+    public function syncParcelDays(int $id, array $data): void
+    {
+        $driver = $this->findById($id);
+        $driver->driverParcelDays()->delete();
+        $driver->driverParcelDays()->saveMany($data);
     }
 }

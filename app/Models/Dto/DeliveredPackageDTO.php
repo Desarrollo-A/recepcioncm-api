@@ -31,6 +31,11 @@ class DeliveredPackageDTO
     public $signature_file;
 
     /**
+     * @var string
+     */
+    public $observations;
+
+    /**
      * @throws CustomErrorException
      */
     public function __construct(array $data = [])
