@@ -60,8 +60,6 @@ interface NotificationServiceInterface extends BaseServiceInterface
 
     public function deliveredPackageRequestNotification(Request $request): void;
 
-    public function proposalPackageRequestNotification(Request $requestPackageProposal): void;
-
     public function responseRejectPackageRequestNotification(Request $request): void;
 
     public function createRequestDriverNotification(RequestDriver $requestDriver): void;

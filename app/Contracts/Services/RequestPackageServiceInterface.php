@@ -58,8 +58,6 @@ interface RequestPackageServiceInterface extends BaseServiceInterface
 
     public function findAllByDateAndOffice(int $officeId, Carbon $date): Collection;
 
-    public function proposalRequest(PackageDTO $dto): Request;
-
     public function responseRejectRequest(int $requestId, RequestDTO $dto): Request;
 
     /**

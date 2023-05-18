@@ -522,55 +522,6 @@ class RequestPackageService extends BaseService implements RequestPackageService
     /**
      * @throws CustomErrorException
      */
-    public function proposalRequest(PackageDTO $dto): Request
-    {
-        $statusNewId = $this->lookupRepository->findByCodeAndType(
-            StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW),
-            TypeLookup::STATUS_PACKAGE_REQUEST)->id;
-
-        $request = $this->requestRepository->findById($dto->request_id);
-
-        if ($request->status_id !== $statusNewId) {
-            throw new CustomErrorException('La solicitud debe estar en estatus '.StatusPackageRequestLookup::NEW,
-                HttpCodes::HTTP_BAD_REQUEST);
-        }
-
-        $statusProposalId = $this->lookupRepository->findByCodeAndType(
-            StatusPackageRequestLookup::code(StatusPackageRequestLookup::PROPOSAL),
-            TypeLookup::STATUS_PACKAGE_REQUEST)->id;
-        $dto->request->status_id = $statusProposalId;
-
-        $this->proposalRequestRepository->create($dto->proposalRequest->toArray(['request_id', 'start_date', 'end_date']));
-
-        $this->proposalPackageRepository->create($dto->proposalPackage->toArray(['package_id', 'is_driver_selected']));
-
-        if ($dto->proposalPackage->is_driver_selected) {
-            $startDate = "{$dto->proposalRequest->start_date->toDateString()} $this->START_TIME_WORKING";
-            $endDate = "{$dto->proposalRequest->start_date->toDateString()} $this->END_TIME_WORKING";
-
-            $dto->driverPackageSchedule->carSchedule->start_date = $startDate;
-            $dto->driverPackageSchedule->carSchedule->end_date = $endDate;
-            $carSchedule = $this->carScheduleRepository
-                ->create($dto->driverPackageSchedule->carSchedule->toArray(['car_id', 'start_date', 'end_date']));
-
-            $dto->driverPackageSchedule->driverSchedule->start_date = $startDate;
-            $dto->driverPackageSchedule->driverSchedule->end_date = $endDate;
-            $driverSchedule = $this->driverScheduleRepository
-                ->create($dto->driverPackageSchedule->driverSchedule->toArray(['driver_id', 'start_date', 'end_date']));
-
-            $dto->driverPackageSchedule->driver_schedule_id = $driverSchedule->id;
-            $dto->driverPackageSchedule->car_schedule_id = $carSchedule->id;
-            $this->driverPackageScheduleRepository
-                ->create($dto->driverPackageSchedule->toArray(['package_id', 'driver_schedule_id', 'car_schedule_id']));
-        }
-
-        return $this->requestRepository->update($dto->request_id, $dto->request->toArray(['status_id']))
-            ->fresh(['package']);
-    }
-
-    /**
-     * @throws CustomErrorException
-     */
     public function responseRejectRequest(int $requestId, RequestDTO $dto): Request
     {
         if (!in_array($dto->status->code, StatusPackageRequestLookup::getAllCodes()->all())) {

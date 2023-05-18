@@ -48,7 +48,7 @@ class RequestPackageController extends BaseApiController
             ->only('show', 'getStatusByStatusCurrent');
         $this->middleware('role.permission:'.NameRole::RECEPCIONIST)
             ->only('transferRequest', 'getDriverSchedule', 'getPackagesByDriverId', 'onReadRequest',
-                'findAllByDateAndOffice', 'proposalRequest', 'approvedRequest', 'store');
+                'findAllByDateAndOffice', 'approvedRequest', 'store');
         $this->middleware('role.permission:'.NameRole::DRIVER)
             ->only('findAllByDriverIdPaginated', 'onRoad', 'deliveredRequest', 'deliveredRequestSignature', 'findAllDeliveredByDriverIdPaginated', 
                 'getRequestPackageReportPdf', 'getRequestPackageReportExcel');
@@ -173,16 +173,6 @@ class RequestPackageController extends BaseApiController
     {
         $packages = $this->requestPackageService->findAllByDateAndOffice($office, new Carbon($date));
         return $this->showAll(PackageResource::collection($packages));
-    }
-
-    /**
-     * @throws CustomErrorException
-     */
-    public function proposalRequest(ProposalPackageRequest $request): Response
-    {
-        $requestPackageProposal = $this->requestPackageService->proposalRequest($request->toDTO());
-        $this->notificationService->proposalPackageRequestNotification($requestPackageProposal);
-        return $this->noContentResponse();
     }
 
     /**

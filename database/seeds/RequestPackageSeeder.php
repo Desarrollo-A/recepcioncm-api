@@ -68,7 +68,7 @@ class RequestPackageSeeder extends Seeder
 
                     $request = factory(Request::class)
                         ->create([
-                            'start_date' => "$date 00:00:00.000",
+                            'start_date' => "$date 00:00:00.0",
                             'user_id' => $user->id,
                             'status_id' => $statusInReviewManager,
                             'type_id' => $typePackage,

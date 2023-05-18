@@ -398,9 +398,6 @@ Route::prefix('v1')->group(function () {
                     ->name('road')
                     ->where('requestId', Validation::INTEGER_ID);
 
-                Route::patch('/proposal', 'RequestPackageController@proposalRequest')
-                    ->name('proposal');
-
                 Route::patch('/response-reject/{requestId}', 'RequestPackageController@responseRejectRequest')
                     ->name('response-reject')
                     ->where('id', Validation::INTEGER_ID);
