@@ -224,6 +224,7 @@ class Utils
             StatusPackageRequestLookup::code(StatusPackageRequestLookup::NEW),
             StatusPackageRequestLookup::code(StatusPackageRequestLookup::PROPOSAL),
             StatusPackageRequestLookup::code(StatusPackageRequestLookup::IN_REVIEW),
+            StatusPackageRequestLookup::code(StatusPackageRequestLookup::IN_REVIEW_MANAGER),
 
             StatusDriverRequestLookup::code(StatusDriverRequestLookup::NEW),
             StatusDriverRequestLookup::code(StatusDriverRequestLookup::PROPOSAL),
