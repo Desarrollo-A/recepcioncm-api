@@ -78,9 +78,9 @@ class DriverService extends BaseService implements DriverServiceInterface
         return $this->entityRepository->findAllByOfficeId($officeId);
     }
 
-    public function getAvailableDriversPackage(int $officeId, Carbon $date): Collection
+    public function getAvailableDriversPackage(Carbon $date): Collection
     {
-        return $this->entityRepository->getAvailableDriversPackage($officeId, $date);
+        return $this->entityRepository->getAvailableDriversPackage($date);
     }
 
     /**

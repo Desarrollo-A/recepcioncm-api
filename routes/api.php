@@ -324,7 +324,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/find-all-office', 'DriverController@findAllByOfficeId')
                     ->name('find-all-office');
 
-                Route::get('/available-package/{officeId}/{date}', 'DriverController@getAvailableDriversPackage')
+                Route::get('/available-package/{date}', 'DriverController@getAvailableDriversPackage')
                     ->name('find-all-car-relation')
                     ->where('officeId', Validation::INTEGER_ID)
                     ->where('date', Validation::DATE_REGEX);

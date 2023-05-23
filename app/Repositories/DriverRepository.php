@@ -57,59 +57,57 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
             ->get(['users.*']);
     }
 
-    public function getAvailableDriversPackage(int $officeId, Carbon $date): Collection
+    public function getAvailableDriversPackage(Carbon $date): Collection
     {
         return $this->entity
             ->from('users AS u')
-            ->with('cars')
+            ->with(['cars', 'office', 'office.state'])
             ->join('roles', 'roles.id', '=', 'u.role_id')
             ->join('lookups', 'lookups.id', '=', 'u.status_id')
             ->join('driver_parcel_days AS dpd', 'dpd.driver_id', '=', 'u.id')
             ->join('lookups AS d', 'dpd.day_id', '=', 'd.id')
             ->where('roles.name', NameRole::DRIVER)
             ->where('lookups.code', StatusUserLookup::code(StatusUserLookup::ACTIVE))
-            ->where('u.office_id', $officeId)
             ->where('d.value', "$date->dayOfWeek")
-            ->whereNotIn('u.id', function (QueryBuilder $query) use ($date) {
-                return $query
-                    ->select(['driver_schedules.driver_id'])
-                    ->from('driver_request_schedules')
-                    ->join('driver_schedules','driver_request_schedules.driver_schedule_id','=','driver_schedules.id')
-                    ->whereDate('driver_schedules.start_date', $date)
-                    ->orWhereDate('driver_schedules.end_date', $date);
-            })
-            ->whereExists(function (QueryBuilder $query) use ($officeId, $date) {
-                $query
-                    ->selectRaw('COUNT(*)')
-                    ->from('cars')
-                    ->join('lookups', 'lookups.id', '=', 'cars.status_id')
-                    ->where('lookups.code', StatusCarLookup::code(StatusCarLookup::ACTIVE))
-                    ->where('office_id', $officeId)
-                    ->whereNotIn('cars.id', function (QueryBuilder $query) use ($date) {
-                        return $query
-                            ->selectRaw('DISTINCT(car_id)')
-                            ->from('driver_request_schedules AS drs')
-                            ->join('car_schedules AS cs','drs.car_schedule_id', '=', 'cs.id')
-                            ->whereDate('cs.start_date', $date)
-                            ->orWhereDate('cs.end_date', $date);
-                    })
-                    ->whereNotIn('cars.id', function (QueryBuilder $query) use ($date) {
-                        return $query
-                            ->select(['car_id'])
-                            ->from('car_request_schedules AS crs')
-                            ->join('car_schedules AS cs','crs.car_schedule_id', '=', 'cs.id')
-                            ->whereDate('cs.start_date', $date)
-                            ->orWhereDate('cs.end_date', $date);
-                    })
-                    ->whereNotIn('cars.id', function (QueryBuilder $query) use ($officeId) {
-                        return $query
-                            ->select(['car_driver.car_id'])
-                            ->from('users')
-                            ->join('car_driver', 'car_driver.driver_id', '=', 'users.id')
-                            ->whereRaw("users.office_id = $officeId AND users.id <> u.id");
-                    })
-                    ->havingRaw('COUNT(*) > 0');
-            })
+//            ->whereNotIn('u.id', function (QueryBuilder $query) use ($date) {
+//                return $query
+//                    ->select(['driver_schedules.driver_id'])
+//                    ->from('driver_request_schedules')
+//                    ->join('driver_schedules','driver_request_schedules.driver_schedule_id','=','driver_schedules.id')
+//                    ->whereDate('driver_schedules.start_date', $date)
+//                    ->orWhereDate('driver_schedules.end_date', $date);
+//            })
+//            ->whereExists(function (QueryBuilder $query) use ($date) {
+//                $query
+//                    ->selectRaw('COUNT(*)')
+//                    ->from('cars')
+//                    ->join('lookups', 'lookups.id', '=', 'cars.status_id')
+//                    ->where('lookups.code', StatusCarLookup::code(StatusCarLookup::ACTIVE))
+//                    ->whereNotIn('cars.id', function (QueryBuilder $query) use ($date) {
+//                        return $query
+//                            ->selectRaw('DISTINCT(car_id)')
+//                            ->from('driver_request_schedules AS drs')
+//                            ->join('car_schedules AS cs','drs.car_schedule_id', '=', 'cs.id')
+//                            ->whereDate('cs.start_date', $date)
+//                            ->orWhereDate('cs.end_date', $date);
+//                    })
+//                    ->whereNotIn('cars.id', function (QueryBuilder $query) use ($date) {
+//                        return $query
+//                            ->select(['car_id'])
+//                            ->from('car_request_schedules AS crs')
+//                            ->join('car_schedules AS cs','crs.car_schedule_id', '=', 'cs.id')
+//                            ->whereDate('cs.start_date', $date)
+//                            ->orWhereDate('cs.end_date', $date);
+//                    })
+//                    ->whereNotIn('cars.id', function (QueryBuilder $query) {
+//                        return $query
+//                            ->select(['car_driver.car_id'])
+//                            ->from('users')
+//                            ->join('car_driver', 'car_driver.driver_id', '=', 'users.id')
+//                            ->whereRaw("users.id <> u.id");
+//                    })
+//                    ->havingRaw('COUNT(*) > 0');
+//            })
             ->get(['u.*']);
     }
 
