@@ -34,7 +34,7 @@ class RequestPackageSeeder extends Seeder
             ->first()
             ->id;
 
-        $roleApplicant = Role::query()->where('name', NameRole::APPLICANT)->first()->id;
+        $roleRecepcionist = Role::query()->where('name', NameRole::RECEPCIONIST)->first()->id;
         $roleDriver = Role::query()->where('name', NameRole::DRIVER)->first()->id;
 
         $countries = Lookup::query()
@@ -44,17 +44,9 @@ class RequestPackageSeeder extends Seeder
         $date = now()->addDays(7)->toDateString();
 
         User::query()
-            ->where('role_id', $roleApplicant)
-            ->get('id')
+            ->where('role_id', $roleRecepcionist)
+            ->get(['id', 'office_id'])
             ->each(function ($user) use ($statusInReviewManager, $typePackage, $countries, $date, $roleDriver) {
-                $officesIds = Office::query()
-                    ->whereIn('id', function(\Illuminate\Database\Query\Builder $query) use ($roleDriver) {
-                        return $query->selectRaw('DISTINCT(office_id)')
-                            ->from('users')
-                            ->where('role_id', $roleDriver);
-                    })
-                    ->get('id');
-
                 foreach (range(0,2) as $ignored) {
                     $pickupAddress = factory(Address::class)
                         ->create([
@@ -80,7 +72,7 @@ class RequestPackageSeeder extends Seeder
                             'pickup_address_id' => $pickupAddress->id,
                             'arrival_address_id' => $arrivalAddress->id,
                             'request_id' => $request->id,
-                            'office_id' => $officesIds->shuffle()->first()->id,
+                            'office_id' => $user->office_id,
                             'is_urgent' => false,
                             'is_heavy_shipping' => false
                         ]);
