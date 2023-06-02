@@ -330,7 +330,14 @@ class RequestPackageService extends BaseService implements RequestPackageService
      */
     public function transferRequest(int $packageId, PackageDTO $dto): Package
     {
-        return $this->packageRepository->update($packageId, $dto->toArray(['office_id']));
+        $dto->status_id = $this->lookupRepository
+            ->findByCodeAndType(
+                StatusPackageRequestLookup::code(StatusPackageRequestLookup::IN_REVIEW_MANAGER),
+                TypeLookup::STATUS_PACKAGE_REQUEST
+            )
+            ->id;
+
+        return $this->packageRepository->update($packageId, $dto->toArray(['office_id', 'status_id']));
     }
 
     public function getScheduleDriver(int $officeId): Collection
