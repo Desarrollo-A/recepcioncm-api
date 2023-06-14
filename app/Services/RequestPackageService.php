@@ -338,9 +338,14 @@ class RequestPackageService extends BaseService implements RequestPackageService
                 TypeLookup::STATUS_PACKAGE_REQUEST
             )
             ->id;
-        $requestDTO = new RequestDTO(['status_id' => $statusId]);
+        $userId = $this->userRepository->findByOfficeIdAndRoleRecepcionist($dto->office_id)->id;
 
-        $this->requestRepository->update($package->request_id, $requestDTO->toArray(['status_id']));
+        $requestDTO = new RequestDTO([
+            'status_id' => $statusId,
+            'user_id' => $userId
+        ]);
+
+        $this->requestRepository->update($package->request_id, $requestDTO->toArray(['status_id', 'user_id']));
 
         return $this->packageRepository->update($packageId, $dto->toArray(['office_id']));
     }
